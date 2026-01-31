@@ -281,7 +281,7 @@ export default function Community() {
               </p>
               {!userBusiness && (
                 <Button
-                  onClick={() => navigate(createPageUrl('SignUp') + `?propertyId=${propertyId}`)}
+                  onClick={() => navigate(createPageUrl('Register') + `?propertyId=${propertyId}`)}
                   className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600"
                 >
                   Create Business Profile

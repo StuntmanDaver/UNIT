@@ -17,7 +17,7 @@ export default function Welcome() {
   });
 
   const handlePropertySelect = (property) => {
-    navigate(createPageUrl('SignUp') + `?propertyId=${property.id}`);
+    navigate(createPageUrl('Register') + `?propertyId=${property.id}`);
   };
 
   const features = [

@@ -51,6 +51,7 @@ import Welcome from './pages/Welcome';
 import BusinessCard from './pages/BusinessCard';
 import Directory from './pages/Directory';
 import Community from './pages/Community';
+import Register from './pages/Register';
 
 
 export const PAGES = {
@@ -58,6 +59,7 @@ export const PAGES = {
     "BusinessCard": BusinessCard,
     "Directory": Directory,
     "Community": Community,
+    "Register": Register,
 }
 
 export const pagesConfig = {
