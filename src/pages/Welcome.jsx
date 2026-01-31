@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PropertySearch from '@/components/PropertySearch';
+import BottomNav from '@/components/BottomNav';
 import { motion } from 'framer-motion';
 import { Building2, Users, MessageSquare, Sparkles } from 'lucide-react';
 
@@ -134,11 +135,13 @@ export default function Welcome() {
       </main>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-gray-100">
+      <footer className="py-8 pb-24 border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} Unit. All rights reserved.
         </div>
       </footer>
+
+      <BottomNav />
     </div>
   );
 }

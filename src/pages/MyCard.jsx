@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BusinessQRCode from '@/components/BusinessQRCode';
+import BottomNav from '@/components/BottomNav';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -229,6 +230,8 @@ export default function MyCard() {
           </motion.div>
         </div>
       </main>
+
+      <BottomNav propertyId={business?.property_id} />
     </div>
   );
 }

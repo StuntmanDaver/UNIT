@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BusinessCard from '@/components/BusinessCard';
 import QRCodeCard from '@/components/QRCodeCard';
+import BottomNav from '@/components/BottomNav';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -126,23 +127,7 @@ export default function Directory() {
         </div>
       </header>
 
-      {/* Mobile Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-t border-gray-100/50 sm:hidden">
-        <div className="flex items-center justify-around py-2">
-          <Link to={createPageUrl('Welcome')} className="flex flex-col items-center gap-1 p-2 text-gray-500">
-            <Home className="w-5 h-5" />
-            <span className="text-xs">Home</span>
-          </Link>
-          <div className="flex flex-col items-center gap-1 p-2 text-indigo-600">
-            <Users className="w-5 h-5" />
-            <span className="text-xs font-medium">Directory</span>
-          </div>
-          <Link to={createPageUrl('Community') + `?propertyId=${propertyId}`} className="flex flex-col items-center gap-1 p-2 text-gray-500">
-            <MessageSquare className="w-5 h-5" />
-            <span className="text-xs">Community</span>
-          </Link>
-        </div>
-      </nav>
+      <BottomNav propertyId={propertyId} />
 
       <main className="pt-24 pb-24 sm:pb-8 px-6">
         <div className="max-w-6xl mx-auto">
