@@ -71,7 +71,7 @@ export default function Register() {
     },
     onSuccess: (newBusiness) => {
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
-      navigate(createPageUrl('BusinessCard') + `?businessId=${newBusiness.id}`);
+      navigate(createPageUrl('MyCard') + `?businessId=${newBusiness.id}`);
     }
   });
 
