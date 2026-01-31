@@ -52,6 +52,7 @@ import Directory from './pages/Directory';
 import Community from './pages/Community';
 import Register from './pages/Register';
 import MyCard from './pages/MyCard';
+import Profile from './pages/Profile';
 
 
 export const PAGES = {
@@ -60,6 +61,7 @@ export const PAGES = {
     "Community": Community,
     "Register": Register,
     "MyCard": MyCard,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {

@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import QRCodeCard from '@/components/QRCodeCard';
+import BusinessQRCode from '@/components/BusinessQRCode';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
 import { 
   CheckCircle, 
@@ -14,7 +15,11 @@ import {
   Users, 
   MessageSquare,
   Sparkles,
-  Loader2
+  Loader2,
+  Mail,
+  Phone,
+  Globe,
+  MapPin
 } from 'lucide-react';
 
 export default function MyCard() {
@@ -39,6 +44,22 @@ export default function MyCard() {
     },
     enabled: !!business?.property_id
   });
+
+  const getCategoryLabel = (category) => {
+    const labels = {
+      manufacturing: 'Manufacturing',
+      logistics: 'Logistics',
+      retail: 'Retail',
+      food_service: 'Food Service',
+      professional_services: 'Professional Services',
+      technology: 'Technology',
+      healthcare: 'Healthcare',
+      construction: 'Construction',
+      automotive: 'Automotive',
+      other: 'Other'
+    };
+    return labels[category] || category;
+  };
 
   if (isLoading) {
     return (
@@ -106,46 +127,63 @@ export default function MyCard() {
             transition={{ delay: 0.2 }}
           >
             <Card className="overflow-hidden bg-white border-gray-100 shadow-xl shadow-indigo-100/30">
+              {/* Card Header */}
               <div className="bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 p-6 text-white">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
-                    <span className="text-2xl font-bold">
-                      {business.business_name?.charAt(0).toUpperCase()}
-                    </span>
+                    {business.logo_url ? (
+                      <img src={business.logo_url} alt="" className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <span className="text-2xl font-bold">
+                        {business.business_name?.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">{business.business_name}</h2>
-                    <p className="text-white/80">Unit {business.unit_number}</p>
+                    <div className="flex items-center gap-1 text-white/80 mt-1">
+                      <MapPin className="w-4 h-4" />
+                      Unit {business.unit_number}
+                    </div>
+                    {business.category && (
+                      <Badge className="mt-2 bg-white/20 text-white border-0 hover:bg-white/30">
+                        {getCategoryLabel(business.category)}
+                      </Badge>
+                    )}
                   </div>
                 </div>
               </div>
 
+              {/* QR Code Section */}
               <div className="p-6">
-                {/* QR Code Preview */}
-                <div className="flex justify-center mb-6">
-                  <div className="w-40 h-40 bg-gray-100 rounded-2xl flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-24 h-24 mx-auto bg-gradient-to-br from-gray-200 to-gray-300 rounded-lg" />
-                      <p className="text-xs text-gray-500 mt-2">QR Code</p>
-                    </div>
-                  </div>
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center mb-4">
+                    Your Digital Business Card
+                  </h3>
+                  <BusinessQRCode business={business} size={180} />
                 </div>
 
-                <div className="space-y-2 text-sm text-gray-600">
+                {/* Contact Info */}
+                <div className="space-y-2 border-t border-gray-100 pt-6">
                   {business.contact_email && (
-                    <p>📧 {business.contact_email}</p>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Mail className="w-5 h-5 text-indigo-500" />
+                      <span className="text-gray-700 text-sm">{business.contact_email}</span>
+                    </div>
                   )}
                   {business.contact_phone && (
-                    <p>📞 {business.contact_phone}</p>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Phone className="w-5 h-5 text-indigo-500" />
+                      <span className="text-gray-700 text-sm">{business.contact_phone}</span>
+                    </div>
                   )}
                   {business.website && (
-                    <p>🌐 {business.website}</p>
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      <Globe className="w-5 h-5 text-indigo-500" />
+                      <span className="text-gray-700 text-sm truncate">{business.website}</span>
+                    </div>
                   )}
                 </div>
-
-                <p className="text-center text-sm text-gray-500 mt-6">
-                  Share your digital business card with others in the park
-                </p>
               </div>
             </Card>
           </motion.div>
