@@ -48,7 +48,6 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Welcome from './pages/Welcome';
-import BusinessCard from './pages/BusinessCard';
 import Directory from './pages/Directory';
 import Community from './pages/Community';
 import Register from './pages/Register';
@@ -56,7 +55,6 @@ import Register from './pages/Register';
 
 export const PAGES = {
     "Welcome": Welcome,
-    "BusinessCard": BusinessCard,
     "Directory": Directory,
     "Community": Community,
     "Register": Register,
