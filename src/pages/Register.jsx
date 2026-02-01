@@ -124,7 +124,7 @@ export default function Register() {
           </button>
           <div className="flex items-center gap-2">
             <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/2791cb4ed_2b7f0462-95ab-428e-a8d6-0636b82d062c.png" 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/52d9677df_Screenshot2026-01-31at92613PM.png" 
               alt="Unit" 
               className="h-20 w-auto"
             />
