@@ -123,11 +123,10 @@ export default function Register() {
             <span>Back</span>
           </button>
           <div className="flex items-center gap-2">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/2791cb4ed_2b7f0462-95ab-428e-a8d6-0636b82d062c.png" 
-              alt="Unit" 
-              className="h-20 w-auto"
-            />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
           <div className="w-16" />
         </div>
