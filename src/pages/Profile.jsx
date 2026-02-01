@@ -65,8 +65,8 @@ export default function Profile() {
       logistics: 'bg-blue-100 text-blue-700',
       retail: 'bg-pink-100 text-pink-700',
       food_service: 'bg-green-100 text-green-700',
-      professional_services: 'bg-purple-100 text-purple-700',
-      technology: 'bg-indigo-100 text-indigo-700',
+      professional_services: 'bg-teal-100 text-purple-700',
+      technology: 'bg-emerald-100 text-indigo-700',
       healthcare: 'bg-red-100 text-red-700',
       construction: 'bg-amber-100 text-amber-700',
       automotive: 'bg-slate-100 text-slate-700',
@@ -77,15 +77,15 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
       </div>
     );
   }
 
   if (!business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center px-6">
         <Card className="p-8 text-center max-w-md">
           <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
           <h2 className="text-xl font-bold text-gray-900">Business not found</h2>
@@ -102,7 +102,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -114,7 +114,7 @@ export default function Profile() {
             <span>Back</span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
@@ -163,7 +163,7 @@ export default function Profile() {
                 {/* Property Info */}
                 {property && (
                   <div className="flex items-center gap-3 p-4 bg-indigo-50 rounded-xl mb-6">
-                    <Building2 className="w-5 h-5 text-indigo-600" />
+                    <Building2 className="w-5 h-5 text-emerald-600" />
                     <div>
                       <p className="font-medium text-gray-900">{property.name}</p>
                       <p className="text-sm text-gray-500">{property.address}, {property.city}</p>
@@ -185,8 +185,8 @@ export default function Profile() {
                   
                   {business.contact_name && (
                     <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                      <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-indigo-600">
+                      <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-emerald-600">
                           {business.contact_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -196,21 +196,21 @@ export default function Profile() {
                   
                   {business.contact_email && (
                     <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Mail className="w-5 h-5 text-indigo-500" />
+                      <Mail className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700">{business.contact_email}</span>
                     </a>
                   )}
                   
                   {business.contact_phone && (
                     <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Phone className="w-5 h-5 text-indigo-500" />
+                      <Phone className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700">{business.contact_phone}</span>
                     </a>
                   )}
                   
                   {business.website && (
                     <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Globe className="w-5 h-5 text-indigo-500" />
+                      <Globe className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700 truncate">{business.website.replace(/^https?:\/\//, '')}</span>
                     </a>
                   )}

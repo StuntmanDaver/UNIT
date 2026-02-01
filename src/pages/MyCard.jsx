@@ -85,8 +85,8 @@ export default function MyCard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
       </div>
     );
   }
@@ -94,11 +94,11 @@ export default function MyCard() {
   // No business profile yet - prompt to create one
   if (!business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
         <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Unit</span>
@@ -108,8 +108,8 @@ export default function MyCard() {
 
         <main className="pt-28 pb-24 px-6 flex items-center justify-center min-h-screen">
           <Card className="p-8 text-center max-w-md">
-            <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mx-auto mb-6">
-              <Building2 className="w-8 h-8 text-indigo-600" />
+            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
+              <Building2 className="w-8 h-8 text-emerald-600" />
             </div>
             <h2 className="text-xl font-bold text-gray-900">No Business Profile Yet</h2>
             <p className="text-gray-500 mt-2">
@@ -117,7 +117,7 @@ export default function MyCard() {
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Welcome'))}
-              className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700"
+              className="mt-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Business Profile
@@ -131,12 +131,12 @@ export default function MyCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
@@ -162,9 +162,9 @@ export default function MyCard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="overflow-hidden bg-white border-gray-100 shadow-xl shadow-indigo-100/30">
+            <Card className="overflow-hidden bg-white border-gray-100 shadow-xl shadow-emerald-100/30">
               {/* Card Header */}
-              <div className="bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 p-6 text-white">
+              <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 p-6 text-white">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
                     {business.logo_url ? (
@@ -208,20 +208,20 @@ export default function MyCard() {
                 {/* Contact Info */}
                 <div className="space-y-2 border-t border-gray-100 pt-6">
                   {business.contact_email && (
-                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Mail className="w-5 h-5 text-indigo-500" />
+                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
+                      <Mail className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700 text-sm">{business.contact_email}</span>
                     </a>
                   )}
                   {business.contact_phone && (
-                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Phone className="w-5 h-5 text-indigo-500" />
+                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
+                      <Phone className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700 text-sm">{business.contact_phone}</span>
                     </a>
                   )}
                   {business.website && (
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-indigo-50 transition-colors">
-                      <Globe className="w-5 h-5 text-indigo-500" />
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
+                      <Globe className="w-5 h-5 text-emerald-500" />
                       <span className="text-gray-700 text-sm truncate">{business.website}</span>
                     </a>
                   )}
@@ -240,8 +240,8 @@ export default function MyCard() {
             <Link to={createPageUrl('Directory') + `?propertyId=${business.property_id}`}>
               <Card className="p-4 bg-white/60 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all cursor-pointer h-full">
                 <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-indigo-600" />
+                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-emerald-600" />
                   </div>
                   <span className="text-sm font-medium text-gray-900">Directory</span>
                 </div>
@@ -251,8 +251,8 @@ export default function MyCard() {
             <Link to={createPageUrl('Community') + `?propertyId=${business.property_id}`}>
               <Card className="p-4 bg-white/60 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all cursor-pointer h-full">
                 <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-purple-600" />
+                  <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
+                    <MessageSquare className="w-5 h-5 text-teal-600" />
                   </div>
                   <span className="text-sm font-medium text-gray-900">Community</span>
                 </div>

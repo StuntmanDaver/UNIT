@@ -78,7 +78,7 @@ export default function Directory() {
 
   if (!propertyId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center px-6">
         <div className="text-center">
           <Building2 className="w-16 h-16 mx-auto text-gray-300 mb-4" />
           <h2 className="text-xl font-bold text-gray-900">No property selected</h2>
@@ -95,12 +95,12 @@ export default function Directory() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
@@ -113,7 +113,7 @@ export default function Directory() {
                 Home
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-50 text-indigo-600">
+            <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-50 text-emerald-600">
               <Users className="w-4 h-4 mr-2" />
               Directory
             </Button>
@@ -138,7 +138,7 @@ export default function Directory() {
             className="mb-8"
           >
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -183,7 +183,7 @@ export default function Directory() {
                   className={`cursor-pointer whitespace-nowrap px-3 py-1.5 rounded-full transition-all ${
                     selectedCategory === cat.value
                       ? 'bg-indigo-500 text-white hover:bg-indigo-600'
-                      : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600'
+                      : 'bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-emerald-600'
                   }`}
                 >
                   {cat.label}
@@ -195,7 +195,7 @@ export default function Directory() {
           {/* Results */}
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
             </div>
           ) : filteredBusinesses.length > 0 ? (
             <motion.div

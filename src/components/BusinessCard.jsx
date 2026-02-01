@@ -87,7 +87,7 @@ export default function BusinessCard({ business, onViewCard, compact = false }) 
               {business.logo_url ? (
                 <img src={business.logo_url} alt="" className="w-full h-full object-cover rounded-xl" />
               ) : (
-                <span className="text-2xl font-bold text-indigo-600">
+                <span className="text-2xl font-bold text-emerald-600">
                   {business.business_name?.charAt(0).toUpperCase()}
                 </span>
               )}
@@ -117,19 +117,19 @@ export default function BusinessCard({ business, onViewCard, compact = false }) 
 
           <div className="mt-6 space-y-2">
             {business.contact_email && (
-              <a href={`mailto:${business.contact_email}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
+              <a href={`mailto:${business.contact_email}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-emerald-600 transition-colors">
                 <Mail className="w-4 h-4" />
                 {business.contact_email}
               </a>
             )}
             {business.contact_phone && (
-              <a href={`tel:${business.contact_phone}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
+              <a href={`tel:${business.contact_phone}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-emerald-600 transition-colors">
                 <Phone className="w-4 h-4" />
                 {business.contact_phone}
               </a>
             )}
             {business.website && (
-              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
+              <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-sm text-gray-600 hover:text-emerald-600 transition-colors">
                 <Globe className="w-4 h-4" />
                 {business.website.replace(/^https?:\/\//, '')}
               </a>
@@ -138,7 +138,7 @@ export default function BusinessCard({ business, onViewCard, compact = false }) 
 
           <Button 
             onClick={onViewCard}
-            className="w-full mt-6 bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white rounded-xl"
+            className="w-full mt-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-indigo-600 hover:to-violet-700 text-white rounded-xl"
           >
             <QrCode className="w-4 h-4 mr-2" />
             View Business Card

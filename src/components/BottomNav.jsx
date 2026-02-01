@@ -51,7 +51,7 @@ export default function BottomNav({ propertyId }) {
               to={item.url}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                 active 
-                  ? 'text-indigo-600 bg-indigo-50' 
+                  ? 'text-emerald-600 bg-emerald-50' 
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
