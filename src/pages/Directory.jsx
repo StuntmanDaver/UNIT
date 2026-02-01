@@ -103,7 +103,7 @@ export default function Directory() {
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/2791cb4ed_2b7f0462-95ab-428e-a8d6-0636b82d062c.png" 
               alt="Unit" 
-              className="h-14 w-auto"
+              className="h-20 w-auto"
             />
           </div>
           
