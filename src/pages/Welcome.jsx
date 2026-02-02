@@ -23,9 +23,9 @@ export default function Welcome() {
   };
 
   const features = [
-    { icon: Building2, title: 'Find Your Park', description: 'Search and connect to your property' },
-    { icon: Users, title: 'Meet Neighbors', description: 'Discover businesses in your area' },
-    { icon: MessageSquare, title: 'Stay Connected', description: 'Share updates and announcements' }
+    { icon: Building2, title: 'Find Your Park', description: 'Connect to your property' },
+    { icon: Users, title: 'Meet Neighbors', description: 'Discover local businesses' },
+    { icon: MessageSquare, title: 'Stay Connected', description: 'Share and engage' }
   ];
 
   return (
