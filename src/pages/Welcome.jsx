@@ -93,22 +93,22 @@ export default function Welcome() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="max-w-4xl mx-auto mt-24"
+          className="max-w-4xl mx-auto mt-12"
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-3 gap-3 sm:gap-6">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all"
-              >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-4">
-                  <feature.icon className="w-6 h-6 text-white" />
+                className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all"
+                >
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                  <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">{feature.title}</h3>
-                <p className="mt-2 text-gray-600">{feature.description}</p>
+                <h3 className="text-sm sm:text-lg font-semibold text-gray-900 text-center">{feature.title}</h3>
+                <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600 text-center">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -119,7 +119,7 @@ export default function Welcome() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="max-w-4xl mx-auto mt-24 text-center"
+          className="max-w-4xl mx-auto mt-12 text-center"
         >
           <div className="grid grid-cols-3 gap-8">
             <div>
