@@ -428,7 +428,7 @@ export default function MyCard() {
                 <strong>Property:</strong> {property?.name}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                To change your property, please contact support
+                To change your property, please contact <a href="mailto:support@unitapp.com" className="text-emerald-600 hover:text-emerald-700 underline">support</a>
               </p>
             </div>
 
