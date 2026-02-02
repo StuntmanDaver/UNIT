@@ -46,7 +46,7 @@ export default function Welcome() {
       </header>
 
       {/* Hero Section */}
-      <main className="pt-32 pb-20 px-6">
+      <main className="pt-20 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
