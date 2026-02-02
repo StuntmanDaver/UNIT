@@ -159,12 +159,12 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
       </p>
 
       {showActions && (
-        <div className="flex gap-2 mt-4 w-full max-w-xs">
+        <div className="flex justify-center gap-2 mt-4 w-full">
           <Button
             onClick={handleCopyLink}
             variant="outline"
             size="sm"
-            className="flex-1 rounded-xl border-gray-200 hover:bg-gray-50"
+            className="rounded-xl border-gray-200 hover:bg-gray-50"
           >
             <Copy className="w-4 h-4 mr-2" />
             Copy Link
@@ -173,7 +173,7 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
             onClick={handleDownload}
             variant="outline"
             size="sm"
-            className="flex-1 rounded-xl border-gray-200 hover:bg-gray-50"
+            className="rounded-xl border-gray-200 hover:bg-gray-50"
           >
             <Download className="w-4 h-4 mr-2" />
             Download
@@ -181,7 +181,7 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
           <Button
             onClick={handleShare}
             size="sm"
-            className="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white"
+            className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share
