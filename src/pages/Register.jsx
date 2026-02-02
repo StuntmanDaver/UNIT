@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
-import { Building2, ArrowLeft, Loader2, CheckCircle, Sparkles, MapPin } from 'lucide-react';
+import { Building2, ArrowLeft, Loader2, CheckCircle, Sparkles, MapPin, Upload, X } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -27,8 +27,11 @@ export default function Register() {
     contact_name: '',
     contact_email: '',
     contact_phone: '',
-    website: ''
+    website: '',
+    logo_url: ''
   });
+  const [uploading, setUploading] = useState(false);
+  const [logoPreview, setLogoPreview] = useState('');
 
   const { data: property, isLoading: propertyLoading } = useQuery({
     queryKey: ['property', propertyId],
@@ -87,6 +90,27 @@ export default function Register() {
     { value: 'automotive', label: 'Automotive' },
     { value: 'other', label: 'Other' }
   ];
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, logo_url: result.file_url });
+      setLogoPreview(URL.createObjectURL(file));
+    } catch (error) {
+      console.error('Upload failed:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setFormData({ ...formData, logo_url: '' });
+    setLogoPreview('');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -191,6 +215,48 @@ export default function Register() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {step === 1 ? (
                   <>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-700">
+                        Business Logo
+                      </Label>
+                      <div className="mt-1.5">
+                        {logoPreview || formData.logo_url ? (
+                          <div className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-gray-200">
+                            <img 
+                              src={logoPreview || formData.logo_url} 
+                              alt="Logo preview" 
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleRemoveLogo}
+                              className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all cursor-pointer">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoUpload}
+                              className="hidden"
+                              disabled={uploading}
+                            />
+                            {uploading ? (
+                              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                <span className="text-xs text-gray-500 text-center px-2">Upload Logo</span>
+                              </>
+                            )}
+                          </label>
+                        )}
+                      </div>
+                    </div>
+
                     <div>
                       <Label htmlFor="unit_number" className="text-sm font-medium text-gray-700">
                         Unit Number *

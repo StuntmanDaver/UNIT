@@ -49,25 +49,25 @@
  */
 import Community from './pages/Community';
 import Directory from './pages/Directory';
+import LandlordDashboard from './pages/LandlordDashboard';
+import LandlordLogin from './pages/LandlordLogin';
 import MyCard from './pages/MyCard';
 import Profile from './pages/Profile';
+import Recommendations from './pages/Recommendations';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
-import Recommendations from './pages/Recommendations';
-import LandlordLogin from './pages/LandlordLogin';
-import LandlordDashboard from './pages/LandlordDashboard';
 
 
 export const PAGES = {
     "Community": Community,
     "Directory": Directory,
+    "LandlordDashboard": LandlordDashboard,
+    "LandlordLogin": LandlordLogin,
     "MyCard": MyCard,
     "Profile": Profile,
+    "Recommendations": Recommendations,
     "Register": Register,
     "Welcome": Welcome,
-    "Recommendations": Recommendations,
-    "LandlordLogin": LandlordLogin,
-    "LandlordDashboard": LandlordDashboard,
 }
 
 export const pagesConfig = {
