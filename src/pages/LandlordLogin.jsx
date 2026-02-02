@@ -117,7 +117,7 @@ export default function LandlordLogin() {
           </Card>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Contact your property manager for access
+            Contact Unit support for access
           </p>
         </motion.div>
       </main>
