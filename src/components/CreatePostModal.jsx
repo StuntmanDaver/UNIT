@@ -25,8 +25,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
   const postTypes = [
     { value: 'announcement', icon: Megaphone, label: 'Announcement' },
     { value: 'event', icon: Calendar, label: 'Event' },
-    { value: 'offer', icon: Tag, label: 'Offer' },
-    { value: 'request', icon: HelpCircle, label: 'Request' }
+    { value: 'offer', icon: Tag, label: 'Offer' }
   ];
 
   return (
@@ -40,7 +39,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
           <div>
             <Label className="text-sm font-medium text-gray-700 mb-3 block">Post Type</Label>
             <Tabs value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-              <TabsList className="grid grid-cols-4 bg-gray-100 p-1 rounded-xl">
+              <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-xl">
                 {postTypes.map(({ value, icon: Icon, label }) => (
                   <TabsTrigger
                     key={value}
@@ -48,7 +47,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
                     className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm flex items-center gap-1.5 text-xs"
                   >
                     <Icon className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline">{label}</span>
+                    <span>{label}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
