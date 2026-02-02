@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BusinessQRCode from '@/components/BusinessQRCode';
@@ -8,6 +8,11 @@ import BottomNav from '@/components/BottomNav';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
 import { 
   Building2, 
@@ -19,13 +24,17 @@ import {
   Phone,
   Globe,
   MapPin,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react';
 
 export default function MyCard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const businessIdFromUrl = urlParams.get('businessId');
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [formData, setFormData] = useState({});
 
   // Get current user
   const { data: user, isLoading: userLoading } = useQuery({
@@ -81,6 +90,35 @@ export default function MyCard() {
     return labels[category] || category;
   };
 
+  const updateBusinessMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.Business.update(business.id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myBusiness'] });
+      setShowEditModal(false);
+    }
+  });
+
+  const handleEdit = () => {
+    setFormData({
+      business_name: business.business_name,
+      contact_name: business.contact_name,
+      contact_email: business.contact_email,
+      contact_phone: business.contact_phone,
+      unit_number: business.unit_number,
+      website: business.website,
+      business_description: business.business_description,
+      category: business.category
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    updateBusinessMutation.mutate(formData);
+  };
+
   const isLoading = userLoading || businessLoading;
 
   if (isLoading) {
@@ -134,13 +172,22 @@ export default function MyCard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="w-10" />
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleEdit}
+            className="rounded-xl"
+          >
+            <Settings className="w-5 h-5 text-gray-600" />
+          </Button>
         </div>
       </header>
 
@@ -263,6 +310,155 @@ export default function MyCard() {
       </main>
 
       <BottomNav propertyId={business?.property_id} />
+
+      {/* Edit Profile Modal */}
+      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Business Profile</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="business_name">Business Name *</Label>
+                <Input
+                  id="business_name"
+                  value={formData.business_name || ''}
+                  onChange={(e) => setFormData({...formData, business_name: e.target.value})}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="contact_name">Contact Name</Label>
+                <Input
+                  id="contact_name"
+                  value={formData.contact_name || ''}
+                  onChange={(e) => setFormData({...formData, contact_name: e.target.value})}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="contact_email">Email *</Label>
+                <Input
+                  id="contact_email"
+                  type="email"
+                  value={formData.contact_email || ''}
+                  onChange={(e) => setFormData({...formData, contact_email: e.target.value})}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="contact_phone">Phone Number</Label>
+                <Input
+                  id="contact_phone"
+                  type="tel"
+                  value={formData.contact_phone || ''}
+                  onChange={(e) => setFormData({...formData, contact_phone: e.target.value})}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="unit_number">Unit Number *</Label>
+                <Input
+                  id="unit_number"
+                  value={formData.unit_number || ''}
+                  onChange={(e) => setFormData({...formData, unit_number: e.target.value})}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="category">Category</Label>
+                <Select
+                  value={formData.category || ''}
+                  onValueChange={(value) => setFormData({...formData, category: value})}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="manufacturing">Manufacturing</SelectItem>
+                    <SelectItem value="logistics">Logistics</SelectItem>
+                    <SelectItem value="retail">Retail</SelectItem>
+                    <SelectItem value="food_service">Food Service</SelectItem>
+                    <SelectItem value="professional_services">Professional Services</SelectItem>
+                    <SelectItem value="technology">Technology</SelectItem>
+                    <SelectItem value="healthcare">Healthcare</SelectItem>
+                    <SelectItem value="construction">Construction</SelectItem>
+                    <SelectItem value="automotive">Automotive</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                type="url"
+                value={formData.website || ''}
+                onChange={(e) => setFormData({...formData, website: e.target.value})}
+                placeholder="https://example.com"
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="business_description">Business Description</Label>
+              <Textarea
+                id="business_description"
+                value={formData.business_description || ''}
+                onChange={(e) => setFormData({...formData, business_description: e.target.value})}
+                className="mt-1 h-24"
+                placeholder="Describe what your business does..."
+              />
+            </div>
+
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-gray-600">
+                <strong>Property:</strong> {property?.name}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                To change your property, please contact support
+              </p>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowEditModal(false)}
+                disabled={updateBusinessMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                disabled={updateBusinessMutation.isPending}
+              >
+                {updateBusinessMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
