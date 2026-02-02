@@ -53,6 +53,7 @@ import MyCard from './pages/MyCard';
 import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
+import Recommendations from './pages/Recommendations';
 
 
 export const PAGES = {
@@ -62,6 +63,7 @@ export const PAGES = {
     "Profile": Profile,
     "Register": Register,
     "Welcome": Welcome,
+    "Recommendations": Recommendations,
 }
 
 export const pagesConfig = {
