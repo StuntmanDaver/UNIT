@@ -117,7 +117,7 @@ export default function LandlordLogin() {
           </Card>
 
           <p className="text-center text-sm text-gray-500 mt-6">
-            Contact Unit support for access
+            Contact Unit <a href="mailto:support@unitapp.com" className="text-emerald-600 hover:text-emerald-700 underline">support</a> for access
           </p>
         </motion.div>
       </main>
