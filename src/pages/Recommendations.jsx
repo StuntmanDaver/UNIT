@@ -159,11 +159,11 @@ export default function Recommendations() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-6 flex gap-2"
+            className="mb-6 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide"
           >
             <Badge
               onClick={() => setSelectedType('all')}
-              className={`cursor-pointer flex-1 text-center px-3 py-2 ${
+              className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'all' 
                   ? 'bg-emerald-50 text-emerald-600 border-emerald-300' 
                   : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
@@ -174,7 +174,7 @@ export default function Recommendations() {
             </Badge>
             <Badge
               onClick={() => setSelectedType('enhancement')}
-              className={`cursor-pointer flex-1 text-center px-3 py-2 ${
+              className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'enhancement' 
                   ? 'bg-blue-50 text-blue-600 border-blue-300' 
                   : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
@@ -185,7 +185,7 @@ export default function Recommendations() {
             </Badge>
             <Badge
               onClick={() => setSelectedType('issue')}
-              className={`cursor-pointer flex-1 text-center px-3 py-2 ${
+              className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'issue' 
                   ? 'bg-orange-50 text-orange-600 border-orange-300' 
                   : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
@@ -196,7 +196,7 @@ export default function Recommendations() {
             </Badge>
             <Badge
               onClick={() => setSelectedType('work_order')}
-              className={`cursor-pointer flex-1 text-center px-3 py-2 ${
+              className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'work_order' 
                   ? 'bg-purple-50 text-purple-600 border-purple-300' 
                   : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
