@@ -1,10 +1,11 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PropertySearch from '@/components/PropertySearch';
 import BottomNav from '@/components/BottomNav';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Building2, Users, MessageSquare, Sparkles } from 'lucide-react';
 
@@ -38,6 +39,11 @@ export default function Welcome() {
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
+          <Link to={createPageUrl('LandlordLogin')}>
+            <Button variant="outline" size="sm" className="text-xs">
+              Landlord Login
+            </Button>
+          </Link>
         </div>
       </header>
 

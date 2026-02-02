@@ -54,6 +54,8 @@ import Profile from './pages/Profile';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
 import Recommendations from './pages/Recommendations';
+import LandlordLogin from './pages/LandlordLogin';
+import LandlordDashboard from './pages/LandlordDashboard';
 
 
 export const PAGES = {
@@ -64,6 +66,8 @@ export const PAGES = {
     "Register": Register,
     "Welcome": Welcome,
     "Recommendations": Recommendations,
+    "LandlordLogin": LandlordLogin,
+    "LandlordDashboard": LandlordDashboard,
 }
 
 export const pagesConfig = {
