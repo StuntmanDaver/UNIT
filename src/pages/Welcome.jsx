@@ -95,20 +95,20 @@ export default function Welcome() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="max-w-4xl mx-auto mt-12"
         >
-          <div className="grid grid-cols-3 gap-3 sm:gap-6">
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all"
+                className="flex-shrink-0 w-40 bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all"
                 >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
-                  <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-3 mx-auto">
+                  <feature.icon className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-sm sm:text-lg font-semibold text-gray-900 text-center">{feature.title}</h3>
-                <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600 text-center">{feature.description}</p>
+                <h3 className="text-sm font-semibold text-gray-900 text-center">{feature.title}</h3>
+                <p className="mt-1 text-xs text-gray-600 text-center">{feature.description}</p>
               </motion.div>
             ))}
           </div>
