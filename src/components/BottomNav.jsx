@@ -33,7 +33,7 @@ export default function BottomNav({ propertyId }) {
       url: createPageUrl('Recommendations') + (propertyId ? `?propertyId=${propertyId}` : '')
     },
     { 
-      name: 'My Card', 
+      name: 'My Profile', 
       page: 'MyCard', 
       icon: CreditCard,
       url: createPageUrl('MyCard')
