@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import PostCard from '@/components/PostCard';
 import CreatePostModal from '@/components/CreatePostModal';
 import BottomNav from '@/components/BottomNav';
+import NotificationBell from '@/components/NotificationBell';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -88,11 +89,28 @@ export default function Community() {
 
   const createPostMutation = useMutation({
     mutationFn: async (postData) => {
-      return await base44.entities.Post.create({
+      const newPost = await base44.entities.Post.create({
         ...postData,
         property_id: propertyId,
         business_id: userBusiness?.id
       });
+
+      // Create notifications for all businesses in the property
+      const otherBusinesses = businesses.filter(b => b.id !== userBusiness?.id);
+      await Promise.all(
+        otherBusinesses.map(business => 
+          base44.entities.Notification.create({
+            user_email: business.owner_email,
+            property_id: propertyId,
+            type: 'post',
+            title: 'New Community Post',
+            message: `${userBusiness?.business_name} posted: ${postData.title}`,
+            related_id: newPost.id
+          })
+        )
+      );
+
+      return newPost;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts', propertyId] });
@@ -143,25 +161,28 @@ export default function Community() {
             <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
-          
-          <nav className="hidden sm:flex items-center gap-1">
-            <Link to={createPageUrl('Welcome')}>
-              <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
-                <Home className="w-4 h-4 mr-2" />
-                Home
+
+          <div className="flex items-center gap-2">
+            <NotificationBell propertyId={propertyId} />
+            <nav className="hidden sm:flex items-center gap-1">
+              <Link to={createPageUrl('Welcome')}>
+                <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
+              <Link to={createPageUrl('Directory') + `?propertyId=${propertyId}`}>
+                <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
+                  <Users className="w-4 h-4 mr-2" />
+                  Directory
+                </Button>
+              </Link>
+              <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-50 text-emerald-600">
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Community
               </Button>
-            </Link>
-            <Link to={createPageUrl('Directory') + `?propertyId=${propertyId}`}>
-              <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
-                <Users className="w-4 h-4 mr-2" />
-                Directory
-              </Button>
-            </Link>
-            <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-50 text-emerald-600">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Community
-            </Button>
-          </nav>
+            </nav>
+          </div>
         </div>
       </header>
 

@@ -7,6 +7,7 @@ import BottomNav from '@/components/BottomNav';
 import RecommendationCard from '@/components/RecommendationCard';
 import CreateRecommendationModal from '@/components/CreateRecommendationModal';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import NotificationBell from '@/components/NotificationBell';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
@@ -72,11 +73,28 @@ export default function Recommendations() {
 
   const createRecommendationMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.entities.Recommendation.create({
+      const newRec = await base44.entities.Recommendation.create({
         ...data,
         property_id: propertyId,
         business_id: myBusiness.id
       });
+
+      // Notify all other businesses in the property
+      const otherBusinesses = businesses.filter(b => b.id !== myBusiness?.id);
+      await Promise.all(
+        otherBusinesses.map(business => 
+          base44.entities.Notification.create({
+            user_email: business.owner_email,
+            property_id: propertyId,
+            type: 'recommendation',
+            title: 'New Recommendation',
+            message: `${myBusiness?.business_name} submitted: ${data.title}`,
+            related_id: newRec.id
+          })
+        )
+      );
+
+      return newRec;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recommendations'] });
@@ -105,11 +123,12 @@ export default function Recommendations() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
+          <NotificationBell propertyId={propertyId} />
         </div>
       </header>
 
