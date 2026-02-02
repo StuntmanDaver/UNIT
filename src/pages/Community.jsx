@@ -130,8 +130,7 @@ export default function Community() {
     { value: 'all', label: 'All', icon: MessageSquare },
     { value: 'announcement', label: 'Announcements', icon: Megaphone },
     { value: 'event', label: 'Events', icon: Calendar },
-    { value: 'offer', label: 'Offers', icon: Tag },
-    { value: 'request', label: 'Requests', icon: HelpCircle }
+    { value: 'offer', label: 'Offers', icon: Tag }
   ];
 
   if (!propertyId) {
