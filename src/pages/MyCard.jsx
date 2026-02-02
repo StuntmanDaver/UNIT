@@ -175,9 +175,7 @@ export default function MyCard() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="w-10" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
           <Button
