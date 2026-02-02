@@ -46,7 +46,7 @@ export default function Welcome() {
       </header>
 
       {/* Hero Section */}
-      <main className="pt-20 pb-20 px-6">
+      <main className="pt-20 pb-8 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -139,7 +139,7 @@ export default function Welcome() {
       </main>
 
       {/* Footer */}
-      <footer className="py-8 pb-24 border-t border-gray-100">
+      <footer className="py-4 pb-24 border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} Unit. All rights reserved.
         </div>
