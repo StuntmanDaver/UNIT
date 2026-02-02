@@ -46,16 +46,16 @@ export default function BottomNav({ propertyId }) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200 safe-area-pb">
-      <div className="flex items-center justify-around py-2 px-2 max-w-lg mx-auto">
+      <div className="flex items-center max-w-lg mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.page);
-          
+
           return (
             <Link
               key={item.name}
               to={item.url}
-              className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+              className={`flex-1 flex flex-col items-center gap-1 py-3 transition-all ${
                 active 
                   ? 'text-emerald-600 bg-emerald-50' 
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
