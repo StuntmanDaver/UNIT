@@ -123,8 +123,8 @@ export default function MyCard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
   }
@@ -132,30 +132,32 @@ export default function MyCard() {
   // No business profile yet - prompt to create one
   if (!business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-        <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
+                <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
+                  <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+                </div>
               </div>
-              <span className="text-xl font-bold text-gray-900">Unit</span>
+              <span className="text-xl font-bold text-white">Unit</span>
             </div>
           </div>
         </header>
 
         <main className="pt-28 pb-24 px-6 flex items-center justify-center min-h-screen">
-          <Card className="p-8 text-center max-w-md">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
-              <Building2 className="w-8 h-8 text-emerald-600" />
+          <Card className="p-8 text-center max-w-md bg-zinc-900/50 backdrop-blur-xl border-white/10">
+            <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-6">
+              <Building2 className="w-8 h-8 text-indigo-400" />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">No Business Profile Yet</h2>
-            <p className="text-gray-500 mt-2">
+            <h2 className="text-xl font-bold text-white">No Business Profile Yet</h2>
+            <p className="text-zinc-400 mt-2">
               Create your business profile to get your digital business card with a shareable QR code.
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Welcome'))}
-              className="mt-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+              className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg shadow-indigo-500/20"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Business Profile
@@ -169,22 +171,26 @@ export default function MyCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="w-10" />
           <div className="flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
-            <span className="text-xl font-bold text-gray-900">Unit</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
+              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              </div>
+            </div>
+            <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={handleEdit}
-            className="rounded-xl"
+            className="rounded-xl text-zinc-400 hover:text-white hover:bg-white/5"
           >
-            <Settings className="w-5 h-5 text-gray-600" />
+            <Settings className="w-5 h-5" />
           </Button>
         </div>
       </header>
@@ -197,8 +203,8 @@ export default function MyCard() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-6"
           >
-            <h1 className="text-2xl font-bold text-gray-900">My Business Card</h1>
-            <p className="text-gray-500 mt-1">Share your profile with others</p>
+            <h1 className="text-2xl font-bold text-white">My Business Card</h1>
+            <p className="text-zinc-400 mt-1">Share your profile with others</p>
           </motion.div>
 
           {/* Digital Business Card */}
@@ -207,9 +213,9 @@ export default function MyCard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="overflow-hidden bg-white border-gray-100 shadow-xl shadow-emerald-100/30">
+            <Card className="overflow-hidden bg-zinc-900/50 backdrop-blur-xl border-white/10 shadow-2xl shadow-black/50">
               {/* Card Header */}
-              <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-green-600 p-6 text-white">
+              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6 text-white">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
                     {business.logo_url ? (
@@ -244,30 +250,30 @@ export default function MyCard() {
               {/* QR Code Section */}
               <div className="p-6">
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center mb-4">
+                  <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wide text-center mb-4">
                     Scan to View Profile
                   </h3>
                   <BusinessQRCode business={business} size={180} />
                 </div>
 
                 {/* Contact Info */}
-                <div className="space-y-2 border-t border-gray-100 pt-6">
+                <div className="space-y-2 border-t border-white/10 pt-6">
                   {business.contact_email && (
-                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
-                      <Mail className="w-5 h-5 text-emerald-500" />
-                      <span className="text-gray-700 text-sm">{business.contact_email}</span>
+                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
+                      <Mail className="w-5 h-5 text-indigo-400" />
+                      <span className="text-zinc-300 text-sm">{business.contact_email}</span>
                     </a>
                   )}
                   {business.contact_phone && (
-                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
-                      <Phone className="w-5 h-5 text-emerald-500" />
-                      <span className="text-gray-700 text-sm">{business.contact_phone}</span>
+                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
+                      <Phone className="w-5 h-5 text-indigo-400" />
+                      <span className="text-zinc-300 text-sm">{business.contact_phone}</span>
                     </a>
                   )}
                   {business.website && (
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 transition-colors">
-                      <Globe className="w-5 h-5 text-emerald-500" />
-                      <span className="text-gray-700 text-sm truncate">{business.website}</span>
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
+                      <Globe className="w-5 h-5 text-indigo-400" />
+                      <span className="text-zinc-300 text-sm truncate">{business.website}</span>
                     </a>
                   )}
                 </div>
