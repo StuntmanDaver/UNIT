@@ -121,12 +121,16 @@ export default function Recommendations() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
-            <span className="text-xl font-bold text-gray-900">Unit</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
+              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              </div>
+            </div>
+            <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <NotificationBell propertyId={propertyId} />
         </div>
@@ -139,8 +143,8 @@ export default function Recommendations() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Recommendations</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-white mb-2">Recommendations</h1>
+            <p className="text-zinc-400">
               Submit enhancements, issues, or work orders for {property?.name}
             </p>
           </motion.div>
@@ -184,8 +188,8 @@ export default function Recommendations() {
               onClick={() => setSelectedType('all')}
               className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'all' 
-                  ? 'bg-emerald-50 text-emerald-600 border-emerald-300' 
-                  : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
+                  ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' 
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-zinc-300'
               }`}
               variant="outline"
             >
@@ -195,8 +199,8 @@ export default function Recommendations() {
               onClick={() => setSelectedType('enhancement')}
               className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'enhancement' 
-                  ? 'bg-blue-50 text-blue-600 border-blue-300' 
-                  : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
+                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' 
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-zinc-300'
               }`}
               variant="outline"
             >
@@ -206,8 +210,8 @@ export default function Recommendations() {
               onClick={() => setSelectedType('issue')}
               className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'issue' 
-                  ? 'bg-orange-50 text-orange-600 border-orange-300' 
-                  : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
+                  ? 'bg-orange-500/20 text-orange-300 border-orange-500/30' 
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-zinc-300'
               }`}
               variant="outline"
             >
@@ -217,8 +221,8 @@ export default function Recommendations() {
               onClick={() => setSelectedType('work_order')}
               className={`cursor-pointer whitespace-nowrap px-4 py-2 rounded-xl transition-all ${
                 selectedType === 'work_order' 
-                  ? 'bg-purple-50 text-purple-600 border-purple-300' 
-                  : 'bg-white text-gray-600 hover:border-gray-300 hover:text-gray-700'
+                  ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' 
+                  : 'bg-white/5 text-zinc-400 border-white/10 hover:border-white/20 hover:text-zinc-300'
               }`}
               variant="outline"
             >
@@ -228,7 +232,7 @@ export default function Recommendations() {
 
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
             </div>
           ) : filteredRecommendations.length === 0 ? (
             <motion.div
@@ -236,11 +240,11 @@ export default function Recommendations() {
               animate={{ opacity: 1 }}
               className="text-center py-20"
             >
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
+                <Plus className="w-8 h-8 text-zinc-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No recommendations yet</h3>
-              <p className="text-gray-500">Be the first to submit an enhancement, issue, or work order</p>
+              <h3 className="text-lg font-semibold text-white mb-2">No recommendations yet</h3>
+              <p className="text-zinc-400">Be the first to submit an enhancement, issue, or work order</p>
             </motion.div>
           ) : (
             <div className="grid gap-4">
