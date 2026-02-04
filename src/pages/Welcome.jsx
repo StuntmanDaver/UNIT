@@ -29,16 +29,20 @@ export default function Welcome() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
-            <span className="text-xl font-bold text-gray-900">Unit</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
+              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              </div>
+            </div>
+            <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <Link to={createPageUrl('LandlordLogin')}>
-            <Button variant="outline" size="sm" className="text-xs">
+            <Button variant="outline" size="sm" className="text-xs border-white/10 bg-white/5 text-white hover:bg-white/10">
               Landlord Login
             </Button>
           </Link>
@@ -53,19 +57,19 @@ export default function Welcome() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block px-4 py-1.5 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium mb-6">
+            <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium mb-6 backdrop-blur-xl">
               Connect • Discover • Grow
             </span>
             
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
               Discover businesses
               <br />
-              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 in your park
               </span>
             </h1>
             
-            <p className="mt-6 text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
               Find and connect with businesses in your industrial park. 
               Explore services, share updates, and build a stronger community.
             </p>
@@ -102,13 +106,13 @@ export default function Welcome() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 sm:p-6 border border-gray-100 hover:shadow-xl hover:shadow-emerald-100/50 transition-all"
+                className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group"
                 >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform">
                   <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <h3 className="text-sm sm:text-lg font-semibold text-gray-900 text-center">{feature.title}</h3>
-                <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600 text-center">{feature.description}</p>
+                <h3 className="text-sm sm:text-lg font-semibold text-white text-center">{feature.title}</h3>
+                <p className="mt-1 sm:mt-2 text-xs sm:text-base text-zinc-400 text-center">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -123,27 +127,27 @@ export default function Welcome() {
         >
           <div className="grid grid-cols-3 gap-8">
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900">{properties?.length || 0}+</div>
-              <div className="text-sm text-gray-500 mt-1">Properties</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-indigo-400 to-purple-400 bg-clip-text text-transparent">{properties?.length || 0}+</div>
+              <div className="text-sm text-zinc-500 mt-1">Properties</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900">500+</div>
-              <div className="text-sm text-gray-500 mt-1">Businesses</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-purple-400 to-pink-400 bg-clip-text text-transparent">500+</div>
+              <div className="text-sm text-zinc-500 mt-1">Businesses</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold text-gray-900">1000+</div>
-              <div className="text-sm text-gray-500 mt-1">Connections</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-pink-400 to-rose-400 bg-clip-text text-transparent">1000+</div>
+              <div className="text-sm text-zinc-500 mt-1">Connections</div>
             </div>
           </div>
         </motion.div>
-      </main>
+        </main>
 
-      {/* Footer */}
-      <footer className="py-4 pb-24 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto px-6 text-center text-sm text-gray-500">
+        {/* Footer */}
+        <footer className="py-4 pb-24 border-t border-white/5">
+        <div className="max-w-6xl mx-auto px-6 text-center text-sm text-zinc-500">
           © {new Date().getFullYear()} Unit. All rights reserved.
         </div>
-      </footer>
+        </footer>
 
       <BottomNav />
     </div>

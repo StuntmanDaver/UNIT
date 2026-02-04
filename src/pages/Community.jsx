@@ -152,31 +152,35 @@ export default function Community() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
-            <span className="text-xl font-bold text-gray-900">Unit</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
+              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              </div>
+            </div>
+            <span className="text-xl font-bold text-white">Unit</span>
           </div>
 
           <div className="flex items-center gap-2">
             <NotificationBell propertyId={propertyId} />
             <nav className="hidden sm:flex items-center gap-1">
               <Link to={createPageUrl('Welcome')}>
-                <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
+                <Button variant="ghost" size="sm" className="rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">
                   <Home className="w-4 h-4 mr-2" />
                   Home
                 </Button>
               </Link>
               <Link to={createPageUrl('Directory') + `?propertyId=${propertyId}`}>
-                <Button variant="ghost" size="sm" className="rounded-xl text-gray-600">
+                <Button variant="ghost" size="sm" className="rounded-xl text-zinc-400 hover:text-white hover:bg-white/5">
                   <Users className="w-4 h-4 mr-2" />
                   Directory
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-50 text-emerald-600">
+              <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Community
               </Button>
@@ -197,19 +201,19 @@ export default function Community() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Community</h1>
-                  <p className="text-gray-500">{property?.name}</p>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">Community</h1>
+                  <p className="text-zinc-400">{property?.name}</p>
                 </div>
               </div>
               
               {userBusiness && (
                 <Button
                   onClick={() => setShowCreateModal(true)}
-                  className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
+                  className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg shadow-indigo-500/20"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   <span className="hidden sm:inline">Create Post</span>
@@ -235,8 +239,8 @@ export default function Community() {
                     onClick={() => setSelectedType(type.value)}
                     className={`cursor-pointer whitespace-nowrap px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all ${
                       selectedType === type.value
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                        : 'bg-white text-gray-600 border border-gray-200 hover:border-emerald-300 hover:text-emerald-600'
+                        ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
+                        : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
