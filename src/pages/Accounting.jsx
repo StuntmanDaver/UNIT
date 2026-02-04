@@ -211,8 +211,8 @@ export default function Accounting() {
             {/* Lease Management */}
             <TabsContent value="leases">
               <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
+                <div className="flex flex-col items-center mb-6">
+                  <div className="text-center mb-4">
                     <h2 className="text-xl font-bold text-gray-900">Lease Management</h2>
                     <p className="text-sm text-gray-500 mt-1">
                       {leases.length} total leases • {expiringLeases.length} expiring soon
@@ -356,8 +356,8 @@ export default function Accounting() {
             {/* Invoices */}
             <TabsContent value="invoices">
               <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Invoices</h2>
+                <div className="flex flex-col items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Invoices</h2>
                   <Button
                     onClick={() => setShowInvoiceModal(true)}
                     className="bg-gradient-to-r from-emerald-500 to-teal-600"
@@ -404,8 +404,8 @@ export default function Accounting() {
             {/* Expenses */}
             <TabsContent value="expenses">
               <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Expenses</h2>
+                <div className="flex flex-col items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Expenses</h2>
                   <Button
                     onClick={() => setShowExpenseModal(true)}
                     className="bg-gradient-to-r from-emerald-500 to-teal-600"
