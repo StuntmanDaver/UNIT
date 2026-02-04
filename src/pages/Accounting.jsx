@@ -152,6 +152,7 @@ export default function Accounting() {
                 payments={payments} 
                 expenses={expenses} 
                 leases={leases}
+                businesses={businesses}
               />
             </TabsContent>
 
