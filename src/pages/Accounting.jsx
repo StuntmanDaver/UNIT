@@ -309,8 +309,8 @@ export default function Accounting() {
             {/* Recurring Payments */}
             <TabsContent value="recurring">
               <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">Recurring Payments</h2>
+                <div className="flex flex-col items-center mb-6">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">Recurring Payments</h2>
                   <Button
                     onClick={() => setShowRecurringModal(true)}
                     className="bg-gradient-to-r from-emerald-500 to-teal-600"
