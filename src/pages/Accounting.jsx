@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import RecurringPaymentModal from '@/components/accounting/RecurringPaymentModal';
+import InvoiceModal from '@/components/accounting/InvoiceModal';
+import ExpenseModal from '@/components/accounting/ExpenseModal';
+import FinancialReports from '@/components/accounting/FinancialReports';
+import { motion } from 'framer-motion';
+import { 
+  ArrowLeft, 
+  Plus, 
+  Repeat, 
+  FileText, 
+  Receipt,
+  Loader2,
+  BarChart3
+} from 'lucide-react';
+
+export default function Accounting() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const urlParams = new URLSearchParams(window.location.search);
+  const propertyId = urlParams.get('propertyId');
+
+  const [showRecurringModal, setShowRecurringModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+
+  const { data: property } = useQuery({
+    queryKey: ['property', propertyId],
+    queryFn: async () => {
+      const properties = await base44.entities.Property.filter({ id: propertyId });
+      return properties[0];
+    },
+    enabled: !!propertyId
+  });
+
+  const { data: businesses = [] } = useQuery({
+    queryKey: ['businesses', propertyId],
+    queryFn: () => base44.entities.Business.filter({ property_id: propertyId }),
+    enabled: !!propertyId
+  });
+
+  const { data: leases = [] } = useQuery({
+    queryKey: ['leases', propertyId],
+    queryFn: () => base44.entities.Lease.filter({ property_id: propertyId }),
+    enabled: !!propertyId
+  });
+
+  const { data: recurringPayments = [] } = useQuery({
+    queryKey: ['recurringPayments', propertyId],
+    queryFn: () => base44.entities.RecurringPayment.filter({ property_id: propertyId }, '-created_date'),
+    enabled: !!propertyId
+  });
+
+  const { data: invoices = [] } = useQuery({
+    queryKey: ['invoices', propertyId],
+    queryFn: () => base44.entities.Invoice.filter({ property_id: propertyId }, '-invoice_date'),
+    enabled: !!propertyId
+  });
+
+  const { data: expenses = [] } = useQuery({
+    queryKey: ['expenses', propertyId],
+    queryFn: () => base44.entities.Expense.filter({ property_id: propertyId }, '-expense_date'),
+    enabled: !!propertyId
+  });
+
+  const { data: payments = [] } = useQuery({
+    queryKey: ['payments', propertyId],
+    queryFn: () => base44.entities.Payment.filter({ property_id: propertyId }),
+    enabled: !!propertyId
+  });
+
+  const createRecurringPaymentMutation = useMutation({
+    mutationFn: (data) => base44.entities.RecurringPayment.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
+      setShowRecurringModal(false);
+    }
+  });
+
+  const createInvoiceMutation = useMutation({
+    mutationFn: (data) => base44.entities.Invoice.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      setShowInvoiceModal(false);
+    }
+  });
+
+  const createExpenseMutation = useMutation({
+    mutationFn: (data) => base44.entities.Expense.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      setShowExpenseModal(false);
+    }
+  });
+
+  const getBusinessName = (businessId) => {
+    const business = businesses.find(b => b.id === businessId);
+    return business?.business_name || 'Unknown';
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(createPageUrl('LandlordDashboard') + `?propertyId=${propertyId}`)}
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-bold text-gray-900">Accounting</h1>
+          </div>
+          <span className="text-sm text-gray-600">{property?.name}</span>
+        </div>
+      </header>
+
+      <main className="pt-24 pb-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <Tabs defaultValue="reports" className="space-y-6">
+            <TabsList className="bg-white border border-gray-200">
+              <TabsTrigger value="reports" className="gap-2">
+                <BarChart3 className="w-4 h-4" />
+                Reports
+              </TabsTrigger>
+              <TabsTrigger value="recurring" className="gap-2">
+                <Repeat className="w-4 h-4" />
+                Recurring Payments
+              </TabsTrigger>
+              <TabsTrigger value="invoices" className="gap-2">
+                <FileText className="w-4 h-4" />
+                Invoices
+              </TabsTrigger>
+              <TabsTrigger value="expenses" className="gap-2">
+                <Receipt className="w-4 h-4" />
+                Expenses
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Financial Reports */}
+            <TabsContent value="reports">
+              <FinancialReports 
+                payments={payments} 
+                expenses={expenses} 
+                leases={leases}
+              />
+            </TabsContent>
+
+            {/* Recurring Payments */}
+            <TabsContent value="recurring">
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Recurring Payments</h2>
+                  <Button
+                    onClick={() => setShowRecurringModal(true)}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Recurring Payment
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {recurringPayments.map((rp) => (
+                    <div key={rp.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{rp.name}</div>
+                        <div className="text-sm text-gray-500 mt-1">
+                          {getBusinessName(rp.business_id)} • {rp.frequency} • Day {rp.day_of_month}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900">${rp.amount.toLocaleString()}</div>
+                          <div className="text-xs text-gray-500">/{rp.frequency}</div>
+                        </div>
+                        <Badge className={
+                          rp.status === 'active' ? 'bg-green-100 text-green-700' :
+                          rp.status === 'paused' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-gray-100 text-gray-700'
+                        }>
+                          {rp.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {recurringPayments.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      No recurring payments set up yet
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* Invoices */}
+            <TabsContent value="invoices">
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Invoices</h2>
+                  <Button
+                    onClick={() => setShowInvoiceModal(true)}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Generate Invoice
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {invoices.map((invoice) => (
+                    <div key={invoice.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-900">{invoice.invoice_number}</div>
+                        <div className="text-sm text-gray-500 mt-1">
+                          {getBusinessName(invoice.business_id)} • Due {new Date(invoice.due_date).toLocaleDateString()}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1">{invoice.description}</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900">${invoice.amount.toLocaleString()}</div>
+                        </div>
+                        <Badge className={
+                          invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                          invoice.status === 'overdue' ? 'bg-red-100 text-red-700' :
+                          invoice.status === 'sent' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        }>
+                          {invoice.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                  {invoices.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      No invoices generated yet
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </TabsContent>
+
+            {/* Expenses */}
+            <TabsContent value="expenses">
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-gray-900">Expenses</h2>
+                  <Button
+                    onClick={() => setShowExpenseModal(true)}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Record Expense
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {expenses.map((expense) => (
+                    <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div className="font-medium text-gray-900">{expense.description}</div>
+                          <Badge variant="outline" className="text-xs">
+                            {expense.category}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-gray-500 mt-1">
+                          {expense.vendor && `${expense.vendor} • `}
+                          {new Date(expense.expense_date).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-red-700">-${expense.amount.toLocaleString()}</div>
+                        {expense.payment_method && (
+                          <div className="text-xs text-gray-500">{expense.payment_method}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  {expenses.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      No expenses recorded yet
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+
+      <RecurringPaymentModal
+        isOpen={showRecurringModal}
+        onClose={() => setShowRecurringModal(false)}
+        onSubmit={(data) => createRecurringPaymentMutation.mutate(data)}
+        isLoading={createRecurringPaymentMutation.isPending}
+        businesses={businesses}
+        leases={leases}
+        propertyId={propertyId}
+      />
+
+      <InvoiceModal
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        onSubmit={(data) => createInvoiceMutation.mutate(data)}
+        isLoading={createInvoiceMutation.isPending}
+        businesses={businesses}
+        leases={leases}
+        propertyId={propertyId}
+      />
+
+      <ExpenseModal
+        isOpen={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onSubmit={(data) => createExpenseMutation.mutate(data)}
+        isLoading={createExpenseMutation.isPending}
+        propertyId={propertyId}
+      />
+    </div>
+  );
+}
