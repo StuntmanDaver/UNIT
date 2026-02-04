@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Download, Share2, Copy } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Download, Share2, Copy, MessageSquare } from "lucide-react";
 import { createPageUrl } from '@/utils';
 
 export default function BusinessQRCode({ business, size = 200, showActions = true }) {
   const canvasRef = useRef(null);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Generate the profile URL for this business
   const getProfileUrl = () => {
@@ -114,34 +116,23 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
     link.click();
   };
 
-  const handleShare = async () => {
-    const profileUrl = getProfileUrl();
-    const shareData = {
-      title: business.business_name,
-      text: `Check out ${business.business_name} - Unit ${business.unit_number}`,
-      url: profileUrl
-    };
-    
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err) {
-        // User cancelled or error
-        copyToClipboard(profileUrl);
-      }
-    } else {
-      copyToClipboard(profileUrl);
-    }
-  };
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    // You could add a toast notification here
-    alert('Profile link copied to clipboard!');
+  const handleShareClick = () => {
+    setShowShareModal(true);
   };
 
   const handleCopyLink = () => {
-    copyToClipboard(getProfileUrl());
+    const profileUrl = getProfileUrl();
+    navigator.clipboard.writeText(profileUrl);
+    alert('Profile link copied to clipboard!');
+    setShowShareModal(false);
+  };
+
+  const handleTextLink = () => {
+    const profileUrl = getProfileUrl();
+    const message = `Check out ${business.business_name} - Unit ${business.unit_number}\n\n${profileUrl}`;
+    const smsUrl = `sms:?&body=${encodeURIComponent(message)}`;
+    window.location.href = smsUrl;
+    setShowShareModal(false);
   };
 
   return (
@@ -159,35 +150,49 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
       </p>
 
       {showActions && (
-        <div className="flex justify-center gap-2 mt-4 w-full">
+        <div className="flex justify-center mt-4 w-full">
           <Button
-            onClick={handleCopyLink}
-            variant="outline"
+            onClick={handleShareClick}
             size="sm"
-            className="rounded-xl border-gray-200 hover:bg-gray-50"
-          >
-            <Copy className="w-4 h-4 mr-2" />
-            Copy Link
-          </Button>
-          <Button
-            onClick={handleDownload}
-            variant="outline"
-            size="sm"
-            className="rounded-xl border-gray-200 hover:bg-gray-50"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Download
-          </Button>
-          <Button
-            onClick={handleShare}
-            size="sm"
-            className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white"
+            className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share
           </Button>
         </div>
       )}
+
+      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Business Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <Button
+              onClick={handleTextLink}
+              variant="outline"
+              className="w-full h-14 justify-start text-left rounded-xl hover:bg-emerald-50 border-gray-200"
+            >
+              <MessageSquare className="w-5 h-5 mr-3 text-emerald-600" />
+              <div>
+                <div className="font-medium text-gray-900">Text Link</div>
+                <div className="text-xs text-gray-500">Send via SMS</div>
+              </div>
+            </Button>
+            <Button
+              onClick={handleCopyLink}
+              variant="outline"
+              className="w-full h-14 justify-start text-left rounded-xl hover:bg-emerald-50 border-gray-200"
+            >
+              <Copy className="w-5 h-5 mr-3 text-emerald-600" />
+              <div>
+                <div className="font-medium text-gray-900">Copy Link</div>
+                <div className="text-xs text-gray-500">Copy to clipboard</div>
+              </div>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
