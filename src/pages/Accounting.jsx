@@ -175,26 +175,26 @@ export default function Accounting() {
       <main className="pt-24 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <Tabs defaultValue={initialTab} className="space-y-6">
-            <TabsList className="grid grid-cols-5 w-full bg-white border border-gray-200">
-              <TabsTrigger value="reports" className="flex-col gap-1 py-3">
+            <TabsList className="bg-white border border-gray-200">
+              <TabsTrigger value="reports" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
-                <span className="text-xs">Reports</span>
+                Reports
               </TabsTrigger>
-              <TabsTrigger value="leases" className="flex-col gap-1 py-3">
+              <TabsTrigger value="leases" className="gap-2">
                 <FileText className="w-4 h-4" />
-                <span className="text-xs">Leases</span>
+                Leases
               </TabsTrigger>
-              <TabsTrigger value="recurring" className="flex-col gap-1 py-3">
+              <TabsTrigger value="recurring" className="gap-2">
                 <Repeat className="w-4 h-4" />
-                <span className="text-xs">Recurring</span>
+                Recurring Payments
               </TabsTrigger>
-              <TabsTrigger value="invoices" className="flex-col gap-1 py-3">
+              <TabsTrigger value="invoices" className="gap-2">
                 <FileText className="w-4 h-4" />
-                <span className="text-xs">Invoices</span>
+                Invoices
               </TabsTrigger>
-              <TabsTrigger value="expenses" className="flex-col gap-1 py-3">
+              <TabsTrigger value="expenses" className="gap-2">
                 <Receipt className="w-4 h-4" />
-                <span className="text-xs">Expenses</span>
+                Expenses
               </TabsTrigger>
             </TabsList>
 
