@@ -368,6 +368,14 @@ export default function LandlordDashboard() {
                   <FileText className="w-6 h-6 text-blue-600" />
                   <span className="font-medium">Lease Management</span>
                 </Button>
+                <Button
+                  onClick={() => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)}
+                  variant="outline"
+                  className="h-20 flex-col gap-2"
+                >
+                  <ClipboardList className="w-6 h-6 text-purple-600" />
+                  <span className="font-medium">Requests</span>
+                </Button>
               </div>
             </Card>
           </motion.div>
