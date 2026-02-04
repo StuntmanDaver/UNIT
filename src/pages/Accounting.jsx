@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import RecurringPaymentModal from '@/components/accounting/RecurringPaymentModal';
 import InvoiceModal from '@/components/accounting/InvoiceModal';
 import ExpenseModal from '@/components/accounting/ExpenseModal';
+import LeaseModal from '@/components/accounting/LeaseModal';
 import FinancialReports from '@/components/accounting/FinancialReports';
 import { motion } from 'framer-motion';
 import { 
@@ -31,6 +32,8 @@ export default function Accounting() {
   const [showRecurringModal, setShowRecurringModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
   const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [showLeaseModal, setShowLeaseModal] = useState(false);
+  const [editingLease, setEditingLease] = useState(null);
 
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
@@ -101,10 +104,54 @@ export default function Accounting() {
     }
   });
 
+  const createLeaseMutation = useMutation({
+    mutationFn: (data) => base44.entities.Lease.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leases'] });
+      setShowLeaseModal(false);
+      setEditingLease(null);
+    }
+  });
+
+  const updateLeaseMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Lease.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leases'] });
+      setShowLeaseModal(false);
+      setEditingLease(null);
+    }
+  });
+
   const getBusinessName = (businessId) => {
     const business = businesses.find(b => b.id === businessId);
     return business?.business_name || 'Unknown';
   };
+
+  const handleEditLease = (lease) => {
+    setEditingLease(lease);
+    setShowLeaseModal(true);
+  };
+
+  const handleCreateLease = () => {
+    setEditingLease(null);
+    setShowLeaseModal(true);
+  };
+
+  const handleLeaseSubmit = (data) => {
+    if (editingLease) {
+      updateLeaseMutation.mutate({ id: editingLease.id, data });
+    } else {
+      createLeaseMutation.mutate(data);
+    }
+  };
+
+  // Calculate lease stats
+  const today = new Date();
+  const threeMonthsFromNow = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const expiringLeases = leases.filter(lease => {
+    const endDate = new Date(lease.end_date);
+    return endDate >= today && endDate <= threeMonthsFromNow && lease.status === 'active';
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
@@ -132,6 +179,10 @@ export default function Accounting() {
                 <BarChart3 className="w-4 h-4" />
                 Reports
               </TabsTrigger>
+              <TabsTrigger value="leases" className="gap-2">
+                <FileText className="w-4 h-4" />
+                Leases
+              </TabsTrigger>
               <TabsTrigger value="recurring" className="gap-2">
                 <Repeat className="w-4 h-4" />
                 Recurring Payments
@@ -154,6 +205,104 @@ export default function Accounting() {
                 leases={leases}
                 businesses={businesses}
               />
+            </TabsContent>
+
+            {/* Lease Management */}
+            <TabsContent value="leases">
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Lease Management</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {leases.length} total leases • {expiringLeases.length} expiring soon
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleCreateLease}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Lease
+                  </Button>
+                </div>
+
+                {/* Lease Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="p-4 bg-green-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-green-700">
+                      {leases.filter(l => l.status === 'active').length}
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">Active</div>
+                  </div>
+                  <div className="p-4 bg-orange-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-orange-700">{expiringLeases.length}</div>
+                    <div className="text-xs text-orange-600 mt-1">Expiring Soon</div>
+                  </div>
+                  <div className="p-4 bg-red-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-red-700">
+                      {leases.filter(l => l.status === 'expired').length}
+                    </div>
+                    <div className="text-xs text-red-600 mt-1">Expired</div>
+                  </div>
+                  <div className="p-4 bg-emerald-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-emerald-700">
+                      ${leases.filter(l => l.status === 'active').reduce((sum, l) => sum + (l.monthly_rent || 0), 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-emerald-600 mt-1">Monthly Revenue</div>
+                  </div>
+                </div>
+
+                {/* Leases List */}
+                <div className="space-y-3">
+                  {leases.map((lease) => {
+                    const business = businesses.find(b => b.id === lease.business_id);
+                    const endDate = new Date(lease.end_date);
+                    const daysUntilExpiry = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                    const isExpiringSoon = daysUntilExpiry >= 0 && daysUntilExpiry <= 90;
+
+                    return (
+                      <div 
+                        key={lease.id} 
+                        className={`flex items-center justify-between p-4 rounded-xl cursor-pointer hover:shadow-md transition-shadow ${
+                          isExpiringSoon ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50'
+                        }`}
+                        onClick={() => handleEditLease(lease)}
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{business?.business_name || 'Unknown Business'}</div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            Unit {lease.unit_number} • {new Date(lease.start_date).toLocaleDateString()} - {new Date(lease.end_date).toLocaleDateString()}
+                          </div>
+                          {isExpiringSoon && lease.status === 'active' && (
+                            <div className="text-xs text-orange-600 mt-1 font-medium">
+                              ⚠️ Expires in {daysUntilExpiry} days
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-gray-900">${lease.monthly_rent?.toLocaleString()}</div>
+                            <div className="text-xs text-gray-500">per month</div>
+                          </div>
+                          <Badge className={
+                            lease.status === 'active' ? 'bg-green-100 text-green-700' :
+                            lease.status === 'expiring_soon' ? 'bg-orange-100 text-orange-700' :
+                            lease.status === 'expired' ? 'bg-red-100 text-red-700' :
+                            'bg-gray-100 text-gray-700'
+                          }>
+                            {lease.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {leases.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      No leases created yet
+                    </div>
+                  )}
+                </div>
+              </Card>
             </TabsContent>
 
             {/* Recurring Payments */}
@@ -326,6 +475,19 @@ export default function Accounting() {
         onSubmit={(data) => createExpenseMutation.mutate(data)}
         isLoading={createExpenseMutation.isPending}
         propertyId={propertyId}
+      />
+
+      <LeaseModal
+        isOpen={showLeaseModal}
+        onClose={() => {
+          setShowLeaseModal(false);
+          setEditingLease(null);
+        }}
+        onSubmit={handleLeaseSubmit}
+        isLoading={createLeaseMutation.isPending || updateLeaseMutation.isPending}
+        businesses={businesses}
+        propertyId={propertyId}
+        lease={editingLease}
       />
     </div>
   );
