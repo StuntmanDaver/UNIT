@@ -24,6 +24,7 @@ import {
   Clock,
   Calculator
 } from 'lucide-react';
+import LandlordNotificationBell from '../components/LandlordNotificationBell';
 
 export default function LandlordDashboard() {
   const navigate = useNavigate();
@@ -152,10 +153,19 @@ export default function LandlordDashboard() {
             </div>
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <LandlordNotificationBell 
+              propertyId={propertyId}
+              recommendations={recommendations}
+              payments={payments}
+              leases={leases}
+              businesses={businesses}
+            />
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
