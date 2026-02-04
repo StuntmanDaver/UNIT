@@ -17,7 +17,11 @@ import {
   Loader2,
   LogOut,
   PieChart,
-  ClipboardList
+  ClipboardList,
+  FileText,
+  DollarSign,
+  Calendar,
+  Clock
 } from 'lucide-react';
 
 export default function LandlordDashboard() {
@@ -54,6 +58,22 @@ export default function LandlordDashboard() {
     queryKey: ['recommendations', propertyId],
     queryFn: async () => {
       return await base44.entities.Recommendation.filter({ property_id: propertyId }, '-created_date');
+    },
+    enabled: !!propertyId
+  });
+
+  const { data: leases = [] } = useQuery({
+    queryKey: ['leases', propertyId],
+    queryFn: async () => {
+      return await base44.entities.Lease.filter({ property_id: propertyId }, 'end_date');
+    },
+    enabled: !!propertyId
+  });
+
+  const { data: payments = [] } = useQuery({
+    queryKey: ['payments', propertyId],
+    queryFn: async () => {
+      return await base44.entities.Payment.filter({ property_id: propertyId }, '-due_date');
     },
     enabled: !!propertyId
   });
@@ -97,6 +117,22 @@ export default function LandlordDashboard() {
     high_priority: recommendations.filter(r => r.priority === 'high').length
   };
 
+  // Lease stats
+  const today = new Date();
+  const threeMonthsFromNow = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+  const expiringLeases = leases.filter(lease => {
+    const endDate = new Date(lease.end_date);
+    return endDate >= today && endDate <= threeMonthsFromNow;
+  });
+
+  // Payment stats
+  const pendingPayments = payments.filter(p => p.status === 'pending' || p.status === 'overdue');
+  const overduePayments = payments.filter(p => p.status === 'overdue');
+  const monthlyRevenue = payments
+    .filter(p => p.status === 'paid' && new Date(p.paid_date).getMonth() === today.getMonth())
+    .reduce((sum, p) => sum + p.amount, 0);
+  const totalExpectedRevenue = leases.reduce((sum, l) => sum + (l.monthly_rent || 0), 0);
+
   if (propertyLoading || businessesLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
@@ -139,7 +175,7 @@ export default function LandlordDashboard() {
           </motion.div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -183,17 +219,150 @@ export default function LandlordDashboard() {
             >
               <Card className="p-6 bg-white border-gray-100">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
-                    <AlertCircle className="w-6 h-6 text-orange-600" />
+                  <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-purple-600" />
                   </div>
-                  {requestStats.high_priority > 0 && (
-                    <Badge className="bg-red-50 text-red-700">Urgent</Badge>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">${totalExpectedRevenue.toLocaleString()}</div>
+                <div className="text-sm text-gray-500">Monthly Revenue</div>
+                <div className="text-xs text-gray-400 mt-2">
+                  ${monthlyRevenue.toLocaleString()} collected this month
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center">
+                    <Calendar className="w-6 h-6 text-orange-600" />
+                  </div>
+                  {expiringLeases.length > 0 && (
+                    <Badge className="bg-orange-50 text-orange-700">Action Needed</Badge>
                   )}
                 </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1">{requestStats.submitted}</div>
-                <div className="text-sm text-gray-500">Pending Requests</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1">{expiringLeases.length}</div>
+                <div className="text-sm text-gray-500">Expiring Leases</div>
                 <div className="text-xs text-gray-400 mt-2">
-                  {requestStats.high_priority} high priority
+                  Within next 90 days
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Lease & Payment Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center gap-2 mb-6">
+                  <FileText className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-xl font-bold text-gray-900">Lease Management</h2>
+                </div>
+
+                <div className="space-y-3 mb-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Active Leases</span>
+                    <span className="font-semibold">{leases.filter(l => l.status === 'active').length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Expiring Soon</span>
+                    <span className="font-semibold text-orange-600">{expiringLeases.length}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Total Units Leased</span>
+                    <span className="font-semibold">{leases.length}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-6">
+                  <h3 className="font-semibold text-gray-700 text-sm mb-3">Upcoming Renewals</h3>
+                  {expiringLeases.slice(0, 3).map((lease) => {
+                    const business = businesses.find(b => b.id === lease.business_id);
+                    const daysUntilExpiry = Math.ceil((new Date(lease.end_date) - today) / (1000 * 60 * 60 * 24));
+                    return (
+                      <div key={lease.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm text-gray-900">{business?.business_name}</div>
+                          <div className="text-xs text-gray-500">Unit {lease.unit_number}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-orange-600">{daysUntilExpiry} days</div>
+                          <div className="text-xs text-gray-500">{new Date(lease.end_date).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {expiringLeases.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      No leases expiring soon
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="p-6 bg-white border-gray-100">
+                <div className="flex items-center gap-2 mb-6">
+                  <DollarSign className="w-5 h-5 text-emerald-600" />
+                  <h2 className="text-xl font-bold text-gray-900">Payment Status</h2>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="text-center p-4 bg-green-50 rounded-xl">
+                    <div className="text-2xl font-bold text-green-700">
+                      ${payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">Paid</div>
+                  </div>
+                  <div className="text-center p-4 bg-red-50 rounded-xl">
+                    <div className="text-2xl font-bold text-red-700">
+                      ${overduePayments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-red-600 mt-1">Overdue</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 mt-6">
+                  <h3 className="font-semibold text-gray-700 text-sm mb-3">Recent Payments</h3>
+                  {payments.slice(0, 4).map((payment) => {
+                    const business = businesses.find(b => b.id === payment.business_id);
+                    return (
+                      <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm text-gray-900">{business?.business_name}</div>
+                          <div className="text-xs text-gray-500">Due {new Date(payment.due_date).toLocaleDateString()}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-semibold text-gray-900">${payment.amount.toLocaleString()}</div>
+                          <Badge className={
+                            payment.status === 'paid' ? 'bg-green-100 text-green-700' :
+                            payment.status === 'overdue' ? 'bg-red-100 text-red-700' :
+                            'bg-yellow-100 text-yellow-700'
+                          }>
+                            {payment.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {payments.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      No payments recorded
+                    </div>
+                  )}
                 </div>
               </Card>
             </motion.div>
@@ -203,7 +372,7 @@ export default function LandlordDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.7 }}
             className="mb-8"
           >
             <Card className="p-6 bg-white border-gray-100">
@@ -230,7 +399,7 @@ export default function LandlordDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.8 }}
           >
             <Card className="p-6 bg-white border-gray-100">
               <div className="flex items-center justify-between mb-6">
