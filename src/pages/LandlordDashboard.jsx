@@ -415,6 +415,7 @@ export default function LandlordDashboard() {
                   <span className="font-medium">Accounting</span>
                 </Button>
                 <Button
+                  onClick={() => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}&tab=leases`)}
                   variant="outline"
                   className="h-20 flex-col gap-2"
                 >

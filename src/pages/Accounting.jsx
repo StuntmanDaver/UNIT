@@ -28,6 +28,7 @@ export default function Accounting() {
   const queryClient = useQueryClient();
   const urlParams = new URLSearchParams(window.location.search);
   const propertyId = urlParams.get('propertyId');
+  const initialTab = urlParams.get('tab') || 'reports';
 
   const [showRecurringModal, setShowRecurringModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
@@ -173,7 +174,7 @@ export default function Accounting() {
 
       <main className="pt-24 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
-          <Tabs defaultValue="reports" className="space-y-6">
+          <Tabs defaultValue={initialTab} className="space-y-6">
             <TabsList className="bg-white border border-gray-200">
               <TabsTrigger value="reports" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
