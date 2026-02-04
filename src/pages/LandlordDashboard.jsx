@@ -368,87 +368,11 @@ export default function LandlordDashboard() {
                   <FileText className="w-6 h-6 text-blue-600" />
                   <span className="font-medium">Lease Management</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  className="h-20 flex-col gap-2"
-                >
-                  <ClipboardList className="w-6 h-6 text-purple-600" />
-                  <span className="font-medium">Requests</span>
-                </Button>
               </div>
             </Card>
           </motion.div>
 
-          {/* Requests Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-          >
-            <Card className="p-6 bg-white border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-2">
-                  <ClipboardList className="w-5 h-5 text-emerald-600" />
-                  <h2 className="text-xl font-bold text-gray-900">Tenant Requests</h2>
-                </div>
-                <Badge variant="outline">{requestStats.total} total</Badge>
-              </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="text-center p-4 bg-gray-50 rounded-xl">
-                  <div className="text-2xl font-bold text-gray-700">{requestStats.submitted}</div>
-                  <div className="text-sm text-gray-500 mt-1">Submitted</div>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-xl">
-                  <div className="text-2xl font-bold text-blue-700">{requestStats.in_progress}</div>
-                  <div className="text-sm text-blue-600 mt-1">In Progress</div>
-                </div>
-                <div className="text-center p-4 bg-green-50 rounded-xl">
-                  <div className="text-2xl font-bold text-green-700">{requestStats.resolved}</div>
-                  <div className="text-sm text-green-600 mt-1">Resolved</div>
-                </div>
-                <div className="text-center p-4 bg-red-50 rounded-xl">
-                  <div className="text-2xl font-bold text-red-700">{requestStats.high_priority}</div>
-                  <div className="text-sm text-red-600 mt-1">High Priority</div>
-                </div>
-              </div>
-
-              {/* Recent Requests */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-700">Recent Requests</h3>
-                {recommendations.slice(0, 5).map((rec) => {
-                  const business = businesses.find(b => b.id === rec.business_id);
-                  return (
-                    <div key={rec.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{rec.title}</div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          {business?.business_name} • {rec.type.replace('_', ' ')}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={
-                          rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                          rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-slate-100 text-slate-600'
-                        }>
-                          {rec.priority}
-                        </Badge>
-                        <Badge variant="outline">
-                          {rec.status.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                    </div>
-                  );
-                })}
-                {recommendations.length === 0 && (
-                  <div className="text-center py-8 text-gray-500">
-                    No requests submitted yet
-                  </div>
-                )}
-              </div>
-            </Card>
-          </motion.div>
         </div>
       </main>
     </div>
