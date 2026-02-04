@@ -45,7 +45,7 @@ export default function BottomNav({ propertyId }) {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-2xl border-t border-gray-100 safe-area-pb shadow-lg shadow-gray-200/20">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/60 backdrop-blur-2xl border-t border-white/5 safe-area-pb">
       <div className="flex items-center max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -55,13 +55,18 @@ export default function BottomNav({ propertyId }) {
             <Link
               key={item.name}
               to={item.url}
-              className={`flex-1 flex flex-col items-center gap-1.5 py-2.5 mx-1 rounded-2xl transition-all duration-200 ${
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 mx-1 rounded-2xl transition-all duration-300 ${
                 active 
-                  ? 'text-emerald-600 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-sm' 
-                  : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50/50'
+                  ? 'text-white' 
+                  : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Icon className={`w-5 h-5 transition-all ${active ? 'stroke-[2.5px] scale-110' : 'stroke-[2px]'}`} />
+              <div className={`relative ${active ? 'scale-110' : ''} transition-transform`}>
+                <Icon className="w-5 h-5" />
+                {active && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full blur-lg opacity-50" />
+                )}
+              </div>
               <span className={`text-[10px] transition-all ${active ? 'font-bold' : 'font-medium'}`}>
                 {item.name}
               </span>
