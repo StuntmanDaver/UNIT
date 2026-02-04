@@ -255,67 +255,14 @@ export default function LandlordDashboard() {
             </motion.div>
           </div>
 
-          {/* Lease & Payment Overview */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center gap-2 mb-6">
-                  <FileText className="w-5 h-5 text-emerald-600" />
-                  <h2 className="text-xl font-bold text-gray-900">Lease Management</h2>
-                </div>
-
-                <div className="space-y-3 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Active Leases</span>
-                    <span className="font-semibold">{leases.filter(l => l.status === 'active').length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Expiring Soon</span>
-                    <span className="font-semibold text-orange-600">{expiringLeases.length}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Total Units Leased</span>
-                    <span className="font-semibold">{leases.length}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mt-6">
-                  <h3 className="font-semibold text-gray-700 text-sm mb-3">Upcoming Renewals</h3>
-                  {expiringLeases.slice(0, 3).map((lease) => {
-                    const business = businesses.find(b => b.id === lease.business_id);
-                    const daysUntilExpiry = Math.ceil((new Date(lease.end_date) - today) / (1000 * 60 * 60 * 24));
-                    return (
-                      <div key={lease.id} className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
-                        <div className="flex-1">
-                          <div className="font-medium text-sm text-gray-900">{business?.business_name}</div>
-                          <div className="text-xs text-gray-500">Unit {lease.unit_number}</div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-semibold text-orange-600">{daysUntilExpiry} days</div>
-                          <div className="text-xs text-gray-500">{new Date(lease.end_date).toLocaleDateString()}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {expiringLeases.length === 0 && (
-                    <div className="text-center py-4 text-gray-500 text-sm">
-                      No leases expiring soon
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <Card className="p-6 bg-white border-gray-100">
+          {/* Payment Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-white border-gray-100">
                 <div className="flex items-center gap-2 mb-6">
                   <DollarSign className="w-5 h-5 text-emerald-600" />
                   <h2 className="text-xl font-bold text-gray-900">Payment Status</h2>
