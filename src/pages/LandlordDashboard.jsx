@@ -314,7 +314,6 @@ export default function LandlordDashboard() {
                 </div>
               </Card>
             </motion.div>
-          </div>
 
           {/* Tenant Category Distribution */}
           <motion.div
