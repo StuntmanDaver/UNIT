@@ -52,12 +52,12 @@ import Community from './pages/Community';
 import Directory from './pages/Directory';
 import LandlordDashboard from './pages/LandlordDashboard';
 import LandlordLogin from './pages/LandlordLogin';
+import LandlordRequests from './pages/LandlordRequests';
 import MyCard from './pages/MyCard';
 import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
-import LandlordRequests from './pages/LandlordRequests';
 
 
 export const PAGES = {
@@ -66,12 +66,12 @@ export const PAGES = {
     "Directory": Directory,
     "LandlordDashboard": LandlordDashboard,
     "LandlordLogin": LandlordLogin,
+    "LandlordRequests": LandlordRequests,
     "MyCard": MyCard,
     "Profile": Profile,
     "Recommendations": Recommendations,
     "Register": Register,
     "Welcome": Welcome,
-    "LandlordRequests": LandlordRequests,
 }
 
 export const pagesConfig = {

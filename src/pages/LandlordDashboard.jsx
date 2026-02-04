@@ -361,23 +361,7 @@ export default function LandlordDashboard() {
           >
             <Card className="p-6 bg-white border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button
-                  onClick={() => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}`)}
-                  variant="outline"
-                  className="h-20 flex-col gap-2"
-                >
-                  <Calculator className="w-6 h-6 text-emerald-600" />
-                  <span className="font-medium">Accounting</span>
-                </Button>
-                <Button
-                  onClick={() => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}&tab=leases`)}
-                  variant="outline"
-                  className="h-20 flex-col gap-2"
-                >
-                  <FileText className="w-6 h-6 text-blue-600" />
-                  <span className="font-medium">Lease Management</span>
-                </Button>
+              <div className="grid grid-cols-1 gap-4">
                 <Button
                   onClick={() => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)}
                   variant="outline"
