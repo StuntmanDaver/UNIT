@@ -74,7 +74,12 @@ export default function Register() {
     },
     onSuccess: (newBusiness) => {
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
-      navigate(createPageUrl('MyCard') + `?businessId=${newBusiness.id}`);
+      const searchParams = new URLSearchParams({
+        businessId: newBusiness.id,
+        propertyId: propertyId,
+        tab: 'profile'
+      });
+      navigate(createPageUrl('MyCard') + `?${searchParams.toString()}`);
     }
   });
 
