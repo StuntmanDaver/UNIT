@@ -263,7 +263,7 @@ export default function LandlordDashboard() {
             className="mb-8"
           >
             <Card className="p-6 bg-white border-gray-100">
-                <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2 mb-6">
                   <DollarSign className="w-5 h-5 text-emerald-600" />
                   <h2 className="text-xl font-bold text-gray-900">Payment Status</h2>
                 </div>
@@ -312,8 +312,8 @@ export default function LandlordDashboard() {
                     </div>
                   )}
                 </div>
-              </Card>
-            </motion.div>
+            </Card>
+          </motion.div>
 
           {/* Tenant Category Distribution */}
           <motion.div
