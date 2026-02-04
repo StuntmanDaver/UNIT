@@ -275,35 +275,7 @@ export default function MyCard() {
             </Card>
           </motion.div>
 
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-6 grid grid-cols-2 gap-3"
-          >
-            <Link to={createPageUrl('Directory') + `?propertyId=${business.property_id}`}>
-              <Card className="p-4 bg-white/60 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all cursor-pointer h-full">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-emerald-600" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Directory</span>
-                </div>
-              </Card>
-            </Link>
 
-            <Link to={createPageUrl('Community') + `?propertyId=${business.property_id}`}>
-              <Card className="p-4 bg-white/60 backdrop-blur-sm border-gray-100 hover:shadow-lg transition-all cursor-pointer h-full">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-teal-100 flex items-center justify-center">
-                    <MessageSquare className="w-5 h-5 text-teal-600" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">Community</span>
-                </div>
-              </Card>
-            </Link>
-          </motion.div>
         </div>
       </main>
 
