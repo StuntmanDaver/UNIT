@@ -62,16 +62,16 @@ export default function Welcome() {
             </span>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
-              Discover businesses
+              Grow your business
               <br />
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                in your park
+                with local connections
               </span>
             </h1>
-            
+
             <p className="mt-6 text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-              Find and connect with businesses in your industrial park. 
-              Explore services, share updates, and build a stronger community.
+              Unlock new opportunities right in your park. Find B2B partners, 
+              share exclusive offers, and collaborate with neighbors to expand your reach and revenue.
             </p>
           </motion.div>
 
