@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import PropertySearch from '@/components/PropertySearch';
 import BottomNav from '@/components/BottomNav';
 import AdBanner from '@/components/AdBanner';
+import UnitLogo from '@/components/UnitLogo';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Building2, Users, MessageSquare, Sparkles } from 'lucide-react';
@@ -34,12 +35,8 @@ export default function Welcome() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
-              </div>
-            </div>
+          <div className="flex items-center gap-3">
+            <UnitLogo size={32} />
             <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <Link to={createPageUrl('LandlordLogin')}>

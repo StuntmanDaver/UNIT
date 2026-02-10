@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import UnitLogo from '@/components/UnitLogo';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowLeft, Lock, Loader2 } from 'lucide-react';
 
@@ -49,12 +50,8 @@ export default function LandlordLogin() {
             <ArrowLeft className="w-5 h-5" />
             <span>Back</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
-              </div>
-            </div>
+          <div className="flex items-center gap-3">
+            <UnitLogo size={32} />
             <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <div className="w-16" />
