@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PropertySearch from '@/components/PropertySearch';
 import BottomNav from '@/components/BottomNav';
+import AdBanner from '@/components/AdBanner';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { Building2, Users, MessageSquare, Sparkles } from 'lucide-react';
@@ -116,6 +117,16 @@ export default function Welcome() {
               </motion.div>
             ))}
           </div>
+        </motion.div>
+
+        {/* Ad Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+          className="max-w-4xl mx-auto mt-12"
+        >
+          <AdBanner propertyId="demo" />
         </motion.div>
 
         {/* Stats */}
