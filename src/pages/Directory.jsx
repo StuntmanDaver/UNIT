@@ -151,13 +151,39 @@ export default function Directory() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <Building2 className="w-5 h-5 text-white" />
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                  <Building2 className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">{property?.name}</h1>
+                  <p className="text-zinc-400">{businesses.length} businesses</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white">{property?.name}</h1>
-                <p className="text-zinc-400">{businesses.length} businesses</p>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-2 rounded-lg transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-indigo-500 text-white'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Grid3x3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-3 py-2 rounded-lg transition-all ${
+                    viewMode === 'map'
+                      ? 'bg-indigo-500 text-white'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Map className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -188,47 +214,21 @@ export default function Directory() {
               )}
             </div>
 
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
-                <Filter className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-                {categories.map(cat => (
-                  <Badge
-                    key={cat.value}
-                    onClick={() => setSelectedCategory(cat.value)}
-                    className={`cursor-pointer whitespace-nowrap px-3 py-1.5 rounded-full transition-all ${
-                      selectedCategory === cat.value
-                        ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
-                        : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
-                    }`}
-                  >
-                    {cat.label}
-                  </Badge>
-                ))}
-              </div>
-
-              {/* View Toggle */}
-              <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10 flex-shrink-0">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    viewMode === 'grid'
-                      ? 'bg-indigo-500 text-white'
-                      : 'text-zinc-400 hover:text-white'
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <Filter className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+              {categories.map(cat => (
+                <Badge
+                  key={cat.value}
+                  onClick={() => setSelectedCategory(cat.value)}
+                  className={`cursor-pointer whitespace-nowrap px-3 py-1.5 rounded-full transition-all ${
+                    selectedCategory === cat.value
+                      ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
+                      : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
                   }`}
                 >
-                  <Grid3x3 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('map')}
-                  className={`px-3 py-1.5 rounded-lg transition-all ${
-                    viewMode === 'map'
-                      ? 'bg-indigo-500 text-white'
-                      : 'text-zinc-400 hover:text-white'
-                  }`}
-                >
-                  <Map className="w-4 h-4" />
-                </button>
-              </div>
+                  {cat.label}
+                </Badge>
+              ))}
             </div>
           </motion.div>
 
