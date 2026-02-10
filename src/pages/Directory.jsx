@@ -7,6 +7,7 @@ import BusinessCard from '@/components/BusinessCard';
 import QRCodeCard from '@/components/QRCodeCard';
 import BottomNav from '@/components/BottomNav';
 import NotificationBell from '@/components/NotificationBell';
+import FloorMapView from '@/components/FloorMapView';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,10 @@ import {
   MessageSquare,
   Home,
   Filter,
-  X
+  X,
+  Map,
+  Grid3x3,
+  Star
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -32,6 +36,7 @@ export default function Directory() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'map'
 
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
@@ -76,6 +81,9 @@ export default function Directory() {
     
     return matchesSearch && matchesCategory;
   });
+
+  const featuredBusinesses = filteredBusinesses.filter(b => b.is_featured);
+  const regularBusinesses = filteredBusinesses.filter(b => !b.is_featured);
 
   if (!propertyId) {
     return (
@@ -180,21 +188,47 @@ export default function Directory() {
               )}
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              <Filter className="w-4 h-4 text-zinc-500 flex-shrink-0" />
-              {categories.map(cat => (
-                <Badge
-                  key={cat.value}
-                  onClick={() => setSelectedCategory(cat.value)}
-                  className={`cursor-pointer whitespace-nowrap px-3 py-1.5 rounded-full transition-all ${
-                    selectedCategory === cat.value
-                      ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
-                      : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide flex-1">
+                <Filter className="w-4 h-4 text-zinc-500 flex-shrink-0" />
+                {categories.map(cat => (
+                  <Badge
+                    key={cat.value}
+                    onClick={() => setSelectedCategory(cat.value)}
+                    className={`cursor-pointer whitespace-nowrap px-3 py-1.5 rounded-full transition-all ${
+                      selectedCategory === cat.value
+                        ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
+                        : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
+                    }`}
+                  >
+                    {cat.label}
+                  </Badge>
+                ))}
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex items-center gap-1 bg-white/5 rounded-xl p-1 border border-white/10 flex-shrink-0">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    viewMode === 'grid'
+                      ? 'bg-indigo-500 text-white'
+                      : 'text-zinc-400 hover:text-white'
                   }`}
                 >
-                  {cat.label}
-                </Badge>
-              ))}
+                  <Grid3x3 className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-3 py-1.5 rounded-lg transition-all ${
+                    viewMode === 'map'
+                      ? 'bg-indigo-500 text-white'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  <Map className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </motion.div>
 
@@ -204,26 +238,81 @@ export default function Directory() {
               <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
             </div>
           ) : filteredBusinesses.length > 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
-              {filteredBusinesses.map((business, index) => (
+            <>
+              {/* Featured Businesses */}
+              {featuredBusinesses.length > 0 && viewMode === 'grid' && (
                 <motion.div
-                  key={business.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
+                  className="mb-8"
                 >
-                  <BusinessCard
-                    business={business}
-                    onViewCard={() => setSelectedBusiness(business)}
+                  <div className="flex items-center gap-2 mb-4">
+                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <h2 className="text-xl font-bold text-white">Featured Businesses</h2>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {featuredBusinesses.map((business, index) => (
+                      <motion.div
+                        key={business.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + index * 0.05 }}
+                        className="relative"
+                      >
+                        <div className="absolute -top-2 -right-2 z-10">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg">
+                            <Star className="w-4 h-4 text-white fill-white" />
+                          </div>
+                        </div>
+                        <BusinessCard
+                          business={business}
+                          onViewCard={() => setSelectedBusiness(business)}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Map or Grid View */}
+              {viewMode === 'map' ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <FloorMapView
+                    businesses={filteredBusinesses}
+                    onBusinessClick={(business) => setSelectedBusiness(business)}
                   />
                 </motion.div>
-              ))}
-            </motion.div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {regularBusinesses.length > 0 && featuredBusinesses.length > 0 && (
+                    <h2 className="text-lg font-semibold text-white mb-4">All Businesses</h2>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {regularBusinesses.map((business, index) => (
+                      <motion.div
+                        key={business.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + index * 0.05 }}
+                      >
+                        <BusinessCard
+                          business={business}
+                          onViewCard={() => setSelectedBusiness(business)}
+                        />
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </>
           ) : (
             <div className="text-center py-20">
               <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
