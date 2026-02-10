@@ -73,27 +73,28 @@ export default function LandlordRequests() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(createPageUrl('LandlordDashboard') + `?propertyId=${propertyId}`)}
+              className="text-zinc-400 hover:text-white hover:bg-white/5"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold text-gray-900">Tenant Requests</h1>
+            <h1 className="text-xl font-bold text-white">Tenant Requests</h1>
           </div>
-          <span className="text-sm text-gray-600">{property?.name}</span>
+          <span className="text-sm text-zinc-400">{property?.name}</span>
         </div>
       </header>
 
@@ -105,28 +106,28 @@ export default function LandlordRequests() {
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
           >
-            <Card className="p-4 bg-white border-gray-100">
+            <Card className="p-4 bg-white/5 backdrop-blur-xl border-white/10">
               <div className="text-center">
-                <div className="text-2xl font-bold text-gray-700">{requestStats.submitted}</div>
-                <div className="text-sm text-gray-500 mt-1">Submitted</div>
+                <div className="text-2xl font-bold text-white">{requestStats.submitted}</div>
+                <div className="text-sm text-zinc-400 mt-1">Submitted</div>
               </div>
             </Card>
-            <Card className="p-4 bg-blue-50 border-blue-100">
+            <Card className="p-4 bg-blue-500/10 border-blue-500/20 backdrop-blur-xl">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-700">{requestStats.in_progress}</div>
-                <div className="text-sm text-blue-600 mt-1">In Progress</div>
+                <div className="text-2xl font-bold text-blue-400">{requestStats.in_progress}</div>
+                <div className="text-sm text-blue-300 mt-1">In Progress</div>
               </div>
             </Card>
-            <Card className="p-4 bg-green-50 border-green-100">
+            <Card className="p-4 bg-green-500/10 border-green-500/20 backdrop-blur-xl">
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-700">{requestStats.resolved}</div>
-                <div className="text-sm text-green-600 mt-1">Resolved</div>
+                <div className="text-2xl font-bold text-green-400">{requestStats.resolved}</div>
+                <div className="text-sm text-green-300 mt-1">Resolved</div>
               </div>
             </Card>
-            <Card className="p-4 bg-red-50 border-red-100">
+            <Card className="p-4 bg-red-500/10 border-red-500/20 backdrop-blur-xl">
               <div className="text-center">
-                <div className="text-2xl font-bold text-red-700">{requestStats.high_priority}</div>
-                <div className="text-sm text-red-600 mt-1">High Priority</div>
+                <div className="text-2xl font-bold text-red-400">{requestStats.high_priority}</div>
+                <div className="text-sm text-red-300 mt-1">High Priority</div>
               </div>
             </Card>
           </motion.div>
@@ -137,30 +138,30 @@ export default function LandlordRequests() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="p-6 bg-white border-gray-100">
+            <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
               <div className="flex items-center gap-2 mb-6">
-                <ClipboardList className="w-5 h-5 text-emerald-600" />
-                <h2 className="text-xl font-bold text-gray-900">All Requests</h2>
-                <Badge variant="outline" className="ml-auto">{requestStats.total} total</Badge>
+                <ClipboardList className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-xl font-bold text-white">All Requests</h2>
+                <Badge variant="outline" className="ml-auto border-white/10 text-zinc-300">{requestStats.total} total</Badge>
               </div>
 
               <div className="space-y-4">
                 {recommendations.map((rec) => {
                   const StatusIcon = statusIcons[rec.status] || Clock;
                   return (
-                    <div key={rec.id} className="p-5 bg-gray-50 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                    <div key={rec.id} className="p-5 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <StatusIcon className={`w-4 h-4 ${
-                              rec.status === 'resolved' || rec.status === 'closed' ? 'text-green-600' :
-                              rec.status === 'in_progress' ? 'text-blue-600' :
-                              'text-gray-500'
+                              rec.status === 'resolved' || rec.status === 'closed' ? 'text-green-400' :
+                              rec.status === 'in_progress' ? 'text-blue-400' :
+                              'text-zinc-400'
                             }`} />
-                            <h3 className="font-semibold text-gray-900">{rec.title}</h3>
+                            <h3 className="font-semibold text-white">{rec.title}</h3>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{rec.description}</p>
-                          <div className="flex items-center gap-3 text-sm text-gray-500">
+                          <p className="text-sm text-zinc-300 mb-2">{rec.description}</p>
+                          <div className="flex items-center gap-3 text-sm text-zinc-400">
                             <span className="font-medium">{getBusinessName(rec.business_id)}</span>
                             <span>•</span>
                             <span>{rec.type.replace('_', ' ')}</span>
@@ -176,26 +177,26 @@ export default function LandlordRequests() {
                         </div>
                         <div className="flex items-center gap-3">
                           <Badge className={
-                            rec.priority === 'high' ? 'bg-red-100 text-red-700' :
-                            rec.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-slate-100 text-slate-600'
+                            rec.priority === 'high' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
+                            rec.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' :
+                            'bg-slate-500/20 text-slate-300 border-slate-500/30'
                           }>
                             {rec.priority}
                           </Badge>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
-                        <span className="text-sm text-gray-600 mr-2">Status:</span>
+                      <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+                        <span className="text-sm text-zinc-400 mr-2">Status:</span>
                         <Select
                           value={rec.status}
                           onValueChange={(value) => updateStatusMutation.mutate({ id: rec.id, status: value })}
                           disabled={updateStatusMutation.isPending}
                         >
-                          <SelectTrigger className="w-40">
+                          <SelectTrigger className="w-40 bg-white/5 border-white/10 text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="bg-zinc-900 border-white/10">
                             <SelectItem value="submitted">Submitted</SelectItem>
                             <SelectItem value="in_progress">In Progress</SelectItem>
                             <SelectItem value="resolved">Resolved</SelectItem>
@@ -208,8 +209,8 @@ export default function LandlordRequests() {
                 })}
                 
                 {recommendations.length === 0 && (
-                  <div className="text-center py-12 text-gray-500">
-                    <ClipboardList className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                  <div className="text-center py-12 text-zinc-400">
+                    <ClipboardList className="w-12 h-12 mx-auto mb-3 text-zinc-600" />
                     <p>No requests submitted yet</p>
                   </div>
                 )}

@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import Accounting from './pages/Accounting';
+import BrowseProperties from './pages/BrowseProperties';
 import Community from './pages/Community';
 import Directory from './pages/Directory';
 import LandlordDashboard from './pages/LandlordDashboard';
@@ -58,11 +59,11 @@ import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
-import BrowseProperties from './pages/BrowseProperties';
 
 
 export const PAGES = {
     "Accounting": Accounting,
+    "BrowseProperties": BrowseProperties,
     "Community": Community,
     "Directory": Directory,
     "LandlordDashboard": LandlordDashboard,
@@ -73,7 +74,6 @@ export const PAGES = {
     "Recommendations": Recommendations,
     "Register": Register,
     "Welcome": Welcome,
-    "BrowseProperties": BrowseProperties,
 }
 
 export const pagesConfig = {

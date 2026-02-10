@@ -155,27 +155,28 @@ export default function Accounting() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
+    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => navigate(createPageUrl('LandlordDashboard') + `?propertyId=${propertyId}`)}
+              className="text-zinc-400 hover:text-white hover:bg-white/5"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold text-gray-900">Accounting</h1>
+            <h1 className="text-xl font-bold text-white">Accounting</h1>
           </div>
-          <span className="text-sm text-gray-600">{property?.name}</span>
+          <span className="text-sm text-zinc-400">{property?.name}</span>
         </div>
       </header>
 
       <main className="pt-24 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
           <Tabs defaultValue={initialTab} className="space-y-6">
-            <TabsList className="bg-white border border-gray-200">
+            <TabsList className="bg-white/5 backdrop-blur-xl border border-white/10">
               <TabsTrigger value="reports" className="gap-2">
                 <BarChart3 className="w-4 h-4" />
                 Reports
@@ -210,17 +211,17 @@ export default function Accounting() {
 
             {/* Lease Management */}
             <TabsContent value="leases">
-              <Card className="p-6 bg-white border-gray-100">
+              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
                 <div className="flex flex-col items-center mb-6">
                   <div className="text-center mb-4">
-                    <h2 className="text-xl font-bold text-gray-900">Lease Management</h2>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h2 className="text-xl font-bold text-white">Lease Management</h2>
+                    <p className="text-sm text-zinc-400 mt-1">
                       {leases.length} total leases • {expiringLeases.length} expiring soon
                     </p>
                   </div>
                   <Button
                     onClick={handleCreateLease}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Lease
