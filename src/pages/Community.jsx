@@ -7,6 +7,7 @@ import PostCard from '@/components/PostCard';
 import CreatePostModal from '@/components/CreatePostModal';
 import BottomNav from '@/components/BottomNav';
 import NotificationBell from '@/components/NotificationBell';
+import AdPopup from '@/components/AdPopup';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -190,6 +191,7 @@ export default function Community() {
       </header>
 
       <BottomNav propertyId={propertyId} />
+      <AdPopup propertyId={propertyId} />
 
       <main className="pt-24 pb-24 sm:pb-8 px-6">
         <div className="max-w-3xl mx-auto">
