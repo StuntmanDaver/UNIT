@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
+import UnitLogo from '@/components/UnitLogo';
 import { 
   ArrowLeft, 
   ClipboardList,
@@ -92,6 +93,7 @@ export default function LandlordRequests() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
+            <UnitLogo size={28} />
             <h1 className="text-xl font-bold text-white">Tenant Requests</h1>
           </div>
           <span className="text-sm text-zinc-400">{property?.name}</span>

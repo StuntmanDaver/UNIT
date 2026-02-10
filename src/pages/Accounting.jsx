@@ -167,6 +167,7 @@ export default function Accounting() {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
+            <UnitLogo size={28} />
             <h1 className="text-xl font-bold text-white">Accounting</h1>
           </div>
           <span className="text-sm text-zinc-400">{property?.name}</span>
