@@ -6,8 +6,13 @@ import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import PostCard from '@/components/PostCard';
+import RecommendationCard from '@/components/RecommendationCard';
+import BusinessCard from '@/components/BusinessCard';
+import AdBanner from '@/components/AdBanner';
 import { motion } from 'framer-motion';
-import { Building2, MapPin, Users, ArrowLeft, Store } from 'lucide-react';
+import { Building2, MapPin, Users, ArrowLeft, Store, MessageSquare, ClipboardList, Sparkles } from 'lucide-react';
 
 export default function BrowseProperties() {
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -21,6 +26,20 @@ export default function BrowseProperties() {
   const { data: businesses = [] } = useQuery({
     queryKey: ['businesses', selectedProperty?.id],
     queryFn: () => base44.entities.Business.filter({ property_id: selectedProperty.id }),
+    enabled: !!selectedProperty?.id,
+    initialData: []
+  });
+
+  const { data: posts = [] } = useQuery({
+    queryKey: ['posts', selectedProperty?.id],
+    queryFn: () => base44.entities.Post.filter({ property_id: selectedProperty.id }, '-created_date'),
+    enabled: !!selectedProperty?.id,
+    initialData: []
+  });
+
+  const { data: recommendations = [] } = useQuery({
+    queryKey: ['recommendations', selectedProperty?.id],
+    queryFn: () => base44.entities.Recommendation.filter({ property_id: selectedProperty.id }, '-created_date'),
     enabled: !!selectedProperty?.id,
     initialData: []
   });
@@ -113,63 +132,106 @@ export default function BrowseProperties() {
               </div>
             </motion.div>
 
-            {/* Businesses */}
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <Store className="w-6 h-6" />
-                Businesses ({businesses.length})
-              </h2>
-              
-              {businesses.length === 0 ? (
-                <Card className="bg-white/5 border-white/10">
-                  <CardContent className="py-12 text-center">
-                    <Users className="w-12 h-12 mx-auto text-zinc-500 mb-3" />
-                    <p className="text-zinc-400">No businesses registered yet</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {businesses.map((business, index) => (
-                    <motion.div
-                      key={business.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                    >
-                      <Card className="bg-white/5 border-white/10 hover:bg-white/10 transition-all">
-                        <CardHeader>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <CardTitle className="text-white text-lg">{business.business_name}</CardTitle>
-                              <p className="text-xs text-zinc-500 mt-1">Unit {business.unit_number}</p>
-                            </div>
-                            {business.logo_url && (
-                              <img src={business.logo_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
-                            )}
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <Badge className="mb-3 bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
-                            {getCategoryLabel(business.category)}
-                          </Badge>
-                          <p className="text-sm text-zinc-400 line-clamp-2">{business.business_description}</p>
-                          {business.website && (
-                            <a 
-                              href={business.website} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-xs text-indigo-400 hover:text-indigo-300 mt-2 inline-block"
-                            >
-                              Visit Website →
-                            </a>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* Tabs */}
+            <Tabs defaultValue="directory" className="w-full">
+              <TabsList className="bg-white/5 border border-white/10 mb-6">
+                <TabsTrigger value="directory" className="data-[state=active]:bg-indigo-500">
+                  <Store className="w-4 h-4 mr-2" />
+                  Directory ({businesses.length})
+                </TabsTrigger>
+                <TabsTrigger value="community" className="data-[state=active]:bg-indigo-500">
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Community ({posts.length})
+                </TabsTrigger>
+                <TabsTrigger value="requests" className="data-[state=active]:bg-indigo-500">
+                  <ClipboardList className="w-4 h-4 mr-2" />
+                  Requests ({recommendations.length})
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Directory Tab */}
+              <TabsContent value="directory">
+                <AdBanner propertyId={selectedProperty.id} />
+                {businesses.length === 0 ? (
+                  <Card className="bg-white/5 border-white/10 mt-6">
+                    <CardContent className="py-12 text-center">
+                      <Users className="w-12 h-12 mx-auto text-zinc-500 mb-3" />
+                      <p className="text-zinc-400">No businesses registered yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+                    {businesses.map((business, index) => (
+                      <motion.div
+                        key={business.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                      >
+                        <BusinessCard business={business} />
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Community Tab */}
+              <TabsContent value="community">
+                <AdBanner propertyId={selectedProperty.id} />
+                {posts.length === 0 ? (
+                  <Card className="bg-white/5 border-white/10 mt-6">
+                    <CardContent className="py-12 text-center">
+                      <MessageSquare className="w-12 h-12 mx-auto text-zinc-500 mb-3" />
+                      <p className="text-zinc-400">No posts yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-4 mt-6">
+                    {posts.map((post, index) => {
+                      const business = businesses.find(b => b.id === post.business_id);
+                      return (
+                        <motion.div
+                          key={post.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <PostCard post={post} business={business} />
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* Requests Tab */}
+              <TabsContent value="requests">
+                {recommendations.length === 0 ? (
+                  <Card className="bg-white/5 border-white/10">
+                    <CardContent className="py-12 text-center">
+                      <ClipboardList className="w-12 h-12 mx-auto text-zinc-500 mb-3" />
+                      <p className="text-zinc-400">No requests submitted yet</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-4">
+                    {recommendations.map((rec, index) => {
+                      const business = businesses.find(b => b.id === rec.business_id);
+                      return (
+                        <motion.div
+                          key={rec.id}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <RecommendationCard recommendation={rec} business={business} readOnly />
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
       </div>
