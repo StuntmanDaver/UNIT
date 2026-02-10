@@ -64,7 +64,8 @@ export default function AdPopup({ propertyId }) {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] w-[90%] max-w-sm"
+            className="fixed top-1/2 left-1/2 z-[70] w-[90%] max-w-sm"
+            style={{ transform: 'translate(-50%, -50%)' }}
           >
             <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
               {/* Close Button */}
