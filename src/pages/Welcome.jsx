@@ -62,13 +62,11 @@ export default function Welcome() {
               Connect • Discover • Grow
             </span>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Grow your business
-              <br />
-              through local
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
+              Grow your business through
               <br />
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                connections
+                local connections
               </span>
             </h1>
 
