@@ -61,23 +61,23 @@ export default function AdPopup({ propertyId }) {
 
           {/* Popup */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md mx-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90%] max-w-sm"
           >
-            <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-white/10 shadow-2xl overflow-hidden">
+            <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
               {/* Close Button */}
               <button
                 onClick={() => setIsVisible(false)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 flex items-center justify-center hover:bg-black/60 transition-all group"
+                className="absolute top-3 right-3 z-10 w-7 h-7 rounded-full bg-black/60 backdrop-blur-xl border border-white/20 flex items-center justify-center hover:bg-black/80 transition-all"
               >
-                <X className="w-4 h-4 text-white/70 group-hover:text-white" />
+                <X className="w-4 h-4 text-white" />
               </button>
 
               {/* Ad Image */}
               {currentAd.image_url && (
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-32 overflow-hidden">
                   <img
                     src={currentAd.image_url}
                     alt={currentAd.headline}
@@ -88,21 +88,21 @@ export default function AdPopup({ propertyId }) {
               )}
 
               {/* Content */}
-              <div className="p-6">
-                <div className="inline-block px-3 py-1 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-xs text-indigo-300 font-medium mb-3">
+              <div className="p-5">
+                <div className="inline-block px-2.5 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-[10px] text-indigo-300 font-medium mb-2">
                   {currentAd.business_type}
                 </div>
                 
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-lg font-bold text-white mb-1.5">
                   {currentAd.headline}
                 </h3>
                 
-                <p className="text-zinc-400 text-sm mb-4">
+                <p className="text-zinc-400 text-xs mb-3 line-clamp-2">
                   {currentAd.description}
                 </p>
 
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-xs text-zinc-500">
+                  <span className="text-[10px] text-zinc-500">
                     {currentAd.business_name}
                   </span>
                   
@@ -113,9 +113,9 @@ export default function AdPopup({ propertyId }) {
                       rel="noopener noreferrer"
                       onClick={() => setIsVisible(false)}
                     >
-                      <Button className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0">
+                      <Button size="sm" className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 text-xs">
                         {currentAd.cta_text || 'Learn More'}
-                        <ExternalLink className="w-4 h-4 ml-2" />
+                        <ExternalLink className="w-3 h-3 ml-1" />
                       </Button>
                     </a>
                   )}
