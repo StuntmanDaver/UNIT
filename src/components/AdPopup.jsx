@@ -61,14 +61,13 @@ export default function AdPopup({ propertyId }) {
 
           {/* Popup */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.9, x: '-50%', y: '-50%' }}
+            animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+            exit={{ opacity: 0, scale: 0.9, x: '-50%', y: '-50%' }}
             className="fixed z-[70] w-[90%] max-w-sm"
             style={{ 
               top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
+              left: '50%'
             }}
           >
             <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
