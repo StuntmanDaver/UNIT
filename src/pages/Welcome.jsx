@@ -63,9 +63,9 @@ export default function Welcome() {
             </span>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Grow through
+              Grow your business
               <br />
-              local
+              through local
               <br />
               <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 connections
