@@ -267,6 +267,7 @@ export default function Directory() {
                         <BusinessCard
                           business={business}
                           onViewCard={() => setSelectedBusiness(business)}
+                          isFeatured={true}
                         />
                       </motion.div>
                     ))}
