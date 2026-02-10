@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Mail, Phone, Globe, MapPin, QrCode } from "lucide-react";
 import { motion } from "framer-motion";
 
-export default function BusinessCard({ business, onViewCard, compact = false }) {
+export default function BusinessCard({ business, onViewCard, compact = false, isFeatured = false }) {
   const getCategoryLabel = (category) => {
     const labels = {
       manufacturing: 'Manufacturing',
@@ -79,8 +79,19 @@ export default function BusinessCard({ business, onViewCard, compact = false }) 
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3 }}
+      className={isFeatured ? "relative" : ""}
     >
-      <Card className="overflow-hidden bg-zinc-900/50 backdrop-blur-xl border-white/10 hover:bg-zinc-900/70 hover:border-indigo-500/30 transition-all group">
+      {isFeatured && (
+        <>
+          <div className="absolute -inset-[2px] bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 rounded-2xl blur-md opacity-75 animate-pulse" />
+          <div className="absolute -inset-[2px] bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 rounded-2xl" />
+        </>
+      )}
+      <Card className={`overflow-hidden bg-zinc-900/50 backdrop-blur-xl transition-all group relative ${
+        isFeatured 
+          ? "border-2 border-yellow-500/50 shadow-2xl shadow-yellow-500/30" 
+          : "border-white/10 hover:bg-zinc-900/70 hover:border-indigo-500/30"
+      }`}>
         <div className="h-24 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 relative">
           <div className="absolute -bottom-8 left-6">
             <div className="w-16 h-16 rounded-2xl bg-zinc-900 shadow-xl shadow-black/50 flex items-center justify-center border-4 border-zinc-900 group-hover:border-indigo-500/30 transition-colors">
