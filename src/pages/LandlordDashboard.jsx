@@ -253,114 +253,54 @@ export default function LandlordDashboard() {
             </Card>
           </motion.div>
 
-          {/* Payment Overview */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="mb-8"
-          >
-            <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-              <div className="flex items-center gap-2 mb-6">
-                  <DollarSign className="w-5 h-5 text-indigo-400" />
-                  <h2 className="text-xl font-bold text-white">Payment Status</h2>
+          {/* Tenant Category Distribution & Quick Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="lg:col-span-2"
+            >
+              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
+                <div className="flex items-center gap-2 mb-6">
+                  <PieChart className="w-5 h-5 text-indigo-400" />
+                  <h2 className="text-xl font-bold text-white">Tenant Distribution by Category</h2>
                 </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="text-center p-4 bg-green-500/10 border border-green-500/20 rounded-xl">
-                    <div className="text-2xl font-bold text-green-400">
-                      ${payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-green-300 mt-1">Paid</div>
-                  </div>
-                  <div className="text-center p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                    <div className="text-2xl font-bold text-red-400">
-                      ${overduePayments.reduce((sum, p) => sum + p.amount, 0).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-red-300 mt-1">Overdue</div>
-                  </div>
-                </div>
-
-                <div className="space-y-2 mt-6">
-                  <h3 className="font-semibold text-white text-sm mb-3">Recent Payments</h3>
-                  {payments.slice(0, 4).map((payment) => {
-                    const business = businesses.find(b => b.id === payment.business_id);
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {Object.entries(categoryStats).map(([category, count]) => {
+                    const percentage = ((count / businesses.length) * 100).toFixed(1);
                     return (
-                      <div key={payment.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg">
-                        <div className="flex-1">
-                          <div className="font-medium text-sm text-white">{business?.business_name}</div>
-                          <div className="text-xs text-zinc-400">Due {new Date(payment.due_date).toLocaleDateString()}</div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="text-sm font-semibold text-white">${payment.amount.toLocaleString()}</div>
-                          <Badge className={
-                            payment.status === 'paid' ? 'bg-green-500/20 text-green-300 border-green-500/30' :
-                            payment.status === 'overdue' ? 'bg-red-500/20 text-red-300 border-red-500/30' :
-                            'bg-yellow-500/20 text-yellow-300 border-yellow-500/30'
-                          }>
-                            {payment.status}
-                          </Badge>
-                        </div>
+                      <div key={category} className="text-center p-4 bg-white/5 border border-white/10 rounded-xl">
+                        <div className="text-2xl font-bold text-white">{percentage}%</div>
+                        <div className="text-sm text-zinc-300 mt-1">{categoryLabels[category]}</div>
+                        <div className="text-xs text-zinc-500 mt-1">{count} tenant{count !== 1 ? 's' : ''}</div>
                       </div>
                     );
                   })}
-                  {payments.length === 0 && (
-                    <div className="text-center py-4 text-zinc-400 text-sm">
-                      No payments recorded
-                    </div>
-                  )}
                 </div>
-            </Card>
-          </motion.div>
+              </Card>
+            </motion.div>
 
-          {/* Tenant Category Distribution */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="mb-8"
-          >
-            <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-              <div className="flex items-center gap-2 mb-6">
-                <PieChart className="w-5 h-5 text-indigo-400" />
-                <h2 className="text-xl font-bold text-white">Tenant Distribution by Category</h2>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {Object.entries(categoryStats).map(([category, count]) => {
-                  const percentage = ((count / businesses.length) * 100).toFixed(1);
-                  return (
-                    <div key={category} className="text-center p-4 bg-white/5 border border-white/10 rounded-xl">
-                      <div className="text-2xl font-bold text-white">{percentage}%</div>
-                      <div className="text-sm text-zinc-300 mt-1">{categoryLabels[category]}</div>
-                      <div className="text-xs text-zinc-500 mt-1">{count} tenant{count !== 1 ? 's' : ''}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          </motion.div>
-
-          {/* Quick Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="mb-8"
-          >
-            <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-              <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
-              <div className="grid grid-cols-1 gap-4">
-                <Button
-                  onClick={() => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)}
-                  variant="outline"
-                  className="h-20 flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white"
-                >
-                  <ClipboardList className="w-6 h-6 text-purple-400" />
-                  <span className="font-medium">Requests</span>
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
+                <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
+                <div className="grid grid-cols-1 gap-4">
+                  <Button
+                    onClick={() => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)}
+                    variant="outline"
+                    className="h-20 flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white"
+                  >
+                    <ClipboardList className="w-6 h-6 text-purple-400" />
+                    <span className="font-medium">Requests</span>
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
 
 
         </div>
