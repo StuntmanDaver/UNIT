@@ -126,7 +126,7 @@ export default function Welcome() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="max-w-4xl mx-auto mt-12"
         >
-          <AdBanner propertyId="demo" />
+          <AdBanner propertyId={properties[0]?.id} />
         </motion.div>
 
         {/* Stats */}
