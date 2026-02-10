@@ -58,6 +58,7 @@ import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
 import Register from './pages/Register';
 import Welcome from './pages/Welcome';
+import BrowseProperties from './pages/BrowseProperties';
 
 
 export const PAGES = {
@@ -72,6 +73,7 @@ export const PAGES = {
     "Recommendations": Recommendations,
     "Register": Register,
     "Welcome": Welcome,
+    "BrowseProperties": BrowseProperties,
 }
 
 export const pagesConfig = {
