@@ -188,84 +188,70 @@ export default function LandlordDashboard() {
           </motion.div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-emerald-400" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-8"
+          >
+            <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
+              <div className="flex items-center gap-2 mb-6">
+                <TrendingUp className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-xl font-bold text-white">Property Overview</h2>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">Active</Badge>
                   </div>
-                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30">Active</Badge>
+                  <div className="text-3xl font-bold text-white mb-1">{occupancyRate}%</div>
+                  <div className="text-sm text-zinc-400">Occupancy</div>
+                  <div className="text-xs text-zinc-500 mt-1">
+                    {businesses.length}/{property?.total_units} units
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">{occupancyRate}%</div>
-                <div className="text-sm text-zinc-400">Occupancy Rate</div>
-                <div className="text-xs text-zinc-500 mt-2">
-                  {businesses.length} of {property?.total_units} units occupied
-                </div>
-              </Card>
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-blue-400" />
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center mb-2">
+                    <Users className="w-4 h-4 text-blue-400" />
                   </div>
+                  <div className="text-3xl font-bold text-white mb-1">{businesses.length}</div>
+                  <div className="text-sm text-zinc-400">Tenants</div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">{businesses.length}</div>
-                <div className="text-sm text-zinc-400">Total Tenants</div>
-              </Card>
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-purple-400" />
+                <div>
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center mb-2">
+                    <DollarSign className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="text-3xl font-bold text-white mb-1">${totalExpectedRevenue.toLocaleString()}</div>
+                  <div className="text-sm text-zinc-400">Monthly Revenue</div>
+                  <div className="text-xs text-zinc-500 mt-1">
+                    ${monthlyRevenue.toLocaleString()} collected
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">${totalExpectedRevenue.toLocaleString()}</div>
-                <div className="text-sm text-zinc-400">Monthly Revenue</div>
-                <div className="text-xs text-zinc-500 mt-2">
-                  ${monthlyRevenue.toLocaleString()} collected this month
-                </div>
-              </Card>
-            </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                    <Calendar className="w-6 h-6 text-orange-400" />
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-orange-400" />
+                    </div>
+                    {expiringLeases.length > 0 && (
+                      <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30 text-xs">!</Badge>
+                    )}
                   </div>
-                  {expiringLeases.length > 0 && (
-                    <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/30">Action Needed</Badge>
-                  )}
+                  <div className="text-3xl font-bold text-white mb-1">{expiringLeases.length}</div>
+                  <div className="text-sm text-zinc-400">Expiring Leases</div>
+                  <div className="text-xs text-zinc-500 mt-1">
+                    Next 90 days
+                  </div>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">{expiringLeases.length}</div>
-                <div className="text-sm text-zinc-400">Expiring Leases</div>
-                <div className="text-xs text-zinc-500 mt-2">
-                  Within next 90 days
-                </div>
-              </Card>
-            </motion.div>
-          </div>
+              </div>
+            </Card>
+          </motion.div>
 
           {/* Payment Overview */}
           <motion.div
