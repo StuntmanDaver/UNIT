@@ -7,7 +7,6 @@ import PostCard from '@/components/PostCard';
 import CreatePostModal from '@/components/CreatePostModal';
 import BottomNav from '@/components/BottomNav';
 import NotificationBell from '@/components/NotificationBell';
-import AdBanner from '@/components/AdBanner';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -250,16 +249,6 @@ export default function Community() {
                 );
               })}
             </div>
-          </motion.div>
-
-          {/* Ad Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mb-6"
-          >
-            <AdBanner propertyId={propertyId} />
           </motion.div>
 
           {/* Posts */}
