@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Users, MessageSquare, CreditCard, ClipboardList, Building2 } from 'lucide-react';
+import { Home, Users, MessageSquare, CreditCard, ClipboardList } from 'lucide-react';
 
 export default function BottomNav({ propertyId }) {
   const location = useLocation();
@@ -37,12 +37,6 @@ export default function BottomNav({ propertyId }) {
       page: 'MyCard', 
       icon: CreditCard,
       url: createPageUrl('MyCard')
-    },
-    { 
-      name: 'Switch Property', 
-      page: 'BrowseProperties', 
-      icon: Building2,
-      url: createPageUrl('BrowseProperties')
     }
   ];
 
