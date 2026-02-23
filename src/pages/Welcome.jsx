@@ -87,13 +87,6 @@ export default function Welcome() {
             <p className="mt-4 text-sm text-gray-500">
               Search for your property by name or address
             </p>
-            <div className="mt-4">
-              <Link to={createPageUrl('BrowseProperties')}>
-                <Button variant="ghost" className="text-zinc-400 hover:text-white hover:bg-white/5">
-                  or browse all properties →
-                </Button>
-              </Link>
-            </div>
           </motion.div>
         </div>
 
