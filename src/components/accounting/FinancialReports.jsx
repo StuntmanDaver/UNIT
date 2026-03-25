@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { TrendingUp, TrendingDown, DollarSign, Receipt, Calendar, Filter } from "lucide-react";
+import { TrendingUp, TrendingDown, Filter, Download } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { CHART_COLORS } from '@/lib/colors';
 
 export default function FinancialReports({ payments, expenses, leases, businesses }) {
   const [dateRange, setDateRange] = useState({
@@ -89,7 +90,7 @@ export default function FinancialReports({ payments, expenses, leases, businesse
   };
 
   // Chart colors
-  const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+  const COLORS = [CHART_COLORS.revenue, CHART_COLORS.forecast, '#f59e0b', CHART_COLORS.expense, CHART_COLORS.net, '#E0E1DE'];
 
   // Pie chart data for expenses
   const expensePieData = Object.entries(expensesByCategory).map(([category, amount]) => ({
@@ -97,12 +98,26 @@ export default function FinancialReports({ payments, expenses, leases, businesse
     value: amount
   }));
 
+  const exportCSV = (data, filename) => {
+    if (!data.length) return;
+    const headers = Object.keys(data[0]).join(',');
+    const rows = data.map(row => Object.values(row).map(v => typeof v === 'string' && v.includes(',') ? `"${v}"` : v).join(','));
+    const csv = [headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters */}
       <Card className="p-6 bg-white border-gray-100">
         <div className="flex items-center gap-2 mb-4">
-          <Filter className="w-5 h-5 text-emerald-600" />
+          <Filter className="w-5 h-5 text-brand-slate" />
           <h3 className="text-lg font-bold text-gray-900">Report Filters</h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -153,7 +168,13 @@ export default function FinancialReports({ payments, expenses, leases, businesse
         {/* Profit & Loss Statement */}
         <TabsContent value="profitloss">
           <Card className="p-6 bg-white border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Profit & Loss Statement</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-gray-900">Profit & Loss Statement</h3>
+              <Button variant="outline" size="sm" onClick={() => exportCSV(cashFlowData, 'profit-loss.csv')}>
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+            </div>
             
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-green-50 rounded-lg">
@@ -218,7 +239,13 @@ export default function FinancialReports({ payments, expenses, leases, businesse
           {/* Expense Breakdown with Pie Chart */}
           {Object.keys(expensesByCategory).length > 0 && (
             <Card className="p-6 bg-white border-gray-100 mt-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-6">Expense Breakdown</h3>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900">Expense Breakdown</h3>
+                <Button variant="outline" size="sm" onClick={() => exportCSV(expensePieData, 'expense-breakdown.csv')}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
+              </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div>
@@ -231,7 +258,7 @@ export default function FinancialReports({ payments, expenses, leases, businesse
                         labelLine={false}
                         label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
                         outerRadius={100}
-                        fill="#8884d8"
+                        fill={CHART_COLORS.net}
                         dataKey="value"
                       >
                         {expensePieData.map((entry, index) => (
@@ -269,7 +296,13 @@ export default function FinancialReports({ payments, expenses, leases, businesse
         {/* Cash Flow Statement */}
         <TabsContent value="cashflow">
           <Card className="p-6 bg-white border-gray-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-6">Cash Flow Statement</h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-gray-900">Cash Flow Statement</h3>
+              <Button variant="outline" size="sm" onClick={() => exportCSV(cashFlowData, 'cash-flow.csv')}>
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+            </div>
             
             {/* Summary */}
             <div className="grid grid-cols-3 gap-4 mb-6">
@@ -301,7 +334,7 @@ export default function FinancialReports({ payments, expenses, leases, businesse
                   <Legend />
                   <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} name="Cash Inflow" />
                   <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} name="Cash Outflow" />
-                  <Line type="monotone" dataKey="netCashFlow" stroke="#8b5cf6" strokeWidth={2} name="Net Cash Flow" />
+                  <Line type="monotone" dataKey="netCashFlow" stroke={CHART_COLORS.net} strokeWidth={2} name="Net Cash Flow" />
                 </LineChart>
               </ResponsiveContainer>
             </div>

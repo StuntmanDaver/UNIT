@@ -43,8 +43,8 @@ export default function LandlordLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to={createPageUrl('Welcome')} className="flex items-center gap-2 text-zinc-400 hover:text-white transition-colors">
             <ArrowLeft className="w-5 h-5" />
@@ -65,14 +65,14 @@ export default function LandlordLogin() {
           className="w-full max-w-md"
         >
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-indigo-400" />
+            <div className="w-16 h-16 rounded-full bg-brand-slate/20 flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8 text-brand-slate-light" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Landlord Access</h1>
             <p className="text-zinc-400">Enter your property access code to continue</p>
           </div>
 
-          <Card className="p-8 bg-zinc-900/50 backdrop-blur-xl border-white/10">
+          <Card className="p-8 bg-brand-navy/50 backdrop-blur-xl border-white/10">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <Label htmlFor="code" className="text-sm font-medium text-zinc-300">
@@ -100,7 +100,7 @@ export default function LandlordLogin() {
 
               <Button
                 type="submit"
-                className="w-full py-6 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-base font-medium border-0 shadow-lg shadow-indigo-500/20"
+                className="w-full py-6 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white text-base font-medium border-0 shadow-lg shadow-brand-slate/20"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -116,7 +116,7 @@ export default function LandlordLogin() {
           </Card>
 
           <p className="text-center text-sm text-zinc-500 mt-6">
-            Contact Unit <a href="mailto:support@unitapp.com" className="text-indigo-400 hover:text-indigo-300 underline">support</a> for access
+            Contact Unit <a href="mailto:support@unitapp.com" className="text-brand-slate-light hover:text-brand-steel underline">support</a> for access
           </p>
         </motion.div>
       </main>

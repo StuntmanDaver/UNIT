@@ -159,7 +159,7 @@ export default function LeaseModal({ isOpen, onClose, onSubmit, isLoading, busin
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600" disabled={isLoading}>
+            <Button type="submit" className="bg-gradient-to-r from-brand-slate to-brand-navy" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

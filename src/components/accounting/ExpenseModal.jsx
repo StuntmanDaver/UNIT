@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-export default function ExpenseModal({ isOpen, onClose, onSubmit, isLoading, propertyId }) {
-  const [formData, setFormData] = useState({
+export default function ExpenseModal({ isOpen, onClose, onSubmit, isLoading, propertyId, expense = null }) {
+  const [formData, setFormData] = useState(expense || {
     property_id: propertyId,
     category: '',
     description: '',
@@ -28,7 +28,7 @@ export default function ExpenseModal({ isOpen, onClose, onSubmit, isLoading, pro
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Record Expense</DialogTitle>
+          <DialogTitle>{expense ? 'Edit Expense' : 'Record Expense'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -138,14 +138,14 @@ export default function ExpenseModal({ isOpen, onClose, onSubmit, isLoading, pro
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600" disabled={isLoading}>
+            <Button type="submit" className="bg-gradient-to-r from-brand-slate to-brand-navy" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Recording...
+                  {expense ? 'Updating...' : 'Recording...'}
                 </>
               ) : (
-                'Record Expense'
+                expense ? 'Update Expense' : 'Record Expense'
               )}
             </Button>
           </div>

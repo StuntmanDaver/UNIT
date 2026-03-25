@@ -112,7 +112,7 @@ export default function CreateRecommendationModal({ open, onClose, onSubmit, typ
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading} className="flex-1 bg-emerald-500 hover:bg-emerald-600">
+            <Button type="submit" disabled={isLoading} className="flex-1 bg-brand-slate hover:bg-brand-slate-light">
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />

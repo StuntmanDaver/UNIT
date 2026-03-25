@@ -133,14 +133,14 @@ export default function Register() {
 
   if (propertyLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-gradient-to-br from-brand-gray via-white to-brand-gray/30 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-steel" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-gradient-to-br from-brand-gray via-white to-brand-gray/30">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-white/80 backdrop-blur-xl border-b border-gray-100/50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -169,8 +169,8 @@ export default function Register() {
           >
             <Card className="p-4 bg-white/60 backdrop-blur-sm border-gray-100">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
-                  <Building2 className="w-7 h-7 text-emerald-600" />
+                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-gray to-brand-gray flex items-center justify-center">
+                  <Building2 className="w-7 h-7 text-brand-slate" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-gray-900">{property?.name}</h3>
@@ -186,16 +186,16 @@ export default function Register() {
           {/* Progress */}
           <div className="flex items-center gap-3 mb-8">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm font-medium">
+              <div className="w-8 h-8 rounded-full bg-brand-slate text-white flex items-center justify-center text-sm font-medium">
                 {step > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
               </div>
               <span className="text-sm font-medium text-gray-900">Business Info</span>
             </div>
             <div className="flex-1 h-0.5 bg-gray-200 rounded-full">
-              <div className={`h-full bg-emerald-500 rounded-full transition-all ${step > 1 ? 'w-full' : 'w-0'}`} />
+              <div className={`h-full bg-brand-slate rounded-full transition-all ${step > 1 ? 'w-full' : 'w-0'}`} />
             </div>
             <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === 2 ? 'bg-emerald-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${step === 2 ? 'bg-brand-slate text-white' : 'bg-gray-200 text-gray-500'}`}>
                 2
               </div>
               <span className={`text-sm font-medium ${step === 2 ? 'text-gray-900' : 'text-gray-500'}`}>Contact</span>
@@ -239,7 +239,7 @@ export default function Register() {
                             </button>
                           </div>
                         ) : (
-                          <label className="w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all cursor-pointer">
+                          <label className="w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl hover:border-brand-slate hover:bg-brand-gray/50 transition-all cursor-pointer">
                             <input
                               type="file"
                               accept="image/*"
@@ -248,7 +248,7 @@ export default function Register() {
                               disabled={uploading}
                             />
                             {uploading ? (
-                              <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                              <Loader2 className="w-8 h-8 text-brand-steel animate-spin" />
                             ) : (
                               <>
                                 <Upload className="w-8 h-8 text-gray-400 mb-2" />
@@ -382,7 +382,7 @@ export default function Register() {
 
                 <Button
                   type="submit"
-                  className="w-full mt-6 py-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white text-base font-medium"
+                  className="w-full mt-6 py-6 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white text-base font-medium"
                   disabled={createBusinessMutation.isPending}
                 >
                   {createBusinessMutation.isPending ? (

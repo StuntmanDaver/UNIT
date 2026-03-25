@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import QRCode from 'qrcode';
+import { BRAND } from '@/lib/colors';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Download, Share2, Copy, MessageSquare } from "lucide-react";
@@ -17,96 +19,18 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
 
   useEffect(() => {
     if (canvasRef.current && business) {
-      generateQRCode();
+      const profileUrl = getProfileUrl();
+      QRCode.toCanvas(canvasRef.current, profileUrl, {
+        width: size,
+        margin: 2,
+        color: {
+          dark: BRAND.navy,
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      }).catch(err => console.error('QR generation failed:', err));
     }
   }, [business, size]);
-
-  const generateQRCode = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    canvas.width = size;
-    canvas.height = size;
-
-    const profileUrl = getProfileUrl();
-    
-    // Generate QR code pattern based on URL
-    const modules = 29; // Standard QR code size
-    const moduleSize = size / modules;
-    
-    // Create a deterministic pattern based on URL
-    let hash = 0;
-    for (let i = 0; i < profileUrl.length; i++) {
-      hash = ((hash << 5) - hash) + profileUrl.charCodeAt(i);
-      hash = hash & hash;
-    }
-
-    // White background
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-
-    ctx.fillStyle = '#1a1a2e';
-    
-    // Draw finder patterns (the three corner squares)
-    const drawFinder = (x, y) => {
-      // Outer black square
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect(x * moduleSize, y * moduleSize, 7 * moduleSize, 7 * moduleSize);
-      // White inner
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect((x + 1) * moduleSize, (y + 1) * moduleSize, 5 * moduleSize, 5 * moduleSize);
-      // Black center
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect((x + 2) * moduleSize, (y + 2) * moduleSize, 3 * moduleSize, 3 * moduleSize);
-    };
-
-    // Draw the three finder patterns
-    drawFinder(0, 0);
-    drawFinder(modules - 7, 0);
-    drawFinder(0, modules - 7);
-
-    // Draw timing patterns
-    ctx.fillStyle = '#1a1a2e';
-    for (let i = 8; i < modules - 8; i++) {
-      if (i % 2 === 0) {
-        ctx.fillRect(i * moduleSize, 6 * moduleSize, moduleSize, moduleSize);
-        ctx.fillRect(6 * moduleSize, i * moduleSize, moduleSize, moduleSize);
-      }
-    }
-
-    // Draw alignment pattern (for larger QR codes)
-    const drawAlignment = (x, y) => {
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect((x - 2) * moduleSize, (y - 2) * moduleSize, 5 * moduleSize, 5 * moduleSize);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect((x - 1) * moduleSize, (y - 1) * moduleSize, 3 * moduleSize, 3 * moduleSize);
-      ctx.fillStyle = '#1a1a2e';
-      ctx.fillRect(x * moduleSize, y * moduleSize, moduleSize, moduleSize);
-    };
-    drawAlignment(modules - 7, modules - 7);
-
-    // Draw data modules with seeded random pattern
-    ctx.fillStyle = '#1a1a2e';
-    const seededRandom = (seed) => {
-      const x = Math.sin(seed) * 10000;
-      return x - Math.floor(x);
-    };
-
-    for (let i = 0; i < modules; i++) {
-      for (let j = 0; j < modules; j++) {
-        // Skip finder pattern areas
-        if ((i < 9 && j < 9) || (i < 9 && j > modules - 9) || (i > modules - 9 && j < 9)) continue;
-        // Skip timing patterns
-        if (i === 6 || j === 6) continue;
-        // Skip alignment pattern area
-        if (i >= modules - 9 && i <= modules - 5 && j >= modules - 9 && j <= modules - 5) continue;
-        
-        const seed = hash + i * modules + j;
-        if (seededRandom(seed) > 0.5) {
-          ctx.fillRect(i * moduleSize, j * moduleSize, moduleSize, moduleSize);
-        }
-      }
-    }
-  };
 
   const handleDownload = () => {
     const canvas = canvasRef.current;
@@ -137,7 +61,7 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
 
   return (
     <div className="flex flex-col items-center">
-      <div className="p-4 bg-white rounded-2xl shadow-lg shadow-indigo-100/50 border border-gray-100">
+      <div className="p-4 bg-white rounded-2xl shadow-lg shadow-brand-gray/50 border border-gray-100">
         <canvas 
           ref={canvasRef} 
           style={{ width: size, height: size }}
@@ -154,7 +78,7 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
           <Button
             onClick={handleShareClick}
             size="sm"
-            className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white"
+            className="rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share
@@ -171,9 +95,9 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
             <Button
               onClick={handleTextLink}
               variant="outline"
-              className="w-full h-14 justify-start text-left rounded-xl hover:bg-emerald-50 border-gray-200"
+              className="w-full h-14 justify-start text-left rounded-xl hover:bg-brand-gray border-gray-200"
             >
-              <MessageSquare className="w-5 h-5 mr-3 text-emerald-600" />
+              <MessageSquare className="w-5 h-5 mr-3 text-brand-slate" />
               <div>
                 <div className="font-medium text-gray-900">Text Link</div>
                 <div className="text-xs text-gray-500">Send via SMS</div>
@@ -182,12 +106,23 @@ export default function BusinessQRCode({ business, size = 200, showActions = tru
             <Button
               onClick={handleCopyLink}
               variant="outline"
-              className="w-full h-14 justify-start text-left rounded-xl hover:bg-emerald-50 border-gray-200"
+              className="w-full h-14 justify-start text-left rounded-xl hover:bg-brand-gray border-gray-200"
             >
-              <Copy className="w-5 h-5 mr-3 text-emerald-600" />
+              <Copy className="w-5 h-5 mr-3 text-brand-slate" />
               <div>
                 <div className="font-medium text-gray-900">Copy Link</div>
                 <div className="text-xs text-gray-500">Copy to clipboard</div>
+              </div>
+            </Button>
+            <Button
+              onClick={handleDownload}
+              variant="outline"
+              className="w-full h-14 justify-start text-left rounded-xl hover:bg-brand-gray border-gray-200"
+            >
+              <Download className="w-5 h-5 mr-3 text-brand-slate" />
+              <div>
+                <div className="font-medium text-gray-900">Download QR</div>
+                <div className="text-xs text-gray-500">Save as PNG image</div>
               </div>
             </Button>
           </div>

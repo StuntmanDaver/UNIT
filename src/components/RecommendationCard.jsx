@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
 import { AlertCircle, Wrench, Lightbulb, MapPin, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { STATUS_COLORS, PRIORITY_COLORS } from '@/lib/colors';
 
 export default function RecommendationCard({ recommendation, business }) {
   const getTypeConfig = (type) => {
@@ -34,22 +35,11 @@ export default function RecommendationCard({ recommendation, business }) {
   };
 
   const getStatusBadge = (status) => {
-    const styles = {
-      submitted: 'bg-gray-100 text-gray-700',
-      in_progress: 'bg-blue-100 text-blue-700',
-      resolved: 'bg-green-100 text-green-700',
-      closed: 'bg-gray-200 text-gray-600'
-    };
-    return styles[status] || styles.submitted;
+    return STATUS_COLORS[status] || STATUS_COLORS.submitted;
   };
 
   const getPriorityBadge = (priority) => {
-    const styles = {
-      low: 'bg-slate-100 text-slate-600',
-      medium: 'bg-yellow-100 text-yellow-700',
-      high: 'bg-red-100 text-red-700'
-    };
-    return styles[priority] || styles.medium;
+    return PRIORITY_COLORS[priority] || PRIORITY_COLORS.medium;
   };
 
   const typeConfig = getTypeConfig(recommendation.type);
@@ -106,8 +96,8 @@ export default function RecommendationCard({ recommendation, business }) {
               {business?.logo_url ? (
                 <img src={business.logo_url} alt="" className="w-6 h-6 rounded-full" />
               ) : (
-                <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <span className="text-xs font-medium text-emerald-600">
+                <div className="w-6 h-6 rounded-full bg-brand-gray flex items-center justify-center">
+                  <span className="text-xs font-medium text-brand-slate">
                     {business?.business_name?.charAt(0).toUpperCase()}
                   </span>
                 </div>

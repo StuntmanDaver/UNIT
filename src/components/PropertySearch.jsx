@@ -35,7 +35,7 @@ export default function PropertySearch({ properties, onSelect, isLoading }) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          className="w-full pl-12 pr-4 py-6 text-lg bg-white/80 backdrop-blur-xl border-gray-200/50 rounded-2xl shadow-lg shadow-gray-200/50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all"
+          className="w-full pl-12 pr-4 py-6 text-lg bg-white/80 backdrop-blur-xl border-gray-200/50 rounded-2xl shadow-lg shadow-gray-200/50 focus:ring-2 focus:ring-brand-slate/20 focus:border-brand-slate transition-all"
         />
       </div>
 
@@ -49,7 +49,7 @@ export default function PropertySearch({ properties, onSelect, isLoading }) {
           >
             {isLoading ? (
               <div className="p-6 text-center text-gray-500">
-                <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                <div className="w-6 h-6 border-2 border-brand-slate border-t-transparent rounded-full animate-spin mx-auto mb-2" />
                 Searching...
               </div>
             ) : filteredProperties.length > 0 ? (
@@ -57,12 +57,12 @@ export default function PropertySearch({ properties, onSelect, isLoading }) {
                 {filteredProperties.map((property) => (
                   <motion.button
                     key={property.id}
-                    whileHover={{ backgroundColor: 'rgba(99, 102, 241, 0.05)' }}
+                    whileHover={{ backgroundColor: 'rgba(70, 90, 117, 0.05)' }}
                     onClick={() => onSelect(property)}
                     className="w-full p-4 flex items-center gap-4 border-b border-gray-50 last:border-0 text-left transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-100 to-violet-100 flex items-center justify-center flex-shrink-0">
-                      <Building2 className="w-6 h-6 text-indigo-600" />
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-gray to-brand-steel/20 flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-6 h-6 text-brand-slate" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 truncate">{property.name}</h4>
@@ -70,7 +70,7 @@ export default function PropertySearch({ properties, onSelect, isLoading }) {
                         <MapPin className="w-3.5 h-3.5" />
                         <span className="truncate">{property.address}, {property.city}</span>
                       </div>
-                      <span className="inline-block mt-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                      <span className="inline-block mt-1 text-xs font-medium text-brand-slate bg-brand-gray px-2 py-0.5 rounded-full">
                         {getPropertyTypeLabel(property.type)}
                       </span>
                     </div>

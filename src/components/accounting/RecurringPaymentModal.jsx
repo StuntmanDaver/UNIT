@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-export default function RecurringPaymentModal({ isOpen, onClose, onSubmit, isLoading, businesses, leases, propertyId }) {
-  const [formData, setFormData] = useState({
+export default function RecurringPaymentModal({ isOpen, onClose, onSubmit, isLoading, businesses, leases, propertyId, payment = null }) {
+  const [formData, setFormData] = useState(payment || {
     property_id: propertyId,
     business_id: '',
     lease_id: '',
@@ -31,7 +31,7 @@ export default function RecurringPaymentModal({ isOpen, onClose, onSubmit, isLoa
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Set Up Recurring Payment</DialogTitle>
+          <DialogTitle>{payment ? 'Edit Recurring Payment' : 'Set Up Recurring Payment'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -150,14 +150,14 @@ export default function RecurringPaymentModal({ isOpen, onClose, onSubmit, isLoa
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600" disabled={isLoading}>
+            <Button type="submit" className="bg-gradient-to-r from-brand-slate to-brand-navy" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating...
+                  {payment ? 'Updating...' : 'Creating...'}
                 </>
               ) : (
-                'Create Recurring Payment'
+                payment ? 'Update Payment' : 'Create Recurring Payment'
               )}
             </Button>
           </div>

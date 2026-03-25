@@ -74,15 +74,15 @@ export default function LandlordRequests() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-steel" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -142,7 +142,7 @@ export default function LandlordRequests() {
           >
             <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
               <div className="flex items-center gap-2 mb-6">
-                <ClipboardList className="w-5 h-5 text-indigo-400" />
+                <ClipboardList className="w-5 h-5 text-brand-steel" />
                 <h2 className="text-xl font-bold text-white">All Requests</h2>
                 <Badge variant="outline" className="ml-auto border-white/10 text-zinc-300">{requestStats.total} total</Badge>
               </div>
@@ -198,7 +198,7 @@ export default function LandlordRequests() {
                           <SelectTrigger className="w-40 bg-white/5 border-white/10 text-white">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-zinc-900 border-white/10">
+                          <SelectContent className="bg-brand-navy border-white/10">
                             <SelectItem value="submitted">Submitted</SelectItem>
                             <SelectItem value="in_progress">In Progress</SelectItem>
                             <SelectItem value="resolved">Resolved</SelectItem>

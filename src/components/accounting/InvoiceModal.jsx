@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
-export default function InvoiceModal({ isOpen, onClose, onSubmit, isLoading, businesses, leases, propertyId }) {
+export default function InvoiceModal({ isOpen, onClose, onSubmit, isLoading, businesses, leases, propertyId, invoice = null }) {
   const generateInvoiceNumber = () => {
     const date = new Date();
     const year = date.getFullYear();
@@ -16,7 +16,7 @@ export default function InvoiceModal({ isOpen, onClose, onSubmit, isLoading, bus
     return `INV-${year}${month}-${random}`;
   };
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(invoice || {
     property_id: propertyId,
     business_id: '',
     lease_id: '',
@@ -39,7 +39,7 @@ export default function InvoiceModal({ isOpen, onClose, onSubmit, isLoading, bus
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Generate Invoice</DialogTitle>
+          <DialogTitle>{invoice ? 'Edit Invoice' : 'Generate Invoice'}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -149,14 +149,14 @@ export default function InvoiceModal({ isOpen, onClose, onSubmit, isLoading, bus
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600" disabled={isLoading}>
+            <Button type="submit" className="bg-gradient-to-r from-brand-slate to-brand-navy" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generating...
+                  {invoice ? 'Updating...' : 'Generating...'}
                 </>
               ) : (
-                'Generate Invoice'
+                invoice ? 'Update Invoice' : 'Generate Invoice'
               )}
             </Button>
           </div>

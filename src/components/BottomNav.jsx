@@ -45,7 +45,7 @@ export default function BottomNav({ propertyId }) {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-zinc-900/60 backdrop-blur-2xl border-t border-white/5 safe-area-pb">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-brand-navy/60 backdrop-blur-2xl border-t border-white/5 safe-area-pb">
       <div className="flex items-center max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -64,7 +64,7 @@ export default function BottomNav({ propertyId }) {
               <div className={`relative ${active ? 'scale-110' : ''} transition-transform`}>
                 <Icon className="w-5 h-5" />
                 {active && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full blur-lg opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-brand-slate to-brand-steel rounded-full blur-lg opacity-50" />
                 )}
               </div>
               <span className={`text-[10px] transition-all ${active ? 'font-bold' : 'font-medium'}`}>

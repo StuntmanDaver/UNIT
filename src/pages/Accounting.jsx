@@ -7,20 +7,21 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import RecurringPaymentModal from '@/components/accounting/RecurringPaymentModal';
 import InvoiceModal from '@/components/accounting/InvoiceModal';
 import ExpenseModal from '@/components/accounting/ExpenseModal';
 import LeaseModal from '@/components/accounting/LeaseModal';
 import FinancialReports from '@/components/accounting/FinancialReports';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Plus, 
-  Repeat, 
-  FileText, 
+import UnitLogo from '@/components/UnitLogo';
+import {
+  ArrowLeft,
+  Plus,
+  Repeat,
+  FileText,
   Receipt,
-  Loader2,
-  BarChart3
+  BarChart3,
+  Trash2
 } from 'lucide-react';
 
 export default function Accounting() {
@@ -35,6 +36,9 @@ export default function Accounting() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showLeaseModal, setShowLeaseModal] = useState(false);
   const [editingLease, setEditingLease] = useState(null);
+  const [editingInvoice, setEditingInvoice] = useState(null);
+  const [editingExpense, setEditingExpense] = useState(null);
+  const [editingRecurring, setEditingRecurring] = useState(null);
 
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
@@ -123,6 +127,77 @@ export default function Accounting() {
     }
   });
 
+  const updateInvoiceMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Invoice.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      setShowInvoiceModal(false);
+      setEditingInvoice(null);
+    }
+  });
+
+  const updateExpenseMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Expense.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      setShowExpenseModal(false);
+      setEditingExpense(null);
+    }
+  });
+
+  const updateRecurringMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.RecurringPayment.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
+      setShowRecurringModal(false);
+      setEditingRecurring(null);
+    }
+  });
+
+  const deleteLeaseMutation = useMutation({
+    mutationFn: (id) => base44.entities.Lease.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['leases'] })
+  });
+
+  const deleteInvoiceMutation = useMutation({
+    mutationFn: (id) => base44.entities.Invoice.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] })
+  });
+
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (id) => base44.entities.Expense.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses'] })
+  });
+
+  const deleteRecurringMutation = useMutation({
+    mutationFn: (id) => base44.entities.RecurringPayment.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['recurringPayments'] })
+  });
+
+  const handleInvoiceSubmit = (data) => {
+    if (editingInvoice) {
+      updateInvoiceMutation.mutate({ id: editingInvoice.id, data });
+    } else {
+      createInvoiceMutation.mutate(data);
+    }
+  };
+
+  const handleExpenseSubmit = (data) => {
+    if (editingExpense) {
+      updateExpenseMutation.mutate({ id: editingExpense.id, data });
+    } else {
+      createExpenseMutation.mutate(data);
+    }
+  };
+
+  const handleRecurringSubmit = (data) => {
+    if (editingRecurring) {
+      updateRecurringMutation.mutate({ id: editingRecurring.id, data });
+    } else {
+      createRecurringPaymentMutation.mutate(data);
+    }
+  };
+
   const getBusinessName = (businessId) => {
     const business = businesses.find(b => b.id === businessId);
     return business?.business_name || 'Unknown';
@@ -155,8 +230,8 @@ export default function Accounting() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Button
@@ -222,7 +297,7 @@ export default function Accounting() {
                   </div>
                   <Button
                     onClick={handleCreateLease}
-                    className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                    className="bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Create Lease
@@ -295,6 +370,23 @@ export default function Accounting() {
                           }>
                             {lease.status.replace('_', ' ')}
                           </Badge>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Lease</AlertDialogTitle>
+                                <AlertDialogDescription>This action cannot be undone. This will permanently delete this lease.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteLeaseMutation.mutate(lease.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     );
@@ -314,17 +406,40 @@ export default function Accounting() {
                 <div className="flex flex-col items-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Recurring Payments</h2>
                   <Button
-                    onClick={() => setShowRecurringModal(true)}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                    onClick={() => { setEditingRecurring(null); setShowRecurringModal(true); }}
+                    className="bg-gradient-to-r from-brand-slate to-brand-navy"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Recurring Payment
                   </Button>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <div className="p-4 bg-green-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-green-700">
+                      {recurringPayments.filter(rp => rp.status === 'active').length}
+                    </div>
+                    <div className="text-xs text-green-600 mt-1">Active</div>
+                  </div>
+                  <div className="p-4 bg-yellow-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-yellow-700">
+                      {recurringPayments.filter(rp => rp.status === 'paused').length}
+                    </div>
+                    <div className="text-xs text-yellow-600 mt-1">Paused</div>
+                  </div>
+                  <div className="p-4 bg-emerald-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-emerald-700">
+                      ${recurringPayments.filter(rp => rp.status === 'active').reduce((sum, rp) => sum + (rp.amount || 0), 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-emerald-600 mt-1">Total Monthly</div>
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   {recurringPayments.map((rp) => (
-                    <div key={rp.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div key={rp.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => { setEditingRecurring(rp); setShowRecurringModal(true); }}
+                    >
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{rp.name}</div>
                         <div className="text-sm text-gray-500 mt-1">
@@ -333,7 +448,7 @@ export default function Accounting() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900">${rp.amount.toLocaleString()}</div>
+                          <div className="text-lg font-bold text-gray-900">${rp.amount?.toLocaleString()}</div>
                           <div className="text-xs text-gray-500">/{rp.frequency}</div>
                         </div>
                         <Badge className={
@@ -343,6 +458,23 @@ export default function Accounting() {
                         }>
                           {rp.status}
                         </Badge>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Recurring Payment</AlertDialogTitle>
+                              <AlertDialogDescription>This action cannot be undone. This will permanently delete this recurring payment.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteRecurringMutation.mutate(rp.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
@@ -361,17 +493,40 @@ export default function Accounting() {
                 <div className="flex flex-col items-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Invoices</h2>
                   <Button
-                    onClick={() => setShowInvoiceModal(true)}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                    onClick={() => { setEditingInvoice(null); setShowInvoiceModal(true); }}
+                    className="bg-gradient-to-r from-brand-slate to-brand-navy"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Generate Invoice
                   </Button>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div className="p-4 bg-blue-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-blue-700">{invoices.length}</div>
+                    <div className="text-xs text-blue-600 mt-1">Total</div>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-green-700">{invoices.filter(i => i.status === 'paid').length}</div>
+                    <div className="text-xs text-green-600 mt-1">Paid</div>
+                  </div>
+                  <div className="p-4 bg-red-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-red-700">{invoices.filter(i => i.status === 'overdue').length}</div>
+                    <div className="text-xs text-red-600 mt-1">Overdue</div>
+                  </div>
+                  <div className="p-4 bg-orange-50 rounded-xl text-center">
+                    <div className="text-2xl font-bold text-orange-700">
+                      ${invoices.filter(i => i.status !== 'paid').reduce((sum, i) => sum + (i.amount || 0), 0).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-orange-600 mt-1">Outstanding</div>
+                  </div>
+                </div>
+
                 <div className="space-y-3">
                   {invoices.map((invoice) => (
-                    <div key={invoice.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div key={invoice.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => { setEditingInvoice(invoice); setShowInvoiceModal(true); }}
+                    >
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{invoice.invoice_number}</div>
                         <div className="text-sm text-gray-500 mt-1">
@@ -381,7 +536,7 @@ export default function Accounting() {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900">${invoice.amount.toLocaleString()}</div>
+                          <div className="text-lg font-bold text-gray-900">${invoice.amount?.toLocaleString()}</div>
                         </div>
                         <Badge className={
                           invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
@@ -391,6 +546,23 @@ export default function Accounting() {
                         }>
                           {invoice.status}
                         </Badge>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                              <AlertDialogDescription>This action cannot be undone. This will permanently delete invoice {invoice.invoice_number}.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInvoiceMutation.mutate(invoice.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
@@ -409,8 +581,8 @@ export default function Accounting() {
                 <div className="flex flex-col items-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Expenses</h2>
                   <Button
-                    onClick={() => setShowExpenseModal(true)}
-                    className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                    onClick={() => { setEditingExpense(null); setShowExpenseModal(true); }}
+                    className="bg-gradient-to-r from-brand-slate to-brand-navy"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Record Expense
@@ -419,7 +591,9 @@ export default function Accounting() {
 
                 <div className="space-y-3">
                   {expenses.map((expense) => (
-                    <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div key={expense.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => { setEditingExpense(expense); setShowExpenseModal(true); }}
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <div className="font-medium text-gray-900">{expense.description}</div>
@@ -432,11 +606,30 @@ export default function Accounting() {
                           {new Date(expense.expense_date).toLocaleDateString()}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-red-700">-${expense.amount.toLocaleString()}</div>
-                        {expense.payment_method && (
-                          <div className="text-xs text-gray-500">{expense.payment_method}</div>
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-red-700">-${expense.amount?.toLocaleString()}</div>
+                          {expense.payment_method && (
+                            <div className="text-xs text-gray-500">{expense.payment_method}</div>
+                          )}
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Expense</AlertDialogTitle>
+                              <AlertDialogDescription>This action cannot be undone. This will permanently delete this expense record.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteExpenseMutation.mutate(expense.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   ))}
@@ -454,30 +647,33 @@ export default function Accounting() {
 
       <RecurringPaymentModal
         isOpen={showRecurringModal}
-        onClose={() => setShowRecurringModal(false)}
-        onSubmit={(data) => createRecurringPaymentMutation.mutate(data)}
-        isLoading={createRecurringPaymentMutation.isPending}
+        onClose={() => { setShowRecurringModal(false); setEditingRecurring(null); }}
+        onSubmit={handleRecurringSubmit}
+        isLoading={createRecurringPaymentMutation.isPending || updateRecurringMutation.isPending}
         businesses={businesses}
         leases={leases}
         propertyId={propertyId}
+        payment={editingRecurring}
       />
 
       <InvoiceModal
         isOpen={showInvoiceModal}
-        onClose={() => setShowInvoiceModal(false)}
-        onSubmit={(data) => createInvoiceMutation.mutate(data)}
-        isLoading={createInvoiceMutation.isPending}
+        onClose={() => { setShowInvoiceModal(false); setEditingInvoice(null); }}
+        onSubmit={handleInvoiceSubmit}
+        isLoading={createInvoiceMutation.isPending || updateInvoiceMutation.isPending}
         businesses={businesses}
         leases={leases}
         propertyId={propertyId}
+        invoice={editingInvoice}
       />
 
       <ExpenseModal
         isOpen={showExpenseModal}
-        onClose={() => setShowExpenseModal(false)}
-        onSubmit={(data) => createExpenseMutation.mutate(data)}
-        isLoading={createExpenseMutation.isPending}
+        onClose={() => { setShowExpenseModal(false); setEditingExpense(null); }}
+        onSubmit={handleExpenseSubmit}
+        isLoading={createExpenseMutation.isPending || updateExpenseMutation.isPending}
         propertyId={propertyId}
+        expense={editingExpense}
       />
 
       <LeaseModal

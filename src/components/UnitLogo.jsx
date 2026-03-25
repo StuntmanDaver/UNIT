@@ -12,9 +12,9 @@ export default function UnitLogo({ size = 32, className = "" }) {
     >
       <defs>
         <linearGradient id="unitGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#6366f1" />
-          <stop offset="50%" stopColor="#a855f7" />
-          <stop offset="100%" stopColor="#ec4899" />
+          <stop offset="0%" stopColor="#101B29" />
+          <stop offset="50%" stopColor="#465A75" />
+          <stop offset="100%" stopColor="#7C8DA7" />
         </linearGradient>
       </defs>
       
@@ -32,7 +32,7 @@ export default function UnitLogo({ size = 32, className = "" }) {
       <rect x="70" y="20" width="20" height="15" rx="4" fill="url(#unitGradient)"/>
       
       {/* Center accent dot */}
-      <circle cx="50" cy="50" r="6" fill="#ec4899" opacity="0.8"/>
+      <circle cx="50" cy="50" r="6" fill="#465A75" opacity="0.8"/>
     </svg>
   );
 }

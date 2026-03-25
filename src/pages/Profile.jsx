@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
+import { CATEGORY_COLORS } from '@/lib/colors';
 import { 
   Building2, 
   Mail, 
@@ -60,32 +61,20 @@ export default function Profile() {
   };
 
   const getCategoryColor = (category) => {
-    const colors = {
-      manufacturing: 'bg-orange-100 text-orange-700',
-      logistics: 'bg-blue-100 text-blue-700',
-      retail: 'bg-pink-100 text-pink-700',
-      food_service: 'bg-green-100 text-green-700',
-      professional_services: 'bg-teal-100 text-purple-700',
-      technology: 'bg-emerald-100 text-indigo-700',
-      healthcare: 'bg-red-100 text-red-700',
-      construction: 'bg-amber-100 text-amber-700',
-      automotive: 'bg-slate-100 text-slate-700',
-      other: 'bg-gray-100 text-gray-700'
-    };
-    return colors[category] || 'bg-gray-100 text-gray-700';
+    return CATEGORY_COLORS[category] || CATEGORY_COLORS.other;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      <div className="min-h-screen bg-gradient-to-br from-brand-gray via-white to-brand-gray/30 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-steel" />
       </div>
     );
   }
 
   if (!business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-gradient-to-br from-brand-gray via-white to-brand-gray/30 flex items-center justify-center px-6">
         <Card className="p-8 text-center max-w-md">
           <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-4" />
           <h2 className="text-xl font-bold text-gray-900">Business not found</h2>
@@ -102,9 +91,9 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <button
             onClick={() => navigate(-1)}
@@ -114,9 +103,9 @@ export default function Profile() {
             <span>Back</span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+              <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
               </div>
             </div>
             <span className="text-xl font-bold text-white">Unit</span>
@@ -132,9 +121,9 @@ export default function Profile() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card className="overflow-hidden bg-zinc-900/50 border-white/10 shadow-2xl shadow-black/50 backdrop-blur-xl">
+            <Card className="overflow-hidden bg-brand-navy/50 border-white/10 shadow-2xl shadow-black/50 backdrop-blur-xl">
               {/* Header */}
-              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white">
+              <div className="bg-gradient-to-br from-brand-slate via-brand-blue to-brand-navy p-8 text-white">
                 <div className="flex items-center gap-4">
                   <div className="w-20 h-20 rounded-2xl bg-white/20 flex items-center justify-center">
                     {business.logo_url ? (
@@ -164,8 +153,8 @@ export default function Profile() {
               <div className="p-6">
                 {/* Property Info */}
                 {property && (
-                  <div className="flex items-center gap-3 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl mb-6">
-                    <Building2 className="w-5 h-5 text-indigo-400" />
+                  <div className="flex items-center gap-3 p-4 bg-brand-slate/10 border border-brand-slate/20 rounded-xl mb-6">
+                    <Building2 className="w-5 h-5 text-brand-steel" />
                     <div>
                       <p className="font-medium text-white">{property.name}</p>
                       <p className="text-sm text-zinc-400">{property.address}, {property.city}</p>
@@ -187,8 +176,8 @@ export default function Profile() {
                   
                   {business.contact_name && (
                     <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl">
-                      <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center">
-                        <span className="text-sm font-semibold text-indigo-400">
+                      <div className="w-10 h-10 rounded-full bg-brand-slate/20 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-brand-steel">
                           {business.contact_name.charAt(0).toUpperCase()}
                         </span>
                       </div>
@@ -197,22 +186,22 @@ export default function Profile() {
                   )}
                   
                   {business.contact_email && (
-                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Mail className="w-5 h-5 text-indigo-400" />
+                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Mail className="w-5 h-5 text-brand-steel" />
                       <span className="text-zinc-300">{business.contact_email}</span>
                     </a>
                   )}
                   
                   {business.contact_phone && (
-                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Phone className="w-5 h-5 text-indigo-400" />
+                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Phone className="w-5 h-5 text-brand-steel" />
                       <span className="text-zinc-300">{business.contact_phone}</span>
                     </a>
                   )}
                   
                   {business.website && (
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Globe className="w-5 h-5 text-indigo-400" />
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Globe className="w-5 h-5 text-brand-steel" />
                       <span className="text-zinc-300 truncate">{business.website.replace(/^https?:\/\//, '')}</span>
                     </a>
                   )}
@@ -228,7 +217,7 @@ export default function Profile() {
                       </Button>
                     </Link>
                     <Link to={createPageUrl('Community') + `?propertyId=${property.id}`}>
-                      <Button className="w-full rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white border-0 shadow-lg shadow-indigo-500/20">
+                      <Button className="w-full rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white border-0 shadow-lg shadow-brand-slate/20">
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Community
                       </Button>

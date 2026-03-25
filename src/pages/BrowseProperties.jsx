@@ -71,13 +71,13 @@ export default function BrowseProperties() {
 
   if (selectedProperty) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-        <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-                <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                  <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+                <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                  <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
                 </div>
               </div>
               <span className="text-xl font-bold text-white">Unit</span>
@@ -114,7 +114,7 @@ export default function BrowseProperties() {
               
               <div className="flex items-start justify-between">
                 <div>
-                  <Badge className="mb-3 bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+                  <Badge className="mb-3 bg-brand-slate/20 text-brand-steel border-brand-slate/30">
                     {getPropertyTypeLabel(selectedProperty.type)}
                   </Badge>
                   <h1 className="text-4xl font-bold text-white mb-2">{selectedProperty.name}</h1>
@@ -135,15 +135,15 @@ export default function BrowseProperties() {
             {/* Tabs */}
             <Tabs defaultValue="directory" className="w-full">
               <TabsList className="bg-white/5 border border-white/10 mb-6">
-                <TabsTrigger value="directory" className="data-[state=active]:bg-indigo-500">
+                <TabsTrigger value="directory" className="data-[state=active]:bg-brand-slate">
                   <Store className="w-4 h-4 mr-2" />
                   Directory ({businesses.length})
                 </TabsTrigger>
-                <TabsTrigger value="community" className="data-[state=active]:bg-indigo-500">
+                <TabsTrigger value="community" className="data-[state=active]:bg-brand-slate">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   Community ({posts.length})
                 </TabsTrigger>
-                <TabsTrigger value="requests" className="data-[state=active]:bg-indigo-500">
+                <TabsTrigger value="requests" className="data-[state=active]:bg-brand-slate">
                   <ClipboardList className="w-4 h-4 mr-2" />
                   Requests ({recommendations.length})
                 </TabsTrigger>
@@ -239,13 +239,13 @@ export default function BrowseProperties() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+              <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
               </div>
             </div>
             <span className="text-xl font-bold text-white">Unit</span>
@@ -303,7 +303,7 @@ export default function BrowseProperties() {
                       </div>
                     )}
                     <CardHeader>
-                      <Badge className="mb-2 w-fit bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+                      <Badge className="mb-2 w-fit bg-brand-slate/20 text-brand-steel border-brand-slate/30">
                         {getPropertyTypeLabel(property.type)}
                       </Badge>
                       <CardTitle className="text-white text-xl">{property.name}</CardTitle>
@@ -321,8 +321,8 @@ export default function BrowseProperties() {
                           </div>
                         )}
                       </div>
-                      <Button 
-                        className="w-full mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                      <Button
+                        className="w-full mt-4 bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light"
                         onClick={() => setSelectedProperty(property)}
                       >
                         View Details

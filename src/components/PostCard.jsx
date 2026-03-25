@@ -93,7 +93,7 @@ export default function PostCard({ post, business }) {
 
           {business && (
             <div className="mt-4 pt-4 border-t border-white/10 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate to-brand-navy flex items-center justify-center shadow-lg shadow-brand-slate/20">
                 {business.logo_url ? (
                   <img src={business.logo_url} alt="" className="w-full h-full object-cover rounded-lg" />
                 ) : (

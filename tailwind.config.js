@@ -10,6 +10,16 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			/* Unit Brand Colors (direct access) */
+  			brand: {
+  				navy: '#101B29',
+  				'navy-light': '#1a2d42',
+  				blue: '#1D263A',
+  				slate: '#465A75',
+  				'slate-light': '#5a7090',
+  				steel: '#7C8DA7',
+  				gray: '#E0E1DE',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

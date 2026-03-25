@@ -136,14 +136,14 @@ export default function Community() {
 
   if (!propertyId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-gradient-to-br from-brand-gray via-white to-brand-gray/30 flex items-center justify-center px-6">
         <div className="text-center">
           <MessageSquare className="w-16 h-16 mx-auto text-gray-300 mb-4" />
           <h2 className="text-xl font-bold text-gray-900">No property selected</h2>
           <p className="text-gray-500 mt-2">Please select a property to view its community.</p>
           <Button
             onClick={() => navigate(createPageUrl('Welcome'))}
-            className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600"
+            className="mt-6 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy"
           >
             Find Your Property
           </Button>
@@ -153,14 +153,14 @@ export default function Community() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+              <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
               </div>
             </div>
             <span className="text-xl font-bold text-white">Unit</span>
@@ -181,7 +181,7 @@ export default function Community() {
                   Directory
                 </Button>
               </Link>
-              <Button variant="ghost" size="sm" className="rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <Button variant="ghost" size="sm" className="rounded-xl bg-brand-slate/10 text-brand-steel border border-brand-slate/20">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Community
               </Button>
@@ -203,7 +203,7 @@ export default function Community() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-slate to-brand-navy flex items-center justify-center shadow-lg shadow-brand-slate/20">
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <div>
@@ -215,7 +215,7 @@ export default function Community() {
               {userBusiness && (
                 <Button
                   onClick={() => setShowCreateModal(true)}
-                  className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg shadow-indigo-500/20"
+                  className="rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light border-0 shadow-lg shadow-brand-slate/20"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   <span className="hidden sm:inline">Create Post</span>
@@ -241,8 +241,8 @@ export default function Community() {
                     onClick={() => setSelectedType(type.value)}
                     className={`cursor-pointer whitespace-nowrap px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all ${
                       selectedType === type.value
-                        ? 'bg-indigo-500 text-white hover:bg-indigo-600 border-0'
-                        : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-indigo-500/50 hover:text-white'
+                        ? 'bg-brand-slate text-white hover:bg-brand-slate-light border-0'
+                        : 'bg-white/5 text-zinc-400 border border-white/10 hover:border-brand-slate/50 hover:text-white'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -256,7 +256,7 @@ export default function Community() {
           {/* Posts */}
           {postsLoading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-brand-steel" />
             </div>
           ) : filteredPosts.length > 0 ? (
             <motion.div
@@ -291,7 +291,7 @@ export default function Community() {
               {!userBusiness && (
                 <Button
                   onClick={() => navigate(createPageUrl('Register') + `?propertyId=${propertyId}`)}
-                  className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600"
+                  className="mt-6 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy"
                 >
                   Create Business Profile
                 </Button>

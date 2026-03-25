@@ -70,7 +70,7 @@ export default function AdPopup({ propertyId }) {
               left: '50%'
             }}
           >
-            <div className="bg-gradient-to-br from-zinc-900 to-zinc-950 rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
+            <div className="bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy rounded-2xl border border-white/10 shadow-2xl overflow-hidden relative">
               {/* Close Button */}
               <button
                 onClick={() => setIsVisible(false)}
@@ -87,13 +87,13 @@ export default function AdPopup({ propertyId }) {
                     alt={currentAd.headline}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent" />
                 </div>
               )}
 
               {/* Content */}
               <div className="p-5">
-                <div className="inline-block px-2.5 py-0.5 bg-indigo-500/20 border border-indigo-500/30 rounded-full text-[10px] text-indigo-300 font-medium mb-2">
+                <div className="inline-block px-2.5 py-0.5 bg-brand-slate/20 border border-brand-slate/30 rounded-full text-[10px] text-brand-slate-light font-medium mb-2">
                   {currentAd.business_type}
                 </div>
                 
@@ -117,7 +117,7 @@ export default function AdPopup({ propertyId }) {
                       rel="noopener noreferrer"
                       onClick={() => setIsVisible(false)}
                     >
-                      <Button size="sm" className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 text-xs">
+                      <Button size="sm" className="rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light border-0 text-xs">
                         {currentAd.cta_text || 'Learn More'}
                         <ExternalLink className="w-3 h-3 ml-1" />
                       </Button>
@@ -134,7 +134,7 @@ export default function AdPopup({ propertyId }) {
                         onClick={() => setCurrentAdIndex(index)}
                         className={`h-1.5 rounded-full transition-all ${
                           index === currentAdIndex
-                            ? 'w-6 bg-gradient-to-r from-indigo-500 to-purple-500'
+                            ? 'w-6 bg-gradient-to-r from-brand-slate to-brand-navy'
                             : 'w-1.5 bg-white/20 hover:bg-white/40'
                         }`}
                       />

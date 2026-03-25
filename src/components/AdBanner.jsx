@@ -47,7 +47,7 @@ export default function AdBanner({ propertyId }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="relative bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 overflow-hidden group"
+        className="relative bg-gradient-to-br from-brand-slate/10 via-brand-blue/10 to-brand-navy/10 backdrop-blur-xl border border-white/10 rounded-2xl p-4 sm:p-6 overflow-hidden group"
       >
         <div className="absolute top-2 right-2 z-10">
           <button
@@ -72,7 +72,7 @@ export default function AdBanner({ propertyId }) {
           <div className="flex-1 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="text-xs text-indigo-300 font-medium mb-1">
+                <div className="text-xs text-brand-steel font-medium mb-1">
                   {currentAd.business_type === 'restaurant' ? '🍽️ Local Restaurant' : 
                    currentAd.business_type === 'cafe' ? '☕ Local Cafe' : 
                    currentAd.business_type === 'shop' ? '🛍️ Local Shop' : 
@@ -92,7 +92,7 @@ export default function AdBanner({ propertyId }) {
               >
                 <Button 
                   size="sm" 
-                  className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white border-0"
+                  className="bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white border-0"
                 >
                   {currentAd.cta_text || 'Learn More'}
                   <ExternalLink className="w-3 h-3 ml-1" />
@@ -109,7 +109,7 @@ export default function AdBanner({ propertyId }) {
                 key={index}
                 onClick={() => setCurrentAdIndex(index)}
                 className={`h-1 rounded-full transition-all ${
-                  index === currentAdIndex ? 'w-8 bg-indigo-400' : 'w-1 bg-white/20'
+                  index === currentAdIndex ? 'w-8 bg-brand-steel' : 'w-1 bg-white/20'
                 }`}
               />
             ))}

@@ -128,7 +128,7 @@ export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }
             </Button>
             <Button
               type="submit"
-              className="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white"
+              className="flex-1 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light text-white"
               disabled={isLoading}
             >
               {isLoading ? (

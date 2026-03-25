@@ -123,8 +123,8 @@ export default function MyCard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-slate" />
       </div>
     );
   }
@@ -132,13 +132,13 @@ export default function MyCard() {
   // No business profile yet - prompt to create one
   if (!business) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
-        <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
+        <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
           <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-center">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-                <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                  <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+                <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                  <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
                 </div>
               </div>
               <span className="text-xl font-bold text-white">Unit</span>
@@ -147,9 +147,9 @@ export default function MyCard() {
         </header>
 
         <main className="pt-28 pb-24 px-6 flex items-center justify-center min-h-screen">
-          <Card className="p-8 text-center max-w-md bg-zinc-900/50 backdrop-blur-xl border-white/10">
-            <div className="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-6">
-              <Building2 className="w-8 h-8 text-indigo-400" />
+          <Card className="p-8 text-center max-w-md bg-brand-navy/50 backdrop-blur-xl border-white/10">
+            <div className="w-16 h-16 rounded-full bg-brand-slate/20 flex items-center justify-center mx-auto mb-6">
+              <Building2 className="w-8 h-8 text-brand-slate-light" />
             </div>
             <h2 className="text-xl font-bold text-white">No Business Profile Yet</h2>
             <p className="text-zinc-400 mt-2">
@@ -157,7 +157,7 @@ export default function MyCard() {
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Welcome'))}
-              className="mt-6 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 border-0 shadow-lg shadow-indigo-500/20"
+              className="mt-6 rounded-xl bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light border-0 shadow-lg shadow-brand-slate/20"
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Business Profile
@@ -171,15 +171,15 @@ export default function MyCard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="w-10" />
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-[2px]">
-              <div className="w-full h-full rounded-lg bg-zinc-900 flex items-center justify-center">
-                <span className="text-sm font-bold bg-gradient-to-br from-indigo-400 to-pink-400 bg-clip-text text-transparent">U</span>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-slate via-brand-steel to-brand-gray p-[2px]">
+              <div className="w-full h-full rounded-lg bg-brand-navy flex items-center justify-center">
+                <span className="text-sm font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">U</span>
               </div>
             </div>
             <span className="text-xl font-bold text-white">Unit</span>
@@ -213,9 +213,9 @@ export default function MyCard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="overflow-hidden bg-zinc-900/50 backdrop-blur-xl border-white/10 shadow-2xl shadow-black/50">
+            <Card className="overflow-hidden bg-brand-navy/50 backdrop-blur-xl border-white/10 shadow-2xl shadow-black/50">
               {/* Card Header */}
-              <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-6 text-white">
+              <div className="bg-gradient-to-br from-brand-slate via-brand-steel to-brand-navy p-6 text-white">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
                     {business.logo_url ? (
@@ -259,20 +259,20 @@ export default function MyCard() {
                 {/* Contact Info */}
                 <div className="space-y-2 border-t border-white/10 pt-6">
                   {business.contact_email && (
-                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Mail className="w-5 h-5 text-indigo-400" />
+                    <a href={`mailto:${business.contact_email}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Mail className="w-5 h-5 text-brand-slate-light" />
                       <span className="text-zinc-300 text-sm">{business.contact_email}</span>
                     </a>
                   )}
                   {business.contact_phone && (
-                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Phone className="w-5 h-5 text-indigo-400" />
+                    <a href={`tel:${business.contact_phone}`} className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Phone className="w-5 h-5 text-brand-slate-light" />
                       <span className="text-zinc-300 text-sm">{business.contact_phone}</span>
                     </a>
                   )}
                   {business.website && (
-                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/30 transition-colors">
-                      <Globe className="w-5 h-5 text-indigo-400" />
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-brand-slate/30 transition-colors">
+                      <Globe className="w-5 h-5 text-brand-slate-light" />
                       <span className="text-zinc-300 text-sm truncate">{business.website}</span>
                     </a>
                   )}
@@ -404,7 +404,7 @@ export default function MyCard() {
                 <strong>Property:</strong> {property?.name}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                To change your property, please contact <a href="mailto:support@unitapp.com" className="text-emerald-600 hover:text-emerald-700 underline">support</a>
+                To change your property, please contact <a href="mailto:support@unitapp.com" className="text-brand-slate hover:text-brand-slate-light underline">support</a>
               </p>
             </div>
 
@@ -419,7 +419,7 @@ export default function MyCard() {
               </Button>
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                className="bg-gradient-to-r from-brand-slate to-brand-navy"
                 disabled={updateBusinessMutation.isPending}
               >
                 {updateBusinessMutation.isPending ? (

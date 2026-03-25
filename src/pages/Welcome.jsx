@@ -31,9 +31,9 @@ export default function Welcome() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-slate-900 to-zinc-900">
+    <div className="min-h-screen bg-gradient-to-br from-brand-navy via-brand-blue to-brand-navy">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-zinc-900/40 backdrop-blur-2xl border-b border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-brand-navy/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <UnitLogo size={32} />
@@ -55,14 +55,14 @@ export default function Welcome() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/20 text-indigo-300 rounded-full text-sm font-medium mb-6 backdrop-blur-xl">
+            <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-brand-slate/20 to-brand-navy/20 border border-brand-slate/20 text-brand-slate-light rounded-full text-sm font-medium mb-6 backdrop-blur-xl">
               Connect • Discover • Grow
             </span>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
               Grow your business through
               <br />
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-slate-light via-brand-steel to-brand-gray bg-clip-text text-transparent">
                 local connections
               </span>
             </h1>
@@ -106,7 +106,7 @@ export default function Welcome() {
                 transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
                 className="bg-white/5 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all group"
                 >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-brand-slate to-brand-navy flex items-center justify-center mb-3 sm:mb-4 mx-auto group-hover:scale-110 transition-transform">
                   <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
                 <h3 className="text-sm sm:text-lg font-semibold text-white text-center">{feature.title}</h3>
@@ -135,15 +135,15 @@ export default function Welcome() {
         >
           <div className="grid grid-cols-3 gap-8">
             <div>
-              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-indigo-400 to-purple-400 bg-clip-text text-transparent">{properties?.length || 0}+</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-brand-slate-light to-brand-steel bg-clip-text text-transparent">{properties?.length || 0}+</div>
               <div className="text-sm text-zinc-500 mt-1">Properties</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-purple-400 to-pink-400 bg-clip-text text-transparent">500+</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-brand-steel to-brand-gray bg-clip-text text-transparent">500+</div>
               <div className="text-sm text-zinc-500 mt-1">Businesses</div>
             </div>
             <div>
-              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-pink-400 to-rose-400 bg-clip-text text-transparent">1000+</div>
+              <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-brand-gray to-brand-navy-light bg-clip-text text-transparent">1000+</div>
               <div className="text-sm text-zinc-500 mt-1">Connections</div>
             </div>
           </div>
