@@ -99,44 +99,44 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| FIN-01 | — | Pending |
-| FIN-02 | — | Pending |
-| FIN-03 | — | Pending |
-| FIN-04 | — | Pending |
-| FIN-05 | — | Pending |
-| REQ-01 | — | Pending |
-| REQ-02 | — | Pending |
-| REQ-03 | — | Pending |
-| REQ-04 | — | Pending |
-| REQ-05 | — | Pending |
-| COMM-01 | — | Pending |
-| COMM-02 | — | Pending |
-| COMM-03 | — | Pending |
-| COMM-04 | — | Pending |
-| COMM-05 | — | Pending |
-| PAY-01 | — | Pending |
-| PAY-02 | — | Pending |
-| PAY-03 | — | Pending |
-| ANLYT-01 | — | Pending |
-| ANLYT-02 | — | Pending |
-| ANLYT-03 | — | Pending |
-| ANLYT-04 | — | Pending |
-| QUAL-01 | — | Pending |
-| QUAL-02 | — | Pending |
-| QUAL-03 | — | Pending |
-| QUAL-04 | — | Pending |
+| AUTH-01 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Pending |
+| AUTH-05 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Pending |
+| FIN-01 | Phase 2 | Pending |
+| FIN-02 | Phase 2 | Pending |
+| FIN-03 | Phase 2 | Pending |
+| FIN-04 | Phase 2 | Pending |
+| FIN-05 | Phase 2 | Pending |
+| REQ-01 | Phase 2 | Pending |
+| REQ-02 | Phase 2 | Pending |
+| REQ-03 | Phase 2 | Pending |
+| REQ-04 | Phase 2 | Pending |
+| REQ-05 | Phase 2 | Pending |
+| COMM-01 | Phase 2 | Pending |
+| COMM-02 | Phase 2 | Pending |
+| COMM-03 | Phase 2 | Pending |
+| COMM-04 | Phase 2 | Pending |
+| COMM-05 | Phase 2 | Pending |
+| PAY-01 | Phase 4 | Pending |
+| PAY-02 | Phase 4 | Pending |
+| PAY-03 | Phase 4 | Pending |
+| ANLYT-01 | Phase 4 | Pending |
+| ANLYT-02 | Phase 4 | Pending |
+| ANLYT-03 | Phase 4 | Pending |
+| ANLYT-04 | Phase 4 | Pending |
+| QUAL-01 | Phase 3 | Pending |
+| QUAL-02 | Phase 3 | Pending |
+| QUAL-03 | Phase 3 | Pending |
+| QUAL-04 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 32 total
-- Mapped to phases: 0
-- Unmapped: 32
+- Mapped to phases: 32
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 — traceability populated after roadmap creation*
