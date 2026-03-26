@@ -9,12 +9,12 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 
 ### Security & Access Control
 
-- [ ] **AUTH-01**: Landlord users have server-validated role accounts (Base44 RLS) replacing code-based sessionStorage auth
+- [x] **AUTH-01**: Landlord users have server-validated role accounts (Base44 RLS) replacing code-based sessionStorage auth
 - [ ] **AUTH-02**: All landlord routes (Dashboard, Requests, Accounting) are protected by a centralized LandlordGuard component in React Router
-- [ ] **AUTH-03**: Base44 RLS rules enforce entity-level access control so landlord data cannot be accessed via direct API calls
+- [x] **AUTH-03**: Base44 RLS rules enforce entity-level access control so landlord data cannot be accessed via direct API calls
 - [ ] **AUTH-04**: Landlord can switch between multiple properties within one session without logout/login
 - [ ] **AUTH-05**: Auth migration includes a transition window so active landlord sessions are not disrupted
-- [ ] **AUTH-06**: Landlord codes are no longer exposed in client-side API responses (field-level security or removal)
+- [x] **AUTH-06**: Landlord codes are no longer exposed in client-side API responses (field-level security or removal)
 
 ### Financial Operations
 
@@ -99,12 +99,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 1 | Pending |
+| AUTH-01 | Phase 1 | Complete |
 | AUTH-02 | Phase 1 | Pending |
-| AUTH-03 | Phase 1 | Pending |
+| AUTH-03 | Phase 1 | Complete |
 | AUTH-04 | Phase 1 | Pending |
 | AUTH-05 | Phase 1 | Pending |
-| AUTH-06 | Phase 1 | Pending |
+| AUTH-06 | Phase 1 | Complete |
 | FIN-01 | Phase 2 | Pending |
 | FIN-02 | Phase 2 | Pending |
 | FIN-03 | Phase 2 | Pending |
