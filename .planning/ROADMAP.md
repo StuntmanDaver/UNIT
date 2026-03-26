@@ -12,7 +12,7 @@ UNIT is an existing, working SPA with critical security gaps and incomplete fina
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Security & Access Control** - Harden landlord auth from client-side sessionStorage to server-validated roles with centralized route guards
+- [x] **Phase 1: Security & Access Control** - Harden landlord auth from client-side sessionStorage to server-validated roles with centralized route guards (completed 2026-03-26)
 - [ ] **Phase 2: Financial Operations & Workflows** - Complete invoice lifecycle, SLA-governed request management, and transactional email notifications
 - [ ] **Phase 3: Quality & Reliability** - Automated test coverage for critical paths, error boundaries, and performance baseline
 - [ ] **Phase 4: Payments & Analytics** - Stripe Checkout integration, webhook-authoritative payment state, and enriched operational dashboards
@@ -35,7 +35,7 @@ Plans:
 - [x] 01-01-PLAN.md — Database foundation: profiles table, RLS policies, audit_log, landlord_code cleanup, AuthContext extension
 - [x] 01-02-PLAN.md — Route protection: LandlordGuard, PropertyContext, App.jsx routing, LandlordLogin magic link rewrite
 - [x] 01-03-PLAN.md — Audit trail: AuditLogger module, AuditLogEntry/Timeline components, AuditPage
-- [ ] 01-04-PLAN.md — Integration: PropertySwitcher, landlord page migration to PropertyContext, legacy cleanup, E2E verification
+- [x] 01-04-PLAN.md — Integration: PropertySwitcher, landlord page migration to PropertyContext, legacy cleanup, E2E verification
 
 **UI hint**: yes
 
@@ -79,7 +79,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security & Access Control | 3/4 | In Progress|  |
+| 1. Security & Access Control | 4/4 | Complete   | 2026-03-26 |
 | 2. Financial Operations & Workflows | 0/? | Not started | - |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |
