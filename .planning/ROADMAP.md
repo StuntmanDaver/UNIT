@@ -29,7 +29,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Changing a propertyId in the URL bar does not expose another property's financial data to an unauthorized user
   4. A landlord with access to multiple properties can switch between them within one session without logging out
   5. The `landlord_code` field is no longer readable in API responses for non-landlord users
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Database foundation: profiles table, RLS policies, audit_log, landlord_code cleanup, AuthContext extension
+- [ ] 01-02-PLAN.md — Route protection: LandlordGuard, PropertyContext, App.jsx routing, LandlordLogin magic link rewrite
+- [ ] 01-03-PLAN.md — Audit trail: AuditLogger module, AuditLogEntry/Timeline components, AuditPage
+- [ ] 01-04-PLAN.md — Integration: PropertySwitcher, landlord page migration to PropertyContext, legacy cleanup, E2E verification
+
 **UI hint**: yes
 
 ### Phase 2: Financial Operations & Workflows
@@ -72,7 +79,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security & Access Control | 0/? | Not started | - |
+| 1. Security & Access Control | 0/4 | Planning complete | - |
 | 2. Financial Operations & Workflows | 0/? | Not started | - |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |
