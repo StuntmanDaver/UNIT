@@ -1,220 +1,260 @@
-# Codebase Concerns
+# Concerns & Technical Debt
 
-**Analysis Date:** 2026-03-25
+> Generated: 2026-03-25 | Focus: concerns
 
-## Tech Debt
+## Overview
 
-**Large, Monolithic Page Components:**
-- Issue: Multiple pages exceed 400+ lines of code with all business logic, state management, and UI in single components
-- Files: `src/pages/Accounting.jsx` (496 lines), `src/pages/MyCard.jsx` (439 lines), `src/pages/Register.jsx` (405 lines), `src/pages/Directory.jsx` (341 lines), `src/pages/BrowseProperties.jsx` (339 lines)
-- Impact: Difficult to test, maintain, and reuse logic. Complex components become fragile when requirements change. Adding features requires understanding entire file.
-- Fix approach: Extract modal/form logic into separate components. Move query/mutation logic to custom hooks. Break UI into smaller, focused sub-components. Create a hooks directory for data-fetching logic (e.g., `useAccountingData`, `useLeaseManagement`).
+The UNIT codebase recently migrated from Base44 BaaS to Supabase. The migration is complete at the import level -- no Base44 references remain in source code, and all services now use the Supabase client. However, several critical structural issues carry over or were introduced: RLS policies are overly permissive on financial tables, landlord authentication is entirely client-side (any authenticated user can read landlord codes), there are zero tests, and significant code duplication exists across pages. The service layer is clean but thin -- it lacks validation, authorization checks, and error handling beyond raw Supabase throws.
 
-**Missing Query Key Standardization:**
-- Issue: Query keys are inconsistently structured across components - some use tuples like `['leases']`, others use `['leases', propertyId]`. When invalidating queries with partial keys, may fail to clear related cache.
-- Files: `src/pages/Accounting.jsx`, `src/pages/Directory.jsx`, `src/pages/MyCard.jsx`, `src/components/NotificationBell.jsx`, `src/components/AdPopup.jsx`
-- Impact: Stale data issues. Mutations don't properly invalidate related caches. Users see outdated information after creating/updating entities.
-- Fix approach: Create `queryKeys.js` factory object with consistent naming (e.g., `queryKeys.leases.all()`, `queryKeys.leases.byProperty(id)`, `queryKeys.leases.byBusiness(id)`). Use these factories everywhere. Update invalidation to use full key arrays.
+---
 
-**Unvalidated URL Parameters:**
-- Issue: Pages extract URL parameters directly without validation: `const propertyId = urlParams.get('propertyId')` then use immediately in queries
-- Files: `src/pages/Accounting.jsx` (line 30), `src/pages/Directory.jsx` (line 34), `src/pages/MyCard.jsx` (line 35), `src/pages/Register.jsx` (line 19), `src/pages/BrowseProperties.jsx`, `src/pages/LandlordRequests.jsx`
-- Impact: Invalid IDs cause silent failures. Queries with invalid IDs execute anyway. No user feedback. Could expose unintended data if ID validation isn't done server-side.
-- Fix approach: Create validation utility function `validateEntityId()`. Add error state to pages. Show error UI when URL params are invalid. Add QueryFn guards that return early if params are invalid.
+## Critical Issues
 
-**No Error Boundaries or Global Error Handling:**
-- Issue: Only 5 console.log/error statements in entire codebase. Most API errors are caught but not displayed to users. Failed queries show loading state indefinitely.
-- Files: `src/lib/AuthContext.jsx` (minimal error handling), `src/pages/Register.jsx`, `src/components/QRCodeCard.jsx`, `src/lib/PageNotFound.jsx`
-- Impact: Users don't know when operations fail. Network errors silently fail. Could appear to users like the app is broken or stuck.
-- Fix approach: Add error display to every major query/mutation. Create global error handler middleware in Query Client. Add React Error Boundary component at app root. Display user-friendly error toasts on mutation failures.
+### C1. Landlord Authentication is Client-Side Only -- Any Tenant Can Access Any Landlord Dashboard
 
-## Known Bugs
+- **Files:** `src/pages/LandlordLogin.jsx` (lines 20-24, 31-36), `src/pages/LandlordDashboard.jsx` (lines 37-42)
+- **Issue:** `LandlordLogin` fetches ALL properties via `propertiesService.list()`, then compares the `landlord_code` column against user input in the browser (line 32: `properties.find(p => p.landlord_code === code)`). The `properties` table RLS policy grants SELECT to all authenticated users, so every `landlord_code` for every property is exposed to any tenant in network responses. After matching, the property ID is stored in `sessionStorage` with no server-side validation.
+- **Impact:** Complete bypass of landlord access control. Any authenticated tenant can inspect the properties API response, extract any property's `landlord_code`, and gain full landlord access to dashboards, accounting, leases, and financial data.
+- **Fix approach:** Move landlord authentication to a Supabase Edge Function or RPC that verifies the code server-side and returns a session token. Never expose `landlord_code` in client-side queries (remove it from the `properties` table SELECT or create a separate `landlord_credentials` table with restricted RLS). Add a `landlord_sessions` table with server-verified tokens and expiry.
 
-**Loose JSON.parse Without Try-Catch:**
-- Symptoms: App crashes if localStorage contains corrupted JSON data
-- Files: `src/components/LandlordNotificationBell.jsx` (line with `JSON.parse(stored)`)
-- Trigger: User manually edits localStorage or browser has corrupted data from previous session
-- Workaround: Clear browser storage and reload page
-- Fix: Wrap `JSON.parse()` in try-catch, provide fallback empty array/object
+### C2. RLS Policies Allow Any Authenticated User Full CRUD on Financial Tables
 
-**Session Storage for Landlord Auth Not Cleared:**
-- Symptoms: User can access landlord dashboard for previous property after logout
-- Files: `src/pages/LandlordLogin.jsx` (line 36: `sessionStorage.setItem('landlord_property_id', ...)`)
-- Trigger: Log in as landlord for Property A, then close app without logging out. `sessionStorage` persists across page reloads in same tab.
-- Workaround: Manually clear session storage or use private browsing
-- Fix: Clear `sessionStorage` on logout. Add explicit logout handler in AuthContext.
+- **Files:** `supabase/migrations/001_initial_schema.sql` (lines 296-336)
+- **Issue:** All financial tables (`leases`, `recurring_payments`, `invoices`, `expenses`, `payments`) have RLS policies using `using (true)` and `with check (true)` for all operations. Any authenticated user (including regular tenants) can SELECT, INSERT, UPDATE, and DELETE financial records for ANY property. Schema comments acknowledge this: "For now, allow all authenticated users (tighten with landlord roles later)".
+- **Tables affected:** `leases`, `recurring_payments`, `invoices`, `expenses`, `payments`
+- **Impact:** Data integrity and confidentiality breach. A regular tenant can read, modify, or delete any property's financial records via direct Supabase API calls.
+- **Fix approach:** Implement a `property_managers` table linking `user_id` to `property_id`. Replace permissive policies with role-checked RLS: `using (property_id in (select property_id from property_managers where user_id = auth.uid()))`.
 
-**No Validation on Amount/Currency Fields:**
-- Symptoms: Users can submit negative amounts, zero amounts, or non-numeric input in financial forms
-- Files: `src/components/accounting/InvoiceModal.jsx`, `src/components/accounting/LeaseModal.jsx`, `src/components/accounting/RecurringPaymentModal.jsx`, `src/components/accounting/ExpenseModal.jsx`
-- Trigger: User enters `-100` in amount field and submits
-- Workaround: None - will be sent to API
-- Fix: Add HTML5 `type="number" min="0.01" step="0.01"` to amount inputs. Add client-side validation in mutation onSubmit.
+### C3. Posts and Recommendations INSERT Policies Allow Cross-Property Impersonation
 
-**Floor Map Position Defaults Are Unsafe:**
-- Symptoms: Businesses render at same position or default positions when floor_position_x/y are missing
-- Files: `src/components/FloorMapView.jsx` (lines 49-50: fallback position calculation)
-- Trigger: Business entity missing floor position data
-- Workaround: Edit business to set floor position
-- Fix: Show warning in UI when position data missing. Distribute businesses across grid systematically instead of hardcoded defaults.
+- **Files:** `supabase/migrations/001_initial_schema.sql` (lines 265-267, 272-274)
+- **Issue:** INSERT policies on `posts` and `recommendations` use `with check (true)`, meaning any authenticated user can create posts or recommendations for ANY property and any `business_id`, even businesses they don't own. The `business_id` is set client-side without server verification.
+- **Impact:** A user from Property A can create posts appearing to be from a business on Property B. Spoofed recommendations could trigger false landlord notifications.
+- **Fix approach:** Tighten INSERT policies: `with check (business_id in (select id from businesses where owner_email = auth.jwt()->>'email'))`.
 
-## Security Considerations
+### C4. No Input Validation in Service Layer -- Zod Installed but Unused
 
-**Direct Access Token Storage in localStorage:**
-- Risk: Access token stored in plain localStorage, exposed to XSS attacks. No HttpOnly cookie option.
-- Files: `src/lib/app-params.js` (lines 13, 23-24 storing token in storage)
-- Current mitigation: Token comes from URL parameter only on initial load
-- Recommendations: Move to HttpOnly secure cookies if backend supports. Implement token refresh mechanism with rotation. Add Content Security Policy header to prevent XSS. Consider using memory-only storage for tokens.
+- **Files:** All `src/services/*.js` files, `package.json` (zod @ 3.24.2)
+- **Issue:** Service functions pass user-provided data directly to Supabase INSERT/UPDATE calls with zero validation. No Zod schemas, no field whitelisting, no type checking. The `zod` package is installed but completely unused. The `react-hook-form` and `@hookform/resolvers` packages are also installed but unused -- all forms use raw `useState`.
+- **Impact:** Malformed data, potential injection via unvalidated fields, and data integrity issues. Users could pass arbitrary fields not in the schema.
+- **Fix approach:** Create Zod schemas for each entity (e.g., `businessSchema`, `postSchema`) in a shared `src/schemas/` directory. Validate in service `create`/`update` functions before calling Supabase. Whitelist allowed fields.
 
-**Landlord Code Transmitted as Query Parameter:**
-- Risk: Access code visible in URL history and browser history. Transmitted unencrypted if not HTTPS.
-- Files: Not stored in code, but results from login flow
-- Current mitigation: Access code is not logged
-- Recommendations: Enforce HTTPS everywhere. Use POST request for code submission instead of URL params. Consider short-lived access codes with expiration.
+### C5. Supabase Client Created with Potentially Undefined Values
 
-**No CSRF Protection Visible:**
-- Risk: Mutations don't show evidence of CSRF token validation
-- Files: All mutation calls in `src/pages/` and `src/components/accounting/`
-- Current mitigation: Likely handled by backend SDK (@base44/sdk)
-- Recommendations: Verify SDK enforces CSRF tokens. Add explicit CSRF header validation if framework supports it.
+- **Files:** `src/services/supabaseClient.js` (lines 6-10)
+- **Issue:** If `VITE_SUPABASE_URL` or `VITE_SUPABASE_ANON_KEY` are missing, the code logs a `console.error` but still calls `createClient(undefined, undefined)` on line 10. This creates a broken client instance that will cause cryptic errors throughout the app.
+- **Impact:** App fails silently or with unhelpful errors if env vars are misconfigured. Difficult to debug in production.
+- **Fix approach:** Throw an explicit error to prevent the app from loading: `throw new Error('Missing required Supabase environment variables')`.
 
-**User Email Exposed in Query Keys:**
-- Risk: Query keys include user email (e.g., `['myBusiness', user?.email]`), visible in network tab and query cache logging
-- Files: `src/pages/MyCard.jsx` (line with `['myBusiness', businessIdFromUrl, user?.email]`), `src/pages/Recommendations.jsx` (same pattern)
-- Current mitigation: None
-- Recommendations: Replace email with user ID in query keys. Use ID-based lookups throughout.
+---
 
-## Performance Bottlenecks
+## Warnings
 
-**Multiple Identical Data Fetches on Page Load:**
-- Problem: Pages fetch `currentUser`, `property`, and multiple entity lists on mount. No query deduplication.
-- Files: `src/pages/Accounting.jsx` (7 separate queries for one property's data), `src/pages/MyCard.jsx`, `src/pages/Directory.jsx`
-- Cause: Each component independently queries same data without shared parent-level queries
-- Improvement path: Create higher-order component or layout wrapper that fetches property + user data once. Pass via context. Only fetch entity-specific data in child components. Use query factory to ensure same keys = same cache.
+### W1. Duplicated `currentUser` Query Across 5 Files -- Bypasses AuthContext
 
-**No Pagination on List Entities:**
-- Problem: `base44.entities.X.filter()` and `.list()` calls fetch all records. No limit/offset support visible.
-- Files: `src/pages/BrowseProperties.jsx` (line 22: `Property.list()`), `src/pages/Directory.jsx` (line 54: `Business.filter()`), all accounting entity queries
-- Cause: SDK may not support pagination, or pagination wasn't implemented
-- Improvement path: If SDK supports pagination, add limit/offset params. Implement infinite scroll or pagination UI. Cache page results separately with proper key structure.
+- **Files:** `src/pages/Community.jsx` (line 48), `src/pages/Register.jsx` (line 57), `src/pages/MyCard.jsx` (line 40), `src/pages/Recommendations.jsx` (line 39), `src/components/NotificationBell.jsx` (line 15)
+- **Issue:** Each file independently queries Supabase for the current user with `queryKey: ['currentUser']` using identical `getSession()` then `getUser()` logic. This duplicates the auth state that `AuthContext` already manages -- `src/lib/AuthContext.jsx` sets `user` state via `onAuthStateChange` and exposes it via `useAuth()`.
+- **Impact:** 5 redundant auth API calls per page load. Inconsistent user state if one query returns stale data. Maintenance burden (5 identical code blocks to update if auth flow changes).
+- **Fix approach:** Use `const { user } = useAuth()` from the existing `AuthContext`. Remove all `currentUser` query blocks.
 
-**Inefficient Re-renders on State Changes:**
-- Problem: Modal open/close state changes trigger re-render of entire page. No React.memo on child components.
-- Files: `src/pages/Accounting.jsx` (8 modal state variables), `src/pages/MyCard.jsx` (modal state)
-- Cause: Modal state is in page component, entire page re-renders on toggle
-- Improvement path: Extract modals to custom hook or separate context. Use React.memo on modal components. Memoize callback functions with useCallback.
+### W2. `getCategoryLabel()` Duplicated in 4 Files
 
-**Inefficient Lease Expiry Calculation:**
-- Problem: `expiringLeases` filtering runs on every render, does date math for every lease
-- Files: `src/pages/Accounting.jsx` (lines 149-155)
-- Cause: Lease filtering not memoized
-- Improvement path: Wrap in `useMemo` hook. Pre-calculate in data fetching layer if possible.
+- **Files:** `src/pages/BrowseProperties.jsx` (line 59), `src/pages/Profile.jsx` (line 45), `src/pages/MyCard.jsx` (line 75), `src/components/BusinessCard.jsx` (line 10)
+- **Issue:** The exact same category-to-label mapping object is independently defined in 4 files.
+- **Impact:** Adding a new business category requires editing 4+ files. Risk of mapping divergence.
+- **Fix approach:** Create `src/lib/categories.js` exporting `CATEGORIES` (the list with `{value, label}`) and `getCategoryLabel()` helper. The categories array is also duplicated in Register, MyCard, Directory, and LandlordDashboard.
 
-## Fragile Areas
+### W3. No `onError` Handlers on Any Mutation
 
-**Authentication State Checking:**
-- Files: `src/lib/AuthContext.jsx`
-- Why fragile: Multiple sequential try-catch blocks with overlapping error handling. App-level check and user-level check are separate, creating window for state inconsistency. `checkUserAuth` called from `checkAppState` catch block could mask errors.
-- Safe modification: Add comprehensive error logging. Consider consolidating checks into single function. Add timeout handling for hanging requests. Test all error paths (network failure, auth required, user not registered, token invalid).
-- Test coverage: Likely incomplete - error scenarios not tested
+- **Files:** Every page using `useMutation` -- `src/pages/Accounting.jsx` (16 mutations, none with `onError`), `src/pages/Community.jsx`, `src/pages/Register.jsx`, `src/pages/MyCard.jsx`, `src/pages/Recommendations.jsx`, `src/pages/LandlordRequests.jsx`, `src/pages/Directory.jsx`
+- **Issue:** Not a single `useMutation` call in the entire codebase includes an `onError` callback. Failed mutations are silently swallowed by React Query's default behavior. Users receive no feedback.
+- **Impact:** Users think operations succeeded when they failed. Data loss from perceived-but-not-actual saves. Particularly dangerous for financial operations in Accounting.
+- **Fix approach:** Add `onError` callbacks with toast notifications: `onError: (error) => toast.error(error.message || 'Operation failed')`. Consider adding a global `onMutationError` handler on the `QueryClient` in `src/lib/query-client.js`.
 
-**Business/Lease/Invoice Relationships:**
-- Files: `src/components/accounting/` modal files, `src/pages/Accounting.jsx`
-- Why fragile: Filter operations assume data relationships exist (e.g., `leases.filter(l => l.business_id === ...)` assumes lease has business_id). No null checks. If business deleted, invoice/lease references break.
-- Safe modification: Add defensive null checks before rendering. Show warnings when relationships missing. Validate relationship existence before allowing operations.
-- Test coverage: No tests found
+### W4. No React Error Boundaries
 
-**Form Data Persistence Across Modals:**
-- Files: All modal files in `src/components/accounting/`
-- Why fragile: Modal state resets on close, but if form submission fails, user loses data. No draft/auto-save. Copy-paste logic in every modal (generateInvoiceNumber, date formatting).
-- Safe modification: Extract form logic to custom hook. Implement form auto-save to localStorage. Add confirmation dialog before closing unsaved forms.
-- Test coverage: No tests
+- **Files:** `src/App.jsx`, `src/main.jsx`
+- **Issue:** No error boundary wraps the application or any sub-tree. Any unhandled JavaScript error in a component render will crash the entire app with a white screen and no recovery path.
+- **Impact:** Poor user experience on any runtime error. No way to recover without a full page refresh.
+- **Fix approach:** Add an `ErrorBoundary` component wrapping `AuthenticatedApp` that catches errors and shows a recovery UI with a "Reload" button.
 
-**Floor Position Data Handling:**
-- Files: `src/components/FloorMapView.jsx`, anywhere business position is saved
-- Why fragile: Fallback position calculation uses index-based positioning. If businesses added/removed, positions shift. No validation that x/y are valid percentages (0-100).
-- Safe modification: Validate position values. Store absolute positions, not relative. Add position collision detection. Require explicit position setting in UI rather than auto-layout.
-- Test coverage: No tests
+### W5. Oversized Page Components (6 files over 300 lines)
 
-## Scaling Limits
+- **Files:** `src/pages/Accounting.jsx` (693 lines), `src/pages/LandlordDashboard.jsx` (537 lines), `src/pages/Register.jsx` (448 lines), `src/pages/MyCard.jsx` (437 lines), `src/pages/Directory.jsx` (354 lines), `src/pages/BrowseProperties.jsx` (342 lines)
+- **Issue:** `Accounting.jsx` alone defines 16 mutations, 7 queries, and 8 state variables for modals, all inline. `LandlordDashboard.jsx` computes 6+ derived data calculations inline.
+- **Impact:** Hard to read, test, and maintain. High risk of bugs during modifications.
+- **Fix approach:** Extract mutations and data calculations into custom hooks (e.g., `useAccountingMutations()`, `useLandlordStats()`). Extract repeated list/card rendering patterns into sub-components.
 
-**No Pagination on Large Property Lists:**
-- Current capacity: App loads all properties at once. No visible limit tested.
-- Limit: Likely fails with 1000+ properties. Browser memory/render performance issues.
-- Scaling path: Implement pagination (10-20 per page). Add search/filter before loading all. Virtualize list rendering if implementing infinite scroll.
+### W6. `window.location.search` Used Instead of React Router in 9 Pages
 
-**Real-time Notifications Not Implemented:**
-- Current capacity: Notifications fetch on page load, no refresh. Uses polling if at all.
-- Limit: Cannot scale to real-time delivery across multiple users. Notifications delayed.
-- Scaling path: Consider WebSocket for live updates. Implement notification center with subscription model. Add background sync capability.
+- **Files:** `src/pages/Accounting.jsx` (line 32), `src/pages/Community.jsx` (line 33), `src/pages/Directory.jsx` (line 34), `src/pages/LandlordDashboard.jsx` (line 33), `src/pages/LandlordRequests.jsx` (line 26), `src/pages/MyCard.jsx` (line 33), `src/pages/Profile.jsx` (line 26), `src/pages/Recommendations.jsx` (line 23), `src/pages/Register.jsx` (line 23)
+- **Issue:** Every page parses query parameters using `new URLSearchParams(window.location.search)` instead of React Router's `useSearchParams()` hook. This bypasses React's reactivity system.
+- **Impact:** URL parameter changes via `navigate()` within the same route may not trigger re-renders. The component reads stale params on some navigation scenarios.
+- **Fix approach:** Replace with `const [searchParams] = useSearchParams()` from `react-router-dom` in all page components.
 
-**No Database Query Optimization Visible:**
-- Current capacity: Each entity query independent. Likely creating N+1 queries (fetch property, fetch all businesses, fetch info for each business separately).
-- Limit: Will become slow with hundreds of businesses per property.
-- Scaling path: Add GraphQL or query composition to fetch related entities. Implement server-side query optimization.
+### W7. Landlord Session Uses sessionStorage with No Expiry or Server Validation
 
-## Dependencies at Risk
+- **Files:** `src/pages/LandlordLogin.jsx` (line 36), `src/pages/LandlordDashboard.jsx` (lines 38-42)
+- **Issue:** Landlord session stored as `landlord_property_id` in `sessionStorage` with no expiration, no CSRF protection, and no server-side validation. The dashboard's session check (line 39) only compares `storedPropertyId !== propertyId` -- it doesn't verify the user actually authenticated as a landlord.
+- **Impact:** Session persists until tab close with no timeout. Combined with C1 (exposed landlord codes), creates a persistent access vulnerability.
+- **Fix approach:** Use Supabase auth custom claims or a server-side `landlord_sessions` table with timestamps. Add session expiry (e.g., 24 hours). Validate on every protected page load.
 
-**@base44/sdk (Custom, Proprietary Backend):**
-- Risk: Single-vendor dependency. SDK behavior opaque. Version lock at ^0.8.3 could miss important updates.
-- Impact: If SDK breaks or is deprecated, entire app depends on specific version.
-- Migration plan: Audit SDK API usage. Document all SDK method calls. Create abstraction layer (`src/api/base44Adapter.js`) that wraps SDK calls, making it easier to replace later.
+### W8. No Pagination on Any Data Query
 
-**Large Radix UI Dependency Tree:**
-- Risk: 20+ @radix-ui packages imported individually. Could have security vulnerabilities in one sub-package.
-- Impact: Complex dependency tree to audit. Any vulnerability in radix ecosystem requires version bump across all.
-- Migration plan: Keep updated with security patches. Consider alternative UI library in future if maintenance burden grows.
+- **Files:** All `src/services/*.js` files, all page components using `useQuery`
+- **Issue:** Every query fetches ALL records with `select('*')` and no `.range()` or `.limit()`. The `notificationsService.filter()` accepts a `limit` parameter, but most callers don't use it. `Accounting.jsx` fetches 7 complete entity collections on mount.
+- **Impact:** Performance degrades linearly with data growth. A property with hundreds of posts, invoices, or businesses sends all records over the wire on every page load.
+- **Fix approach:** Add `.range(from, to)` to service queries. Implement pagination in the UI. Start with the highest-volume tables: posts, notifications, invoices.
 
-**Unspecified React Version Potential:**
-- Risk: react@^18.2.0 allows 18.3.x or future 19.x. Concurrent features might break assumptions.
-- Impact: Major version bump could change behavior subtly.
-- Migration plan: Pin React version when confident in compatibility. Monitor React changelogs.
+### W9. Storage Upload Has No File Size or Type Server-Side Validation
 
-## Missing Critical Features
+- **Files:** `src/services/storage.js` (lines 4-19), `src/pages/Register.jsx` (line 259)
+- **Issue:** `storageService.uploadFile()` accepts any file with no size limit, no MIME type validation, and no file extension whitelist. The client-side `accept="image/*"` attribute is trivially bypassed.
+- **Impact:** Users could upload extremely large files (consuming storage quota), non-image files, or potentially malicious files.
+- **Fix approach:** Add file size validation (e.g., 5MB max) and MIME type checking in `storageService` before upload. Configure Supabase storage bucket policies for additional server-side enforcement.
 
-**No Offline Support:**
-- Problem: App requires constant internet connection. No data caching for offline use.
-- Blocks: Users can't view/edit data on unreliable connections. Mobile users on cellular can't use app.
-- How to add: Implement service worker for offline caching. Use SQL.js for offline database. Implement sync queue for mutations done offline.
+### W10. `moment` and `date-fns` Both in Bundle
 
-**No Audit Trail / Change History:**
-- Problem: No record of who changed what. Can't see previous lease terms or invoice amounts.
-- Blocks: Landlords can't investigate disputes. No accountability for modifications.
-- How to add: Implement audit log entity. Store created_at/updated_at/created_by/updated_by on all records. Show history UI in accounting pages.
+- **Files:** `package.json` (moment @ 2.30.1, date-fns @ 3.6.0), `src/components/NotificationBell.jsx` (line 8 -- uses `moment`), `src/components/PostCard.jsx` (line 6 -- uses `date-fns`)
+- **Issue:** Two date libraries coexist. `moment` is used in only one file (`NotificationBell.jsx`) for `fromNow()`. `date-fns` is used in `PostCard.jsx` for `format()`. `moment` adds ~70KB minified+gzipped to the bundle.
+- **Fix approach:** Replace `moment(date).fromNow()` with `formatDistanceToNow(new Date(date), { addSuffix: true })` from `date-fns`. Remove `moment` from dependencies.
 
-**No Backup/Export Functionality:**
-- Problem: All data lives in base44 backend. No way to export financial records.
-- Blocks: Can't backup data locally. Can't generate reports in other formats (CSV, Excel).
-- How to add: Add export buttons in Financial Reports. Implement CSV/PDF export using jspdf and html2canvas already included.
+### W11. Duplicate Migration File Numbering
 
-**No Role-Based Access Control (RBAC):**
-- Problem: All authenticated users can access all properties (if they know propertyId). No permission checking.
-- Blocks: Can't restrict users to specific properties. Can't have read-only vs admin roles.
-- How to add: Add role field to users. Check role/permissions in query guards. Implement property-user association. Gate features behind role checks.
+- **Files:** `supabase/migrations/002_seed_properties.sql`, `supabase/migrations/002_units_table.sql`
+- **Issue:** Two migration files share the `002` prefix with different names. Migration ordering is ambiguous -- if run alphabetically, the seed runs before the units table exists.
+- **Impact:** Schema migration failures or incorrect ordering depending on the migration runner.
+- **Fix approach:** Renumber to sequential: `002_units_table.sql`, `003_seed_properties.sql`, `004_seed_decker_properties.sql`. Or remove `002_seed_properties.sql` since `003_seed_decker_properties.sql` supersedes it with more detailed data.
 
-## Test Coverage Gaps
+### W12. JSON.parse Without Try-Catch in LandlordNotificationBell
 
-**Zero Unit/Integration Tests:**
-- What's not tested: All React components, all hooks, all mutations, all error paths
-- Files: Entire `src/` directory - 0 test files found
-- Risk: Regressions undetected. Refactoring breaks functionality silently. New features break existing ones.
-- Priority: **High** - Start with tests for authentication, accounting operations, and form validation
+- **Files:** `src/components/LandlordNotificationBell.jsx` (line 17)
+- **Issue:** `JSON.parse(stored)` is called on localStorage data without try-catch. Corrupted localStorage data will throw and crash the component.
+- **Impact:** Landlord notification bell crashes if localStorage contains corrupted data.
+- **Fix approach:** Wrap in try-catch: `try { setDismissedIds(JSON.parse(stored)); } catch { setDismissedIds([]); }`.
 
-**No Integration Tests for Query Cache:**
-- What's not tested: Query invalidation behavior, cache hits/misses, parallel query deduplication
-- Files: All pages and components using useQuery
-- Risk: Changes to query keys silently break cache behavior. Mutations don't properly refresh UI.
-- Priority: **High** - Add integration tests for accounting page data flow
+---
 
-**No E2E Tests for Critical Flows:**
-- What's not tested: Full accounting workflow (create lease → create invoice → view reports), landlord login flow, business registration
-- Risk: Major user flows break undetected. Deployment could completely break core functionality.
-- Priority: **High** - Add E2E tests for landlord login, business registration, and accounting operations
+## Info
 
-**No Error Scenario Testing:**
-- What's not tested: Network failures, invalid user input, missing relationships, permission errors
-- Risk: Errors may crash app instead of showing friendly messages
-- Priority: **Medium** - Add error boundary tests, mutation error handling tests
+### I1. 14+ Unused npm Dependencies (Bundle Bloat)
+
+- **Files:** `package.json`
+- **Unused packages (zero imports found in `src/`):**
+  - `@stripe/react-stripe-js` + `@stripe/stripe-js` -- Stripe SDK, never imported
+  - `three` -- 3D library, never imported
+  - `react-leaflet` -- Map library, never imported
+  - `react-quill` -- Rich text editor, never imported
+  - `react-markdown` -- Markdown renderer, never imported
+  - `html2canvas` -- HTML-to-image, never imported
+  - `jspdf` -- PDF generation, never imported
+  - `next-themes` -- Next.js theme switching, never imported
+  - `canvas-confetti` -- Confetti animation, never imported
+  - `react-hook-form` + `@hookform/resolvers` -- Form library, never imported (forms use `useState`)
+  - `react-resizable-panels` -- Resizable panels, never imported
+  - `@hello-pangea/dnd` -- Drag-and-drop, never imported
+  - `input-otp` -- OTP input, never imported
+- **Impact:** Bloated `node_modules`. While tree-shaking should prevent most from entering the production bundle, some (like Stripe) may still add weight if they have side effects.
+- **Fix approach:** `npm uninstall three react-leaflet react-quill react-markdown html2canvas jspdf @stripe/react-stripe-js @stripe/stripe-js next-themes canvas-confetti react-hook-form @hookform/resolvers react-resizable-panels @hello-pangea/dnd input-otp`
+
+### I2. React.StrictMode Not Enabled
+
+- **Files:** `src/main.jsx`
+- **Issue:** The app renders without `<React.StrictMode>`, missing double-render warnings that catch side-effect bugs during development.
+- **Fix approach:** Wrap `<App />` in `<React.StrictMode>`.
+
+### I3. Zero Test Files in Project
+
+- **Files:** No test files exist in `src/` or project root
+- **Issue:** No unit tests, integration tests, or E2E tests. No test framework configured (no vitest, jest, or playwright config).
+- **Impact:** All changes are manually verified. Regressions go undetected. Refactoring is high-risk.
+- **Fix approach:** Add Vitest (compatible with Vite). Start with service layer unit tests and critical flow integration tests.
+
+### I4. `PageNotFound` Admin Check Will Never Show
+
+- **Files:** `src/lib/PageNotFound.jsx` (lines 10-20, 43)
+- **Issue:** The 404 page independently queries `supabase.auth.getUser()` instead of using `useAuth()`. It then checks `user?.role === 'admin'` but Supabase auth users don't have a `role` field by default -- this check always fails.
+- **Impact:** The "Admin Note" about AI-generated pages never displays.
+- **Fix approach:** Use `useAuth()` for user state. Either implement a proper admin role system or remove the admin note.
+
+### I5. Hardcoded Marketing Stats on Welcome Page
+
+- **Files:** `src/pages/Welcome.jsx` (lines 142-143)
+- **Issue:** Stats section shows "500+ Businesses" and "1000+ Connections" as hardcoded text, not from actual data.
+- **Impact:** Misleading marketing metrics for a newly-launched app.
+- **Fix approach:** Either remove the stats section or compute from query data (e.g., count of all businesses across properties).
+
+### I6. Inline Logo Markup Instead of UnitLogo Component
+
+- **Files:** Inline logo in `src/pages/Community.jsx` (lines 162-166), `src/pages/Directory.jsx` (lines 122-129), `src/pages/Recommendations.jsx` (lines 132-138), `src/pages/MyCard.jsx` (lines 137-143, 178-183), `src/pages/BrowseProperties.jsx` (lines 81-84, 249-254)
+- **Issue:** 6+ pages render the "U" logo badge manually with inline JSX instead of using the shared `src/components/UnitLogo.jsx` component.
+- **Impact:** Brand inconsistency if logo styling changes; must update every inline instance.
+- **Fix approach:** Replace all inline logo markup with `<UnitLogo />`.
+
+### I7. Notifications Table Keyed on `user_email` Instead of `user_id`
+
+- **Files:** `supabase/migrations/001_initial_schema.sql` (line 91), `src/services/notifications.js` (line 39)
+- **Issue:** The `notifications` table uses `user_email` as the user identifier rather than `user_id` referencing `auth.users`. RLS policies also use `auth.jwt()->>'email'` instead of `auth.uid()`.
+- **Impact:** If a user changes their email, they lose access to all prior notifications. No foreign key constraint to `auth.users`.
+- **Fix approach:** Add a `user_id uuid references auth.users(id)` column. Update RLS to use `auth.uid()`. Migrate existing notifications.
+
+### I8. No Unique Constraint on Business Owner Per Property
+
+- **Files:** `supabase/migrations/001_initial_schema.sql` (lines 26-43)
+- **Issue:** No unique constraint on `(owner_email, property_id)` in the `businesses` table. A user could register multiple businesses at the same property. Code assumes `businesses[0]` is the user's only business (e.g., `src/pages/Community.jsx` line 67, `src/pages/Recommendations.jsx` line 54).
+- **Impact:** Multiple business profiles per user per property could cause data confusion and unexpected behavior.
+- **Fix approach:** Add constraint: `alter table businesses add constraint uq_business_owner_property unique (owner_email, property_id)`.
+
+### I9. Seed Migration Conflicts Between 002 and 003
+
+- **Files:** `supabase/migrations/002_seed_properties.sql`, `supabase/migrations/003_seed_decker_properties.sql`
+- **Issue:** Both migrations seed properties with overlapping data (e.g., "Vero" vs "VD Vero, LLC" at the same address). Migration 002 uses raw INSERT with no conflict handling. Migration 003 uses `ON CONFLICT DO NOTHING`. Running both creates duplicate records.
+- **Impact:** Duplicate property records in the database.
+- **Fix approach:** Remove `002_seed_properties.sql` (superseded by the more detailed `003_seed_decker_properties.sql` migration).
+
+### I10. Mixed Light/Dark Styling in Accounting Page Tabs
+
+- **Files:** `src/pages/Accounting.jsx` (lines 291-401 vs 234-252)
+- **Issue:** The Accounting page header and Reports/Leases tabs use dark theme (`bg-white/5`, `text-white`), but the Recurring Payments, Invoices, and Expenses tabs use light-mode colors (`bg-white`, `bg-gray-50`, `text-gray-900`).
+- **Impact:** Inconsistent visual appearance within the same page.
+- **Fix approach:** Standardize all tab content to use the dark theme matching the rest of the app.
+
+### I11. `units` Table Missing from Some RLS Awareness
+
+- **Files:** `supabase/migrations/002_units_table.sql` (bottom section)
+- **Issue:** The `units` table has fully permissive RLS (any authenticated user can CRUD all units). While this is documented as intentional for now, it means any tenant could potentially modify unit statuses across properties.
+- **Impact:** Low immediate risk since no UI exposes unit mutation to tenants, but the API surface is unprotected.
+- **Fix approach:** Tighten to property-manager-only write access when roles are implemented.
+
+---
+
+## Recommendations
+
+**Priority 1 -- Security (address immediately):**
+1. Fix landlord authentication to server-side verification (C1)
+2. Tighten RLS policies on financial tables with role-based access (C2)
+3. Add business ownership checks on post/recommendation inserts (C3)
+4. Fix Supabase client creation to throw on missing env vars (C5)
+
+**Priority 2 -- Data Integrity & User Experience:**
+5. Add Zod validation in service layer (C4)
+6. Add `onError` handlers on all mutations with toast feedback (W3)
+7. Add React Error Boundary (W4)
+8. Fix `JSON.parse` without try-catch (W12)
+
+**Priority 3 -- Code Quality & Maintenance:**
+9. Consolidate `currentUser` queries to use `useAuth()` (W1)
+10. Centralize category labels/lists into shared module (W2)
+11. Replace `window.location.search` with `useSearchParams()` (W6)
+12. Remove `moment`, standardize on `date-fns` (W10)
+13. Split oversized page components into hooks + sub-components (W5)
+
+**Priority 4 -- Infrastructure & Cleanup:**
+14. Remove 14+ unused npm dependencies (I1)
+15. Add Vitest and initial test coverage for services (I3)
+16. Fix migration file numbering and seed conflicts (W11, I9)
+17. Add pagination to high-volume queries (W8)
+18. Enable React.StrictMode (I2)
 
 ---
 
