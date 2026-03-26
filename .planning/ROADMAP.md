@@ -33,8 +33,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Database foundation: profiles table, RLS policies, audit_log, landlord_code cleanup, AuthContext extension
-- [ ] 01-02-PLAN.md — Route protection: LandlordGuard, PropertyContext, App.jsx routing, LandlordLogin magic link rewrite
-- [ ] 01-03-PLAN.md — Audit trail: AuditLogger module, AuditLogEntry/Timeline components, AuditPage
+- [x] 01-02-PLAN.md — Route protection: LandlordGuard, PropertyContext, App.jsx routing, LandlordLogin magic link rewrite
+- [x] 01-03-PLAN.md — Audit trail: AuditLogger module, AuditLogEntry/Timeline components, AuditPage
 - [ ] 01-04-PLAN.md — Integration: PropertySwitcher, landlord page migration to PropertyContext, legacy cleanup, E2E verification
 
 **UI hint**: yes
@@ -79,7 +79,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Security & Access Control | 1/4 | In Progress|  |
+| 1. Security & Access Control | 3/4 | In Progress|  |
 | 2. Financial Operations & Workflows | 0/? | Not started | - |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |

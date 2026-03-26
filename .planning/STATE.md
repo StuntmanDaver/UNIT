@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 01-security-access-control/01-01-PLAN.md
-last_updated: "2026-03-26T05:00:03.886Z"
+stopped_at: Completed 01-security-access-control/01-03-PLAN.md
+last_updated: "2026-03-26T05:11:58.351Z"
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 3
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 01 (security-access-control) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -48,6 +48,8 @@ Plan: 2 of 4
 *Updated after each plan completion*
 | Phase 01-security-access-control P01 | 15 | 2 tasks | 2 files |
 | Phase 01-security-access-control P01 | 43 | 2 tasks | 2 files |
+| Phase 01-security-access-control P02 | 97 | 3 tasks | 4 files |
+| Phase 01-security-access-control P03 | 93 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,6 +64,8 @@ Recent decisions affecting current work:
 - [Pre-Phase 1]: Stripe Checkout (not Connect) for payment collection — webhook must own invoice payment state, not client side
 - [Phase 01-security-access-control]: Use security definer helper functions for RLS to avoid repeating subqueries across 20+ financial table policies
 - [Phase 01-security-access-control]: AuthContext gracefully falls back to tenant role if profiles table query fails — backward-compatible during transition
+- [Phase 01-security-access-control]: LandlordLogin stays in general pages map (not under LandlordGuard) because it is the auth entry point, not a protected destination
+- [Phase 01-security-access-control]: PropertyProvider wraps each landlord route element individually so useProperty() is scoped per page mount
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T05:00:03.883Z
-Stopped at: Completed 01-security-access-control/01-01-PLAN.md
+Last session: 2026-03-26T05:11:58.349Z
+Stopped at: Completed 01-security-access-control/01-03-PLAN.md
 Resume file: None
