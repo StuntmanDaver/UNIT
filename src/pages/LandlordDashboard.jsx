@@ -1,5 +1,9 @@
 import React, { useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { recommendationsService } from '@/services/recommendations';
+import { leasesService, paymentsService } from '@/services/accounting';
+import { unitsService } from '@/services/units';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -18,7 +22,8 @@ import {
   ClipboardList,
   DollarSign,
   Calendar,
-  Calculator
+  Calculator,
+  Grid3X3
 } from 'lucide-react';
 import LandlordNotificationBell from '../components/LandlordNotificationBell';
 import UnitLogo from '@/components/UnitLogo';
@@ -39,8 +44,7 @@ export default function LandlordDashboard() {
   const { data: property, isLoading: propertyLoading } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
@@ -48,7 +52,7 @@ export default function LandlordDashboard() {
   const { data: businesses = [], isLoading: businessesLoading } = useQuery({
     queryKey: ['businesses', propertyId],
     queryFn: async () => {
-      return await base44.entities.Business.filter({ property_id: propertyId });
+      return await businessesService.filter({ property_id: propertyId });
     },
     enabled: !!propertyId
   });
@@ -56,7 +60,7 @@ export default function LandlordDashboard() {
   const { data: recommendations = [] } = useQuery({
     queryKey: ['recommendations', propertyId],
     queryFn: async () => {
-      return await base44.entities.Recommendation.filter({ property_id: propertyId }, '-created_date');
+      return await recommendationsService.filter({ property_id: propertyId }, 'created_date', false);
     },
     enabled: !!propertyId
   });
@@ -64,7 +68,7 @@ export default function LandlordDashboard() {
   const { data: leases = [] } = useQuery({
     queryKey: ['leases', propertyId],
     queryFn: async () => {
-      return await base44.entities.Lease.filter({ property_id: propertyId }, 'end_date');
+      return await leasesService.filter({ property_id: propertyId }, 'end_date', true);
     },
     enabled: !!propertyId
   });
@@ -72,8 +76,14 @@ export default function LandlordDashboard() {
   const { data: payments = [] } = useQuery({
     queryKey: ['payments', propertyId],
     queryFn: async () => {
-      return await base44.entities.Payment.filter({ property_id: propertyId }, '-due_date');
+      return await paymentsService.filter({ property_id: propertyId }, 'due_date', false);
     },
+    enabled: !!propertyId
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', propertyId],
+    queryFn: () => unitsService.listByProperty(propertyId),
     enabled: !!propertyId
   });
 
@@ -131,6 +141,21 @@ export default function LandlordDashboard() {
     .filter(p => p.status === 'paid' && new Date(p.paid_date).getMonth() === today.getMonth())
     .reduce((sum, p) => sum + p.amount, 0);
   const totalExpectedRevenue = leases.reduce((sum, l) => sum + (l.monthly_rent || 0), 0);
+
+  // Unit occupancy data
+  const unitsByBuilding = units.reduce((acc, unit) => {
+    const building = unit.building || 'General';
+    if (!acc[building]) acc[building] = [];
+    const tenant = businesses.find(b => b.unit_id === unit.id || b.unit_number === unit.unit_number);
+    acc[building].push({ ...unit, tenant });
+    return acc;
+  }, {});
+
+  const occupancySummary = {
+    occupied: units.filter(u => u.status === 'occupied').length,
+    vacant: units.filter(u => u.status === 'vacant').length,
+    maintenance: units.filter(u => u.status === 'maintenance').length
+  };
 
   const CHART_COLORS = ['#101B29', '#1D263A', '#465A75', '#7C8DA7', '#E0E1DE', '#3b82f6', '#f59e0b', '#ef4444', '#84cc16', '#f97316'];
   const categoryChartData = Object.entries(categoryStats).map(([category, count]) => ({
@@ -293,6 +318,76 @@ export default function LandlordDashboard() {
               </div>
             </Card>
           </motion.div>
+
+          {/* Unit Occupancy */}
+          {units.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mb-8"
+            >
+              <Card className="p-6 bg-white/5 backdrop-blur-xl border-white/10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <Grid3X3 className="w-5 h-5 text-brand-steel" />
+                    <h2 className="text-xl font-bold text-white">Unit Occupancy</h2>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                      <span className="text-zinc-400">{occupancySummary.occupied} Occupied</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-3 h-3 rounded-full bg-zinc-600" />
+                      <span className="text-zinc-400">{occupancySummary.vacant} Vacant</span>
+                    </div>
+                    {occupancySummary.maintenance > 0 && (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-3 h-3 rounded-full bg-orange-500" />
+                        <span className="text-zinc-400">{occupancySummary.maintenance} Maintenance</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {Object.entries(unitsByBuilding).sort(([a], [b]) => a.localeCompare(b)).map(([building, buildingUnits]) => (
+                    <div key={building}>
+                      <div className="text-sm font-medium text-zinc-400 mb-3">
+                        {building !== 'General' ? `Building ${building}` : 'Units'}
+                        <span className="text-zinc-600 ml-2">({buildingUnits.length})</span>
+                      </div>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                        {buildingUnits.map(unit => (
+                          <div
+                            key={unit.id}
+                            className={`p-2 rounded-lg border text-center cursor-default transition-colors ${
+                              unit.status === 'occupied'
+                                ? 'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/20'
+                                : unit.status === 'maintenance'
+                                ? 'bg-orange-500/10 border-orange-500/30 hover:bg-orange-500/20'
+                                : 'bg-white/5 border-white/10 hover:bg-white/10'
+                            }`}
+                            title={unit.tenant ? `${unit.unit_number} — ${unit.tenant.business_name}` : `${unit.unit_number} — Vacant`}
+                          >
+                            <div className="text-xs font-mono font-medium text-white truncate">
+                              {unit.unit_number.replace(unit.building ? `${unit.building}-` : '', '')}
+                            </div>
+                            {unit.tenant && (
+                              <div className="text-[10px] text-zinc-400 truncate mt-0.5">
+                                {unit.tenant.business_name}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Tenant Category Distribution & Quick Actions */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
