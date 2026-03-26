@@ -1061,7 +1061,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1073,7 +1073,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1085,7 +1085,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1097,7 +1097,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1109,7 +1109,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1121,7 +1121,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1133,7 +1133,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1145,7 +1145,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1516'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1157,7 +1157,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1169,7 +1169,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1181,7 +1181,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1193,7 +1193,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1205,7 +1205,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1217,7 +1217,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1229,7 +1229,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1241,7 +1241,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1253,7 +1253,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1518'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1265,7 +1265,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1277,7 +1277,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1289,7 +1289,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1301,7 +1301,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1313,7 +1313,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1325,7 +1325,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1337,7 +1337,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1520'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1349,7 +1349,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1524'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1361,7 +1361,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1526'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1373,7 +1373,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1526'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1385,7 +1385,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1526'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1397,7 +1397,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1526'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1409,7 +1409,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1526'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1421,7 +1421,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1530'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1433,7 +1433,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1445,7 +1445,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1457,7 +1457,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1469,7 +1469,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1481,7 +1481,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1493,7 +1493,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1505,7 +1505,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1517,7 +1517,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1532'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2216,7 +2216,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2228,7 +2228,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2240,7 +2240,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2252,7 +2252,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2264,7 +2264,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2276,7 +2276,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2288,7 +2288,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11437'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2300,7 +2300,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11655 301'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2324,7 +2324,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11655 306'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2372,7 +2372,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11655 314'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2396,7 +2396,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11657 401'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2408,7 +2408,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11657 403'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2420,7 +2420,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11657 405'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2432,7 +2432,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11760 1'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2444,7 +2444,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11760 3'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2456,7 +2456,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11760 6'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2504,7 +2504,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11762 3'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2516,7 +2516,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11762 5'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2528,7 +2528,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11762 7'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2552,7 +2552,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11762'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2588,7 +2588,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11764 4'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2600,7 +2600,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11764 7'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2624,7 +2624,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '11764'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2636,7 +2636,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '3611 1 '
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2696,7 +2696,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '3611 12'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2708,7 +2708,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '3611 5'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2720,7 +2720,7 @@ begin
       'Jacksonville',
       'FL',
       '32224',
-      '3611 9'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2761,7 +2761,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '502'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2797,7 +2797,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '602'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3013,7 +3013,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '304'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3025,7 +3025,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '108'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3049,7 +3049,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '101'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3061,7 +3061,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '104'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3073,7 +3073,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '106'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3085,7 +3085,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '203'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3109,7 +3109,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      '209'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3174,7 +3174,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'A'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3186,7 +3186,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'A'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3198,7 +3198,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'A'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3210,7 +3210,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'B'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3222,7 +3222,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'B'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3234,7 +3234,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'C'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3246,7 +3246,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'C'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3258,7 +3258,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'D'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3270,7 +3270,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'D'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3282,7 +3282,7 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      '6275 GA'
+      'E'
     )
     on conflict (property_id, unit_number) do nothing;
 
