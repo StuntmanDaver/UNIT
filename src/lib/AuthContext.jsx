@@ -10,6 +10,25 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [appPublicSettings, setAppPublicSettings] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [propertyIds, setPropertyIds] = useState([]);
+
+  const fetchUserProfile = async (userId) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('role, property_ids, email')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      setUserRole('tenant');
+      setPropertyIds([]);
+      return;
+    }
+
+    setUserRole(data.role);
+    setPropertyIds(data.property_ids ?? []);
+  };
 
   useEffect(() => {
     checkAppState();
@@ -20,9 +39,12 @@ export const AuthProvider = ({ children }) => {
         if (session?.user) {
           setUser(session.user);
           setIsAuthenticated(true);
+          await fetchUserProfile(session.user.id);
         } else {
           setUser(null);
           setIsAuthenticated(false);
+          setUserRole(null);
+          setPropertyIds([]);
         }
         setIsLoadingAuth(false);
       }
@@ -57,6 +79,7 @@ export const AuthProvider = ({ children }) => {
       if (session?.user) {
         setUser(session.user);
         setIsAuthenticated(true);
+        await fetchUserProfile(session.user.id);
       }
 
       setIsLoadingAuth(false);
@@ -74,6 +97,8 @@ export const AuthProvider = ({ children }) => {
   const logout = async (shouldRedirect = true) => {
     setUser(null);
     setIsAuthenticated(false);
+    setUserRole(null);
+    setPropertyIds([]);
     await supabase.auth.signOut();
 
     if (shouldRedirect) {
@@ -86,6 +111,8 @@ export const AuthProvider = ({ children }) => {
     window.location.href = '/LandlordLogin';
   };
 
+  const isLandlord = userRole === 'landlord';
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -96,7 +123,10 @@ export const AuthProvider = ({ children }) => {
       appPublicSettings,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState,
+      isLandlord,
+      userRole,
+      propertyIds
     }}>
       {children}
     </AuthContext.Provider>
