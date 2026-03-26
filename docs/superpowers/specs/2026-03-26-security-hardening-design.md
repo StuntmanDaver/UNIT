@@ -93,7 +93,7 @@ This is the simplest approach — no view needed, no service layer changes neede
 
 ### Rewrite Landlord Session Checks
 
-**Affected files:** `LandlordDashboard.jsx`, `LandlordRequests.jsx`, `Accounting.jsx`, any file reading `sessionStorage.getItem('landlord_property_id')`
+**Affected files:** `LandlordDashboard.jsx`, `LandlordRequests.jsx`, `Accounting.jsx`, `Directory.jsx` — all landlord-gated pages need a `property_managers` authorization check. Only `LandlordDashboard.jsx` and `Directory.jsx` currently use sessionStorage; `LandlordRequests.jsx` and `Accounting.jsx` have zero auth checks.
 
 **New pattern:**
 ```js
@@ -200,6 +200,10 @@ create policy "Property managers can update recommendations"
   );
 ```
 
+### Notifications INSERT Policy — Intentionally Left Permissive
+
+The `notifications` table INSERT policy is also `with check (true)`, but this is **intentionally unchanged**. Community.jsx and Recommendations.jsx create notifications for *other* users' emails (cross-user writes) as part of the legitimate notification flow. Tightening this policy would require moving notification creation to a server-side function, which is out of scope. The SELECT policy already restricts users to their own notifications (`user_email = auth.jwt()->>'email'`), limiting the blast radius.
+
 ### Fix Supabase Client Crash (C5)
 
 ```js
@@ -233,10 +237,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 | `src/services/properties.js` | Explicit column select in all three methods: `list()`, `getById()`, `filter()` (no `select('*')`) |
 | `src/pages/LandlordLogin.jsx` | Remove client-side code comparison, call Edge Function |
 | `src/pages/LandlordDashboard.jsx` | Replace sessionStorage with `property_managers` query |
-| `src/pages/LandlordRequests.jsx` | Replace sessionStorage with `property_managers` query |
+| `src/pages/LandlordRequests.jsx` | Add `property_managers` authorization guard (currently has no auth check — just reads `propertyId` from URL) |
 | `src/pages/Accounting.jsx` | Add `property_managers` authorization guard (currently has no auth check — just reads `propertyId` from URL) |
 | `src/pages/Directory.jsx` | Replace sessionStorage `isLandlord` check with `property_managers` query |
 | `src/components/LandlordNotificationBell.jsx` | Update to use `property_managers` context if needed |
+| `src/components/FloorMapView.jsx` | No code changes — receives `isLandlord` prop from `Directory.jsx` (dependent) |
 
 ## Migration Strategy
 
