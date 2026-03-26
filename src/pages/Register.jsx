@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { unitsService } from '@/services/units';
+import { storageService } from '@/services/storage';
+import { supabase } from '@/services/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -10,7 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
-import { Building2, ArrowLeft, Loader2, CheckCircle, Sparkles, MapPin, Upload, X } from 'lucide-react';
+import UnitLogo from '@/components/UnitLogo';
+import { Building2, ArrowLeft, Loader2, CheckCircle, MapPin, Upload, X } from 'lucide-react';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,6 +26,7 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     unit_number: '',
+    unit_id: '',
     business_name: '',
     business_description: '',
     category: '',
@@ -36,18 +42,24 @@ export default function Register() {
   const { data: property, isLoading: propertyLoading } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
+    enabled: !!propertyId
+  });
+
+  const { data: units = [], isLoading: unitsLoading } = useQuery({
+    queryKey: ['units', propertyId],
+    queryFn: () => unitsService.getVacant(propertyId),
     enabled: !!propertyId
   });
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        return await base44.auth.me();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
       }
       return null;
     }
@@ -70,7 +82,7 @@ export default function Register() {
         property_id: propertyId,
         owner_email: user?.email || data.contact_email
       };
-      return await base44.entities.Business.create(businessData);
+      return await businessesService.create(businessData);
     },
     onSuccess: (newBusiness) => {
       queryClient.invalidateQueries({ queryKey: ['businesses'] });
@@ -102,7 +114,7 @@ export default function Register() {
 
     setUploading(true);
     try {
-      const result = await base44.integrations.Core.UploadFile({ file });
+      const result = await storageService.uploadFile(file);
       setFormData({ ...formData, logo_url: result.file_url });
       setLogoPreview(URL.createObjectURL(file));
     } catch (error) {
@@ -152,7 +164,7 @@ export default function Register() {
             <span>Back</span>
           </button>
           <div className="flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/697e319135e62b1a097e0674/f1a080168_Screenshot_2026-02-02_at_25726_PM-removebg-preview.png" alt="Unit" className="w-8 h-8" />
+            <UnitLogo size={32} />
             <span className="text-xl font-bold text-gray-900">Unit</span>
           </div>
           <div className="w-16" />
@@ -264,14 +276,42 @@ export default function Register() {
                       <Label htmlFor="unit_number" className="text-sm font-medium text-gray-700">
                         Unit Number *
                       </Label>
-                      <Input
-                        id="unit_number"
-                        value={formData.unit_number}
-                        onChange={(e) => setFormData({ ...formData, unit_number: e.target.value })}
-                        placeholder="e.g., 101, A-5, Building 2 Suite 300"
-                        className="mt-1.5 rounded-xl"
-                        required
-                      />
+                      {unitsLoading ? (
+                        <div className="mt-1.5 flex items-center gap-2 text-sm text-gray-500">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Loading available units...
+                        </div>
+                      ) : units.length > 0 ? (
+                        <Select
+                          value={formData.unit_id}
+                          onValueChange={(unitId) => {
+                            const unit = units.find(u => u.id === unitId);
+                            if (unit) {
+                              setFormData({ ...formData, unit_id: unitId, unit_number: unit.unit_number });
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="mt-1.5 rounded-xl">
+                            <SelectValue placeholder="Select your unit" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {units.map(unit => (
+                              <SelectItem key={unit.id} value={unit.id}>
+                                {unit.unit_number} — {unit.street_address}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input
+                          id="unit_number"
+                          value={formData.unit_number}
+                          onChange={(e) => setFormData({ ...formData, unit_number: e.target.value })}
+                          placeholder="e.g., 101, A-5, Building 2 Suite 300"
+                          className="mt-1.5 rounded-xl"
+                          required
+                        />
+                      )}
                     </div>
 
                     <div>
