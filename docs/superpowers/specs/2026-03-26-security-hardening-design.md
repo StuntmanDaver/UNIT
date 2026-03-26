@@ -62,6 +62,7 @@ create policy "Users can view own manager records"
 - Uses `SUPABASE_SERVICE_ROLE_KEY` (server-only, never exposed to client)
 - `landlord_code` column value never appears in the response
 - Authenticated requests only (rejects anonymous)
+- Must include CORS headers (`Access-Control-Allow-Origin`, etc.) for browser-based invocation
 
 ### Hide `landlord_code` from Client
 
@@ -73,7 +74,7 @@ revoke select (landlord_code) on properties from authenticated;
 
 This is the simplest approach — no view needed, no service layer changes needed. The column simply won't appear in any client query result.
 
-**Service layer update:** Change `propertiesService.list()` and `propertiesService.getById()` from `select('*')` to explicitly named columns. This prevents future columns from leaking and makes the query self-documenting:
+**Service layer update:** Change all three methods in `propertiesService` — `list()`, `getById()`, and `filter()` — from `select('*')` to explicitly named columns. This prevents future columns from leaking and makes the query self-documenting:
 
 ```js
 .select('id, name, address, city, state, type, total_units, image_url, created_at')
@@ -111,6 +112,7 @@ const { data: managedProperties } = useQuery({
 - If user manages multiple properties: show property selector
 - If user manages zero properties: redirect to `LandlordLogin`
 - Remove all `sessionStorage` reads/writes for landlord auth
+- **Important:** Pages like `Accounting.jsx` and `LandlordRequests.jsx` currently have zero auth checks — they query by URL `propertyId` and rely on permissive RLS. After RLS lockdown, unauthorized users would see empty data instead of a redirect. All landlord-gated pages must check `property_managers` and redirect unauthorized users to `LandlordLogin`.
 
 ### Lock Down Financial Table RLS (C2)
 
@@ -228,11 +230,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 | File | Changes |
 |------|---------|
 | `src/services/supabaseClient.js` | Throw on missing env vars (C5) |
-| `src/services/properties.js` | Explicit column select (no `select('*')`) |
+| `src/services/properties.js` | Explicit column select in all three methods: `list()`, `getById()`, `filter()` (no `select('*')`) |
 | `src/pages/LandlordLogin.jsx` | Remove client-side code comparison, call Edge Function |
 | `src/pages/LandlordDashboard.jsx` | Replace sessionStorage with `property_managers` query |
 | `src/pages/LandlordRequests.jsx` | Replace sessionStorage with `property_managers` query |
-| `src/pages/Accounting.jsx` | Replace sessionStorage with `property_managers` query |
+| `src/pages/Accounting.jsx` | Add `property_managers` authorization guard (currently has no auth check — just reads `propertyId` from URL) |
+| `src/pages/Directory.jsx` | Replace sessionStorage `isLandlord` check with `property_managers` query |
 | `src/components/LandlordNotificationBell.jsx` | Update to use `property_managers` context if needed |
 
 ## Migration Strategy
