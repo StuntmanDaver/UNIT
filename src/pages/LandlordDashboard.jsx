@@ -146,7 +146,10 @@ export default function LandlordDashboard() {
   const unitsByBuilding = units.reduce((acc, unit) => {
     const building = unit.building || 'General';
     if (!acc[building]) acc[building] = [];
-    const tenant = businesses.find(b => b.unit_id === unit.id || b.unit_number === unit.unit_number);
+    const tenant = businesses.find(b =>
+      b.unit_id === unit.id ||
+      (!b.unit_id && b.unit_number === unit.unit_number)
+    );
     acc[building].push({ ...unit, tenant });
     return acc;
   }, {});
@@ -372,7 +375,9 @@ export default function LandlordDashboard() {
                             title={unit.tenant ? `${unit.unit_number} — ${unit.tenant.business_name}` : `${unit.unit_number} — Vacant`}
                           >
                             <div className="text-xs font-mono font-medium text-white truncate">
-                              {unit.unit_number.replace(unit.building ? `${unit.building}-` : '', '')}
+                              {unit.building && unit.unit_number.startsWith(`${unit.building}-`)
+                                ? unit.unit_number.slice(unit.building.length + 1)
+                                : unit.unit_number}
                             </div>
                             {unit.tenant && (
                               <div className="text-[10px] text-zinc-400 truncate mt-0.5">
