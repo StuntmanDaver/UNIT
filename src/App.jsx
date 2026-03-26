@@ -7,6 +7,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import LandlordGuard from '@/components/guards/LandlordGuard';
+import { PropertyProvider } from '@/lib/PropertyContext';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -39,6 +41,8 @@ const AuthenticatedApp = () => {
     }
   }
 
+  const LANDLORD_PAGES = ['LandlordDashboard', 'LandlordRequests', 'Accounting'];
+
   // Render the main app
   return (
     <Routes>
@@ -47,17 +51,37 @@ const AuthenticatedApp = () => {
           <MainPage />
         </LayoutWrapper>
       } />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
+      {Object.entries(Pages)
+        .filter(([path]) => !LANDLORD_PAGES.includes(path))
+        .map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            }
+          />
+        ))}
+      <Route element={<LandlordGuard />}>
+        {LANDLORD_PAGES.map(name => {
+          const Page = Pages[name];
+          return (
+            <Route
+              key={name}
+              path={`/${name}`}
+              element={
+                <PropertyProvider>
+                  <LayoutWrapper currentPageName={name}>
+                    <Page />
+                  </LayoutWrapper>
+                </PropertyProvider>
+              }
+            />
+          );
+        })}
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
