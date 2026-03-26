@@ -12,13 +12,14 @@ create table units (
   city text not null,
   state text not null,
   zip text not null,
-  building text,
-  status text default 'vacant', -- 'vacant', 'occupied'
+  building text, -- sub-building / block code within a multi-building property (e.g. 'A', 'B', 'North Wing')
+  status text default 'vacant' check (status in ('vacant', 'occupied', 'maintenance')),
   created_at timestamptz default now(),
   constraint uq_units_property_unit unique (property_id, unit_number)
 );
 
-create index idx_units_property on units(property_id);
+-- idx_units_property is omitted: the unique constraint on (property_id, unit_number)
+-- already provides an index that covers property_id lookups.
 create index idx_units_status on units(status);
 
 -- ============================================================
@@ -38,7 +39,7 @@ alter table leases
 create index idx_leases_unit on leases(unit_id);
 
 -- ============================================================
--- TRIGGER: auto-update unit status on business insert/delete
+-- TRIGGER: auto-update unit status on business insert/update/delete
 -- ============================================================
 create or replace function update_unit_status()
 returns trigger
@@ -52,9 +53,38 @@ begin
     return new;
   end if;
 
+  if (tg_op = 'UPDATE') then
+    -- Only act when the unit assignment actually changed
+    if old.unit_id is distinct from new.unit_id then
+      -- Release the old unit if no other business still occupies it
+      if old.unit_id is not null then
+        if not exists (
+          select 1 from businesses
+          where unit_id = old.unit_id
+            and id <> old.id
+        ) then
+          update units set status = 'vacant' where id = old.unit_id;
+        end if;
+      end if;
+
+      -- Mark the new unit occupied
+      if new.unit_id is not null then
+        update units set status = 'occupied' where id = new.unit_id;
+      end if;
+    end if;
+    return new;
+  end if;
+
   if (tg_op = 'DELETE') then
     if old.unit_id is not null then
-      update units set status = 'vacant' where id = old.unit_id;
+      -- Only mark vacant when no other business still occupies this unit
+      if not exists (
+        select 1 from businesses
+        where unit_id = old.unit_id
+          and id <> old.id
+      ) then
+        update units set status = 'vacant' where id = old.unit_id;
+      end if;
     end if;
     return old;
   end if;
@@ -64,13 +94,16 @@ end;
 $$;
 
 create trigger trg_business_unit_status
-  after insert or delete
+  after insert or update of unit_id or delete
   on businesses
   for each row
   execute function update_unit_status();
 
 -- ============================================================
 -- ROW-LEVEL SECURITY
+-- Policies currently allow any authenticated user full access.
+-- Tighten these with role-based checks (e.g. property manager,
+-- owner) once the roles system is in place.
 -- ============================================================
 
 alter table units enable row level security;
