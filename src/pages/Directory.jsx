@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BusinessCard from '@/components/BusinessCard';
@@ -41,8 +42,7 @@ export default function Directory() {
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
@@ -51,7 +51,7 @@ export default function Directory() {
     queryKey: ['businesses', propertyId],
     queryFn: async () => {
       if (!propertyId) return [];
-      return await base44.entities.Business.filter({ property_id: propertyId });
+      return await businessesService.filter({ property_id: propertyId });
     },
     enabled: !!propertyId,
     initialData: []
@@ -60,7 +60,7 @@ export default function Directory() {
   const isLandlord = !!sessionStorage.getItem('landlord_property_id');
 
   const updatePositionMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Business.update(id, data),
+    mutationFn: ({ id, data }) => businessesService.update(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['businesses'] })
   });
 

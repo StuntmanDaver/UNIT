@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { recommendationsService } from '@/services/recommendations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -27,26 +29,25 @@ export default function LandlordRequests() {
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
 
   const { data: businesses = [] } = useQuery({
     queryKey: ['businesses', propertyId],
-    queryFn: () => base44.entities.Business.filter({ property_id: propertyId }),
+    queryFn: () => businessesService.filter({ property_id: propertyId }),
     enabled: !!propertyId
   });
 
   const { data: recommendations = [], isLoading } = useQuery({
     queryKey: ['recommendations', propertyId],
-    queryFn: () => base44.entities.Recommendation.filter({ property_id: propertyId }, '-created_date'),
+    queryFn: () => recommendationsService.filter({ property_id: propertyId }, 'created_date', false),
     enabled: !!propertyId
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Recommendation.update(id, { status }),
+    mutationFn: ({ id, status }) => recommendationsService.update(id, { status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recommendations'] });
     }

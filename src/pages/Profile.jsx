@@ -1,6 +1,7 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
@@ -14,7 +15,6 @@ import {
   Phone, 
   Globe, 
   MapPin,
-  Sparkles,
   Loader2,
   ArrowLeft,
   Users,
@@ -29,8 +29,7 @@ export default function Profile() {
   const { data: business, isLoading } = useQuery({
     queryKey: ['business', businessId],
     queryFn: async () => {
-      const businesses = await base44.entities.Business.filter({ id: businessId });
-      return businesses[0];
+      return await businessesService.getById(businessId);
     },
     enabled: !!businessId
   });
@@ -38,8 +37,7 @@ export default function Profile() {
   const { data: property } = useQuery({
     queryKey: ['property', business?.property_id],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: business.property_id });
-      return properties[0];
+      return await propertiesService.getById(business.property_id);
     },
     enabled: !!business?.property_id
   });

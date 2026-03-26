@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, Mail, Phone, Globe, MapPin, QrCode } from "lucide-react";
+import { Mail, Phone, Globe, MapPin, QrCode } from "lucide-react";
 import { motion } from "framer-motion";
 import { CATEGORY_COLORS } from '@/lib/colors';
 

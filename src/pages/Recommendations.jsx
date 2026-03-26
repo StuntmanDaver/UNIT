@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { recommendationsService } from '@/services/recommendations';
+import { notificationsService } from '@/services/notifications';
+import { supabase } from '@/services/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -11,7 +15,7 @@ import NotificationBell from '@/components/NotificationBell';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
-import { Sparkles, Plus, Loader2, AlertCircle, Wrench, Lightbulb } from 'lucide-react';
+import { Plus, Loader2, AlertCircle, Wrench, Lightbulb } from 'lucide-react';
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -26,8 +30,7 @@ export default function Recommendations() {
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
@@ -35,9 +38,10 @@ export default function Recommendations() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        return await base44.auth.me();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
       }
       return null;
     }
@@ -47,7 +51,7 @@ export default function Recommendations() {
     queryKey: ['myBusiness', user?.email],
     queryFn: async () => {
       if (user?.email) {
-        const businesses = await base44.entities.Business.filter({ owner_email: user.email });
+        const businesses = await businessesService.filter({ owner_email: user.email });
         return businesses[0];
       }
       return null;
@@ -58,7 +62,7 @@ export default function Recommendations() {
   const { data: recommendations = [], isLoading } = useQuery({
     queryKey: ['recommendations', propertyId],
     queryFn: async () => {
-      return await base44.entities.Recommendation.filter({ property_id: propertyId }, '-created_date');
+      return await recommendationsService.filter({ property_id: propertyId }, 'created_date', false);
     },
     enabled: !!propertyId
   });
@@ -66,14 +70,14 @@ export default function Recommendations() {
   const { data: businesses = [] } = useQuery({
     queryKey: ['businesses', propertyId],
     queryFn: async () => {
-      return await base44.entities.Business.filter({ property_id: propertyId });
+      return await businessesService.filter({ property_id: propertyId });
     },
     enabled: !!propertyId
   });
 
   const createRecommendationMutation = useMutation({
     mutationFn: async (data) => {
-      const newRec = await base44.entities.Recommendation.create({
+      const newRec = await recommendationsService.create({
         ...data,
         property_id: propertyId,
         business_id: myBusiness.id
@@ -82,8 +86,8 @@ export default function Recommendations() {
       // Notify all other businesses in the property
       const otherBusinesses = businesses.filter(b => b.id !== myBusiness?.id);
       await Promise.all(
-        otherBusinesses.map(business => 
-          base44.entities.Notification.create({
+        otherBusinesses.map(business =>
+          notificationsService.create({
             user_email: business.owner_email,
             property_id: propertyId,
             type: 'recommendation',

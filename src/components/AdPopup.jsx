@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { adsService } from '@/services/ads';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ExternalLink } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function AdPopup({ propertyId }) {
     queryFn: async () => {
       if (!propertyId) return [];
       const today = new Date().toISOString().split('T')[0];
-      return await base44.entities.Ad.filter({
+      return await adsService.filter({
         property_id: propertyId,
         active: true
       });

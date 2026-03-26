@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { propertiesService } from '@/services/properties';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import UnitLogo from '@/components/UnitLogo';
 import { motion } from 'framer-motion';
-import { Sparkles, ArrowLeft, Lock, Loader2 } from 'lucide-react';
+import { ArrowLeft, Lock, Loader2 } from 'lucide-react';
 
 export default function LandlordLogin() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function LandlordLogin() {
 
   const { data: properties = [] } = useQuery({
     queryKey: ['properties'],
-    queryFn: () => base44.entities.Property.list(),
+    queryFn: () => propertiesService.list(),
     initialData: []
   });
 

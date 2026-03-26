@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Megaphone, Calendar, Tag, HelpCircle, Loader2 } from "lucide-react";
+import { Megaphone, Calendar, Tag, Loader2 } from "lucide-react";
 
 export default function CreatePostModal({ isOpen, onClose, onSubmit, isLoading }) {
   const [formData, setFormData] = useState({

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { postsService } from '@/services/posts';
+import { recommendationsService } from '@/services/recommendations';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -12,34 +15,34 @@ import RecommendationCard from '@/components/RecommendationCard';
 import BusinessCard from '@/components/BusinessCard';
 import AdBanner from '@/components/AdBanner';
 import { motion } from 'framer-motion';
-import { Building2, MapPin, Users, ArrowLeft, Store, MessageSquare, ClipboardList, Sparkles } from 'lucide-react';
+import { Building2, MapPin, Users, ArrowLeft, Store, MessageSquare, ClipboardList } from 'lucide-react';
 
 export default function BrowseProperties() {
   const [selectedProperty, setSelectedProperty] = useState(null);
 
   const { data: properties = [], isLoading } = useQuery({
     queryKey: ['all-properties'],
-    queryFn: () => base44.entities.Property.list(),
+    queryFn: () => propertiesService.list(),
     initialData: []
   });
 
   const { data: businesses = [] } = useQuery({
     queryKey: ['businesses', selectedProperty?.id],
-    queryFn: () => base44.entities.Business.filter({ property_id: selectedProperty.id }),
+    queryFn: () => businessesService.filter({ property_id: selectedProperty.id }),
     enabled: !!selectedProperty?.id,
     initialData: []
   });
 
   const { data: posts = [] } = useQuery({
     queryKey: ['posts', selectedProperty?.id],
-    queryFn: () => base44.entities.Post.filter({ property_id: selectedProperty.id }, '-created_date'),
+    queryFn: () => postsService.filter({ property_id: selectedProperty.id }, 'created_date', false),
     enabled: !!selectedProperty?.id,
     initialData: []
   });
 
   const { data: recommendations = [] } = useQuery({
     queryKey: ['recommendations', selectedProperty?.id],
-    queryFn: () => base44.entities.Recommendation.filter({ property_id: selectedProperty.id }, '-created_date'),
+    queryFn: () => recommendationsService.filter({ property_id: selectedProperty.id }, 'created_date', false),
     enabled: !!selectedProperty?.id,
     initialData: []
   });

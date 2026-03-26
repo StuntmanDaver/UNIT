@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '@/services/supabaseClient';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import BusinessQRCode from '@/components/BusinessQRCode';
 import BottomNav from '@/components/BottomNav';
@@ -15,10 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
 import { 
-  Building2, 
-  Users, 
-  MessageSquare,
-  Sparkles,
+  Building2,
   Loader2,
   Mail,
   Phone,
@@ -40,9 +39,10 @@ export default function MyCard() {
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        return await base44.auth.me();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
       }
       return null;
     }
@@ -54,10 +54,9 @@ export default function MyCard() {
     queryKey: ['myBusiness', businessIdFromUrl, user?.email],
     queryFn: async () => {
       if (businessIdFromUrl) {
-        const businesses = await base44.entities.Business.filter({ id: businessIdFromUrl });
-        return businesses[0];
+        return await businessesService.getById(businessIdFromUrl);
       } else if (user?.email) {
-        const businesses = await base44.entities.Business.filter({ owner_email: user.email });
+        const businesses = await businessesService.filter({ owner_email: user.email });
         return businesses[0];
       }
       return null;
@@ -68,8 +67,7 @@ export default function MyCard() {
   const { data: property } = useQuery({
     queryKey: ['property', business?.property_id],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: business.property_id });
-      return properties[0];
+      return await propertiesService.getById(business.property_id);
     },
     enabled: !!business?.property_id
   });
@@ -92,7 +90,7 @@ export default function MyCard() {
 
   const updateBusinessMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.entities.Business.update(business.id, data);
+      return await businessesService.update(business.id, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['myBusiness'] });

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { leasesService, recurringPaymentsService, invoicesService, expensesService, paymentsService } from '@/services/accounting';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -43,50 +45,49 @@ export default function Accounting() {
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
 
   const { data: businesses = [] } = useQuery({
     queryKey: ['businesses', propertyId],
-    queryFn: () => base44.entities.Business.filter({ property_id: propertyId }),
+    queryFn: () => businessesService.filter({ property_id: propertyId }),
     enabled: !!propertyId
   });
 
   const { data: leases = [] } = useQuery({
     queryKey: ['leases', propertyId],
-    queryFn: () => base44.entities.Lease.filter({ property_id: propertyId }),
+    queryFn: () => leasesService.filter({ property_id: propertyId }),
     enabled: !!propertyId
   });
 
   const { data: recurringPayments = [] } = useQuery({
     queryKey: ['recurringPayments', propertyId],
-    queryFn: () => base44.entities.RecurringPayment.filter({ property_id: propertyId }, '-created_date'),
+    queryFn: () => recurringPaymentsService.filter({ property_id: propertyId }, 'created_date', false),
     enabled: !!propertyId
   });
 
   const { data: invoices = [] } = useQuery({
     queryKey: ['invoices', propertyId],
-    queryFn: () => base44.entities.Invoice.filter({ property_id: propertyId }, '-invoice_date'),
+    queryFn: () => invoicesService.filter({ property_id: propertyId }, 'invoice_date', false),
     enabled: !!propertyId
   });
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['expenses', propertyId],
-    queryFn: () => base44.entities.Expense.filter({ property_id: propertyId }, '-expense_date'),
+    queryFn: () => expensesService.filter({ property_id: propertyId }, 'expense_date', false),
     enabled: !!propertyId
   });
 
   const { data: payments = [] } = useQuery({
     queryKey: ['payments', propertyId],
-    queryFn: () => base44.entities.Payment.filter({ property_id: propertyId }),
+    queryFn: () => paymentsService.filter({ property_id: propertyId }),
     enabled: !!propertyId
   });
 
   const createRecurringPaymentMutation = useMutation({
-    mutationFn: (data) => base44.entities.RecurringPayment.create(data),
+    mutationFn: (data) => recurringPaymentsService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
       setShowRecurringModal(false);
@@ -94,7 +95,7 @@ export default function Accounting() {
   });
 
   const createInvoiceMutation = useMutation({
-    mutationFn: (data) => base44.entities.Invoice.create(data),
+    mutationFn: (data) => invoicesService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       setShowInvoiceModal(false);
@@ -102,7 +103,7 @@ export default function Accounting() {
   });
 
   const createExpenseMutation = useMutation({
-    mutationFn: (data) => base44.entities.Expense.create(data),
+    mutationFn: (data) => expensesService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       setShowExpenseModal(false);
@@ -110,7 +111,7 @@ export default function Accounting() {
   });
 
   const createLeaseMutation = useMutation({
-    mutationFn: (data) => base44.entities.Lease.create(data),
+    mutationFn: (data) => leasesService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leases'] });
       setShowLeaseModal(false);
@@ -119,7 +120,7 @@ export default function Accounting() {
   });
 
   const updateLeaseMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Lease.update(id, data),
+    mutationFn: ({ id, data }) => leasesService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leases'] });
       setShowLeaseModal(false);
@@ -128,7 +129,7 @@ export default function Accounting() {
   });
 
   const updateInvoiceMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Invoice.update(id, data),
+    mutationFn: ({ id, data }) => invoicesService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       setShowInvoiceModal(false);
@@ -137,7 +138,7 @@ export default function Accounting() {
   });
 
   const updateExpenseMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Expense.update(id, data),
+    mutationFn: ({ id, data }) => expensesService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       setShowExpenseModal(false);
@@ -146,7 +147,7 @@ export default function Accounting() {
   });
 
   const updateRecurringMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.RecurringPayment.update(id, data),
+    mutationFn: ({ id, data }) => recurringPaymentsService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
       setShowRecurringModal(false);
@@ -155,22 +156,22 @@ export default function Accounting() {
   });
 
   const deleteLeaseMutation = useMutation({
-    mutationFn: (id) => base44.entities.Lease.delete(id),
+    mutationFn: (id) => leasesService.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['leases'] })
   });
 
   const deleteInvoiceMutation = useMutation({
-    mutationFn: (id) => base44.entities.Invoice.delete(id),
+    mutationFn: (id) => invoicesService.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] })
   });
 
   const deleteExpenseMutation = useMutation({
-    mutationFn: (id) => base44.entities.Expense.delete(id),
+    mutationFn: (id) => expensesService.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses'] })
   });
 
   const deleteRecurringMutation = useMutation({
-    mutationFn: (id) => base44.entities.RecurringPayment.delete(id),
+    mutationFn: (id) => recurringPaymentsService.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['recurringPayments'] })
   });
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { propertiesService } from '@/services/properties';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PropertySearch from '@/components/PropertySearch';
@@ -9,14 +9,14 @@ import AdBanner from '@/components/AdBanner';
 import UnitLogo from '@/components/UnitLogo';
 import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
-import { Building2, Users, MessageSquare, Sparkles } from 'lucide-react';
+import { Building2, Users, MessageSquare } from 'lucide-react';
 
 export default function Welcome() {
   const navigate = useNavigate();
 
   const { data: properties, isLoading } = useQuery({
     queryKey: ['properties'],
-    queryFn: () => base44.entities.Property.list(),
+    queryFn: () => propertiesService.list(),
     initialData: []
   });
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { notificationsService } from '@/services/notifications';
+import { supabase } from '@/services/supabaseClient';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Bell, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import moment from 'moment';
@@ -14,9 +14,10 @@ export default function NotificationBell({ propertyId }) {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        return await base44.auth.me();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
       }
       return null;
     }
@@ -26,9 +27,10 @@ export default function NotificationBell({ propertyId }) {
     queryKey: ['notifications', user?.email, propertyId],
     queryFn: async () => {
       if (!user?.email || !propertyId) return [];
-      return await base44.entities.Notification.filter(
+      return await notificationsService.filter(
         { user_email: user.email, property_id: propertyId },
-        '-created_date',
+        'created_date',
+        false,
         50
       );
     },
@@ -37,7 +39,7 @@ export default function NotificationBell({ propertyId }) {
 
   const markAsReadMutation = useMutation({
     mutationFn: async (notificationId) => {
-      return await base44.entities.Notification.update(notificationId, { read: true });
+      return await notificationsService.update(notificationId, { read: true });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -46,10 +48,7 @@ export default function NotificationBell({ propertyId }) {
 
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      const unreadNotifications = notifications.filter(n => !n.read);
-      await Promise.all(
-        unreadNotifications.map(n => base44.entities.Notification.update(n.id, { read: true }))
-      );
+      await notificationsService.markAllRead(user.email, propertyId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { base44 } from '@/api/base44Client';
+import { adsService } from '@/services/ads';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ExternalLink, X } from 'lucide-react';
@@ -12,9 +12,9 @@ export default function AdBanner({ propertyId }) {
   const { data: ads } = useQuery({
     queryKey: ['ads', propertyId],
     queryFn: async () => {
-      const allAds = await base44.entities.Ad.filter({ 
+      const allAds = await adsService.filter({
         property_id: propertyId,
-        active: true 
+        active: true
       });
       const now = new Date();
       return allAds.filter(ad => {

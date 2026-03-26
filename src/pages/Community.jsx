@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/services/supabaseClient';
+import { propertiesService } from '@/services/properties';
+import { businessesService } from '@/services/businesses';
+import { postsService } from '@/services/posts';
+import { notificationsService } from '@/services/notifications';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import PostCard from '@/components/PostCard';
@@ -10,20 +14,17 @@ import NotificationBell from '@/components/NotificationBell';
 import AdPopup from '@/components/AdPopup';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   Building2, 
   Loader2,
-  Sparkles,
   Users,
   MessageSquare,
   Home,
   Plus,
   Megaphone,
   Calendar,
-  Tag,
-  HelpCircle
+  Tag
 } from 'lucide-react';
 
 export default function Community() {
@@ -38,8 +39,7 @@ export default function Community() {
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
     queryFn: async () => {
-      const properties = await base44.entities.Property.filter({ id: propertyId });
-      return properties[0];
+      return await propertiesService.getById(propertyId);
     },
     enabled: !!propertyId
   });
@@ -47,9 +47,10 @@ export default function Community() {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: async () => {
-      const isAuth = await base44.auth.isAuthenticated();
-      if (isAuth) {
-        return await base44.auth.me();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const { data: { user } } = await supabase.auth.getUser();
+        return user;
       }
       return null;
     }
@@ -59,7 +60,7 @@ export default function Community() {
     queryKey: ['userBusiness', user?.email, propertyId],
     queryFn: async () => {
       if (!user?.email || !propertyId) return null;
-      const businesses = await base44.entities.Business.filter({ 
+      const businesses = await businessesService.filter({
         owner_email: user.email,
         property_id: propertyId
       });
@@ -72,7 +73,7 @@ export default function Community() {
     queryKey: ['posts', propertyId],
     queryFn: async () => {
       if (!propertyId) return [];
-      return await base44.entities.Post.filter({ property_id: propertyId }, '-created_date');
+      return await postsService.filter({ property_id: propertyId }, 'created_date', false);
     },
     enabled: !!propertyId,
     initialData: []
@@ -82,7 +83,7 @@ export default function Community() {
     queryKey: ['businesses', propertyId],
     queryFn: async () => {
       if (!propertyId) return [];
-      return await base44.entities.Business.filter({ property_id: propertyId });
+      return await businessesService.filter({ property_id: propertyId });
     },
     enabled: !!propertyId,
     initialData: []
@@ -90,7 +91,7 @@ export default function Community() {
 
   const createPostMutation = useMutation({
     mutationFn: async (postData) => {
-      const newPost = await base44.entities.Post.create({
+      const newPost = await postsService.create({
         ...postData,
         property_id: propertyId,
         business_id: userBusiness?.id
@@ -99,8 +100,8 @@ export default function Community() {
       // Create notifications for all businesses in the property
       const otherBusinesses = businesses.filter(b => b.id !== userBusiness?.id);
       await Promise.all(
-        otherBusinesses.map(business => 
-          base44.entities.Notification.create({
+        otherBusinesses.map(business =>
+          notificationsService.create({
             user_email: business.owner_email,
             property_id: propertyId,
             type: 'post',

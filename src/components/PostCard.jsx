@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Megaphone, Calendar, Tag, HelpCircle, Clock, Building2 } from "lucide-react";
+import { Megaphone, Calendar, Tag, HelpCircle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 
