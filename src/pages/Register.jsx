@@ -47,7 +47,7 @@ export default function Register() {
     enabled: !!propertyId
   });
 
-  const { data: units = [], isLoading: unitsLoading } = useQuery({
+  const { data: units = [], isLoading: unitsLoading, isError: unitsError } = useQuery({
     queryKey: ['units', propertyId],
     queryFn: () => unitsService.getVacant(propertyId),
     enabled: !!propertyId
@@ -132,6 +132,7 @@ export default function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (step === 1) {
+      if (!formData.unit_number) return;
       setStep(2);
     } else {
       createBusinessMutation.mutate(formData);
@@ -281,6 +282,8 @@ export default function Register() {
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Loading available units...
                         </div>
+                      ) : unitsError ? (
+                        <p className="mt-1.5 text-sm text-red-500">Could not load available units. Please try again.</p>
                       ) : units.length > 0 ? (
                         <Select
                           value={formData.unit_id}
@@ -291,7 +294,7 @@ export default function Register() {
                             }
                           }}
                         >
-                          <SelectTrigger className="mt-1.5 rounded-xl">
+                          <SelectTrigger id="unit_number" className="mt-1.5 rounded-xl">
                             <SelectValue placeholder="Select your unit" />
                           </SelectTrigger>
                           <SelectContent>
