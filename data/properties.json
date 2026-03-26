@@ -1,0 +1,2218 @@
+{
+  "source": "Decker Capital Property-Unit Address Book",
+  "total_properties": 7,
+  "total_units": 256,
+  "properties": [
+    {
+      "property_name": "Vero",
+      "legal_entity": "VD Vero, LLC",
+      "addresses": [
+        "652 Old Dixie Highway",
+        "654 Old Dixie Highway",
+        "656 Old Dixie Highway",
+        "658 Old Dixie Highway",
+        "660 Old Dixie Highway",
+        "664 Old Dixie Highway",
+        "670 8th COURT",
+        "672 Old Dixie Highway",
+        "676 Old Dixie Highway",
+        "678-F Old Dixie Highway",
+        "678-R Old Dixie Highway",
+        "680 8th COURT",
+        "680 Old Dixie Highway",
+        "682 8th COURT",
+        "682 Old Dixie Highway",
+        "683 8th COURT",
+        "684 Old Dixie Highway",
+        "685 8th COURT",
+        "686 8th COURT",
+        "686-F Old Dixie Highway",
+        "686-R Old Dixie Highway",
+        "690 8th COURT",
+        "692 8th COURT",
+        "694 8th COURT",
+        "696 8th COURT",
+        "697 8th COURT",
+        "699 8th COURT",
+        "700 8th COURT",
+        "701 8th COURT",
+        "755 8th COURT",
+        "760 8th COURT",
+        "770 8th COURT",
+        "775 8th COURT",
+        "785 8th COURT",
+        "789 8th COURT",
+        "795 8th COURT",
+        "827 8th Street",
+        "829 8th Street",
+        "831 8th Street",
+        "833 8th Street",
+        "835 8th Street",
+        "837 8th Street",
+        "839 8th Street",
+        "841 8th Street",
+        "843 8th Street",
+        "845 8th Street",
+        "847 8th Street"
+      ],
+      "city": "VERO BEACH",
+      "state": "FLORIDA",
+      "zip": "32962",
+      "total_units": 82,
+      "units": [
+        {
+          "unit_number": "B1-652",
+          "address": "652 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "652 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B1-654",
+          "address": "654 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "654 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B1-656",
+          "address": "656 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "656 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B1-658",
+          "address": "658 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "658 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B1-660",
+          "address": "660 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "660 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B1-664",
+          "address": "664 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "664 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-672",
+          "address": "672 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "672 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-676-F",
+          "address": "676 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "676 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-678-F",
+          "address": "678-F Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "678-F Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-678-R",
+          "address": "678-R Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "678-R Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-680",
+          "address": "680 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "680 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-682",
+          "address": "682 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "682 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-684",
+          "address": "684 Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "684 Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-686-F",
+          "address": "686-F Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "686-F Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B2-686-R",
+          "address": "686-R Old Dixie Highway, VERO BEACH, FLORIDA 32962",
+          "street": "686-R Old Dixie Highway",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-827",
+          "address": "827 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "827 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-829",
+          "address": "829 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "829 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-831",
+          "address": "831 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "831 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-833",
+          "address": "833 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "833 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-835",
+          "address": "835 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "835 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-837",
+          "address": "837 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "837 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-839",
+          "address": "839 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "839 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-841",
+          "address": "841 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "841 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-843",
+          "address": "843 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "843 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-845",
+          "address": "845 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "845 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B3-847",
+          "address": "847 8th Street,             VERO BEACH, FLORIDA 32962",
+          "street": "847 8th Street",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B4-795",
+          "address": "795 8th COURT,            VERO BEACH, FLORIDA 32962",
+          "street": "795 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B5-789-1",
+          "address": "789 8th COURT, Unit 1 VERO BEACH, FLORIDA 32962",
+          "street": "789 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B5-789-2",
+          "address": "789 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "789 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-1",
+          "address": "785 8th COURT, Unit 1 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-2",
+          "address": "785 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-3",
+          "address": "785 8th COURT, Unit 3 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-4",
+          "address": "785 8th COURT, Unit 4 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-5",
+          "address": "785 8th COURT, Unit 5 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-6",
+          "address": "785 8th COURT, Unit 6 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-7",
+          "address": "785 8th COURT, Unit 7 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B6-785-8",
+          "address": "785 8th COURT, Unit 8 VERO BEACH, FLORIDA 32962",
+          "street": "785 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-1",
+          "address": "775 8th COURT, Unit 1 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-2",
+          "address": "775 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-3",
+          "address": "775 8th COURT, Unit 3 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-4",
+          "address": "775 8th COURT, Unit 4 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-5",
+          "address": "775 8th COURT, Unit 5 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-6",
+          "address": "775 8th COURT, Unit 6 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-7",
+          "address": "775 8th COURT, Unit 7 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B7-775-8",
+          "address": "775 8th COURT, Unit 8 VERO BEACH, FLORIDA 32962",
+          "street": "775 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-1",
+          "address": "755 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-2",
+          "address": "755 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-3",
+          "address": "755 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-4",
+          "address": "755 8th COURT, Unit 4 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-5",
+          "address": "755 8th COURT, Unit 5 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-6",
+          "address": "755 8th COURT, Unit 6 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-7",
+          "address": "755 8th COURT, Unit 7 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B8-755-8",
+          "address": "755 8th COURT, Unit 8 VERO BEACH, FLORIDA 32962",
+          "street": "755 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B9-683",
+          "address": "683 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "683 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B9-685",
+          "address": "685 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "685 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B9-697",
+          "address": "697 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "697 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B9-699",
+          "address": "699 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "699 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B9-701",
+          "address": "701 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "701 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B10-670",
+          "address": "670 8th COURT, VERO BEACH, FLORIDA 32962",
+          "street": "670 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-680",
+          "address": "680 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "680 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-682",
+          "address": "682 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "682 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-686",
+          "address": "686 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "686 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-690",
+          "address": "690 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "690 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-692",
+          "address": "692 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "692 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-694",
+          "address": "694 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "694 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-696",
+          "address": "696 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "696 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B11-700",
+          "address": "700 8th COURT, STE VERO BEACH, FLORIDA 32962",
+          "street": "700 8th COURT",
+          "city": "STE VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-1-F",
+          "address": "760 8th COURT, Unit 1-F VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-2",
+          "address": "760 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-3",
+          "address": "760 8th COURT, Unit 3 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-4",
+          "address": "760 8th COURT, Unit 4 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-5",
+          "address": "760 8th COURT, Unit 5 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-6-R",
+          "address": "760 8th COURT, Unit 6-R VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-R",
+          "address": "760 8th COURT, Unit R VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-7-F",
+          "address": "760 8th COURT, Unit 10 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "12-760-8-F",
+          "address": "760 8th COURT, Unit 8-F VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-9",
+          "address": "760 8th COURT, Unit 9 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-10",
+          "address": "760 8th COURT, Unit 10 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-11",
+          "address": "760 8th COURT, Unit 11 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B12-760-12",
+          "address": "760 8th COURT, Unit 12 VERO BEACH, FLORIDA 32962",
+          "street": "760 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B13-770-1",
+          "address": "770 8th COURT, Unit 1 VERO BEACH, FLORIDA 32962",
+          "street": "770 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        },
+        {
+          "unit_number": "B13-770-2",
+          "address": "770 8th COURT, Unit 2 VERO BEACH, FLORIDA 32962",
+          "street": "770 8th COURT",
+          "city": "VERO BEACH",
+          "state": "FLORIDA",
+          "zip": "32962"
+        }
+      ]
+    },
+    {
+      "property_name": "Daytona 1",
+      "legal_entity": "VD Daytona 1, LLC",
+      "addresses": [
+        "1516 State Ave",
+        "1518 State Ave",
+        "1520 State Ave",
+        "1524 State",
+        "1526 State",
+        "1530 State Ave",
+        "1532 State Ave"
+      ],
+      "city": "Holly Hill",
+      "state": "FL",
+      "zip": "32117",
+      "total_units": 39,
+      "units": [
+        {
+          "unit_number": "1516-1516-A",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-BC",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-D",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-E",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-F",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-G",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-H",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1516-1516-I",
+          "address": "1516 State Ave, Holly Hill, FL 32117",
+          "street": "1516 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-A",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-B",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-C",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-D",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-F",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-G",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-H",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-1518-I",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1518-E",
+          "address": "1518 State Ave, Holly Hill, FL 32117",
+          "street": "1518 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-ABC",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-D",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-E",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-F",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-G",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-H",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1520-1520-I",
+          "address": "1520 State Ave, Holly Hill, FL 32117",
+          "street": "1520 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1524-1524ABC",
+          "address": "1524 State, Holly Hill, FL 32117",
+          "street": "1524 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1526-1526-A",
+          "address": "1526 State, Holly Hill, FL 32117",
+          "street": "1526 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1526-1526-B",
+          "address": "1526 State, Holly Hill, FL 32117",
+          "street": "1526 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1526-1526-C",
+          "address": "1526 State, Holly Hill, FL 32117",
+          "street": "1526 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1526-1526-DE",
+          "address": "1526 State, Holly Hill, FL 32117",
+          "street": "1526 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1526-1526-FGH",
+          "address": "1526 State, Holly Hill, FL 32117",
+          "street": "1526 State",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1530-1530-A-G",
+          "address": "1530 State Ave, Holly Hill, FL 32117",
+          "street": "1530 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-A",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-B",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-C",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-D",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-EFG",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-HIJ",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-K",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1532-1532-L",
+          "address": "1532 State Ave, Holly Hill, FL 32117",
+          "street": "1532 State Ave",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        }
+      ]
+    },
+    {
+      "property_name": "Daytona 2",
+      "legal_entity": "VD Daytona 2, LLC",
+      "addresses": [
+        "1111 Enterprise Court",
+        "1115 Enterprise Court",
+        "1116 Enterprise Court",
+        "1120 Enterprise Court",
+        "456 LPGA Blvd"
+      ],
+      "city": "Holly Hill",
+      "state": "FL",
+      "zip": "32117",
+      "total_units": 29,
+      "units": [
+        {
+          "unit_number": "1111 ABMN",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 CODPEQ",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 FR",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 GS",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 HT",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 IJ",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111 L",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1111K",
+          "address": "1111 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1111 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 AB",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 C",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 D",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 E",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 FG",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 HI",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 JK   1116 A-G, L-M",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 LM",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1115 N",
+          "address": "1115 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1115 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1116 H",
+          "address": "1116 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1116 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1116 I",
+          "address": "1116 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1116 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1116 J",
+          "address": "1116 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1116 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1116 K",
+          "address": "1116 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1116 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 A",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 BC",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 DK",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 EJ",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 FG",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 HI",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "1120 LM",
+          "address": "1120 Enterprise Court, Holly Hill, FL 32117",
+          "street": "1120 Enterprise Court",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        },
+        {
+          "unit_number": "456 A",
+          "address": "456 LPGA Blvd, Holly Hill, FL 32117",
+          "street": "456 LPGA Blvd",
+          "city": "Holly Hill",
+          "state": "FL",
+          "zip": "32117"
+        }
+      ]
+    },
+    {
+      "property_name": "Daytona 3",
+      "legal_entity": "VD Daytona 3, LLC",
+      "addresses": [
+        "600 Oak Place",
+        "610 Oak Place",
+        "620 Oak Place",
+        "630 Oak Place",
+        "640 Oak Place"
+      ],
+      "city": "Port Orange",
+      "state": "FL",
+      "zip": "32127",
+      "total_units": 21,
+      "units": [
+        {
+          "unit_number": "600 ABC2",
+          "address": "600 Oak Place, Port Orange, FL 32127",
+          "street": "600 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "600 C",
+          "address": "600 Oak Place, Port Orange, FL 32127",
+          "street": "600 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "600 D",
+          "address": "600 Oak Place, Port Orange, FL 32127",
+          "street": "600 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "600 E",
+          "address": "600 Oak Place, Port Orange, FL 32127",
+          "street": "600 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "600 F",
+          "address": "600 Oak Place, Port Orange, FL 32127",
+          "street": "600 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "610 A",
+          "address": "610 Oak Place, Port Orange, FL 32127",
+          "street": "610 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "610 BG",
+          "address": "610 Oak Place, Port Orange, FL 32127",
+          "street": "610 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620 AB",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620 C",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620 EF&J",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620 G",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620 KL",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620D",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "620HI",
+          "address": "620 Oak Place, Port Orange, FL 32127",
+          "street": "620 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 A",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 BCPQ",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 DE",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 FM",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 G-L",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "630 R",
+          "address": "630 Oak Place, Port Orange, FL 32127",
+          "street": "630 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        },
+        {
+          "unit_number": "640 A&B",
+          "address": "640 Oak Place, Port Orange, FL 32127",
+          "street": "640 Oak Place",
+          "city": "Port Orange",
+          "state": "FL",
+          "zip": "32127"
+        }
+      ]
+    },
+    {
+      "property_name": "East Park",
+      "legal_entity": "VP DC East Park LLC",
+      "addresses": [
+        "11437 Central Parkway",
+        "11655 Central Parkway",
+        "11657 Central Parkway",
+        "11760 Marco Beach Drive",
+        "11762 Marco Beach Drive",
+        "11764 Marco Beach Drive",
+        "3611 St Johns Bluff Road South"
+      ],
+      "city": "Jacksonville",
+      "state": "FL",
+      "zip": "32224",
+      "total_units": 43,
+      "units": [
+        {
+          "unit_number": "11437-101",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-102",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-103",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-104",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-105",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-106",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11437-107",
+          "address": "11437 Central Parkway, Jacksonville, FL 32224",
+          "street": "11437 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 301-304+308-310",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 305",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 306-307",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 311",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 312",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 313",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 314-315",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11655 316",
+          "address": "11655 Central Parkway, Jacksonville, FL 32224",
+          "street": "11655 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11657 401-402",
+          "address": "11657 Central Parkway, Jacksonville, FL 32224",
+          "street": "11657 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11657 403-404",
+          "address": "11657 Central Parkway, Jacksonville, FL 32224",
+          "street": "11657 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11657 405-414",
+          "address": "11657 Central Parkway, Jacksonville, FL 32224",
+          "street": "11657 Central Parkway",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11760 1-2",
+          "address": "11760 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11760 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11760 3-5",
+          "address": "11760 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11760 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11760 6-10",
+          "address": "11760 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11760 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 1",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 10",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 2",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 3-4",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 5-6",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 7-8",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762 9",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11762-1",
+          "address": "11762 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11762 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764 1",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764 3",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764 4-6",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764 7-10, 7A + 8A",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764 9A",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "11764-2",
+          "address": "11764 Marco Beach Drive, Jacksonville, FL 32224",
+          "street": "11764 Marco Beach Drive",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 1 -4",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 101 retail",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 102 retail",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 103 retail",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 104 retail",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 12-14",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 5-8",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        },
+        {
+          "unit_number": "3611 9-11",
+          "address": "3611 St Johns Bluff Road South, Jacksonville, FL 32224",
+          "street": "3611 St Johns Bluff Road South",
+          "city": "Jacksonville",
+          "state": "FL",
+          "zip": "32224"
+        }
+      ]
+    },
+    {
+      "property_name": "South Jax",
+      "legal_entity": "Decker Center South Jax, LLC",
+      "addresses": [
+        "1025 Blanding Blvd",
+        "1027 Blanding Blvd",
+        "1029 Blanding Blvd",
+        "1031 Blanding Blvd",
+        "1033 Blanding Blvd",
+        "1035 Blanding Blvd",
+        "1045 Blanding Blvd"
+      ],
+      "city": "Orange Park",
+      "state": "FL",
+      "zip": "32065",
+      "total_units": 32,
+      "units": [
+        {
+          "unit_number": "502-504",
+          "address": "1025 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1025 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "604",
+          "address": "1027 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1027 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "605",
+          "address": "1027 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1027 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "602-603",
+          "address": "1027 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1027 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "606",
+          "address": "1027 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1027 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "601",
+          "address": "1027 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1027 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "704",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "702",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "703",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "705",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "706",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "701",
+          "address": "1029 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1029 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "404+A12:S12",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "402",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "401",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "406",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "405",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "501",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "403",
+          "address": "1031 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1031 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "302",
+          "address": "1033 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1033 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "301",
+          "address": "1033 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1033 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "304-305",
+          "address": "1033 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1033 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "108-109",
+          "address": "1035 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1035 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "103",
+          "address": "1035 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1035 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "101-102",
+          "address": "1035 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1035 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "104-105",
+          "address": "1035 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1035 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "106-107",
+          "address": "1035 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1035 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "203-207, 110, 303",
+          "address": "1045 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1045 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "201",
+          "address": "1045 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1045 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "209-210",
+          "address": "1045 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1045 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "208",
+          "address": "1045 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1045 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        },
+        {
+          "unit_number": "202",
+          "address": "1045 Blanding Blvd, Orange Park, FL 32065",
+          "street": "1045 Blanding Blvd",
+          "city": "Orange Park",
+          "state": "FL",
+          "zip": "32065"
+        }
+      ]
+    },
+    {
+      "property_name": "Riverdale",
+      "legal_entity": "DC Riverdale, LLC",
+      "addresses": [
+        "6275 GA Highway 85"
+      ],
+      "city": "Riverdale",
+      "state": "GA",
+      "zip": "30274",
+      "total_units": 10,
+      "units": [
+        {
+          "unit_number": "6275 GA-85 Unit A-1",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit A-2",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit A-3",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit B-1",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit B-2",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit C-1",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit C-2",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit D-1",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit D-2",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        },
+        {
+          "unit_number": "6275 GA-85 Unit E",
+          "address": "6275 GA Highway 85, Riverdale, GA 30274",
+          "street": "6275 GA Highway 85",
+          "city": "Riverdale",
+          "state": "GA",
+          "zip": "30274"
+        }
+      ]
+    }
+  ]
+}

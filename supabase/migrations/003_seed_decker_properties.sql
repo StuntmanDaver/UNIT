@@ -18,7 +18,7 @@ begin
       '652 Old Dixie Highway',
       'VERO BEACH',
       'FLORIDA',
-      83,
+      82,
       'commercial'
     )
     on conflict do nothing;
@@ -356,18 +356,6 @@ begin
     values (
       v_property_id,
       'B5-789-1',
-      '789 8th COURT',
-      'VERO BEACH',
-      'FLORIDA',
-      '32962',
-      'B5'
-    )
-    on conflict (property_id, unit_number) do nothing;
-
-  insert into units (property_id, unit_number, street_address, city, state, zip, building)
-    values (
-      v_property_id,
-      'B5-789-2',
       '789 8th COURT',
       'VERO BEACH',
       'FLORIDA',
@@ -1028,7 +1016,7 @@ end;
 $$;
 
 -- ============================================================
--- DAYTONA 1 (VD Daytona 1 , LLC)
+-- DAYTONA 1 (VD Daytona 1, LLC)
 -- ============================================================
 
 do $$
@@ -1039,7 +1027,7 @@ begin
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
     values (
-      'VD Daytona 1 , LLC',
+      'VD Daytona 1, LLC',
       '1516 State Ave',
       'Holly Hill',
       'FL',
@@ -1050,7 +1038,7 @@ begin
 
   select id into v_property_id
     from properties
-    where name = 'VD Daytona 1 , LLC';
+    where name = 'VD Daytona 1, LLC';
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
