@@ -78,13 +78,13 @@ Source: Inferred from `LandlordLogin.jsx` patterns (`p-8`, `space-y-6`, `py-6`).
 | Role | Size | Weight | Line Height | Usage |
 |------|------|--------|-------------|-------|
 | Body | 16px (text-base) | 400 (normal) | 1.5 | Form helper text, paragraph content, notification copy |
-| Label | 14px (text-sm) | 500 (medium) | 1.4 | Form field labels, table column headers, dropdown item labels |
+| Label | 14px (text-sm) | 400 (normal) | 1.4 | Form field labels, table column headers, dropdown item labels |
 | Heading | 20px (text-xl) | 700 (bold) | 1.2 | Card section headings, page sub-headings |
 | Display | 28px (text-3xl) | 700 (bold) | 1.1 | Page title ("Landlord Access", "Audit Log"), property name in switcher |
 
 Notes:
-- Exactly 4 sizes, 2 effective weights (normal + bold; medium used only for labels).
-- The existing `LandlordLogin` uses `text-3xl font-bold` for the page title and `text-sm font-medium` for labels — this contract codifies that pattern.
+- Exactly 4 sizes, 2 weights: 400 (normal) for Body and Label; 700 (bold) for Heading and Display.
+- The existing `LandlordLogin` uses `text-3xl font-bold` for the page title and `text-sm font-medium` for labels — this contract normalizes label weight to 400 to maintain the 2-weight rule.
 - No italic styles in this phase.
 - Monospace not used (magic link flow has no code-entry field).
 
