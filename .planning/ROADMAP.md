@@ -54,8 +54,8 @@ Plans:
 - [x] 02-01-PLAN.md — Database migration, invoice transition guard, SLA utility, recommendations service enhancement
 - [x] 02-02-PLAN.md — Invoice lifecycle UI: InvoiceStatusActions component, transition wiring, financial audit logging in Accounting.jsx
 - [x] 02-03-PLAN.md — Request workflows: SlaDeadlineBadge, AssigneeField, escalation sorting, audit logging in LandlordRequests.jsx
-- [ ] 02-04-PLAN.md — CSV/PDF export: ExportControls component, TenantInvoices page, route registration, BottomNav entry
-- [ ] 02-05-PLAN.md — Edge Functions: send-invoice-email, mark-overdue-invoices, mark-escalated-requests, cron scheduling
+- [x] 02-04-PLAN.md — CSV/PDF export: ExportControls component, TenantInvoices page, route registration, BottomNav entry
+- [x] 02-05-PLAN.md — Edge Functions: send-invoice-email, mark-overdue-invoices, mark-escalated-requests, cron scheduling
 
 **UI hint**: yes
 

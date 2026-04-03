@@ -21,8 +21,8 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 - [x] **FIN-01**: Invoices follow a status lifecycle (draft → sent → paid → overdue → void) with enforced transition rules
 - [x] **FIN-02**: All financial record mutations (invoice, payment, expense, lease) are logged to an append-only AuditLog entity with actor, timestamp, old/new values
 - [x] **FIN-03**: All request status changes are logged to the AuditLog entity
-- [ ] **FIN-04**: Accounting reports can be exported as CSV
-- [ ] **FIN-05**: Accounting reports can be exported as PDF with formatted layout
+- [x] **FIN-04**: Accounting reports can be exported as CSV
+- [x] **FIN-05**: Accounting reports can be exported as PDF with formatted layout
 
 ### Request Workflows
 
@@ -108,8 +108,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FIN-01 | Phase 2 | Complete |
 | FIN-02 | Phase 2 | Complete |
 | FIN-03 | Phase 2 | Complete |
-| FIN-04 | Phase 2 | Pending |
-| FIN-05 | Phase 2 | Pending |
+| FIN-04 | Phase 2 | Complete |
+| FIN-05 | Phase 2 | Complete |
 | REQ-01 | Phase 2 | Complete |
 | REQ-02 | Phase 2 | Pending |
 | REQ-03 | Phase 2 | Pending |
