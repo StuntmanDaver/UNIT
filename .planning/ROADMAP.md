@@ -48,7 +48,15 @@ Plans:
   2. A request assigned to a staff member shows the assignee, calculates its SLA deadline in business hours, and is flagged as escalated when the deadline passes without resolution
   3. A landlord receives an email when an SLA deadline reaches 80% elapsed, and a tenant receives an email when their invoice is generated or their request status changes
   4. Accounting data can be exported as CSV and as a formatted PDF from the Accounting page
-**Plans**: TBD
+**Plans**: 5 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Database migration, invoice transition guard, SLA utility, recommendations service enhancement
+- [ ] 02-02-PLAN.md — Invoice lifecycle UI: InvoiceStatusActions component, transition wiring, financial audit logging in Accounting.jsx
+- [ ] 02-03-PLAN.md — Request workflows: SlaDeadlineBadge, AssigneeField, escalation sorting, audit logging in LandlordRequests.jsx
+- [ ] 02-04-PLAN.md — CSV/PDF export: ExportControls component, TenantInvoices page, route registration, BottomNav entry
+- [ ] 02-05-PLAN.md — Edge Functions: send-invoice-email, mark-overdue-invoices, mark-escalated-requests, cron scheduling
+
 **UI hint**: yes
 
 ### Phase 3: Quality & Reliability
@@ -80,6 +88,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security & Access Control | 4/4 | Complete   | 2026-03-26 |
-| 2. Financial Operations & Workflows | 0/? | Not started | - |
+| 2. Financial Operations & Workflows | 0/5 | Planned | - |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |
