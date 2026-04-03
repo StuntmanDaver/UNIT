@@ -67,7 +67,11 @@ Plans:
   1. Running `vitest` passes a test suite that covers LandlordGuard, AuditLogger, SLA deadline calculation, and invoice state transitions without hitting the live API
   2. When a component throws an unhandled error, the page shows a graceful fallback UI rather than a blank screen or React error cascade
   3. The QR code generated for a business card scans reliably in the camera apps of at least three major devices
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Test infrastructure: Vitest setup, pure logic tests (SLA, invoice transitions, AuditLogger), QR code round-trip decode test
+- [ ] 03-02-PLAN.md — Error boundaries, code splitting, and LandlordGuard component test
 
 ### Phase 4: Payments & Analytics
 **Goal**: Tenants can pay invoices online via Stripe Checkout with webhook-authoritative payment state, and landlords have enriched operational KPI dashboards
@@ -89,5 +93,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Security & Access Control | 4/4 | Complete   | 2026-03-26 |
 | 2. Financial Operations & Workflows | 5/5 | Complete   | 2026-04-03 |
-| 3. Quality & Reliability | 0/? | Not started | - |
+| 3. Quality & Reliability | 0/2 | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |
