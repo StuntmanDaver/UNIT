@@ -70,7 +70,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Test infrastructure: Vitest setup, pure logic tests (SLA, invoice transitions, AuditLogger), QR code round-trip decode test
+- [x] 03-01-PLAN.md — Test infrastructure: Vitest setup, pure logic tests (SLA, invoice transitions, AuditLogger), QR code round-trip decode test
 - [ ] 03-02-PLAN.md — Error boundaries, code splitting, and LandlordGuard component test
 
 ### Phase 4: Payments & Analytics

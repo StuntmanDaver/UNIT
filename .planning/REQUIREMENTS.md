@@ -55,10 +55,10 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 
 ### Quality & Reliability
 
-- [ ] **QUAL-01**: Automated test suite covers critical user paths (tenant onboarding, directory, community posts, landlord dashboard)
+- [x] **QUAL-01**: Automated test suite covers critical user paths (tenant onboarding, directory, community posts, landlord dashboard)
 - [ ] **QUAL-02**: Error boundaries catch and display graceful fallback UI for component failures
 - [ ] **QUAL-03**: Route-level code splitting reduces initial bundle size
-- [ ] **QUAL-04**: QR code generation verified to scan reliably across major devices and camera apps
+- [x] **QUAL-04**: QR code generation verified to scan reliably across major devices and camera apps
 
 ## v2 Requirements
 
@@ -127,10 +127,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ANLYT-02 | Phase 4 | Pending |
 | ANLYT-03 | Phase 4 | Pending |
 | ANLYT-04 | Phase 4 | Pending |
-| QUAL-01 | Phase 3 | Pending |
+| QUAL-01 | Phase 3 | Complete |
 | QUAL-02 | Phase 3 | Pending |
 | QUAL-03 | Phase 3 | Pending |
-| QUAL-04 | Phase 3 | Pending |
+| QUAL-04 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 32 total
