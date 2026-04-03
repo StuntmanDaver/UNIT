@@ -1,4 +1,5 @@
 import React from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { propertiesService } from '@/services/properties';
 import { businessesService } from '@/services/businesses';
 import { recommendationsService } from '@/services/recommendations';
@@ -275,14 +276,16 @@ export default function LandlordRequests() {
 
                       {expandedRequestId === rec.id && (
                         <div className="mt-4 pt-4 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
-                          <div className="mt-3 mb-3">
-                            <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">Assignment</h4>
-                            <AssigneeField
-                              assignedTo={rec.assigned_to}
-                              onAssign={(assignedTo) => assignMutation.mutate({ id: rec.id, assignedTo })}
-                              isLoading={assignMutation.isPending}
-                            />
-                          </div>
+                          <ErrorBoundary variant="section">
+                            <div className="mt-3 mb-3">
+                              <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">Assignment</h4>
+                              <AssigneeField
+                                assignedTo={rec.assigned_to}
+                                onAssign={(assignedTo) => assignMutation.mutate({ id: rec.id, assignedTo })}
+                                isLoading={assignMutation.isPending}
+                              />
+                            </div>
+                          </ErrorBoundary>
                           <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">Activity</h4>
                           <AuditLogTimeline entries={requestAuditEntries} isLoading={auditLoading} />
                         </div>

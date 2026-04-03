@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { propertiesService } from '@/services/properties';
 import { businessesService } from '@/services/businesses';
 import { leasesService, recurringPaymentsService, invoicesService, expensesService, paymentsService, transitionInvoiceStatus } from '@/services/accounting';
@@ -712,7 +713,9 @@ export default function Accounting() {
                             />
                           </div>
                           <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mt-3 mb-2">Activity</h4>
-                          <AuditLogTimeline entries={invoiceAuditEntries} isLoading={invoiceAuditLoading} />
+                          <ErrorBoundary variant="section">
+                            <AuditLogTimeline entries={invoiceAuditEntries} isLoading={invoiceAuditLoading} />
+                          </ErrorBoundary>
                         </div>
                       )}
                     </div>
@@ -796,49 +799,51 @@ export default function Accounting() {
         </div>
       </main>
 
-      <RecurringPaymentModal
-        isOpen={showRecurringModal}
-        onClose={() => { setShowRecurringModal(false); setEditingRecurring(null); }}
-        onSubmit={handleRecurringSubmit}
-        isLoading={createRecurringPaymentMutation.isPending || updateRecurringMutation.isPending}
-        businesses={businesses}
-        leases={leases}
-        propertyId={propertyId}
-        payment={editingRecurring}
-      />
+      <ErrorBoundary variant="section">
+        <RecurringPaymentModal
+          isOpen={showRecurringModal}
+          onClose={() => { setShowRecurringModal(false); setEditingRecurring(null); }}
+          onSubmit={handleRecurringSubmit}
+          isLoading={createRecurringPaymentMutation.isPending || updateRecurringMutation.isPending}
+          businesses={businesses}
+          leases={leases}
+          propertyId={propertyId}
+          payment={editingRecurring}
+        />
 
-      <InvoiceModal
-        isOpen={showInvoiceModal}
-        onClose={() => { setShowInvoiceModal(false); setEditingInvoice(null); }}
-        onSubmit={handleInvoiceSubmit}
-        isLoading={createInvoiceMutation.isPending || updateInvoiceMutation.isPending}
-        businesses={businesses}
-        leases={leases}
-        propertyId={propertyId}
-        invoice={editingInvoice}
-      />
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          onClose={() => { setShowInvoiceModal(false); setEditingInvoice(null); }}
+          onSubmit={handleInvoiceSubmit}
+          isLoading={createInvoiceMutation.isPending || updateInvoiceMutation.isPending}
+          businesses={businesses}
+          leases={leases}
+          propertyId={propertyId}
+          invoice={editingInvoice}
+        />
 
-      <ExpenseModal
-        isOpen={showExpenseModal}
-        onClose={() => { setShowExpenseModal(false); setEditingExpense(null); }}
-        onSubmit={handleExpenseSubmit}
-        isLoading={createExpenseMutation.isPending || updateExpenseMutation.isPending}
-        propertyId={propertyId}
-        expense={editingExpense}
-      />
+        <ExpenseModal
+          isOpen={showExpenseModal}
+          onClose={() => { setShowExpenseModal(false); setEditingExpense(null); }}
+          onSubmit={handleExpenseSubmit}
+          isLoading={createExpenseMutation.isPending || updateExpenseMutation.isPending}
+          propertyId={propertyId}
+          expense={editingExpense}
+        />
 
-      <LeaseModal
-        isOpen={showLeaseModal}
-        onClose={() => {
-          setShowLeaseModal(false);
-          setEditingLease(null);
-        }}
-        onSubmit={handleLeaseSubmit}
-        isLoading={createLeaseMutation.isPending || updateLeaseMutation.isPending}
-        businesses={businesses}
-        propertyId={propertyId}
-        lease={editingLease}
-      />
+        <LeaseModal
+          isOpen={showLeaseModal}
+          onClose={() => {
+            setShowLeaseModal(false);
+            setEditingLease(null);
+          }}
+          onSubmit={handleLeaseSubmit}
+          isLoading={createLeaseMutation.isPending || updateLeaseMutation.isPending}
+          businesses={businesses}
+          propertyId={propertyId}
+          lease={editingLease}
+        />
+      </ErrorBoundary>
     </div>
   );
 }

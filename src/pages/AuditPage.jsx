@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/supabaseClient';
 import { useAuth } from '@/lib/AuthContext';
 import AuditLogTimeline from '@/components/AuditLogTimeline';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -99,7 +100,9 @@ export default function AuditPage() {
         </div>
       </Card>
 
-      <AuditLogTimeline entries={entries} isLoading={isLoading} />
+      <ErrorBoundary variant="section">
+        <AuditLogTimeline entries={entries} isLoading={isLoading} />
+      </ErrorBoundary>
     </div>
   );
 }
