@@ -61,7 +61,7 @@ completed: 2026-04-03
 - **Duration:** ~3 min
 - **Started:** 2026-04-03T03:31:50Z
 - **Completed:** 2026-04-03T03:34:45Z
-- **Tasks:** 3 of 4 (Task 4 is checkpoint:human-verify — awaiting deployment confirmation)
+- **Tasks:** 4 of 4 (Task 4 checkpoint:human-verify approved — deployment confirmed)
 - **Files modified:** 5
 
 ## Accomplishments
@@ -77,8 +77,9 @@ Each task was committed atomically:
 1. **Task 1: Create send-invoice-email Edge Function** - `d2186ee` (feat)
 2. **Task 2: Create mark-overdue-invoices, mark-escalated-requests, send-escalation-email Edge Functions** - `4201a5d` (feat)
 3. **Task 3: Wire send-invoice-email invocation into Accounting.jsx transition flow** - `bbb2846` (feat, incorporated in parallel plan 02-04 commit)
+4. **Task 4: Deploy Edge Functions and verify email delivery** - checkpoint:human-verify approved by user 2026-04-03
 
-**Plan metadata:** (pending — created after checkpoint)
+**Plan metadata:** `6c71c9e` docs commit (checkpoint reached), finalized after user approval
 
 ## Files Created/Modified
 
@@ -150,6 +151,17 @@ $$);
 - D-03 and D-08 addressed: daily cron functions ready for deployment and scheduling
 - Phase 4 Stripe webhook will be the next actor that triggers invoice status changes (D-01)
 - Cron scheduling requires pg_cron/pg_net extensions enabled in Supabase Dashboard
+
+## Self-Check: PASSED
+
+- FOUND: supabase/functions/send-invoice-email/index.ts
+- FOUND: supabase/functions/mark-overdue-invoices/index.ts
+- FOUND: supabase/functions/mark-escalated-requests/index.ts
+- FOUND: supabase/functions/send-escalation-email/index.ts
+- FOUND commit: d2186ee (Task 1 - send-invoice-email Edge Function)
+- FOUND commit: 4201a5d (Task 2 - overdue/escalation Edge Functions)
+- FOUND commit: bbb2846 (Task 3 - Accounting.jsx wiring)
+- Task 4 checkpoint:human-verify approved by user
 
 ---
 *Phase: 02-financial-operations-workflows*

@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase complete — ready for verification
-stopped_at: "Checkpoint 02-05 task 4: awaiting Edge Function deployment and email verification"
-last_updated: "2026-04-03T03:36:01.894Z"
+stopped_at: Completed 02-05-PLAN.md (Phase 02 complete)
+last_updated: "2026-04-03T03:40:08.984Z"
 progress:
   total_phases: 4
   completed_phases: 2
@@ -56,6 +56,7 @@ Plan: 5 of 5
 | Phase 02-financial-operations-workflows P02 | 167 | 2 tasks | 2 files |
 | Phase 02-financial-operations-workflows P04 | 8 | 3 tasks | 8 files |
 | Phase 02-financial-operations-workflows P05 | 3 | 3 tasks | 5 files |
+| Phase 02-financial-operations-workflows P05 | 5 | 4 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -81,8 +82,8 @@ Recent decisions affecting current work:
 - [Phase 02-financial-operations-workflows]: SlaDeadlineBadge co-locates deadline countdown and escalated badge in one component for single render point in request rows
 - [Phase 02-financial-operations-workflows]: Payment entity skipped for audit writes because no payment CRUD mutations exist in Accounting.jsx — payments is read-only data passed to FinancialReports
 - [Phase 02-financial-operations-workflows]: ExportControls placed inline with action buttons in Invoices/Leases tab headers; jspdf-autotable v5 API autoTable(doc,...) used; Expenses export deferred per D-15; TenantInvoices is tenant-only page not in LANDLORD_PAGES
-- [Phase 02-financial-operations-workflows]: try-catch correct in Deno Edge Functions — CLAUDE.md no-try-catch applies to React/service layer only, not server-side Deno request handlers
-- [Phase 02-financial-operations-workflows]: send-invoice-email invocation in transitionMutation is fire-and-forget — email failure toast does not block status transition toast
+- [Phase 02-financial-operations-workflows]: try-catch is correct in Deno Edge Functions (server request handlers) — CLAUDE.md no-try-catch applies only to React component/service layer code where React Query handles errors
+- [Phase 02-financial-operations-workflows]: Email invocation in transitionMutation is fire-and-forget — email failure surfaces as separate toast without blocking status transition toast
 
 ### Pending Todos
 
@@ -96,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-03T03:36:01.892Z
-Stopped at: Checkpoint 02-05 task 4: awaiting Edge Function deployment and email verification
+Last session: 2026-04-03T03:40:08.981Z
+Stopped at: Completed 02-05-PLAN.md (Phase 02 complete)
 Resume file: None

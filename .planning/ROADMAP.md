@@ -13,7 +13,7 @@ UNIT is an existing, working SPA with critical security gaps and incomplete fina
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Security & Access Control** - Harden landlord auth from client-side sessionStorage to server-validated roles with centralized route guards (completed 2026-03-26)
-- [ ] **Phase 2: Financial Operations & Workflows** - Complete invoice lifecycle, SLA-governed request management, and transactional email notifications
+- [x] **Phase 2: Financial Operations & Workflows** - Complete invoice lifecycle, SLA-governed request management, and transactional email notifications (completed 2026-04-03)
 - [ ] **Phase 3: Quality & Reliability** - Automated test coverage for critical paths, error boundaries, and performance baseline
 - [ ] **Phase 4: Payments & Analytics** - Stripe Checkout integration, webhook-authoritative payment state, and enriched operational dashboards
 
@@ -88,6 +88,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security & Access Control | 4/4 | Complete   | 2026-03-26 |
-| 2. Financial Operations & Workflows | 1/5 | In Progress|  |
+| 2. Financial Operations & Workflows | 5/5 | Complete   | 2026-04-03 |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |
