@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Users, MessageSquare, CreditCard, ClipboardList } from 'lucide-react';
+import { Home, Users, MessageSquare, CreditCard, ClipboardList, FileText } from 'lucide-react';
 
 export default function BottomNav({ propertyId }) {
   const location = useLocation();
@@ -26,15 +26,21 @@ export default function BottomNav({ propertyId }) {
       icon: MessageSquare,
       url: createPageUrl('Community') + (propertyId ? `?propertyId=${propertyId}` : '')
     },
-    { 
-      name: 'Requests', 
-      page: 'Recommendations', 
+    {
+      name: 'Requests',
+      page: 'Recommendations',
       icon: ClipboardList,
       url: createPageUrl('Recommendations') + (propertyId ? `?propertyId=${propertyId}` : '')
     },
-    { 
-      name: 'My Profile', 
-      page: 'MyCard', 
+    {
+      name: 'Invoices',
+      page: 'TenantInvoices',
+      icon: FileText,
+      url: createPageUrl('TenantInvoices') + (propertyId ? `?propertyId=${propertyId}` : '')
+    },
+    {
+      name: 'My Profile',
+      page: 'MyCard',
       icon: CreditCard,
       url: createPageUrl('MyCard')
     }

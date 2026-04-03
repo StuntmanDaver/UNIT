@@ -58,6 +58,7 @@ import MyCard from './pages/MyCard';
 import Profile from './pages/Profile';
 import Recommendations from './pages/Recommendations';
 import Register from './pages/Register';
+import TenantInvoices from './pages/TenantInvoices';
 import Welcome from './pages/Welcome';
 
 
@@ -73,6 +74,7 @@ export const PAGES = {
     "Profile": Profile,
     "Recommendations": Recommendations,
     "Register": Register,
+    "TenantInvoices": TenantInvoices,
     "Welcome": Welcome,
 }
 

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { writeAudit } from '@/lib/AuditLogger';
 import { useAuth } from '@/lib/AuthContext';
 import InvoiceStatusActions from '@/components/accounting/InvoiceStatusActions';
+import ExportControls from '@/components/accounting/ExportControls';
 import { toast } from 'sonner';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -228,6 +229,20 @@ export default function Accounting() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['audit_log', 'invoice', updated.id] });
+
+      // Send email when invoice transitions to 'sent' (D-11, COMM-01)
+      if (updated.status === 'sent') {
+        supabase.functions.invoke('send-invoice-email', {
+          body: { invoiceId: updated.id }
+        }).then(({ error }) => {
+          if (error) {
+            toast.error('Failed to send invoice email. Check your email configuration and try again.');
+          }
+        }).catch(() => {
+          toast.error('Failed to send invoice email. Check your email configuration and try again.');
+        });
+      }
+
       const messages = {
         sent: 'Invoice sent to tenant',
         paid: 'Invoice marked as paid',
@@ -361,13 +376,38 @@ export default function Accounting() {
                       {leases.length} total leases • {expiringLeases.length} expiring soon
                     </p>
                   </div>
-                  <Button
-                    onClick={handleCreateLease}
-                    className="bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Lease
-                  </Button>
+                  <div className="flex items-center gap-3 flex-wrap justify-center">
+                    <Button
+                      onClick={handleCreateLease}
+                      className="bg-gradient-to-r from-brand-slate to-brand-navy hover:from-brand-slate-light hover:to-brand-navy-light"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Lease
+                    </Button>
+                    <ExportControls
+                      data={leases.map(lease => ({
+                        tenant: getBusinessName(lease.business_id),
+                        unit_number: lease.unit_number,
+                        start_date: lease.start_date,
+                        end_date: lease.end_date,
+                        monthly_rent: lease.monthly_rent,
+                        security_deposit: lease.security_deposit,
+                        status: lease.status
+                      }))}
+                      columns={[
+                        { key: 'tenant', header: 'Tenant' },
+                        { key: 'unit_number', header: 'Unit' },
+                        { key: 'start_date', header: 'Start Date' },
+                        { key: 'end_date', header: 'End Date' },
+                        { key: 'monthly_rent', header: 'Monthly Rent' },
+                        { key: 'security_deposit', header: 'Security Deposit' },
+                        { key: 'status', header: 'Status' }
+                      ]}
+                      filename={`leases-${property?.name || 'property'}-${new Date().toISOString().split('T')[0]}`}
+                      propertyName={property?.name || 'Property'}
+                      title="Lease Report"
+                    />
+                  </div>
                 </div>
 
                 {/* Lease Stats */}
@@ -558,13 +598,38 @@ export default function Accounting() {
               <Card className="p-6 bg-white border-gray-100">
                 <div className="flex flex-col items-center mb-6">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">Invoices</h2>
-                  <Button
-                    onClick={() => { setEditingInvoice(null); setShowInvoiceModal(true); }}
-                    className="bg-gradient-to-r from-brand-slate to-brand-navy"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Generate Invoice
-                  </Button>
+                  <div className="flex items-center gap-3 flex-wrap justify-center">
+                    <Button
+                      onClick={() => { setEditingInvoice(null); setShowInvoiceModal(true); }}
+                      className="bg-gradient-to-r from-brand-slate to-brand-navy"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Generate Invoice
+                    </Button>
+                    <ExportControls
+                      data={invoices.map(inv => ({
+                        invoice_number: inv.invoice_number,
+                        tenant: getBusinessName(inv.business_id),
+                        amount: inv.amount,
+                        invoice_date: inv.invoice_date,
+                        due_date: inv.due_date,
+                        status: inv.status,
+                        description: inv.description
+                      }))}
+                      columns={[
+                        { key: 'invoice_number', header: 'Invoice #' },
+                        { key: 'tenant', header: 'Tenant' },
+                        { key: 'amount', header: 'Amount' },
+                        { key: 'invoice_date', header: 'Invoice Date' },
+                        { key: 'due_date', header: 'Due Date' },
+                        { key: 'status', header: 'Status' },
+                        { key: 'description', header: 'Description' }
+                      ]}
+                      filename={`invoices-${property?.name || 'property'}-${new Date().toISOString().split('T')[0]}`}
+                      propertyName={property?.name || 'Property'}
+                      title="Invoice Report"
+                    />
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
