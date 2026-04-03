@@ -18,7 +18,7 @@ Invoices follow a tracked lifecycle (draft → sent → paid → overdue → voi
 - **D-02:** Strict linear transitions: draft → sent → paid (or overdue → paid). Void allowed from any non-paid state. No backwards movement (e.g., sent → draft not allowed).
 - **D-03:** Overdue detection via Supabase cron job (pg_cron or Edge Function). Runs daily, finds invoices past `due_date` still in `sent` status, flips to `overdue`, logs audit entry.
 - **D-04:** Tenants get a read-only invoice page showing invoices linked to their business — status, amount, due date. This sets up cleanly for Phase 4 "Pay Invoice" button.
-- **D-05:** Every status transition is recorded in the AuditLog table (from Phase 1: D-12 through D-15) — actor, timestamp, old status, new status.
+- **D-05:** Every status transition is recorded in the AuditLog table (from Phase 1: D-12 through D-15) — actor, timestamp, old status, new value.
 
 ### SLA & Request Assignment
 - **D-06:** Landlord assigns requests manually from the request detail view. Assignee is another property manager or a staff name/email. No auto-assignment by category.
@@ -114,12 +114,14 @@ No specific requirements — open to standard approaches for all implementation 
 <deferred>
 ## Deferred Ideas
 
-- **Email for request status changes** — considered but deferred from this phase. In-app notifications cover this for now.
-- **Email for SLA 80% warning** — considered but deferred. Only breach/escalation triggers email.
-- **Email for SLA breach** — considered but deferred from email scope. SLA breach shows visual flag + goes to top of list, but no email in this phase.
+- **Email for request status changes (COMM-02)** — deferred per D-14. In-app notifications cover this for now.
+- **Email for SLA 80% warning (REQ-04)** — deferred per D-14. Only breach/escalation triggers action.
+- **Lease expiry email warnings (COMM-03)** — deferred. Not in Phase 2 scope; candidate for Phase 4.
+- **Payment received email (COMM-04)** — deferred to Phase 4 (Stripe webhook flow).
+- **Configurable SLA targets (REQ-02)** — deferred per D-07. v1 uses hardcoded calendar-day constants (High=1d, Medium=3d, Low=7d). Configurable targets are a future enhancement.
+- **Business-hours SLA calculation (REQ-03)** — deferred per D-07. Calendar days chosen for v1 simplicity.
 - **Expenses list export** — invoices, leases, and summary report prioritized over expenses export.
 - **Auto-assignment by category** — manual assignment chosen for v1 simplicity.
-- **Business-hours SLA calculation** — calendar days chosen for v1.
 - **Invoice PDF attachment in email** — summary + in-app link chosen for simplicity.
 
 </deferred>
@@ -128,3 +130,4 @@ No specific requirements — open to standard approaches for all implementation 
 
 *Phase: 02-financial-operations-workflows*
 *Context gathered: 2026-03-26*
+*Deferred section updated: 2026-03-30 (checker revision — added REQ-02, REQ-03, COMM-02, COMM-03, COMM-04, REQ-04 with decision references; removed "Email for SLA breach" per D-08 confirmation)*
