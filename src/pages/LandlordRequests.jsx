@@ -4,27 +4,34 @@ import { businessesService } from '@/services/businesses';
 import { recommendationsService } from '@/services/recommendations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion } from 'framer-motion';
 import UnitLogo from '@/components/UnitLogo';
-import { 
-  ArrowLeft, 
+import {
+  ArrowLeft,
   ClipboardList,
   Loader2,
   AlertCircle,
   CheckCircle2,
   Clock
 } from 'lucide-react';
+import { useProperty } from '@/lib/PropertyContext';
+import { useAuth } from '@/lib/AuthContext';
+import AuditLogTimeline from '@/components/AuditLogTimeline';
+import { supabase } from '@/services/supabaseClient';
+import { writeAudit } from '@/lib/AuditLogger';
+import SlaDeadlineBadge from '@/components/requests/SlaDeadlineBadge';
+import AssigneeField from '@/components/requests/AssigneeField';
+import { toast } from 'sonner';
 
 export default function LandlordRequests() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const urlParams = new URLSearchParams(window.location.search);
-  const propertyId = urlParams.get('propertyId');
+  const { activePropertyId: propertyId } = useProperty();
+  const { user } = useAuth();
 
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
@@ -46,11 +53,64 @@ export default function LandlordRequests() {
     enabled: !!propertyId
   });
 
+  const sortedRecommendations = [...recommendations].sort((a, b) => {
+    if (a.escalated && !b.escalated) return -1;
+    if (!a.escalated && b.escalated) return 1;
+    return new Date(b.created_date) - new Date(a.created_date);
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => recommendationsService.update(id, { status }),
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+      queryClient.invalidateQueries({ queryKey: ['audit_log'] });
+      writeAudit({
+        entityType: 'recommendation',
+        entityId: variables.id,
+        action: 'status_changed',
+        oldValue: null,
+        newValue: { status: variables.status },
+        userId: user?.id,
+        userEmail: user?.email
+      }).catch(() => {});
+      toast.success(`Request status updated to ${variables.status.replace('_', ' ')}`);
     }
+  });
+
+  const assignMutation = useMutation({
+    mutationFn: ({ id, assignedTo }) =>
+      recommendationsService.update(id, { assigned_to: assignedTo }),
+    onSuccess: (updated, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['recommendations'] });
+      writeAudit({
+        entityType: 'recommendation',
+        entityId: variables.id,
+        action: 'assigned',
+        oldValue: null,
+        newValue: { assigned_to: variables.assignedTo },
+        userId: user?.id,
+        userEmail: user?.email
+      }).catch(() => {});
+      toast.success(`Request assigned to ${variables.assignedTo}`);
+    }
+  });
+
+  const [expandedRequestId, setExpandedRequestId] = React.useState(null);
+
+  const { data: requestAuditEntries = [], isLoading: auditLoading } = useQuery({
+    queryKey: ['audit_log', 'recommendation', expandedRequestId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audit_log')
+        .select('*')
+        .eq('entity_type', 'recommendation')
+        .eq('entity_id', expandedRequestId)
+        .order('performed_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!expandedRequestId
   });
 
   const getBusinessName = (businessId) => {
@@ -89,7 +149,7 @@ export default function LandlordRequests() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(createPageUrl('LandlordDashboard') + `?propertyId=${propertyId}`)}
+              onClick={() => navigate('/LandlordDashboard')}
               className="text-zinc-400 hover:text-white hover:bg-white/5"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -149,19 +209,24 @@ export default function LandlordRequests() {
               </div>
 
               <div className="space-y-4">
-                {recommendations.map((rec) => {
+                {sortedRecommendations.map((rec) => {
                   const StatusIcon = statusIcons[rec.status] || Clock;
                   return (
-                    <div key={rec.id} className="p-5 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors">
+                    <div
+                      key={rec.id}
+                      className="p-5 bg-white/5 rounded-xl border border-white/10 hover:border-white/20 transition-colors cursor-pointer"
+                      onClick={() => setExpandedRequestId(expandedRequestId === rec.id ? null : rec.id)}
+                    >
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
                             <StatusIcon className={`w-4 h-4 ${
                               rec.status === 'resolved' || rec.status === 'closed' ? 'text-green-400' :
                               rec.status === 'in_progress' ? 'text-blue-400' :
                               'text-zinc-400'
                             }`} />
                             <h3 className="font-semibold text-white">{rec.title}</h3>
+                            <SlaDeadlineBadge slaDeadline={rec.sla_deadline} escalated={rec.escalated} />
                           </div>
                           <p className="text-sm text-zinc-300 mb-2">{rec.description}</p>
                           <div className="flex items-center gap-3 text-sm text-zinc-400">
@@ -188,8 +253,8 @@ export default function LandlordRequests() {
                           </Badge>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center gap-2 pt-3 border-t border-white/10">
+
+                      <div className="flex items-center gap-2 pt-3 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
                         <span className="text-sm text-zinc-400 mr-2">Status:</span>
                         <Select
                           value={rec.status}
@@ -207,10 +272,25 @@ export default function LandlordRequests() {
                           </SelectContent>
                         </Select>
                       </div>
+
+                      {expandedRequestId === rec.id && (
+                        <div className="mt-4 pt-4 border-t border-white/10" onClick={(e) => e.stopPropagation()}>
+                          <div className="mt-3 mb-3">
+                            <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">Assignment</h4>
+                            <AssigneeField
+                              assignedTo={rec.assigned_to}
+                              onAssign={(assignedTo) => assignMutation.mutate({ id: rec.id, assignedTo })}
+                              isLoading={assignMutation.isPending}
+                            />
+                          </div>
+                          <h4 className="text-sm font-semibold text-zinc-400 uppercase tracking-wide mb-2">Activity</h4>
+                          <AuditLogTimeline entries={requestAuditEntries} isLoading={auditLoading} />
+                        </div>
+                      )}
                     </div>
                   );
                 })}
-                
+
                 {recommendations.length === 0 && (
                   <div className="text-center py-12 text-zinc-400">
                     <ClipboardList className="w-12 h-12 mx-auto mb-3 text-zinc-600" />
