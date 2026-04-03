@@ -34,11 +34,11 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 
 ### Communications
 
-- [ ] **COMM-01**: Transactional email sent when an invoice is generated for a tenant
+- [x] **COMM-01**: Transactional email sent when an invoice is generated for a tenant
 - [ ] **COMM-02**: Transactional email sent when a request status changes
 - [ ] **COMM-03**: Transactional email sent for lease expiry warnings (30 and 7 days)
 - [ ] **COMM-04**: Transactional email sent when a payment is received
-- [ ] **COMM-05**: Email delivery uses Resend (via Supabase Edge Functions or direct integration) with proper DNS authentication
+- [x] **COMM-05**: Email delivery uses Resend (via Supabase Edge Functions or direct integration) with proper DNS authentication
 
 ### Payments
 
@@ -115,11 +115,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | REQ-03 | Phase 2 | Pending |
 | REQ-04 | Phase 2 | Pending |
 | REQ-05 | Phase 2 | Complete |
-| COMM-01 | Phase 2 | Pending |
+| COMM-01 | Phase 2 | Complete |
 | COMM-02 | Phase 2 | Pending |
 | COMM-03 | Phase 2 | Pending |
 | COMM-04 | Phase 2 | Pending |
-| COMM-05 | Phase 2 | Pending |
+| COMM-05 | Phase 2 | Complete |
 | PAY-01 | Phase 4 | Pending |
 | PAY-02 | Phase 4 | Pending |
 | PAY-03 | Phase 4 | Pending |
