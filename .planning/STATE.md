@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase complete — ready for verification
-stopped_at: Completed 01-04-PLAN.md (Task 3 is human-verify checkpoint awaiting verification)
-last_updated: "2026-03-26T05:32:02.343Z"
+status: Ready to execute
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-04-03T03:25:53.161Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 9
+  completed_plans: 5
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Every tenant business has a discoverable digital presence, and the property can coordinate communication and operations in one shared application.
-**Current focus:** Phase 01 — security-access-control
+**Current focus:** Phase 02 — financial-operations-workflows
 
 ## Current Position
 
-Phase: 01 (security-access-control) — EXECUTING
-Plan: 4 of 4
+Phase: 02 (financial-operations-workflows) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: 4 of 4
 | Phase 01-security-access-control P02 | 97 | 3 tasks | 4 files |
 | Phase 01-security-access-control P03 | 93 | 3 tasks | 4 files |
 | Phase 01-security-access-control P04 | 3 | 2 tasks | 5 files |
+| Phase 02-financial-operations-workflows P01 | 2 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - [Phase 01-security-access-control]: PropertyProvider wraps each landlord route element individually so useProperty() is scoped per page mount
 - [Phase 01]: Back navigation in landlord sub-pages no longer appends ?propertyId= — propertyId comes from PropertyContext
 - [Phase 01]: Invoice audit timeline uses inline expand/collapse rather than modal embedding — audit trail visible without triggering edit mode
+- [Phase 02-financial-operations-workflows]: Invoice status transitions enforce a strict state machine via ALLOWED_TRANSITIONS — invalid transitions throw before any DB write
+- [Phase 02-financial-operations-workflows]: SLA deadline defaults to medium (3 days) when priority is unrecognized — safe fallback per D-07
+- [Phase 02-financial-operations-workflows]: Tenant invoice RLS is read-only (SELECT only) via owner_email match — no INSERT/UPDATE/DELETE per D-01
 
 ### Pending Todos
 
@@ -82,6 +86,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-26T05:32:02.341Z
-Stopped at: Completed 01-04-PLAN.md (Task 3 is human-verify checkpoint awaiting verification)
+Last session: 2026-04-03T03:25:53.158Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None

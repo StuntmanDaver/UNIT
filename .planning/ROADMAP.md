@@ -51,7 +51,7 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Database migration, invoice transition guard, SLA utility, recommendations service enhancement
+- [x] 02-01-PLAN.md — Database migration, invoice transition guard, SLA utility, recommendations service enhancement
 - [ ] 02-02-PLAN.md — Invoice lifecycle UI: InvoiceStatusActions component, transition wiring, financial audit logging in Accounting.jsx
 - [ ] 02-03-PLAN.md — Request workflows: SlaDeadlineBadge, AssigneeField, escalation sorting, audit logging in LandlordRequests.jsx
 - [ ] 02-04-PLAN.md — CSV/PDF export: ExportControls component, TenantInvoices page, route registration, BottomNav entry
@@ -88,6 +88,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Security & Access Control | 4/4 | Complete   | 2026-03-26 |
-| 2. Financial Operations & Workflows | 0/5 | Planned | - |
+| 2. Financial Operations & Workflows | 1/5 | In Progress|  |
 | 3. Quality & Reliability | 0/? | Not started | - |
 | 4. Payments & Analytics | 0/? | Not started | - |

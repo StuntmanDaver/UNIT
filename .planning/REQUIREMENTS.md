@@ -9,28 +9,28 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 
 ### Security & Access Control
 
-- [x] **AUTH-01**: Landlord users have server-validated role accounts (Base44 RLS) replacing code-based sessionStorage auth
-- [ ] **AUTH-02**: All landlord routes (Dashboard, Requests, Accounting) are protected by a centralized LandlordGuard component in React Router
-- [x] **AUTH-03**: Base44 RLS rules enforce entity-level access control so landlord data cannot be accessed via direct API calls
-- [ ] **AUTH-04**: Landlord can switch between multiple properties within one session without logout/login
-- [ ] **AUTH-05**: Auth migration includes a transition window so active landlord sessions are not disrupted
+- [x] **AUTH-01**: Landlord users have server-validated role accounts (Supabase RLS) replacing code-based sessionStorage auth
+- [x] **AUTH-02**: All landlord routes (Dashboard, Requests, Accounting) are protected by a centralized LandlordGuard component in React Router
+- [x] **AUTH-03**: Supabase RLS rules enforce entity-level access control so landlord data cannot be accessed via direct API calls
+- [x] **AUTH-04**: Landlord can switch between multiple properties within one session without logout/login
+- [x] **AUTH-05**: Auth migration includes a transition window so active landlord sessions are not disrupted
 - [x] **AUTH-06**: Landlord codes are no longer exposed in client-side API responses (field-level security or removal)
 
 ### Financial Operations
 
-- [ ] **FIN-01**: Invoices follow a status lifecycle (draft → sent → paid → overdue → void) with enforced transition rules
-- [ ] **FIN-02**: All financial record mutations (invoice, payment, expense, lease) are logged to an append-only AuditLog entity with actor, timestamp, old/new values
-- [ ] **FIN-03**: All request status changes are logged to the AuditLog entity
+- [x] **FIN-01**: Invoices follow a status lifecycle (draft → sent → paid → overdue → void) with enforced transition rules
+- [x] **FIN-02**: All financial record mutations (invoice, payment, expense, lease) are logged to an append-only AuditLog entity with actor, timestamp, old/new values
+- [x] **FIN-03**: All request status changes are logged to the AuditLog entity
 - [ ] **FIN-04**: Accounting reports can be exported as CSV
 - [ ] **FIN-05**: Accounting reports can be exported as PDF with formatted layout
 
 ### Request Workflows
 
-- [ ] **REQ-01**: Recommendations/requests support an assigned_to field for staff/contractor assignment
+- [x] **REQ-01**: Recommendations/requests support an assigned_to field for staff/contractor assignment
 - [ ] **REQ-02**: Recommendations/requests have SLA target hours configurable by request type
 - [ ] **REQ-03**: SLA deadlines are calculated using business-hours awareness (not calendar hours)
 - [ ] **REQ-04**: Landlord receives email notification when an SLA deadline is at 80% elapsed
-- [ ] **REQ-05**: Requests are flagged as escalated when SLA deadline passes without resolution
+- [x] **REQ-05**: Requests are flagged as escalated when SLA deadline passes without resolution
 
 ### Communications
 
@@ -38,7 +38,7 @@ Requirements for gap-closure milestone. Each maps to roadmap phases.
 - [ ] **COMM-02**: Transactional email sent when a request status changes
 - [ ] **COMM-03**: Transactional email sent for lease expiry warnings (30 and 7 days)
 - [ ] **COMM-04**: Transactional email sent when a payment is received
-- [ ] **COMM-05**: Email delivery uses Resend via Base44 Automations with proper DNS authentication
+- [ ] **COMM-05**: Email delivery uses Resend (via Supabase Edge Functions or direct integration) with proper DNS authentication
 
 ### Payments
 
@@ -87,7 +87,7 @@ Deferred to future release. Tracked but not in current roadmap.
 |---------|--------|
 | Full double-entry bookkeeping / GL | Massive scope; attracts audit/legal liability if done wrong. Export to QuickBooks/Xero covers the handoff. |
 | SMS notifications | Carrier costs, A2P 10DLC compliance, marginal benefit over email for property management cycles. |
-| OAuth / social login | Email/password via Base44 auth is sufficient for this user base. |
+| OAuth / social login | Email OTP via Supabase auth is sufficient for this user base. |
 | Mobile native app | Web-first, responsive design covers mobile use cases. |
 | Real-time chat between tenants | High complexity, not core to property community value. |
 | Document generation (lease contracts) | Separate product category; defer to future milestone. |
@@ -100,21 +100,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUTH-01 | Phase 1 | Complete |
-| AUTH-02 | Phase 1 | Pending |
+| AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
-| AUTH-04 | Phase 1 | Pending |
-| AUTH-05 | Phase 1 | Pending |
+| AUTH-04 | Phase 1 | Complete |
+| AUTH-05 | Phase 1 | Complete |
 | AUTH-06 | Phase 1 | Complete |
-| FIN-01 | Phase 2 | Pending |
-| FIN-02 | Phase 2 | Pending |
-| FIN-03 | Phase 2 | Pending |
+| FIN-01 | Phase 2 | Complete |
+| FIN-02 | Phase 2 | Complete |
+| FIN-03 | Phase 2 | Complete |
 | FIN-04 | Phase 2 | Pending |
 | FIN-05 | Phase 2 | Pending |
-| REQ-01 | Phase 2 | Pending |
+| REQ-01 | Phase 2 | Complete |
 | REQ-02 | Phase 2 | Pending |
 | REQ-03 | Phase 2 | Pending |
 | REQ-04 | Phase 2 | Pending |
-| REQ-05 | Phase 2 | Pending |
+| REQ-05 | Phase 2 | Complete |
 | COMM-01 | Phase 2 | Pending |
 | COMM-02 | Phase 2 | Pending |
 | COMM-03 | Phase 2 | Pending |
