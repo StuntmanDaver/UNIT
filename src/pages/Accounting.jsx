@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { propertiesService } from '@/services/properties';
 import { businessesService } from '@/services/businesses';
-import { leasesService, recurringPaymentsService, invoicesService, expensesService, paymentsService } from '@/services/accounting';
+import { leasesService, recurringPaymentsService, invoicesService, expensesService, paymentsService, transitionInvoiceStatus } from '@/services/accounting';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { writeAudit } from '@/lib/AuditLogger';
+import { useAuth } from '@/lib/AuthContext';
+import InvoiceStatusActions from '@/components/accounting/InvoiceStatusActions';
+import { toast } from 'sonner';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,12 +28,16 @@ import {
   BarChart3,
   Trash2
 } from 'lucide-react';
+import { useProperty } from '@/lib/PropertyContext';
+import AuditLogTimeline from '@/components/AuditLogTimeline';
+import { supabase } from '@/services/supabaseClient';
 
 export default function Accounting() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { activePropertyId: propertyId } = useProperty();
+  const { user } = useAuth();
   const urlParams = new URLSearchParams(window.location.search);
-  const propertyId = urlParams.get('propertyId');
   const initialTab = urlParams.get('tab') || 'reports';
 
   const [showRecurringModal, setShowRecurringModal] = useState(false);
@@ -41,6 +48,23 @@ export default function Accounting() {
   const [editingInvoice, setEditingInvoice] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
   const [editingRecurring, setEditingRecurring] = useState(null);
+  const [expandedInvoiceId, setExpandedInvoiceId] = useState(null);
+
+  const { data: invoiceAuditEntries = [], isLoading: invoiceAuditLoading } = useQuery({
+    queryKey: ['audit_log', 'invoice', expandedInvoiceId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('audit_log')
+        .select('*')
+        .eq('entity_type', 'invoice')
+        .eq('entity_id', expandedInvoiceId)
+        .order('performed_at', { ascending: false })
+        .limit(20);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!expandedInvoiceId
+  });
 
   const { data: property } = useQuery({
     queryKey: ['property', propertyId],
@@ -88,91 +112,132 @@ export default function Accounting() {
 
   const createRecurringPaymentMutation = useMutation({
     mutationFn: (data) => recurringPaymentsService.create(data),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
       setShowRecurringModal(false);
+      writeAudit({ entityType: 'recurring_payment', entityId: created.id, action: 'created', oldValue: null, newValue: created, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const createInvoiceMutation = useMutation({
     mutationFn: (data) => invoicesService.create(data),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       setShowInvoiceModal(false);
+      writeAudit({ entityType: 'invoice', entityId: created.id, action: 'created', oldValue: null, newValue: created, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const createExpenseMutation = useMutation({
     mutationFn: (data) => expensesService.create(data),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       setShowExpenseModal(false);
+      writeAudit({ entityType: 'expense', entityId: created.id, action: 'created', oldValue: null, newValue: created, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const createLeaseMutation = useMutation({
     mutationFn: (data) => leasesService.create(data),
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['leases'] });
       setShowLeaseModal(false);
       setEditingLease(null);
+      writeAudit({ entityType: 'lease', entityId: created.id, action: 'created', oldValue: null, newValue: created, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const updateLeaseMutation = useMutation({
     mutationFn: ({ id, data }) => leasesService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({ queryKey: ['leases'] });
       setShowLeaseModal(false);
       setEditingLease(null);
+      writeAudit({ entityType: 'lease', entityId: variables.id, action: 'updated', oldValue: null, newValue: updated, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const updateInvoiceMutation = useMutation({
     mutationFn: ({ id, data }) => invoicesService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       setShowInvoiceModal(false);
       setEditingInvoice(null);
+      writeAudit({ entityType: 'invoice', entityId: variables.id, action: 'updated', oldValue: null, newValue: updated, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const updateExpenseMutation = useMutation({
     mutationFn: ({ id, data }) => expensesService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       setShowExpenseModal(false);
       setEditingExpense(null);
+      writeAudit({ entityType: 'expense', entityId: variables.id, action: 'updated', oldValue: null, newValue: updated, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const updateRecurringMutation = useMutation({
     mutationFn: ({ id, data }) => recurringPaymentsService.update(id, data),
-    onSuccess: () => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
       setShowRecurringModal(false);
       setEditingRecurring(null);
+      writeAudit({ entityType: 'recurring_payment', entityId: variables.id, action: 'updated', oldValue: null, newValue: updated, userId: user?.id, userEmail: user?.email }).catch(() => {});
     }
   });
 
   const deleteLeaseMutation = useMutation({
     mutationFn: (id) => leasesService.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['leases'] })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['leases'] });
+      writeAudit({ entityType: 'lease', entityId: variables, action: 'deleted', oldValue: { id: variables }, newValue: null, userId: user?.id, userEmail: user?.email }).catch(() => {});
+    }
   });
 
   const deleteInvoiceMutation = useMutation({
     mutationFn: (id) => invoicesService.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      writeAudit({ entityType: 'invoice', entityId: variables, action: 'deleted', oldValue: { id: variables }, newValue: null, userId: user?.id, userEmail: user?.email }).catch(() => {});
+    }
   });
 
   const deleteExpenseMutation = useMutation({
     mutationFn: (id) => expensesService.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expenses'] })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      writeAudit({ entityType: 'expense', entityId: variables, action: 'deleted', oldValue: { id: variables }, newValue: null, userId: user?.id, userEmail: user?.email }).catch(() => {});
+    }
   });
 
   const deleteRecurringMutation = useMutation({
     mutationFn: (id) => recurringPaymentsService.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['recurringPayments'] })
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['recurringPayments'] });
+      writeAudit({ entityType: 'recurring_payment', entityId: variables, action: 'deleted', oldValue: { id: variables }, newValue: null, userId: user?.id, userEmail: user?.email }).catch(() => {});
+    }
+  });
+
+  const transitionMutation = useMutation({
+    mutationFn: ({ invoiceId, newStatus }) =>
+      transitionInvoiceStatus(invoiceId, newStatus, {
+        userId: user?.id,
+        userEmail: user?.email
+      }),
+    onSuccess: (updated) => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['audit_log', 'invoice', updated.id] });
+      const messages = {
+        sent: 'Invoice sent to tenant',
+        paid: 'Invoice marked as paid',
+        void: 'Invoice voided'
+      };
+      toast.success(messages[updated.status] || 'Invoice updated');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to update invoice status');
+    }
   });
 
   const handleInvoiceSubmit = (data) => {
@@ -238,7 +303,7 @@ export default function Accounting() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(createPageUrl('LandlordDashboard') + `?propertyId=${propertyId}`)}
+              onClick={() => navigate('/LandlordDashboard')}
               className="text-zinc-400 hover:text-white hover:bg-white/5"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -525,46 +590,66 @@ export default function Accounting() {
 
                 <div className="space-y-3">
                   {invoices.map((invoice) => (
-                    <div key={invoice.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => { setEditingInvoice(invoice); setShowInvoiceModal(true); }}
-                    >
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{invoice.invoice_number}</div>
-                        <div className="text-sm text-gray-500 mt-1">
-                          {getBusinessName(invoice.business_id)} • Due {new Date(invoice.due_date).toLocaleDateString()}
+                    <div key={invoice.id} className="bg-gray-50 rounded-xl">
+                      <div className="flex items-center justify-between p-4 cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => setExpandedInvoiceId(expandedInvoiceId === invoice.id ? null : invoice.id)}
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900">{invoice.invoice_number}</div>
+                          <div className="text-sm text-gray-500 mt-1">
+                            {getBusinessName(invoice.business_id)} • Due {new Date(invoice.due_date).toLocaleDateString()}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">{invoice.description}</div>
                         </div>
-                        <div className="text-xs text-gray-400 mt-1">{invoice.description}</div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900">${invoice.amount?.toLocaleString()}</div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <div className="text-lg font-bold text-gray-900">${invoice.amount?.toLocaleString()}</div>
+                          </div>
+                          <Badge className={
+                            invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                            invoice.status === 'overdue' ? 'bg-red-100 text-red-700' :
+                            invoice.status === 'sent' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
+                          }>
+                            {invoice.status}
+                          </Badge>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-blue-600"
+                            onClick={(e) => { e.stopPropagation(); setEditingInvoice(invoice); setShowInvoiceModal(true); }}>
+                            <FileText className="w-4 h-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                                <AlertDialogDescription>This action cannot be undone. This will permanently delete invoice {invoice.invoice_number}.</AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInvoiceMutation.mutate(invoice.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
-                        <Badge className={
-                          invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
-                          invoice.status === 'overdue' ? 'bg-red-100 text-red-700' :
-                          invoice.status === 'sent' ? 'bg-blue-100 text-blue-700' :
-                          'bg-gray-100 text-gray-700'
-                        }>
-                          {invoice.status}
-                        </Badge>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-red-600" onClick={(e) => e.stopPropagation()}>
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
-                              <AlertDialogDescription>This action cannot be undone. This will permanently delete invoice {invoice.invoice_number}.</AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInvoiceMutation.mutate(invoice.id)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
                       </div>
+                      {expandedInvoiceId === invoice.id && (
+                        <div className="px-4 pb-4 border-t border-gray-200">
+                          <div className="flex items-center justify-between mt-3 mb-3">
+                            <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Actions</h4>
+                            <InvoiceStatusActions
+                              status={invoice.status}
+                              onTransition={(newStatus) => transitionMutation.mutate({ invoiceId: invoice.id, newStatus })}
+                              isLoading={transitionMutation.isPending}
+                            />
+                          </div>
+                          <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mt-3 mb-2">Activity</h4>
+                          <AuditLogTimeline entries={invoiceAuditEntries} isLoading={invoiceAuditLoading} />
+                        </div>
+                      )}
                     </div>
                   ))}
                   {invoices.length === 0 && (
