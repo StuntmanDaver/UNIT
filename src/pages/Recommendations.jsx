@@ -259,6 +259,7 @@ export default function Recommendations() {
                     key={recommendation.id}
                     recommendation={recommendation}
                     business={business}
+                    assigned_to={recommendation.assigned_to}
                   />
                 );
               })}

@@ -91,6 +91,12 @@ export default function RecommendationCard({ recommendation, business }) {
             </div>
           )}
 
+          {recommendation.assigned_to && (
+            <div className="text-xs text-zinc-500 mt-1">
+              Assigned to: <span className="text-zinc-300">{recommendation.assigned_to}</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-3 border-t border-gray-100">
             <div className="flex items-center gap-2">
               {business?.logo_url ? (
