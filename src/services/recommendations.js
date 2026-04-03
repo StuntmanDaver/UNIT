@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient';
+import { getSlaDeadline } from '@/lib/sla';
 
 export const recommendationsService = {
   async filter(filters, orderBy = 'created_date', ascending = false) {
@@ -13,9 +14,14 @@ export const recommendationsService = {
   },
 
   async create(recData) {
+    const dataWithSla = {
+      ...recData,
+      sla_deadline: getSlaDeadline(recData.priority),
+      escalated: false
+    };
     const { data, error } = await supabase
       .from('recommendations')
-      .insert(recData)
+      .insert(dataWithSla)
       .select()
       .single();
     if (error) throw error;
