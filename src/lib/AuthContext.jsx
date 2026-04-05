@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
 
       // With Supabase, no separate "public settings" endpoint needed
-      // The app is always available; auth state comes from Supabase session
       setAppPublicSettings({ id: 'unit-app', public_settings: {} });
       setIsLoadingPublicSettings(false);
 
@@ -80,9 +79,18 @@ export const AuthProvider = ({ children }) => {
         setUser(session.user);
         setIsAuthenticated(true);
         await fetchUserProfile(session.user.id);
+        setIsLoadingAuth(false);
+      } else {
+        // If URL has auth tokens (magic link callback), keep loading
+        // and let onAuthStateChange handle the token exchange
+        const hasAuthCallback =
+          window.location.hash.includes('access_token') ||
+          window.location.search.includes('code=');
+        if (!hasAuthCallback) {
+          setIsLoadingAuth(false);
+        }
+        // Otherwise onAuthStateChange will fire SIGNED_IN and set isLoadingAuth = false
       }
-
-      setIsLoadingAuth(false);
     } catch (error) {
       console.error('Unexpected error:', error);
       setAuthError({

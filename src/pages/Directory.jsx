@@ -4,6 +4,7 @@ import { propertiesService } from '@/services/properties';
 import { businessesService } from '@/services/businesses';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useAuth } from '@/lib/AuthContext';
 import BusinessCard from '@/components/BusinessCard';
 import QRCodeCard from '@/components/QRCodeCard';
 import BottomNav from '@/components/BottomNav';
@@ -57,7 +58,7 @@ export default function Directory() {
     initialData: []
   });
 
-  const isLandlord = !!sessionStorage.getItem('landlord_property_id');
+  const { isLandlord } = useAuth();
 
   const updatePositionMutation = useMutation({
     mutationFn: ({ id, data }) => businessesService.update(id, data),

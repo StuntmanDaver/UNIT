@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 
 export default function LandlordNotificationBell({ propertyId, recommendations, payments, leases, businesses }) {
   const [showPanel, setShowPanel] = useState(false);
@@ -36,7 +35,7 @@ export default function LandlordNotificationBell({ propertyId, recommendations, 
         message: `${business?.business_name || 'A tenant'} submitted: ${req.title}`,
         priority: req.priority,
         timestamp: req.created_date,
-        action: () => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)
+        action: () => navigate('/LandlordRequests')
       });
     });
 
@@ -53,7 +52,7 @@ export default function LandlordNotificationBell({ propertyId, recommendations, 
         message: `${business?.business_name || 'A tenant'} has an overdue payment of $${payment.amount}`,
         priority: 'high',
         timestamp: payment.due_date,
-        action: () => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}&tab=reports`)
+        action: () => navigate('/Accounting?tab=reports')
       });
     });
 
@@ -74,7 +73,7 @@ export default function LandlordNotificationBell({ propertyId, recommendations, 
         message: `${business?.business_name || 'A tenant'}'s lease expires in ${daysUntilExpiry} days`,
         priority: daysUntilExpiry <= 30 ? 'high' : 'medium',
         timestamp: lease.end_date,
-        action: () => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}&tab=leases`)
+        action: () => navigate('/Accounting?tab=leases')
       });
     });
 

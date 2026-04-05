@@ -2,7 +2,7 @@
 
 ## What This Is
 
-UNIT is a multi-tenant property community web application that connects business tenants within commercial properties. It enables tenants to discover neighboring businesses, publish community updates, submit operational requests, and share digital business profiles. It also provides landlord-facing workflows for tenant request management and basic property accounting. Built as a React SPA backed by Base44 entities and auth services.
+UNIT is a multi-tenant property community web application that connects business tenants within commercial properties. It enables tenants to discover neighboring businesses, publish community updates, submit operational requests, and share digital business profiles. It also provides landlord-facing workflows for tenant request management, audit logging, and basic property accounting. Built as a React SPA backed by Supabase (PostgreSQL database, Auth, and Storage) with a thin service layer at src/services/.
 
 ## Core Value
 
@@ -27,16 +27,16 @@ Every tenant business in a property has a discoverable digital presence, and the
 
 ### Active
 
-**P0 — Security & Access Control:**
-- [ ] Migrate landlord auth from code-based to user-role accounts with server-validated roles
-- [ ] Enforce access checks uniformly for all landlord routes
-- [ ] Add audit trail for request status changes and financial record mutations
-- [ ] Multi-property landlord account switching within one session
+**P0 — Security & Access Control (COMPLETED):**
+- [x] Migrate landlord auth from code-based to user-role accounts with server-validated roles (Supabase OTP + profiles table)
+- [x] Enforce access checks uniformly for all landlord routes (LandlordGuard + PropertyProvider)
+- [x] Add audit trail infrastructure for request status changes and financial record mutations (audit_log table + AuditPage)
+- [x] Multi-property landlord account switching within one session (PropertySwitcher component)
 
 **P1 — Feature Completion:**
-- [ ] Replace pseudo-QR rendering with standards-compliant QR generation library
+- [x] Replace pseudo-QR rendering with standards-compliant QR generation library (qrcode 1.5.4)
 - [ ] Add invoice-to-payment lifecycle workflow (generation, tracking, status updates)
-- [ ] Add route-level guards and centralized role middleware pattern
+- [x] Add route-level guards and centralized role middleware pattern (LandlordGuard + Supabase RLS)
 - [ ] SLA targets, assignment, and escalation for recommendations/requests
 - [ ] Email notifications for key events (alongside existing in-app)
 
@@ -63,44 +63,48 @@ Every tenant business in a property has a discoverable digital presence, and the
 **Technical Environment:**
 - React 18 SPA with Vite, Tailwind CSS, shadcn/ui, Radix UI
 - TanStack Query for server state, React Router v6 for routing
-- Base44 SDK as BaaS for auth, entity CRUD, file upload, logging
+- Supabase as BaaS for auth, PostgreSQL database, and file storage
+- Service layer at `src/services/` (11 modules) wraps Supabase JS client
+- Schema managed via SQL migrations in `supabase/migrations/`
 - No automated test suite currently exists
-- Landlord auth is currently client-side code-based (sessionStorage) — major security gap
+- Landlord auth uses Supabase OTP with server-validated roles and RLS policies
 
 **Data Model:**
-- 10+ Base44 entities: Property, Business, Post, Recommendation, Notification, Ad, Lease, RecurringPayment, Invoice, Expense, Payment
-- All queries scoped by propertyId via URL params
+- 15 Supabase tables: properties, businesses, posts, recommendations, notifications, ads, leases, recurring_payments, invoices, expenses, payments, units, profiles, audit_log, activity_logs
+- All queries scoped by property_id via URL params and Supabase RLS
 - Business ownership linked by owner_email
+- Landlord access scoped by property_ids array in profiles table
 
 **Key Unknowns:**
-- Base44 SDK capabilities for server-side role validation — needs research
-- Whether middleware layer needed between frontend and Base44 for auth hardening
+- Whether audit logging writeAudit() calls are wired into all financial mutation paths
+- How to implement email notifications (Supabase Edge Functions vs external service like Resend)
 
-**Existing Gaps (from PRD reverse-engineering):**
-- Landlord auth is lightweight client-session only
-- Accounting route access control weaker than dashboard guards
+**Existing Gaps:**
 - Stripe dependencies present but not wired
-- QR code generation is visual/deterministic, not standards-compliant
-- No backend validation rules or schema migrations visible
+- 11+ unused dependencies in package.json (Three.js, Leaflet, html2canvas, jsPDF, moment, lodash, etc.)
+- Dual toast notification systems (sonner + react-hot-toast) should be consolidated
+- No automated test suite
+- No React error boundaries
+- Duplicated currentUser query pattern across 5+ pages
 - Hardcoded static values and asset references in marketing content
 
 ## Constraints
 
-- **Tech stack**: Must work within Base44 BaaS ecosystem — no custom backend unless Base44 can't support server-side auth
+- **Tech stack**: Supabase for BaaS (PostgreSQL, Auth, Storage) — no custom backend needed
 - **Existing code**: Brownfield project — must preserve existing functionality while adding improvements
-- **Publishing**: Deployed via Base44 Builder workflow — no custom CI/CD
+- **Publishing**: Static SPA deployed to any hosting capable of serving Vite dist/ output
 - **Brand**: Established brand identity (navy-to-steel-blue gradient, "Where Tenants Connect") must be maintained
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Migrate landlord to user-role accounts | Code-based auth is a security risk; client-session storage easily bypassed | — Pending |
+| Migrate landlord to user-role accounts | Code-based auth is a security risk; client-session storage easily bypassed | DONE — Supabase OTP + profiles table + RLS |
 | Keep accounting at operational summaries level | Full bookkeeping is massive scope; current users need visibility, not compliance | — Pending |
 | Add SLA + assignment to recommendations | Landlords need accountability and tracking for request resolution | — Pending |
 | Email + in-app notifications (no SMS) | Email covers async notification needs without SMS complexity/cost | — Pending |
-| Multi-property landlord switching | Landlords often manage multiple properties; essential for real usage | — Pending |
-| Research Base44 auth capabilities first | Server-side role support unknown — determines architecture of auth hardening | — Pending |
+| Multi-property landlord switching | Landlords often manage multiple properties; essential for real usage | DONE — PropertySwitcher + property_ids array |
+| Research Base44 auth capabilities first | Server-side role support unknown — migrated to Supabase instead | DONE — Supabase RLS + profiles + is_landlord() |
 
 ## Evolution
 
@@ -120,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after initialization*
+*Last updated: 2026-03-26 — updated to reflect Supabase migration and Phase 1 completion*

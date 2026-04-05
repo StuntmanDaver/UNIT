@@ -28,3 +28,9 @@ dist-ssr
 *.sw?
 
 .env
+
+# Claude agent worktrees
+.claude/worktrees/
+
+# Supabase temp
+supabase/.temp/

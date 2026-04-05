@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { propertiesService } from '@/services/properties';
 import { businessesService } from '@/services/businesses';
 import { recommendationsService } from '@/services/recommendations';
@@ -6,7 +6,6 @@ import { leasesService, paymentsService } from '@/services/accounting';
 import { unitsService } from '@/services/units';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,19 +26,14 @@ import {
 } from 'lucide-react';
 import LandlordNotificationBell from '../components/LandlordNotificationBell';
 import UnitLogo from '@/components/UnitLogo';
+import { useProperty } from '@/lib/PropertyContext';
+import { useAuth } from '@/lib/AuthContext';
+import PropertySwitcher from '@/components/PropertySwitcher';
 
 export default function LandlordDashboard() {
   const navigate = useNavigate();
-  const urlParams = new URLSearchParams(window.location.search);
-  const propertyId = urlParams.get('propertyId');
-
-  // Verify landlord session
-  useEffect(() => {
-    const storedPropertyId = sessionStorage.getItem('landlord_property_id');
-    if (!storedPropertyId || storedPropertyId !== propertyId) {
-      navigate(createPageUrl('LandlordLogin'));
-    }
-  }, [propertyId, navigate]);
+  const { activePropertyId: propertyId } = useProperty();
+  const { logout } = useAuth();
 
   const { data: property, isLoading: propertyLoading } = useQuery({
     queryKey: ['property', propertyId],
@@ -88,8 +82,7 @@ export default function LandlordDashboard() {
   });
 
   const handleLogout = () => {
-    sessionStorage.removeItem('landlord_property_id');
-    navigate(createPageUrl('Welcome'));
+    logout();
   };
 
   // Calculate occupancy
@@ -188,7 +181,8 @@ export default function LandlordDashboard() {
             <span className="text-xl font-bold text-white">Unit</span>
           </div>
           <div className="flex items-center gap-2">
-            <LandlordNotificationBell 
+            <PropertySwitcher />
+            <LandlordNotificationBell
               propertyId={propertyId}
               recommendations={recommendations}
               payments={payments}
@@ -462,7 +456,7 @@ export default function LandlordDashboard() {
                 <h2 className="text-xl font-bold text-white mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-1 gap-4">
                   <Button
-                    onClick={() => navigate(createPageUrl('LandlordRequests') + `?propertyId=${propertyId}`)}
+                    onClick={() => navigate('/LandlordRequests')}
                     variant="outline"
                     className="h-20 flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white"
                   >
@@ -470,7 +464,7 @@ export default function LandlordDashboard() {
                     <span className="font-medium">Requests</span>
                   </Button>
                   <Button
-                    onClick={() => navigate(createPageUrl('Accounting') + `?propertyId=${propertyId}`)}
+                    onClick={() => navigate('/Accounting')}
                     variant="outline"
                     className="h-20 flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white"
                   >
@@ -478,7 +472,7 @@ export default function LandlordDashboard() {
                     <span className="font-medium">Accounting</span>
                   </Button>
                   <Button
-                    onClick={() => navigate(createPageUrl('Directory') + `?propertyId=${propertyId}`)}
+                    onClick={() => navigate(`/Directory?propertyId=${propertyId}`)}
                     variant="outline"
                     className="h-20 flex-col gap-2 border-white/10 bg-white/5 hover:bg-white/10 text-white"
                   >

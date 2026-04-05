@@ -1,10 +1,6 @@
 # Technology Stack
 
-> Generated: 2026-03-25 | Focus: tech
-
-## Overview
-
-UNIT is a React 18 single-page application built with Vite, styled with Tailwind CSS and shadcn/ui (Radix UI primitives), backed by Supabase for database, auth, and file storage. Server state is managed through TanStack React Query. The project recently migrated from Base44 BaaS to Supabase; no Base44 references remain in source code.
+**Analysis Date:** 2026-03-27
 
 ## Languages
 
@@ -24,7 +20,7 @@ UNIT is a React 18 single-page application built with Vite, styled with Tailwind
 ## Runtime
 
 **Environment:**
-- Node.js (version not pinned; no `.nvmrc` or `engines` field)
+- Node.js (version not pinned; no `.nvmrc`, `.node-version`, or `engines` field)
 - Browser target: ES2022 (configured in ESLint `parserOptions.ecmaVersion`)
 - Module system: ESM (`"type": "module"` in `package.json`)
 
@@ -43,7 +39,7 @@ UNIT is a React 18 single-page application built with Vite, styled with Tailwind
 **State Management:**
 - TanStack React Query 5.84.1 - Server state, caching, mutations
   - Config: `src/lib/query-client.js` (refetchOnWindowFocus: false, retry: 1)
-- React Context API - Auth state via `src/lib/AuthContext.jsx`
+- React Context API - Auth state via `src/lib/AuthContext.jsx`, property selection via `src/lib/PropertyContext.jsx`
 
 **Forms:**
 - React Hook Form 7.54.2 - Form state management
@@ -61,13 +57,18 @@ UNIT is a React 18 single-page application built with Vite, styled with Tailwind
 - Autoprefixer 10.4.20 - Browser vendor prefixes
 - tailwindcss-animate 1.0.7 - Animation utilities (Tailwind plugin)
 
+**Testing:**
+- Playwright 1.58.2 - E2E browser testing (`playwright.config.js`)
+- @playwright/test 1.58.2 - Test runner and assertions
+- No unit test framework installed (no Jest, Vitest, or Testing Library)
+
 ## UI Component Library
 
 **Pattern: shadcn/ui (Radix + Tailwind)**
 
 49 UI component files in `src/components/ui/`:
 
-- Built on Radix UI primitives (20+ packages)
+- Built on Radix UI primitives (27 packages)
 - Styled with Tailwind CSS and CSS variables
 - Class composition via `class-variance-authority` 0.7.1 (CVA)
 - Class merging via `clsx` 2.1.1 + `tailwind-merge` 3.0.2
@@ -86,39 +87,51 @@ accordion, alert-dialog, aspect-ratio, avatar, checkbox, collapsible, context-me
 
 ## Key Dependencies
 
-**Critical (actively used):**
-- `@supabase/supabase-js` 2.100.0 - All backend communication (auth, database, storage)
-- `@tanstack/react-query` 5.84.1 - Data fetching and caching for every page
-- `react-router-dom` 6.26.0 - All navigation and routing
-- `framer-motion` 11.16.4 - Animations (used in 21+ files across pages and components)
-- `lucide-react` 0.475.0 - Icon library (used throughout)
-- `recharts` 2.15.4 - Financial charts (`src/pages/Accounting.jsx`, `src/components/accounting/FinancialReports.jsx`, `src/pages/LandlordDashboard.jsx`)
-- `qrcode` 1.5.4 - QR code generation (`src/components/QRCodeCard.jsx`, `src/components/BusinessQRCode.jsx`)
-- `date-fns` 3.6.0 - Date formatting and manipulation
-- `sonner` 2.0.1 + `react-hot-toast` 2.6.0 - Toast notifications (dual systems coexist)
+**Critical (actively used in source code):**
+
+| Package | Version | Purpose | Used In |
+|---------|---------|---------|---------|
+| `@supabase/supabase-js` | 2.100.0 | All backend communication (auth, database, storage) | `src/services/supabaseClient.js` and all services |
+| `@tanstack/react-query` | 5.84.1 | Data fetching and caching for every page | All page components |
+| `react-router-dom` | 6.26.0 | All navigation and routing | `src/App.jsx`, all pages |
+| `framer-motion` | 11.16.4 | Page and component animations | 21+ files across pages and components |
+| `lucide-react` | 0.475.0 | Icon library | Used throughout all pages and components |
+| `recharts` | 2.15.4 | Financial charts and dashboards | `src/pages/LandlordDashboard.jsx`, `src/components/accounting/FinancialReports.jsx` |
+| `qrcode` | 1.5.4 | QR code generation | `src/components/QRCodeCard.jsx`, `src/components/BusinessQRCode.jsx` |
+| `date-fns` | 3.6.0 | Date formatting (format function) | `src/components/AuditLogEntry.jsx`, `src/components/RecommendationCard.jsx`, `src/components/PostCard.jsx` |
+| `moment` | 2.30.1 | Date formatting (relative time) | `src/components/NotificationBell.jsx` |
+| `react-hook-form` | 7.54.2 | Form state management | Form components |
+| `zod` | 3.24.2 | Schema validation | Form validation resolvers |
 
 **Infrastructure:**
-- `next-themes` 0.4.4 - Dark mode / theme switching
-- `@hello-pangea/dnd` 17.0.0 - Drag and drop
 
-**Installed but NOT imported in source (potential dead dependencies):**
-- `@stripe/react-stripe-js` 3.0.0 - No Stripe imports found in `src/`
-- `@stripe/stripe-js` 5.2.0 - No Stripe imports found in `src/`
-- `three` 0.171.0 - No Three.js imports found in `src/`
-- `react-leaflet` 4.2.1 - No Leaflet imports found in `src/`
-- `html2canvas` 1.4.1 - No imports found in `src/`
-- `jspdf` 4.0.0 - No imports found in `src/`
-- `react-quill` 2.0.0 - No imports found in `src/`
-- `react-markdown` 9.0.1 - No imports found in `src/`
-- `canvas-confetti` 1.9.4 - No imports found in `src/`
-- `moment` 2.30.1 - No imports found (date-fns is used instead)
-- `lodash` 4.17.21 - No imports found in `src/`
+| Package | Version | Purpose |
+|---------|---------|---------|
+| `next-themes` | 0.4.4 | Dark mode / theme switching |
+| `@hello-pangea/dnd` | 17.0.0 | Drag and drop |
+| `sonner` | 2.0.1 | Toast notifications (one of two coexisting systems) |
+| `react-hot-toast` | 2.6.0 | Toast notifications (one of two coexisting systems) |
+
+**Installed but NOT imported in source code (dead dependencies):**
+
+| Package | Version | Notes |
+|---------|---------|-------|
+| `@stripe/react-stripe-js` | 3.0.0 | No Stripe imports in `src/`; likely planned payment feature |
+| `@stripe/stripe-js` | 5.2.0 | No Stripe imports in `src/` |
+| `three` | 0.171.0 | No Three.js imports in `src/` |
+| `react-leaflet` | 4.2.1 | No Leaflet imports in `src/` |
+| `html2canvas` | 1.4.1 | No imports in `src/` |
+| `jspdf` | 4.0.0 | No imports in `src/` |
+| `react-quill` | 2.0.0 | No imports in `src/` |
+| `react-markdown` | 9.0.1 | No imports in `src/` |
+| `canvas-confetti` | 1.9.4 | No imports in `src/` |
+| `lodash` | 4.17.21 | No imports in `src/` |
 
 ## Configuration
 
 **Environment:**
 - Variables loaded via `import.meta.env` (Vite pattern)
-- `.env.example` present with template values
+- `.env.example` present with template values (committed)
 - `.env.local` present (contains actual secrets -- DO NOT read)
 - Required env vars:
   - `VITE_SUPABASE_URL` - Supabase project URL
@@ -133,6 +146,7 @@ accordion, alert-dialog, aspect-ratio, avatar, checkbox, collapsible, context-me
   - `postcss.config.js` - PostCSS pipeline (Tailwind + Autoprefixer)
   - `jsconfig.json` - Path aliases and type checking config
   - `eslint.config.js` - ESLint 9 flat config
+  - `playwright.config.js` - Playwright E2E test configuration
 
 **Path Aliases:**
 - `@/*` maps to `./src/*` (configured in both `jsconfig.json` and `vite.config.js`)
@@ -140,7 +154,7 @@ accordion, alert-dialog, aspect-ratio, avatar, checkbox, collapsible, context-me
 **Routing:**
 - `src/pages.config.js` - Auto-generated page registry (DO NOT manually edit PAGES object)
 - Only `mainPage` value is editable (set to `"Welcome"`)
-- 12 pages registered: Accounting, BrowseProperties, Community, Directory, LandlordDashboard, LandlordLogin, LandlordRequests, MyCard, Profile, Recommendations, Register, Welcome
+- 13 pages registered: Accounting, AuditPage, BrowseProperties, Community, Directory, LandlordDashboard, LandlordLogin, LandlordRequests, MyCard, Profile, Recommendations, Register, Welcome
 
 ## CSS / Design System
 
@@ -194,13 +208,15 @@ background, foreground, card, popover, primary, secondary, muted, accent, destru
 ## NPM Scripts
 
 ```bash
-npm run dev           # Start Vite dev server
+npm run dev           # Start Vite dev server (port 5173)
 npm run build         # Production build (vite build)
 npm run lint          # ESLint check (--quiet, no warnings)
 npm run lint:fix      # ESLint auto-fix
 npm run typecheck     # TypeScript type checking (tsc -p ./jsconfig.json)
 npm run preview       # Preview production build (vite preview)
 ```
+
+Note: No `npm test` script defined. Playwright tests run via `npx playwright test`.
 
 ## Platform Requirements
 
@@ -214,16 +230,24 @@ npm run preview       # Preview production build (vite preview)
 - Static hosting capable of serving an SPA (Vite `dist/` output)
 - Supabase project (database, auth, storage bucket `public-assets`)
 
+## Version Constraints
+
+- No `engines` field in `package.json` -- Node.js version not enforced
+- All dependencies use caret (`^`) ranges -- no pinned versions
+- React 18.2.x is stable; no blockers to 18.3.x
+- Tailwind CSS 3.4.x -- migration to v4 would require significant config changes
+- ESLint 9.x uses flat config format -- incompatible with older plugin configs
+
 ## Key Findings
 
-- **11+ potentially unused dependencies** in `package.json` (Stripe, Three.js, Leaflet, html2canvas, jsPDF, react-quill, react-markdown, canvas-confetti, moment, lodash) -- no imports found in source code; audit and remove to reduce bundle size
-- **Dual toast notification systems**: both `sonner` and `react-hot-toast` are installed and coexist; consolidate to one
-- **Dual date libraries**: both `date-fns` and `moment` are listed, but only `date-fns` appears to be imported
-- **No test framework** installed -- no jest, vitest, or testing-library packages in devDependencies
-- **Base44 fully removed** from source code -- zero imports or references in `src/`. The `src/api/` directory has been deleted. The `src/lib/app-params.js` file has been deleted.
+- **10+ dead dependencies** in `package.json` (Stripe, Three.js, Leaflet, html2canvas, jsPDF, react-quill, react-markdown, canvas-confetti, lodash) -- no imports found in source code; audit and remove to reduce bundle size
+- **Dual toast notification systems**: both `sonner` and `react-hot-toast` coexist; consolidate to one
+- **Dual date libraries**: both `date-fns` and `moment` are installed; `moment` is used in `src/components/NotificationBell.jsx` while `date-fns` is used elsewhere; consolidate to `date-fns`
 - **Stripe packages installed but unused** -- may indicate a planned payment feature not yet implemented
+- **No unit test framework** -- only Playwright for E2E; no Jest, Vitest, or Testing Library
 - **No CI/CD pipeline** detected in the repository
+- **`index.html` still references Base44** -- favicon points to `https://base44.com/logo_v2.svg` and title reads "Base44 APP"; needs updating to Unit branding
 
 ---
 
-*Stack analysis: 2026-03-25*
+*Stack analysis: 2026-03-27*

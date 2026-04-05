@@ -1,0 +1,461 @@
+# UNIT - Cursor Rules
+
+## Project Overview
+
+UNIT is a multi-tenant property community web application that connects business tenants within commercial properties. It enables tenants to discover neighboring businesses, publish community updates, submit operational requests, and share digital business profiles. It also provides landlord-facing workflows for tenant request management, audit logging, and basic property accounting.
+
+**Core Value:** Every tenant business in a property has a discoverable digital presence, and the property can coordinate communication and operations in one shared application.
+
+**Tagline:** "Where Tenants Connect"
+
+---
+
+## Tech Stack
+
+- **Runtime:** React 18.2.0 (Browser ES2022 target, Node.js for build)
+- **Routing:** React Router DOM 6.26.0
+- **Build Tool:** Vite 6.1.0 with @vitejs/plugin-react
+- **Styling:** Tailwind CSS 3.4.17 + shadcn/ui (49 Radix UI-based components) + Framer Motion 11.16.4
+- **State Management:** TanStack React Query 5.84.1 (server state), React Context (auth only)
+- **Backend:** Supabase JS 2.100.0 (PostgreSQL, Auth, Storage) -- no custom backend
+- **Forms:** React Hook Form 7.54.2 + Zod 3.24.2
+- **Charts:** Recharts 2.15.4
+- **Icons:** Lucide React 0.475.0
+- **Dates:** date-fns 3.6.0
+- **QR Codes:** qrcode 1.5.4
+- **Drag & Drop:** Hello Pangea DnD 17.0.0
+- **Toast Notifications:** react-hot-toast 2.6.0 AND Sonner 2.0.1 (dual systems coexist)
+- **Package Manager:** npm (lockfile: package-lock.json)
+- **Linting:** ESLint 9.19.0 (Flat Config)
+- **Type Checking:** TypeScript 5.8.2 via jsconfig.json (checkJs: true), NOT strict TS compilation
+
+---
+
+## Constraints
+
+- **No custom backend.** All data access goes through Supabase JS client.
+- **Brownfield project.** Preserve existing functionality when adding improvements.
+- **Static SPA deployment.** Output is Vite dist/ served by any static host.
+- **Established brand identity.** Navy-to-steel-blue gradient palette must be maintained.
+
+---
+
+## Architecture
+
+### Pattern
+- Page-driven SPA with thin service layer over Supabase
+- Filesystem-based route auto-registration via `src/pages.config.js` (DO NOT manually edit this file)
+- React Query for ALL server state management and caching
+- React Context for auth state ONLY (AuthProvider / useAuth)
+- Property-scoped data model -- almost all queries filter by `property_id`
+- Dual-role users: tenant (Supabase auth) and landlord (Supabase OTP + profiles table)
+- Landlord routes protected by LandlordGuard + PropertyProvider
+
+### Entry Points
+- `src/main.jsx` -- mounts React root
+- `src/App.jsx` -- providers (AuthProvider, QueryClientProvider, Router), route definitions
+- `src/pages/*.jsx` -- 13 route-level page components
+- `src/lib/AuthContext.jsx` -- wraps entire app, manages Supabase session
+
+### Layers (top to bottom)
+1. **Presentation:** `src/pages/`, `src/components/`, `src/components/ui/`
+2. **Service Layer:** `src/services/` (11 modules wrapping Supabase queries)
+3. **State Management:** `src/lib/query-client.js`, `src/lib/AuthContext.jsx`
+4. **Infrastructure:** `src/utils/`, `src/lib/`, `src/pages.config.js`
+5. **UI Primitives:** `src/components/ui/` (49 shadcn/Radix components)
+
+### Data Flow
+- **Global state:** AuthProvider manages user auth via Supabase `onAuthStateChange`
+- **Server state:** React Query manages all API response caching and synchronization
+- **Local state:** Component `useState` for form state, modals, UI interactions
+- **URL state:** Query parameters pass context (`propertyId`, `tab`, `entityId`)
+- **Mutations:** `useMutation` wraps service calls -> `queryClient.invalidateQueries` on success -> toast
+
+---
+
+## Directory Structure
+
+```
+src/
+  services/           # Supabase query wrappers (11 modules)
+    supabaseClient.js # Singleton Supabase client
+    properties.js     # Property CRUD
+    businesses.js     # Business profile CRUD
+    posts.js          # Community posts
+    recommendations.js # Tenant requests/issues
+    notifications.js  # Notification inbox
+    accounting.js     # Factory pattern: 5 services (leases, recurringPayments, invoices, expenses, payments)
+    ads.js            # Advertisement banners
+    storage.js        # Supabase Storage uploads (public-assets bucket)
+    activityLogs.js   # Fire-and-forget page visit logging
+    units.js          # Property unit inventory
+  components/
+    ui/               # 49 shadcn/Radix primitives (DO NOT barrel-export)
+    guards/           # Route protection (LandlordGuard)
+    accounting/       # Accounting feature components (modals)
+    BottomNav.jsx     # Tenant bottom navigation
+    PropertySwitcher.jsx # Multi-property landlord switcher
+  lib/
+    AuthContext.jsx    # Auth provider + useAuth hook
+    PropertyContext.jsx # Property context for landlords
+    AuditLogger.js    # writeAudit() for audit_log table
+    colors.js         # Brand + semantic color maps
+    query-client.js   # QueryClient config (refetchOnWindowFocus: false, retry: 1)
+    NavigationTracker.jsx # Page visit logging
+    PageNotFound.jsx   # 404 page
+    utils.js          # Utility helpers
+  pages/              # 13 page components (auto-registered via pages.config.js)
+  utils/
+    index.ts          # Barrel file for utility exports
+  App.jsx             # Root app with providers and routes
+  main.jsx            # React root mount
+  pages.config.js     # AUTO-GENERATED route config (DO NOT edit)
+supabase/
+  migrations/         # SQL schema migrations
+docs/
+  PRD.md              # Product requirements document
+```
+
+---
+
+## File Naming Conventions
+
+| Type | Pattern | Examples |
+|------|---------|---------|
+| Components | PascalCase `.jsx` | `PostCard.jsx`, `CreatePostModal.jsx`, `BottomNav.jsx` |
+| Pages | PascalCase `.jsx` | `Welcome.jsx`, `Community.jsx`, `LandlordDashboard.jsx` |
+| UI Primitives | kebab-case `.jsx` | `alert-dialog.jsx`, `radio-group.jsx`, `select.jsx` |
+| Hooks | kebab-case with `use-` prefix `.jsx` | `use-mobile.jsx` |
+| Services | camelCase `.js` | `supabaseClient.js`, `activityLogs.js` |
+| Utils/Lib | camelCase `.js` or `.ts` | `app-params.js`, `query-client.js`, `colors.js` |
+| SQL Migrations | snake_case with numeric prefix `.sql` | `001_initial_schema.sql` |
+
+---
+
+## Code Naming Conventions
+
+| Element | Convention | Examples |
+|---------|-----------|---------|
+| Functions | camelCase | `getTypeConfig`, `handleSubmit`, `getCategoryLabel` |
+| Local variables | camelCase | `isLoading`, `selectedType`, `propertyId` |
+| Constants | UPPER_SNAKE_CASE | `MOBILE_BREAKPOINT` |
+| Components | PascalCase | `PostCard`, `CreatePostModal` |
+| React hooks | camelCase with `use` prefix | `useIsMobile`, `useAuth`, `useQuery` |
+| Props | camelCase (destructured in signature) | `{ post, business, onClose }` |
+| CSS class vars | camelCase | `typeConfig.color` |
+| TypeScript types | PascalCase | (not yet used, but follow this) |
+
+---
+
+## Import Conventions
+
+- **Path alias:** `@/*` maps to `./src/*` (configured in jsconfig.json AND vite.config.js)
+- **All internal imports MUST use the `@/` prefix.** Never use relative paths like `../../`.
+- **Components:** default import -- `import PostCard from '@/components/PostCard'`
+- **Utilities:** named import -- `import { cn } from '@/lib/utils'`
+- **Services:** default or named -- `import supabase from '@/services/supabaseClient'`
+- **External libraries:** named import -- `import { useQuery, useMutation } from '@tanstack/react-query'`
+- **No circular imports.** Service layer never imports from components or pages.
+
+---
+
+## Module Export Conventions
+
+| Module Type | Export Style |
+|-------------|-------------|
+| Components | Default export ONLY: `export default function PostCard({ post }) {}` |
+| UI Primitives | Named exports (shadcn pattern) |
+| Utilities | Named exports |
+| Service modules | Default export (object literal with methods) |
+| Supabase client | Default export (singleton) |
+| Query client | Named constant export |
+| `src/utils/index.ts` | Barrel file (named re-exports) |
+| `src/components/ui/*` | Individual files, NO barrel file |
+
+---
+
+## Code Style
+
+- **Indentation:** 2 spaces
+- **Semicolons:** inconsistent (no Prettier enforced), match surrounding code
+- **JSX:** attributes on single line when readable
+- **No Prettier config.** Match the style of the file you're editing.
+- **Minimal comments.** Code should be self-documenting through clear naming. Only add comments where logic isn't self-evident.
+- **No prop-types.** `react/prop-types` is disabled.
+- **No React import needed.** `react/react-in-jsx-scope` is off (modern React JSX transform).
+
+---
+
+## ESLint Rules (Enforced)
+
+- `unused-imports/no-unused-imports`: **error** -- remove all unused imports
+- `unused-imports/no-unused-vars`: **warn** -- underscore-prefixed params allowed (`_event`)
+- `react/jsx-uses-vars`: **error**
+- `react/jsx-uses-react`: **error**
+- `react-hooks/rules-of-hooks`: **error** -- hooks rules strictly enforced
+- `react/no-unknown-property`: **error** -- custom ignores: `cmdk-input-wrapper`, `toast-close`
+- `react/prop-types`: **off**
+- `react/react-in-jsx-scope`: **off**
+
+**Scope:** ESLint only runs on `src/components/**` and `src/pages/**`. It ignores `src/lib/**` and `src/components/ui/**`.
+
+---
+
+## Component Patterns
+
+### Page Components
+- Functional components with `useQuery`/`useMutation` hooks
+- Extract `propertyId` from URL via `URLSearchParams`
+- Fetch data through service layer, manage form state, compose feature components
+- 100-200 lines is ideal; pages over 400 lines should be refactored
+- Props destructured in function signature: `export default function PostCard({ post, business })`
+
+### Modal Components
+- Controlled `Dialog` with form state, validation, and submit handling
+- Pattern: open/close state from parent, form state inside modal
+- Examples: `InvoiceModal.jsx`, `CreatePostModal.jsx`, `ExpenseModal.jsx`
+
+### Service Layer Pattern
+```javascript
+// Standard service (properties, businesses, posts, etc.)
+const service = {
+  async filter(propertyId) {
+    const { data, error } = await supabase
+      .from('table_name')
+      .select('*')
+      .eq('property_id', propertyId);
+    if (error) throw error;
+    return data;
+  },
+  async create(record) { /* ... */ },
+  async update(id, updates) { /* ... */ },
+};
+export default service;
+```
+
+```javascript
+// Accounting factory pattern
+function createAccountingService(tableName) {
+  return {
+    async filter(propertyId) { /* ... */ },
+    async create(record) { /* ... */ },
+    async update(id, updates) { /* ... */ },
+    async delete(id) { /* ... */ },
+  };
+}
+export const leasesService = createAccountingService('leases');
+export const invoicesService = createAccountingService('invoices');
+// ... etc for recurringPayments, expenses, payments
+```
+
+### React Query Usage
+```javascript
+// Queries
+const { data, isLoading } = useQuery({
+  queryKey: ['businesses', propertyId],
+  queryFn: () => businessesService.filter(propertyId),
+  enabled: !!propertyId,
+});
+
+// Mutations
+const mutation = useMutation({
+  mutationFn: (newPost) => postsService.create(newPost),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['posts', propertyId] });
+    toast.success('Post created');
+  },
+});
+```
+
+### Auth Usage
+```javascript
+import { useAuth } from '@/lib/AuthContext';
+const { user, isAuthenticated, isLandlord, propertyIds, isLoadingAuth } = useAuth();
+```
+
+---
+
+## Brand Identity
+
+### Colors
+| Name | Hex | Tailwind Class |
+|------|-----|---------------|
+| Navy | `#101B29` | `brand-navy` |
+| Navy Light | `#1a2d42` | `brand-navy-light` |
+| Blue | `#1D263A` | `brand-blue` |
+| Slate | `#465A75` | `brand-slate` |
+| Slate Light | `#5a7090` | `brand-slate-light` |
+| Steel | `#7C8DA7` | `brand-steel` |
+| Gray | `#E0E1DE` | `brand-gray` |
+
+### Color Usage Rules
+- Use `brand-*` Tailwind classes for all brand-related styling
+- Buttons should use unified navy-to-steel gradients, NOT indigo/purple/emerald decorative colors
+- Category colors are mapped to brand shades (see `src/lib/colors.js`)
+- Chart colors use brand hex values from `CHART_COLORS` in `src/lib/colors.js`
+- Semantic colors (status, priority, financial) are centralized in `src/lib/colors.js`
+- CSS custom properties are defined in `src/index.css` for shadcn/ui theming
+
+### Brand Colors for Non-Tailwind Contexts (Canvas, Charts)
+```javascript
+import { BRAND } from '@/lib/colors';
+// BRAND.navy, BRAND.blue, BRAND.slate, BRAND.steel, BRAND.gray
+```
+
+---
+
+## Data Model
+
+15 PostgreSQL tables accessed through the service layer:
+
+| Table | Service Module | Description |
+|-------|---------------|-------------|
+| `properties` | `properties.js` | Commercial property records |
+| `businesses` | `businesses.js` | Tenant business profiles |
+| `posts` | `posts.js` | Community feed content |
+| `recommendations` | `recommendations.js` | Tenant requests and issues |
+| `notifications` | `notifications.js` | Tenant notification inbox |
+| `ads` | `ads.js` | Property advertisement banners |
+| `leases` | `accounting.js` | Lease agreements |
+| `recurring_payments` | `accounting.js` | Scheduled payment records |
+| `invoices` | `accounting.js` | Invoice records |
+| `expenses` | `accounting.js` | Expense records |
+| `payments` | `accounting.js` | Payment records |
+| `units` | `units.js` | Property unit inventory and status |
+| `profiles` | (AuthContext) | User profiles with role and property access |
+| `audit_log` | (AuditLogger) | Append-only landlord action log |
+| `activity_logs` | `activityLogs.js` | Page visit tracking |
+
+**Schema is managed via SQL migration files in `supabase/migrations/`.** All tables have RLS policies enabled.
+
+---
+
+## Auth and Access Model
+
+### Tenant Auth
+- Standard Supabase Auth session
+- Business ownership determined by matching authenticated user's email against `owner_email` on business records
+
+### Landlord Auth
+- Email magic link via `supabase.auth.signInWithOtp()`
+- `profiles` table stores `role` (tenant/landlord) and `property_ids` (uuid array)
+- Auto-created profile via `004_auto_profile_creation.sql` trigger
+- `LandlordGuard` wraps landlord routes, verifies `role = 'landlord'`
+- `PropertyProvider` manages active property for multi-property landlords
+- `PropertySwitcher` component for switching between assigned properties
+
+### Route Protection
+- Landlord pages (LandlordDashboard, LandlordRequests, Accounting, AuditPage) wrapped in `LandlordGuard + PropertyProvider` in `App.jsx`
+- Tenant routes check `isAuthenticated` via `AuthenticatedApp` in `App.jsx`
+
+---
+
+## Routes
+
+### Public
+- `/`, `/Welcome` -- landing page
+- `/BrowseProperties` -- property search
+- `/Profile?id=<businessId>` -- public business profile
+
+### Tenant (authenticated)
+- `/Register?propertyId=<id>`
+- `/Directory?propertyId=<id>`
+- `/Community?propertyId=<id>`
+- `/Recommendations?propertyId=<id>`
+- `/MyCard`
+
+### Landlord (landlord role required)
+- `/LandlordLogin`
+- `/LandlordDashboard?propertyId=<id>`
+- `/LandlordRequests?propertyId=<id>`
+- `/Accounting?propertyId=<id>&tab=<reports|leases|recurring|invoices|expenses>`
+- `/AuditPage?propertyId=<id>`
+
+---
+
+## Cross-Cutting Concerns
+
+- **Navigation Tracking:** `NavigationTracker.jsx` logs page visits for authenticated users (fire-and-forget)
+- **Audit Logging:** `AuditLogger.writeAudit()` records landlord actions to `audit_log` table (append-only)
+- **Property Scoping:** Nearly all data filtered by `property_id` from URL query params
+- **Toast Notifications:** Two systems coexist -- `react-hot-toast` and `sonner`. Match whichever the current file uses.
+
+---
+
+## Error Handling Patterns
+
+- Services throw on Supabase errors: `if (error) throw error`
+- React Query catches thrown errors, exposes `isError` and `error` states
+- Auth errors typed in AuthContext: `auth_required`, `user_not_registered`, `unknown`
+- Navigation tracking uses intentional silent failures: `.catch(() => {})`
+- No error boundaries exist -- unhandled errors crash the app
+- Loading states managed via `isLoading` from React Query
+
+---
+
+## Environment Variables
+
+- `VITE_SUPABASE_URL` -- Supabase project URL (required)
+- `VITE_SUPABASE_ANON_KEY` -- Supabase anonymous key (required)
+- Accessed via `import.meta.env.VITE_*` (Vite convention)
+- Never commit `.env` files. Use `.env.local` for local dev.
+
+---
+
+## Available Scripts
+
+- `npm run dev` -- Vite dev server
+- `npm run build` -- production build to `dist/`
+- `npm run preview` -- preview production build
+- `npm run lint` -- run ESLint
+- `npm run lint:fix` -- ESLint with auto-fixes
+- `npm run typecheck` -- TypeScript check via jsconfig.json
+
+---
+
+## DO NOT
+
+- **DO NOT manually edit `src/pages.config.js`** -- it is auto-generated
+- **DO NOT create barrel exports for `src/components/ui/`** -- each file is imported individually
+- **DO NOT use relative imports** -- always use `@/` path alias
+- **DO NOT add indigo, purple, or emerald decorative colors** -- use brand palette only
+- **DO NOT introduce a custom backend** -- all data access goes through Supabase JS client
+- **DO NOT add `console.log` for production code** -- only for debugging
+- **DO NOT skip `if (error) throw error`** in service layer functions
+- **DO NOT use `React.FC` or `React.FunctionComponent`** -- use plain function declarations
+- **DO NOT add prop-types** -- they are disabled via ESLint
+- **DO NOT import React** just for JSX -- the JSX transform handles it
+- **DO NOT create new context providers** unless absolutely necessary -- prefer React Query for server state
+- **DO NOT add new toast libraries** -- use `react-hot-toast` or `sonner` (whichever the file already uses)
+- **DO NOT bypass RLS policies** -- all tables have row-level security enabled
+
+---
+
+## Known Gaps (Do Not Introduce More)
+
+- Stripe packages are installed but payment integration is NOT implemented
+- 11+ unused dependencies (Three.js, Leaflet, html2canvas, jsPDF, moment, lodash) -- do not use them
+- No automated test suite exists
+- Dual toast systems (sonner + react-hot-toast) -- do not add a third
+- No React error boundaries
+- Some values are hardcoded and should be parameterized
+
+---
+
+## When Generating Code
+
+1. Follow existing patterns in the file you're modifying
+2. Use the service layer for ALL Supabase operations -- never call `supabase.from()` directly in components
+3. Use React Query (`useQuery`/`useMutation`) for all data fetching -- never use `useEffect` + `useState` for API calls
+4. Scope data queries by `propertyId` unless the data is truly global
+5. Use `queryClient.invalidateQueries()` after mutations to refresh related data
+6. Show loading states via React Query's `isLoading`
+7. Use shadcn/ui components from `src/components/ui/` for UI primitives
+8. Use Lucide React for icons
+9. Use date-fns for date formatting and manipulation
+10. Use Tailwind CSS utility classes -- no inline styles, no CSS modules
+11. Use `cn()` from `@/lib/utils` for conditional class merging
+12. Use Framer Motion for animations
+13. Destructure props in function signatures
+14. Keep components focused -- extract into sub-components when exceeding ~200 lines
+15. Use `useAuth()` hook for auth state -- never access Supabase auth directly in components
