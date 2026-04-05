@@ -1,36 +1,35 @@
-#env
+node_modules/
+.expo/
+dist/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
 .env
-.env.*
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-.env
-
-# Claude agent worktrees
+.env.local
 .claude/worktrees/
-
-# Supabase temp
 supabase/.temp/
+
+# Metro
+.metro-health-check*
+
+# macOS
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Generated native folders
+/ios
+/android
+
+# Expo generated
+expo-env.d.ts
+
+# Debug logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
