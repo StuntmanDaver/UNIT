@@ -8,7 +8,7 @@ type InputProps = TextInputProps & {
 export function Input({ label, error, className = '', ...props }: InputProps) {
   return (
     <View className={`mb-4 ${className}`}>
-      <Text className="text-sm font-medium text-brand-navy mb-1.5">{label}</Text>
+      {label ? <Text className="text-sm font-medium text-brand-navy mb-1.5">{label}</Text> : null}
       <TextInput
         className={`border rounded-xl px-4 py-3 text-base text-brand-navy bg-white ${
           error ? 'border-red-500' : 'border-brand-steel/30'

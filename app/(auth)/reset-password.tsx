@@ -38,39 +38,47 @@ export default function ResetPasswordScreen() {
   const onSubmit = async (data: ResetForm) => {
     setLoading(true);
 
-    const { error } = await supabase.auth.updateUser({
-      password: data.password,
-    });
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: data.password,
+      });
 
-    if (error) {
-      setLoading(false);
+      if (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Password update failed',
+          text2: error.message,
+        });
+        return;
+      }
+
+      // Update profile to clear the forced reset flag
+      if (profile?.id) {
+        await profilesService.update(profile.id, {
+          needs_password_change: false,
+          status: 'active',
+          activated_at: new Date().toISOString(),
+        });
+      }
+
+      Toast.show({
+        type: 'success',
+        text1: 'Password updated',
+        text2: 'You can now use the app',
+      });
+
+      // AuthGuard will detect needs_password_change is now false and redirect
+      // Force a re-check by reloading the session
+      await supabase.auth.refreshSession();
+    } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Password update failed',
-        text2: error.message,
+        text1: 'Something went wrong',
+        text2: error instanceof Error ? error.message : 'Please try again',
       });
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    // Update profile to clear the forced reset flag
-    if (profile?.id) {
-      await profilesService.update(profile.id, {
-        needs_password_change: false,
-        status: 'active',
-        activated_at: new Date().toISOString(),
-      });
-    }
-
-    setLoading(false);
-    Toast.show({
-      type: 'success',
-      text1: 'Password updated',
-      text2: 'You can now use the app',
-    });
-
-    // AuthGuard will detect needs_password_change is now false and redirect
-    // Force a re-check by reloading the session
-    await supabase.auth.refreshSession();
   };
 
   return (

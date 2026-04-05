@@ -40,7 +40,7 @@ type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function OnboardingScreen() {
   const { user } = useAuth();
-  const [step, setStep] = useState<'property' | 'profile' | 'logo'>('property');
+  const [step, setStep] = useState<'property' | 'profile'>('property');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [propertySearch, setPropertySearch] = useState('');
   const [logoUri, setLogoUri] = useState<string | null>(null);
@@ -62,7 +62,6 @@ export default function OnboardingScreen() {
     control,
     handleSubmit,
     formState: { errors },
-    setValue,
   } = useForm<BusinessForm>({
     resolver: zodResolver(businessSchema),
     defaultValues: {
@@ -99,35 +98,44 @@ export default function OnboardingScreen() {
 
     setLoading(true);
 
-    let logoUrl: string | null = null;
-    if (logoUri) {
-      const ext = logoUri.split('.').pop() ?? 'jpg';
-      const { file_url } = await storageService.uploadFile(logoUri, ext);
-      logoUrl = file_url;
+    try {
+      let logoUrl: string | null = null;
+      if (logoUri) {
+        const ext = logoUri.split('.').pop() ?? 'jpg';
+        const { file_url } = await storageService.uploadFile(logoUri, ext);
+        logoUrl = file_url;
+      }
+
+      await businessesService.create({
+        property_id: selectedProperty.id,
+        owner_email: user.email,
+        business_name: data.business_name,
+        category: data.category,
+        business_description: data.business_description || null,
+        contact_name: data.contact_name || null,
+        contact_email: data.contact_email || null,
+        contact_phone: data.contact_phone || null,
+        website: data.website || null,
+        logo_url: logoUrl,
+      });
+
+      // Set property_ids and activate profile via Edge Function
+      await adminService.completeOnboarding(selectedProperty.id);
+
+      Toast.show({ type: 'success', text1: 'Profile created!' });
+
+      // AuthGuard detects onboarding complete and redirects to tabs
+      // Force re-check by refreshing session
+      await supabase.auth.refreshSession();
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Profile creation failed',
+        text2: error instanceof Error ? error.message : 'Please try again',
+      });
+    } finally {
+      setLoading(false);
     }
-
-    await businessesService.create({
-      property_id: selectedProperty.id,
-      owner_email: user.email,
-      business_name: data.business_name,
-      category: data.category,
-      business_description: data.business_description || null,
-      contact_name: data.contact_name || null,
-      contact_email: data.contact_email || null,
-      contact_phone: data.contact_phone || null,
-      website: data.website || null,
-      logo_url: logoUrl,
-    });
-
-    // Set property_ids and activate profile via Edge Function
-    await adminService.completeOnboarding(selectedProperty.id);
-
-    setLoading(false);
-    Toast.show({ type: 'success', text1: 'Profile created!' });
-
-    // AuthGuard detects onboarding complete and redirects to tabs
-    // Force re-check by refreshing session
-    await supabase.auth.refreshSession();
   };
 
   if (step === 'property') {
@@ -272,6 +280,23 @@ export default function OnboardingScreen() {
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="contact_email"
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Contact Email"
+                placeholder="you@business.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                error={errors.contact_email?.message}
               />
             )}
           />

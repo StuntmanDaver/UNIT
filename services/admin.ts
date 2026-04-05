@@ -40,7 +40,8 @@ export const adminService = {
     if (error) throw error;
   },
 
-  async sendPush(params: {
+  // Stub — send-push-notification Edge Function will be created in Milestone 3
+  async sendPush(_params: {
     property_id: string;
     title: string;
     message: string;
@@ -48,11 +49,8 @@ export const adminService = {
     audience?: 'all' | 'active';
     exclude_email?: string;
   }): Promise<{ sent: number; failed: number }> {
-    const { data, error } = await supabase.functions.invoke('send-push-notification', {
-      body: params,
-    });
-    if (error) throw error;
-    return data;
+    console.warn('sendPush: send-push-notification Edge Function not yet deployed');
+    return { sent: 0, failed: 0 };
   },
 
   async getStats(propertyId: string): Promise<{
