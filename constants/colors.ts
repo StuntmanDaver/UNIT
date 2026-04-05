@@ -24,5 +24,11 @@ export const CATEGORY_COLORS: Record<string, string> = {
   retail: '#EC4899',
   technology: '#6366F1',
   construction: '#F97316',
+  manufacturing: '#78716C',
+  logistics: '#0EA5E9',
+  food_service: '#D97706',
+  professional_services: '#7C3AED',
+  healthcare: '#14B8A6',
+  automotive: '#DC2626',
   other: '#6B7280',
 };

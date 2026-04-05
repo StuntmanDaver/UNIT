@@ -59,6 +59,10 @@ export const adminService = {
     pendingInvites: number;
     activePromotions: number;
   }> {
+    const thirtyDaysAgo = new Date(
+      Date.now() - 30 * 24 * 60 * 60 * 1000
+    ).toISOString();
+
     const [businesses, profiles, promotions] = await Promise.all([
       supabase
         .from('businesses')
@@ -69,10 +73,11 @@ export const adminService = {
         .select('id, status', { count: 'exact' })
         .contains('property_ids', [propertyId]),
       supabase
-        .from('posts')
+        .from('advertiser_promotions')
         .select('id', { count: 'exact', head: true })
         .eq('property_id', propertyId)
-        .gte('created_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
+        .eq('approval_status', 'approved')
+        .gte('created_at', thirtyDaysAgo),
     ]);
 
     const profileData = profiles.data ?? [];

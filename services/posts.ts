@@ -39,4 +39,33 @@ export const postsService = {
     if (error) throw error;
     return data;
   },
+
+  async getById(id: string): Promise<Post> {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: Partial<Post>): Promise<Post> {
+    const { data, error } = await supabase
+      .from('posts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('posts')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+  },
 };

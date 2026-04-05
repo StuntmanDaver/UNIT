@@ -18,10 +18,18 @@ export type Business = {
 };
 
 export const businessesService = {
-  async filter(filters: Record<string, string>): Promise<Business[]> {
+  async filter(
+    filters: Record<string, string>,
+    search?: string
+  ): Promise<Business[]> {
     let query = supabase.from('businesses').select('*');
     for (const [key, value] of Object.entries(filters)) {
       query = query.eq(key, value);
+    }
+    if (search) {
+      query = query.or(
+        `business_name.ilike.%${search}%,business_description.ilike.%${search}%`
+      );
     }
     const { data, error } = await query;
     if (error) throw error;

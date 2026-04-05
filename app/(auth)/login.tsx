@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -47,11 +48,28 @@ export default function LoginScreen() {
   };
 
   const handleForgotPassword = async () => {
-    // Prompt would be better UX, but keeping simple for MVP
-    Toast.show({
-      type: 'info',
-      text1: 'Enter your email above, then tap here again',
-    });
+    const email = watch('email');
+    if (!email || !email.includes('@')) {
+      Toast.show({
+        type: 'info',
+        text1: 'Enter your email above, then tap here again',
+      });
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (error) {
+        Toast.show({ type: 'error', text1: 'Error', text2: error.message });
+      } else {
+        Toast.show({
+          type: 'success',
+          text1: 'Check your email',
+          text2: 'We sent a password reset link',
+        });
+      }
+    } catch {
+      Toast.show({ type: 'error', text1: 'Something went wrong' });
+    }
   };
 
   return (

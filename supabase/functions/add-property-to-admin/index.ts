@@ -56,7 +56,16 @@ Deno.serve(async (req) => {
 
   // Use service role to append to property_ids array
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
-  const currentIds = profile.property_ids ?? [];
+  const currentIds: string[] = profile.property_ids ?? [];
+
+  // Prevent duplicate property_ids
+  if (currentIds.includes(property_id)) {
+    return new Response(
+      JSON.stringify({ success: true, message: 'Property already assigned' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
   const updatedIds = [...currentIds, property_id];
 
   const { error } = await adminClient
