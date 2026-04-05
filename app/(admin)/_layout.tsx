@@ -9,6 +9,11 @@ export default function AdminLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }} />
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="tenants" />
+      <Stack.Screen name="advertisers" />
+      <Stack.Screen name="properties" />
+    </Stack>
   );
 }
