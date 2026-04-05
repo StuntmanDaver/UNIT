@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Building2, Megaphone, Users, Bell, User } from 'lucide-react-native';
+import { Building2, Megaphone, Users, Bell, User, Shield } from 'lucide-react-native';
 import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 
@@ -51,6 +51,14 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="admin"
+        options={{
+          href: isAdmin ? '/(tabs)/admin' : null,
+          title: 'Admin',
+          tabBarIcon: ({ color, size }) => <Shield size={size} color={color} />,
         }}
       />
     </Tabs>

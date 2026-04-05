@@ -8,7 +8,7 @@ export default function NotificationsScreen() {
         <Text className="text-2xl font-bold text-white">Notifications</Text>
       </GradientHeader>
       <View className="flex-1 items-center justify-center">
-        <Text className="text-brand-steel text-lg">Coming in Milestone 2</Text>
+        <Text className="text-brand-steel text-lg">Coming in Milestone 3</Text>
       </View>
     </View>
   );
