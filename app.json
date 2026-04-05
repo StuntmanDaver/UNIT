@@ -36,6 +36,13 @@
           "photosPermission": "UNIT needs photo library access to upload your business logo.",
           "cameraPermission": "UNIT needs camera access to take photos for your business profile."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#101B29"
+        }
       ]
     ]
   }
