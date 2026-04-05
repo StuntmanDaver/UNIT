@@ -36,7 +36,7 @@ export function Avatar({ imageUrl, name, size = 40 }: AvatarProps) {
         justifyContent: 'center',
       }}
     >
-      <Text style={{ color: '#FFFFFF', fontSize, fontWeight: '600' }}>
+      <Text style={{ color: BRAND.gray, fontSize, fontWeight: '600' }}>
         {getInitials(name)}
       </Text>
     </View>

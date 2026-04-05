@@ -39,7 +39,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds.join(',')]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [propertyIds, selected, onSelect]);
 
   if (loading) {
     return (
