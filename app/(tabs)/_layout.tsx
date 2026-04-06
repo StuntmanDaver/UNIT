@@ -3,10 +3,13 @@ import { Building2, Megaphone, Users, Bell, User, Shield } from 'lucide-react-na
 import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { useUnreadCount } from '@/hooks/useUnreadCount';
 
 export default function TabLayout() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, user, propertyIds } = useAuth();
   usePushNotifications();
+
+  const { data: unreadCount } = useUnreadCount(user?.email ?? '', propertyIds[0] ?? '');
 
   return (
     <Tabs
@@ -46,6 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Alerts',
           tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
         }}
       />
       <Tabs.Screen
