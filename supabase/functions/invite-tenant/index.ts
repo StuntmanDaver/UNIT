@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
   }
   const { data: callerProfile } = await callerClient
     .from('profiles')
-    .select('role')
+    .select('role, property_ids')
     .eq('id', caller.id)
     .single();
   if (callerProfile?.role !== 'landlord') {
@@ -50,11 +50,17 @@ Deno.serve(async (req) => {
   const { tenants } = await req.json();
 
   const results = { imported: 0, failed: [] as Array<{ email: string; reason: string }>, total: tenants.length };
+  const allowedPropertyIds: string[] = callerProfile?.property_ids ?? [];
 
   for (const tenant of tenants) {
     try {
       if (!tenant.email || !tenant.business_name || !tenant.category || !tenant.property_id) {
         results.failed.push({ email: tenant.email ?? 'unknown', reason: 'Missing required fields' });
+        continue;
+      }
+
+      if (!allowedPropertyIds.includes(tenant.property_id)) {
+        results.failed.push({ email: tenant.email, reason: 'Forbidden: Access to property denied' });
         continue;
       }
 

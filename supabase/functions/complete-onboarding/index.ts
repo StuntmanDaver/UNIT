@@ -41,8 +41,23 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Use service role to update property_ids (RLS prevents client-side update)
+  // Verify that the user actually created a business profile for this property
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
+  const { data: business } = await adminClient
+    .from('businesses')
+    .select('id')
+    .eq('owner_email', user.email)
+    .eq('property_id', property_id)
+    .single();
+
+  if (!business) {
+    return new Response(JSON.stringify({ error: 'Forbidden: Must create a business profile first' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Use service role to update property_ids (RLS prevents client-side update)
   const { error } = await adminClient
     .from('profiles')
     .update({

@@ -158,20 +158,20 @@ For each tenant in the array (processed sequentially):
   "property_id": "uuid-of-property",
   "title": "New deal from Acme Bakery",
   "message": "50% off pastries today only!",
-  "data": { "screen": "offers", "post_id": "uuid" },
-  "audience": "tenants",
+  "data": { "type": "offer" },
+  "audience": "all",
   "exclude_email": "sender@example.com"
 }
 ```
 
-- `data` — optional extra payload forwarded in the push notification (used for deep linking).
-- `audience` — optional filter (`"tenants"`, `"admins"`, or omit for all).
+- `data` — optional extra payload forwarded in the push notification (used for deep linking, specifically `data.type`).
+- `audience` — optional filter (`"all"` or `"active"`).
 - `exclude_email` — optional email to exclude from recipients (e.g. the sender).
 
 ### Process
 
 1. Queries all profiles associated with `property_id` that have a non-null `push_token`.
-2. Applies `audience` and `exclude_email` filters.
+2. Applies `audience` (e.g. `status = 'active'`) and `exclude_email` filters.
 3. Batches recipients into groups of 100 and sends each batch to the Expo Push API.
 4. Inserts a notification record in the `notifications` table for every recipient regardless of push delivery status.
 
@@ -189,4 +189,4 @@ For each tenant in the array (processed sequentially):
 
 - The 100-per-batch limit follows the Expo Push API constraint.
 - Notification records are inserted even when push delivery fails, so in-app notification history remains complete.
-- `data` payload should conform to the app's navigation scheme for deep link routing to work correctly.
+- `data.type` payload should conform to the app's navigation scheme for deep link routing to work correctly.

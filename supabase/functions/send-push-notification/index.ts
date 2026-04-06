@@ -75,14 +75,43 @@ Deno.serve(async (req) => {
     );
   }
 
+  // Verify caller has access to the property
+  const { data: callerProfile, error: callerProfileError } = await callerClient
+    .from('profiles')
+    .select('property_ids, role')
+    .eq('id', user.id)
+    .single();
+
+  if (callerProfileError || !callerProfile) {
+    return new Response(JSON.stringify({ error: 'Profile not found' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const currentIds: string[] = callerProfile.property_ids ?? [];
+  if (!currentIds.includes(property_id)) {
+    return new Response(JSON.stringify({ error: 'Forbidden: Access to property denied' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // If it's a broadcast or advertiser_approved message, ensure caller is a landlord
+  if ((data?.type === 'broadcast' || data?.type === 'advertiser_approved') && callerProfile.role !== 'landlord') {
+    return new Response(JSON.stringify({ error: 'Admin access required for this notification type' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   // Use service role client to query profiles
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
   let profilesQuery = adminClient
     .from('profiles')
     .select('email, push_token')
-    .contains('property_ids', [property_id])
-    .not('push_token', 'is', null);
+    .contains('property_ids', [property_id]);
 
   if (audience === 'active') {
     profilesQuery = profilesQuery.eq('status', 'active');

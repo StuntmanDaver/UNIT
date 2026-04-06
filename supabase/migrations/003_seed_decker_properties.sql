@@ -1,9 +1,9 @@
 -- UNIT Database Schema - Migration 003
--- Seed Decker Capital properties and units
+-- Seed Decker Capital properties and units (Generated from Excel)
 -- Idempotent: uses ON CONFLICT DO NOTHING
 
 -- ============================================================
--- VERO (VD Vero, LLC)
+-- VD VERO, LLC
 -- ============================================================
 
 do $$
@@ -13,19 +13,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'VD Vero, LLC',
-      '652 Old Dixie Highway',
-      'VERO BEACH',
-      'FLORIDA',
-      82,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'VD Vero, LLC',
+           '652 Old Dixie Highway',
+           'VERO BEACH',
+           'FLORIDA',
+           83,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'VD Vero, LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'VD Vero, LLC';
+    where name = 'VD Vero, LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -357,7 +358,7 @@ begin
       v_property_id,
       'B5-789-1',
       '789 8th COURT',
-      'VERO BEACH',
+      'Unit 1 VERO BEACH',
       'FLORIDA',
       '32962',
       'B5'
@@ -369,7 +370,19 @@ begin
       v_property_id,
       'B5-789-2',
       '789 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
+      'FLORIDA',
+      '32962',
+      'B5'
+    )
+    on conflict (property_id, unit_number) do nothing;
+
+  insert into units (property_id, unit_number, street_address, city, state, zip, building)
+    values (
+      v_property_id,
+      'B5-789-2',
+      '789 8th COURT',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B5'
@@ -381,7 +394,7 @@ begin
       v_property_id,
       'B6-785-1',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 1 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -393,7 +406,7 @@ begin
       v_property_id,
       'B6-785-2',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -405,7 +418,7 @@ begin
       v_property_id,
       'B6-785-3',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 3 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -417,7 +430,7 @@ begin
       v_property_id,
       'B6-785-4',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 4 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -429,7 +442,7 @@ begin
       v_property_id,
       'B6-785-5',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 5 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -441,7 +454,7 @@ begin
       v_property_id,
       'B6-785-6',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 6 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -453,7 +466,7 @@ begin
       v_property_id,
       'B6-785-7',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 7 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -465,7 +478,7 @@ begin
       v_property_id,
       'B6-785-8',
       '785 8th COURT',
-      'VERO BEACH',
+      'Unit 8 VERO BEACH',
       'FLORIDA',
       '32962',
       'B6'
@@ -477,7 +490,7 @@ begin
       v_property_id,
       'B7-775-1',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 1 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -489,7 +502,7 @@ begin
       v_property_id,
       'B7-775-2',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -501,7 +514,7 @@ begin
       v_property_id,
       'B7-775-3',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 3 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -513,7 +526,7 @@ begin
       v_property_id,
       'B7-775-4',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 4 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -525,7 +538,7 @@ begin
       v_property_id,
       'B7-775-5',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 5 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -537,7 +550,7 @@ begin
       v_property_id,
       'B7-775-6',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 6 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -549,7 +562,7 @@ begin
       v_property_id,
       'B7-775-7',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 7 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -561,7 +574,7 @@ begin
       v_property_id,
       'B7-775-8',
       '775 8th COURT',
-      'VERO BEACH',
+      'Unit 8 VERO BEACH',
       'FLORIDA',
       '32962',
       'B7'
@@ -573,7 +586,7 @@ begin
       v_property_id,
       'B8-755-1',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -585,7 +598,7 @@ begin
       v_property_id,
       'B8-755-2',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -597,7 +610,7 @@ begin
       v_property_id,
       'B8-755-3',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -609,7 +622,7 @@ begin
       v_property_id,
       'B8-755-4',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 4 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -621,7 +634,7 @@ begin
       v_property_id,
       'B8-755-5',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 5 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -633,7 +646,7 @@ begin
       v_property_id,
       'B8-755-6',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 6 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -645,7 +658,7 @@ begin
       v_property_id,
       'B8-755-7',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 7 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -657,7 +670,7 @@ begin
       v_property_id,
       'B8-755-8',
       '755 8th COURT',
-      'VERO BEACH',
+      'Unit 8 VERO BEACH',
       'FLORIDA',
       '32962',
       'B8'
@@ -837,7 +850,7 @@ begin
       v_property_id,
       'B12-760-1-F',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 1-F VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -849,7 +862,7 @@ begin
       v_property_id,
       'B12-760-2',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -861,7 +874,7 @@ begin
       v_property_id,
       'B12-760-3',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 3 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -873,7 +886,7 @@ begin
       v_property_id,
       'B12-760-4',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 4 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -885,7 +898,7 @@ begin
       v_property_id,
       'B12-760-5',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 5 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -897,7 +910,7 @@ begin
       v_property_id,
       'B12-760-6-R',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 6-R VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -909,7 +922,7 @@ begin
       v_property_id,
       'B12-760-R',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit R VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -921,7 +934,7 @@ begin
       v_property_id,
       'B12-760-7-F',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 10 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -933,7 +946,7 @@ begin
       v_property_id,
       '12-760-8-F',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 8-F VERO BEACH',
       'FLORIDA',
       '32962',
       '12'
@@ -945,7 +958,7 @@ begin
       v_property_id,
       'B12-760-9',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 9 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -957,7 +970,7 @@ begin
       v_property_id,
       'B12-760-10',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 10 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -969,7 +982,7 @@ begin
       v_property_id,
       'B12-760-11',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 11 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -981,7 +994,7 @@ begin
       v_property_id,
       'B12-760-12',
       '760 8th COURT',
-      'VERO BEACH',
+      'Unit 12 VERO BEACH',
       'FLORIDA',
       '32962',
       'B12'
@@ -993,7 +1006,7 @@ begin
       v_property_id,
       'B13-770-1',
       '770 8th COURT',
-      'VERO BEACH',
+      'Unit 1 VERO BEACH',
       'FLORIDA',
       '32962',
       'B13'
@@ -1005,7 +1018,7 @@ begin
       v_property_id,
       'B13-770-2',
       '770 8th COURT',
-      'VERO BEACH',
+      'Unit 2 VERO BEACH',
       'FLORIDA',
       '32962',
       'B13'
@@ -1016,7 +1029,7 @@ end;
 $$;
 
 -- ============================================================
--- DAYTONA 1 (VD Daytona 1, LLC)
+-- VD DAYTONA 1 , LLC
 -- ============================================================
 
 do $$
@@ -1026,19 +1039,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'VD Daytona 1, LLC',
-      '1516 State Ave',
-      'Holly Hill',
-      'FL',
-      39,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'VD Daytona 1 , LLC',
+           '1516 State Ave',
+           'Holly Hill',
+           'FL',
+           39,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'VD Daytona 1 , LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'VD Daytona 1, LLC';
+    where name = 'VD Daytona 1 , LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -1513,7 +1527,7 @@ end;
 $$;
 
 -- ============================================================
--- DAYTONA 2 (VD Daytona 2, LLC)
+-- VD DAYTONA 2, LLC
 -- ============================================================
 
 do $$
@@ -1523,19 +1537,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'VD Daytona 2, LLC',
-      '1111 Enterprise Court',
-      'Holly Hill',
-      'FL',
-      29,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'VD Daytona 2, LLC',
+           '1111 Enterprise Court',
+           'Holly Hill',
+           'FL',
+           29,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'VD Daytona 2, LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'VD Daytona 2, LLC';
+    where name = 'VD Daytona 2, LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -1714,7 +1729,7 @@ begin
       'Holly Hill',
       'FL',
       '32117',
-      '1115 JK   1116 A'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -1890,7 +1905,7 @@ end;
 $$;
 
 -- ============================================================
--- DAYTONA 3 (VD Daytona 3, LLC)
+-- VD DAYTONA 3, LLC
 -- ============================================================
 
 do $$
@@ -1900,19 +1915,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'VD Daytona 3, LLC',
-      '600 Oak Place',
-      'Port Orange',
-      'FL',
-      21,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'VD Daytona 3, LLC',
+           '600 Oak Place',
+           'Port Orange',
+           'FL',
+           21,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'VD Daytona 3, LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'VD Daytona 3, LLC';
+    where name = 'VD Daytona 3, LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -2139,7 +2155,7 @@ begin
       'Port Orange',
       'FL',
       '32127',
-      '630 G'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2171,7 +2187,7 @@ end;
 $$;
 
 -- ============================================================
--- EAST PARK (VP DC East Park LLC)
+-- VP DC EAST PARK LLC
 -- ============================================================
 
 do $$
@@ -2181,19 +2197,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'VP DC East Park LLC',
-      '11437 Central Parkway',
-      'Jacksonville',
-      'FL',
-      43,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'VP DC East Park LLC',
+           '11437 Central Parkway',
+           'Jacksonville',
+           'FL',
+           43,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'VP DC East Park LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'VP DC East Park LLC';
+    where name = 'VP DC East Park LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -2716,7 +2733,7 @@ end;
 $$;
 
 -- ============================================================
--- SOUTH JAX (Decker Center South Jax, LLC)
+-- DECKER CENTER SOUTH JAX, LLC
 -- ============================================================
 
 do $$
@@ -2726,19 +2743,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'Decker Center South Jax, LLC',
-      '1025 Blanding Blvd',
-      'Orange Park',
-      'FL',
-      32,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'Decker Center South Jax, LLC',
+           '1025 Blanding Blvd',
+           'Orange Park',
+           'FL',
+           32,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'Decker Center South Jax, LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'Decker Center South Jax, LLC';
+    where name = 'Decker Center South Jax, LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -2749,7 +2767,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '502'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -2785,7 +2803,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '602'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3001,7 +3019,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '304'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3013,7 +3031,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '108'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3037,7 +3055,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '101'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3049,7 +3067,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '104'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3061,7 +3079,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '106'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3073,7 +3091,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '203'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3097,7 +3115,7 @@ begin
       'Orange Park',
       'FL',
       '32065',
-      null
+      '209'
     )
     on conflict (property_id, unit_number) do nothing;
 
@@ -3129,7 +3147,7 @@ end;
 $$;
 
 -- ============================================================
--- RIVERDALE (DC Riverdale, LLC)
+-- DC RIVERDALE, LLC
 -- ============================================================
 
 do $$
@@ -3139,19 +3157,20 @@ begin
 
   -- insert property
   insert into properties (name, address, city, state, total_units, type)
-    values (
-      'DC Riverdale, LLC',
-      '6275 GA Highway 85',
-      'Riverdale',
-      'GA',
-      10,
-      'commercial'
-    )
-    on conflict do nothing;
+    select 'DC Riverdale, LLC',
+           '6275 GA Highway 85',
+           'Riverdale',
+           'GA',
+           10,
+           'commercial'
+    where not exists (
+      select 1 from properties where name = 'DC Riverdale, LLC'
+    );
 
   select id into v_property_id
     from properties
-    where name = 'DC Riverdale, LLC';
+    where name = 'DC Riverdale, LLC'
+    limit 1;
 
   -- insert units
   insert into units (property_id, unit_number, street_address, city, state, zip, building)
@@ -3270,9 +3289,10 @@ begin
       'Riverdale',
       'GA',
       '30274',
-      'E'
+      null
     )
     on conflict (property_id, unit_number) do nothing;
 
 end;
 $$;
+

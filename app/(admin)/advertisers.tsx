@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Pressable, Linking, Image } from 'react-native';
 import { Megaphone } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,6 +28,7 @@ export default function AdvertisersScreen() {
   const [statusFilter, setStatusFilter] = useState('Pending');
   const [modalVisible, setModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedPromotion, setSelectedPromotion] = useState<AdvertiserPromotion | null>(null);
 
   // Form state
   const [formBusinessName, setFormBusinessName] = useState('');
@@ -98,6 +99,15 @@ export default function AdvertisersScreen() {
         approved_by: user.id,
       });
       Toast.show({ type: 'success', text1: 'Promotion created' });
+      
+      // Send push notification for auto-approved promotion
+      adminService.sendPush({
+        property_id: activePropertyId,
+        title: `New local deal from ${formBusinessName.trim()}`,
+        message: headline.trim(),
+        data: { type: 'advertiser_approved' },
+      }).catch(() => {});
+      
       await queryClient.invalidateQueries({ queryKey: ['advertiserPromotions'] });
       handleCloseModal();
     } catch (err: unknown) {
@@ -109,66 +119,116 @@ export default function AdvertisersScreen() {
   };
 
   const renderPromotion = ({ item }: { item: AdvertiserPromotion }) => (
-    <Card className="mx-4 mb-3 p-4">
-      <View className="flex-row items-start justify-between mb-2">
-        <View className="flex-1 mr-3">
-          <Text className="text-base font-bold text-brand-navy">{item.headline}</Text>
-          <Text className="text-sm text-brand-steel mt-0.5">{item.business_name}</Text>
+    <Pressable onPress={() => setSelectedPromotion(item)}>
+      <Card className="mx-4 mb-3 p-4">
+        <View className="flex-row items-start justify-between mb-2">
+          <View className="flex-1 mr-3">
+            <Text className="text-base font-bold text-brand-navy">{item.headline}</Text>
+            <Text className="text-sm text-brand-steel mt-0.5">{item.business_name}</Text>
+          </View>
+          <StatusBadge status={item.approval_status} size="sm" />
         </View>
-        <StatusBadge status={item.approval_status} size="sm" />
-      </View>
 
-      {item.description ? (
-        <Text className="text-sm text-brand-steel leading-5 mb-3" numberOfLines={2}>
-          {item.description}
-        </Text>
-      ) : null}
-
-      {/* Action Buttons */}
-      <View className="flex-row gap-2 mt-1">
-        {item.approval_status === 'pending' && (
-          <>
-            <View className="flex-1">
-              <Button
-                variant="primary"
-                onPress={() => handleUpdateStatus(item, 'approved')}
-              >
-                Approve
-              </Button>
-            </View>
-            <View className="flex-1">
-              <Button
-                variant="destructive"
-                onPress={() => handleUpdateStatus(item, 'rejected')}
-              >
-                Reject
-              </Button>
-            </View>
-          </>
-        )}
-        {item.approval_status === 'approved' && (
-          <View className="flex-1">
-            <Button
-              variant="destructive"
-              onPress={() => handleUpdateStatus(item, 'rejected')}
-            >
-              Revoke
-            </Button>
-          </View>
-        )}
-        {item.approval_status === 'rejected' && (
-          <View className="flex-1">
-            <Button
-              variant="primary"
-              onPress={() => handleUpdateStatus(item, 'approved')}
-            >
-              Approve
-            </Button>
-          </View>
-        )}
-      </View>
-    </Card>
+        {item.description ? (
+          <Text className="text-sm text-brand-steel leading-5 mb-3" numberOfLines={2}>
+            {item.description}
+          </Text>
+        ) : null}
+      </Card>
+    </Pressable>
   );
+
+  const renderDetailModal = () => {
+    if (!selectedPromotion) return null;
+
+    return (
+      <Modal
+        visible={!!selectedPromotion}
+        onClose={() => setSelectedPromotion(null)}
+        title="Promotion Details"
+        actions={[
+          { label: 'Close', onPress: () => setSelectedPromotion(null), variant: 'secondary' }
+        ]}
+      >
+        <View className="gap-3 pb-4">
+          {selectedPromotion.image_url && (
+            <Image 
+              source={{ uri: selectedPromotion.image_url }} 
+              className="w-full h-48 rounded-lg mb-2" 
+              resizeMode="cover" 
+            />
+          )}
+          <View>
+            <Text className="text-lg font-bold text-brand-navy">{selectedPromotion.headline}</Text>
+            <Text className="text-sm font-medium text-brand-steel">{selectedPromotion.business_name} • {selectedPromotion.business_type || 'Local Business'}</Text>
+          </View>
+          
+          <View className="flex-row items-center justify-between mt-1">
+            <StatusBadge status={selectedPromotion.approval_status} size="sm" />
+            {(selectedPromotion.start_date || selectedPromotion.end_date) && (
+              <Text className="text-xs text-brand-steel">
+                {selectedPromotion.start_date || '...'} to {selectedPromotion.end_date || '...'}
+              </Text>
+            )}
+          </View>
+
+          {selectedPromotion.description && (
+            <Text className="text-base text-brand-navy mt-2">{selectedPromotion.description}</Text>
+          )}
+
+          {selectedPromotion.cta_link && (
+            <Pressable 
+              onPress={() => Linking.openURL(selectedPromotion.cta_link!)}
+              className="bg-blue-50 py-2 px-3 rounded-lg self-start mt-2"
+            >
+              <Text className="text-blue-600 font-medium">
+                {selectedPromotion.cta_text || selectedPromotion.cta_link}
+              </Text>
+            </Pressable>
+          )}
+
+          <View className="border-t border-gray-100 my-3" />
+          
+          <Text className="text-sm font-semibold text-brand-navy">Contact Info</Text>
+          {selectedPromotion.contact_email && <Text className="text-sm text-brand-steel">Email: {selectedPromotion.contact_email}</Text>}
+          {selectedPromotion.contact_phone && <Text className="text-sm text-brand-steel">Phone: {selectedPromotion.contact_phone}</Text>}
+          {!selectedPromotion.contact_email && !selectedPromotion.contact_phone && <Text className="text-sm text-brand-steel">No contact info provided</Text>}
+
+          {/* Action Buttons */}
+          <View className="flex-row gap-2 mt-4">
+            {selectedPromotion.approval_status === 'pending' && (
+              <>
+                <View className="flex-1">
+                  <Button variant="primary" onPress={() => { handleUpdateStatus(selectedPromotion, 'approved'); setSelectedPromotion(null); }}>
+                    Approve
+                  </Button>
+                </View>
+                <View className="flex-1">
+                  <Button variant="destructive" onPress={() => { handleUpdateStatus(selectedPromotion, 'rejected'); setSelectedPromotion(null); }}>
+                    Reject
+                  </Button>
+                </View>
+              </>
+            )}
+            {selectedPromotion.approval_status === 'approved' && (
+              <View className="flex-1">
+                <Button variant="destructive" onPress={() => { handleUpdateStatus(selectedPromotion, 'rejected'); setSelectedPromotion(null); }}>
+                  Revoke
+                </Button>
+              </View>
+            )}
+            {selectedPromotion.approval_status === 'rejected' && (
+              <View className="flex-1">
+                <Button variant="primary" onPress={() => { handleUpdateStatus(selectedPromotion, 'approved'); setSelectedPromotion(null); }}>
+                  Approve
+                </Button>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+    );
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -266,6 +326,8 @@ export default function AdvertisersScreen() {
           />
         </View>
       </Modal>
+
+      {renderDetailModal()}
     </View>
   );
 }

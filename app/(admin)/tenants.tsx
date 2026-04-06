@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Platform } from 'react-native';
 import { Users } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { TenantRow } from '@/components/admin/TenantRow';
+import { CSVImporter } from '@/components/admin/CSVImporter';
 import { useAuth } from '@/lib/AuthContext';
 import { useTenants, type TenantWithBusiness } from '@/hooks/useTenants';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -105,6 +106,37 @@ export default function TenantsScreen() {
     }
   };
 
+  const handleExportCSV = () => {
+    if (Platform.OS !== 'web') return;
+    if (!tenants || tenants.length === 0) {
+      Toast.show({ type: 'info', text1: 'No tenants to export' });
+      return;
+    }
+
+    const headers = ['email', 'business_name', 'category', 'status', 'contact_name', 'contact_phone'];
+    const rows = tenants.map(t => [
+      t.profile.email || '',
+      t.business?.business_name || '',
+      t.business?.category || '',
+      t.profile.status || '',
+      t.business?.contact_name || '',
+      t.business?.contact_phone || ''
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `tenants_export.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <View className="flex-1 bg-gray-50">
       <GradientHeader>
@@ -138,7 +170,18 @@ export default function TenantsScreen() {
               selected={statusFilter}
               onChange={setStatusFilter}
             />
-            <Button onPress={() => setModalVisible(true)}>Add Tenant</Button>
+            {Platform.OS === 'web' ? (
+              <View className="flex-row gap-3">
+                <View className="flex-1">
+                  <Button onPress={() => setModalVisible(true)}>Add Tenant</Button>
+                </View>
+                <View className="flex-1">
+                  <Button variant="secondary" onPress={handleExportCSV}>Export CSV</Button>
+                </View>
+              </View>
+            ) : (
+              <Button onPress={() => setModalVisible(true)}>Add Tenant</Button>
+            )}
           </View>
 
           {/* List */}
@@ -148,6 +191,9 @@ export default function TenantsScreen() {
             <FlatList
               data={tenants ?? []}
               keyExtractor={(item) => item.profile.id}
+              ListHeaderComponent={
+                Platform.OS === 'web' ? <CSVImporter propertyId={activePropertyId} /> : null
+              }
               renderItem={({ item }) => (
                 <TenantRow
                   profile={item.profile}
@@ -167,11 +213,13 @@ export default function TenantsScreen() {
                 />
               }
               ListFooterComponent={
-                <View className="px-4 py-3">
-                  <Text className="text-xs text-brand-steel text-center">
-                    For bulk import, use the admin web panel
-                  </Text>
-                </View>
+                Platform.OS !== 'web' ? (
+                  <View className="px-4 py-3 mt-4">
+                    <Text className="text-xs text-brand-steel text-center">
+                      For bulk import, use the admin web panel
+                    </Text>
+                  </View>
+                ) : null
               }
               contentContainerStyle={{ flexGrow: 1 }}
               showsVerticalScrollIndicator={false}

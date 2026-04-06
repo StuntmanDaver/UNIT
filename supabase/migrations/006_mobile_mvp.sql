@@ -9,7 +9,7 @@ ALTER TABLE profiles
   ADD COLUMN IF NOT EXISTS display_name text,
   ADD COLUMN IF NOT EXISTS invited_at timestamptz,
   ADD COLUMN IF NOT EXISTS activated_at timestamptz,
-  ADD COLUMN IF NOT EXISTS status text DEFAULT 'active'
+  ADD COLUMN IF NOT EXISTS status text DEFAULT 'invited'
     CHECK (status IN ('invited', 'active', 'inactive'));
 
 -- Set existing profiles to 'active' status (they're already active users)
@@ -54,13 +54,13 @@ CREATE INDEX IF NOT EXISTS idx_profiles_push_token
 CREATE INDEX IF NOT EXISTS idx_advertiser_promotions_property_status
   ON advertiser_promotions(property_id, approval_status);
 
--- 5. Update the auto-profile trigger to set status = 'active' for self-registering users
--- (invited users get status = 'invited' set by the invite-tenant Edge Function)
+-- 5. Update the auto-profile trigger to set status = 'invited' for self-registering users
+-- (they get upgraded to 'active' by the complete-onboarding Edge Function)
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
   INSERT INTO public.profiles (id, role, property_ids, email, status, activated_at)
-  VALUES (new.id, 'tenant', '{}', new.email, 'active', now())
+  VALUES (new.id, 'tenant', '{}', new.email, 'invited', null)
   ON CONFLICT (id) DO NOTHING;
   RETURN new;
 END;
