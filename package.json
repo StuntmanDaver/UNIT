@@ -14,11 +14,13 @@
     "db:seed": "tsx scripts/generate-seed-sql.ts"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "^3.0.2",
     "@supabase/supabase-js": "^2.101.1",
     "@tanstack/react-query": "^5.96.2",
+    "can-promise": "^0.0.1",
     "date-fns": "^4.1.0",
     "expo": "~54.0.33",
     "expo-constants": "~18.0.13",
@@ -32,7 +34,9 @@
     "expo-status-bar": "~3.0.9",
     "lucide-react-native": "^1.7.0",
     "nativewind": "^4.2.3",
+    "qrcode": "^1.5.3",
     "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-hook-form": "^7.72.1",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
@@ -41,6 +45,7 @@
     "react-native-safe-area-context": "~5.6.0",
     "react-native-svg": "^15.15.4",
     "react-native-toast-message": "^2.3.3",
+    "react-native-web": "^0.21.0",
     "tailwindcss": "^3.4.19",
     "zod": "^4.3.6"
   },
