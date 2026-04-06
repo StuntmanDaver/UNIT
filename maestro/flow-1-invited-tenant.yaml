@@ -1,0 +1,17 @@
+appId: com.unitapp.mobile
+name: Invited Tenant Login Flow
+---
+- launchApp
+- assertVisible: "UNIT"
+- tapOn: "Email"
+- inputText: "test-tenant@example.com"
+- tapOn: "Password"
+- inputText: "TempPass123"
+- tapOn: "Log In"
+- assertVisible: "Set New Password"
+- tapOn: "New Password"
+- inputText: "NewSecurePass123"
+- tapOn: "Confirm Password"
+- inputText: "NewSecurePass123"
+- tapOn: "Set Password"
+- assertVisible: "Directory"

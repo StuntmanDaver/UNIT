@@ -1,0 +1,15 @@
+appId: com.unitapp.mobile
+name: Create Offer Flow
+---
+- launchApp
+- tapOn: "Promotions"
+- assertVisible: "Promotions"
+- tapOn:
+    id: "fab-button"
+- assertVisible: "Post an Offer"
+- tapOn: "Title"
+- inputText: "50% Off Friday Special"
+- tapOn: "Description"
+- inputText: "Half price on all services this Friday"
+- tapOn: "Post Offer"
+- assertVisible: "Offer posted"

@@ -1,0 +1,13 @@
+appId: com.unitapp.mobile
+name: Profile Edit Flow
+---
+- launchApp
+- tapOn: "Profile"
+- assertVisible: "Profile"
+- tapOn: "Edit Profile"
+- assertVisible: "Edit Profile"
+- clearText: "Business Name"
+- tapOn: "Business Name"
+- inputText: "Updated Business Name"
+- tapOn: "Save Changes"
+- assertVisible: "Profile updated"

@@ -1,0 +1,15 @@
+appId: com.unitapp.mobile
+name: Push Broadcast Flow
+---
+- launchApp
+- tapOn: "Admin"
+- tapOn: "Send Push Notification"
+- assertVisible: "Push Notifications"
+- tapOn: "Title"
+- inputText: "Building Update"
+- tapOn: "Message"
+- inputText: "Lobby will be closed Saturday for maintenance"
+- tapOn: "Send Notification"
+- assertVisible: "Send push"
+- tapOn: "Send"
+- assertVisible: "Push sent"

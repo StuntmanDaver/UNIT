@@ -1,0 +1,13 @@
+appId: com.unitapp.mobile
+name: Self Registration Flow
+---
+- launchApp
+- tapOn: "Sign Up"
+- tapOn: "Email"
+- inputText: "newuser@example.com"
+- tapOn: "Password"
+- inputText: "SecurePass123"
+- tapOn: "Confirm Password"
+- inputText: "SecurePass123"
+- tapOn: "Sign Up"
+- assertVisible: "Select Your Property"

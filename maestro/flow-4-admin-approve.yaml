@@ -1,0 +1,10 @@
+appId: com.unitapp.mobile
+name: Admin Approve Advertiser Flow
+---
+- launchApp
+- tapOn: "Admin"
+- assertVisible: "Admin Dashboard"
+- tapOn: "Advertisers"
+- assertVisible: "Pending"
+- tapOn: "Approve"
+- assertVisible: "Promotion approved"
