@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Users, UserCheck, Clock, Megaphone, ChevronRight } from 'lucide-react-native';
+import { Users, UserCheck, Clock, Megaphone, ChevronRight, Bell } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { StatCard } from '@/components/admin/StatCard';
@@ -87,6 +87,21 @@ export default function AdminDashboard() {
               <Megaphone size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-semibold text-brand-navy ml-3">
                 View Pending Approvals
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Pressable>
+          </View>
+
+          {/* Send Push Notification */}
+          <View className="px-4 mt-3">
+            <Pressable
+              onPress={() => router.push('/(admin)/push')}
+              className="bg-blue-50 rounded-xl border border-blue-100 shadow-sm flex-row items-center px-4 py-3.5"
+              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+            >
+              <Bell size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-semibold text-brand-navy ml-3">
+                Send Push Notification
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Pressable>
