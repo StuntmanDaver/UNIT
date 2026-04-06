@@ -2,9 +2,11 @@ import { Tabs } from 'expo-router';
 import { Building2, Megaphone, Users, Bell, User, Shield } from 'lucide-react-native';
 import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 export default function TabLayout() {
   const { isAdmin } = useAuth();
+  usePushNotifications();
 
   return (
     <Tabs

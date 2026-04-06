@@ -16,6 +16,7 @@ import { PropertySelector } from '@/components/admin/PropertySelector';
 import { useAuth } from '@/lib/AuthContext';
 import { useAdvertiserPromotions } from '@/hooks/useAdvertiserPromotions';
 import { advertiserPromotionsService, type AdvertiserPromotion } from '@/services/advertiser-promotions';
+import { adminService } from '@/services/admin';
 
 const STATUS_SEGMENTS = ['Pending', 'Approved', 'Rejected'];
 
@@ -64,6 +65,14 @@ export default function AdvertisersScreen() {
         type: 'success',
         text1: newStatus === 'approved' ? 'Promotion approved' : 'Promotion rejected',
       });
+      if (newStatus === 'approved') {
+        adminService.sendPush({
+          property_id: activePropertyId,
+          title: `New local deal from ${promotion.business_name}`,
+          message: promotion.headline,
+          data: { type: 'advertiser_approved' },
+        }).catch(() => {});
+      }
       await queryClient.invalidateQueries({ queryKey: ['advertiserPromotions'] });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to update promotion';

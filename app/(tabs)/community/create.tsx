@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/Button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { postsService } from '@/services/posts';
 import { storageService } from '@/services/storage';
+import { adminService } from '@/services/admin';
 import { useAuth } from '@/lib/AuthContext';
 
 const POST_TYPES = ['announcement', 'event'] as const;
@@ -48,7 +49,7 @@ type CreatePostFormData = z.infer<typeof createPostSchema>;
 
 export default function CreateCommunityPostScreen() {
   const queryClient = useQueryClient();
-  const { propertyIds } = useAuth();
+  const { propertyIds, user } = useAuth();
   const { data: business } = useCurrentUser();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -118,6 +119,20 @@ export default function CreateCommunityPostScreen() {
         text1: 'Post published',
         text2: 'Your post is now live in the community.',
       });
+
+      if (business) {
+        const titleMap: Record<string, string> = {
+          announcement: `New announcement from ${business.business_name}`,
+          event: `${business.business_name} is hosting an event`,
+        };
+        adminService.sendPush({
+          property_id: propertyIds[0],
+          title: titleMap[data.type] ?? `New post from ${business.business_name}`,
+          message: data.title,
+          data: { type: 'post' },
+          exclude_email: user?.email ?? undefined,
+        }).catch(() => {});
+      }
 
       router.back();
     } catch (err) {

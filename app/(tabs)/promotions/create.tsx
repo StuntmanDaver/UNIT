@@ -21,6 +21,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { postsService } from '@/services/posts';
 import { storageService } from '@/services/storage';
+import { adminService } from '@/services/admin';
 import { useAuth } from '@/lib/AuthContext';
 
 const createOfferSchema = z.object({
@@ -39,7 +40,7 @@ type CreateOfferFormData = z.infer<typeof createOfferSchema>;
 
 export default function CreatePromotionScreen() {
   const queryClient = useQueryClient();
-  const { propertyIds } = useAuth();
+  const { propertyIds, user } = useAuth();
   const { data: business } = useCurrentUser();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -103,6 +104,16 @@ export default function CreatePromotionScreen() {
         text1: 'Offer posted',
         text2: 'Your promotion is now live.',
       });
+
+      if (business) {
+        adminService.sendPush({
+          property_id: propertyId,
+          title: `${business.business_name} posted an offer`,
+          message: data.title,
+          data: { type: 'offer' },
+          exclude_email: user?.email ?? undefined,
+        }).catch(() => {});
+      }
 
       router.back();
     } catch (err) {

@@ -5,6 +5,7 @@ import {
   ScrollView,
   Pressable,
   Alert,
+  Switch,
 } from 'react-native';
 import { router } from 'expo-router';
 import * as Sharing from 'expo-sharing';
@@ -17,12 +18,15 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { BusinessCard } from '@/components/tenant/BusinessCard';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useProperties } from '@/hooks/useProperties';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuth } from '@/lib/AuthContext';
+import { BRAND } from '@/constants/colors';
 
 export default function ProfileScreen() {
   const { user, propertyIds, logout } = useAuth();
   const { data: business, isLoading } = useCurrentUser();
   const { data: properties } = useProperties(propertyIds);
+  const { permissionGranted, enablePush, disablePush } = usePushNotifications();
   const svgRef = useRef<unknown>(null);
 
   const propertyName = properties?.[0]?.name ?? '';
@@ -117,6 +121,19 @@ export default function ProfileScreen() {
             <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
               <Text className="text-sm text-brand-navy font-medium">App Version</Text>
               <Text className="text-sm text-brand-steel">{appVersion}</Text>
+            </View>
+
+            <View className="flex-row justify-between items-center px-4 py-3">
+              <Text className="text-sm text-brand-navy font-medium">Push Notifications</Text>
+              <Switch
+                value={permissionGranted}
+                onValueChange={(enabled) => {
+                  if (enabled) enablePush();
+                  else disablePush();
+                }}
+                trackColor={{ false: '#D1D5DB', true: BRAND.blue }}
+                thumbColor={permissionGranted ? BRAND.navy : '#F3F4F6'}
+              />
             </View>
           </View>
 
