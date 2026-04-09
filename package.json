@@ -14,6 +14,8 @@
     "db:seed": "tsx scripts/generate-seed-sql.ts"
   },
   "dependencies": {
+    "@base44/sdk": "^0.8.24",
+    "@base44/vite-plugin": "^1.0.6",
     "@expo/metro-runtime": "~6.1.2",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
