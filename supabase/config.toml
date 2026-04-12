@@ -373,7 +373,6 @@ verify_jwt = false
 
 [functions.expire-promotions]
 verify_jwt = false
-schedule = "0 0 * * *"
 
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
