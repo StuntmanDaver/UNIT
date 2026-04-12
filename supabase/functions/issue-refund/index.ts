@@ -7,6 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
+const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-11-20.acacia' });
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -14,7 +17,6 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
 
   // Authenticate request — must be a logged-in admin
   const authHeader = req.headers.get('Authorization');
@@ -34,7 +36,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Verify admin role
+  // Verify landlord role
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const { data: profile } = await adminClient
     .from('profiles')
@@ -47,7 +49,27 @@ Deno.serve(async (req) => {
     });
   }
 
-  const { promotionId, reason } = await req.json() as { promotionId: string; reason: string };
+  let promotionId: string;
+  let reason: string;
+  try {
+    const body = await req.json();
+    promotionId = body.promotionId;
+    reason = body.reason;
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  if (!promotionId || typeof promotionId !== 'string') {
+    return new Response(JSON.stringify({ error: 'promotionId is required' }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  if (!reason || typeof reason !== 'string') {
+    return new Response(JSON.stringify({ error: 'reason is required' }), {
+      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 
   // 1. Validate promotion is in refundable state
   const { data: promotion, error: promoError } = await adminClient
@@ -94,7 +116,6 @@ Deno.serve(async (req) => {
   }
 
   // 3. Call Stripe Refunds API
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2024-11-20.acacia' });
   try {
     await stripe.refunds.create({ payment_intent: attempt.stripe_payment_intent_id });
   } catch (stripeError: unknown) {
@@ -108,7 +129,7 @@ Deno.serve(async (req) => {
   const now = new Date().toISOString();
 
   // 4. Update promotion
-  await adminClient
+  const { error: updatePromoError } = await adminClient
     .from('promotions')
     .update({
       payment_status: 'refunded',
@@ -118,14 +139,28 @@ Deno.serve(async (req) => {
     })
     .eq('id', promotionId);
 
+  if (updatePromoError) {
+    return new Response(
+      JSON.stringify({ error: 'Stripe refund issued but failed to update promotion record' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   // 5. Update payment attempt
-  await adminClient
+  const { error: updateAttemptError } = await adminClient
     .from('promotion_payment_attempts')
     .update({ status: 'refunded' })
     .eq('id', attempt.id);
 
+  if (updateAttemptError) {
+    return new Response(
+      JSON.stringify({ error: 'Stripe refund issued but failed to update payment attempt record' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
+
   // 6. Insert status event
-  await adminClient
+  const { error: insertEventError } = await adminClient
     .from('promotion_status_events')
     .insert({
       promotion_id: promotionId,
@@ -137,6 +172,13 @@ Deno.serve(async (req) => {
       actor_type: 'admin',
       note: reason,
     });
+
+  if (insertEventError) {
+    return new Response(
+      JSON.stringify({ error: 'Stripe refund issued but failed to insert status event' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+    );
+  }
 
   return new Response(JSON.stringify({ success: true }), {
     status: 200,
