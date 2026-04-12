@@ -9,11 +9,23 @@ BEGIN;
 -- ================================================================
 -- 1. Rename table
 -- ================================================================
-ALTER TABLE advertiser_promotions RENAME TO promotions;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'advertiser_promotions'
+  ) THEN
+    ALTER TABLE advertiser_promotions RENAME TO promotions;
+  END IF;
+END $$;
 
 -- Rename the index that referenced the old table name (if it exists)
-ALTER INDEX IF EXISTS idx_advertiser_promotions_property_status
-  RENAME TO idx_promotions_property_status;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_advertiser_promotions_property_status') THEN
+    ALTER INDEX idx_advertiser_promotions_property_status RENAME TO idx_promotions_property_status;
+  END IF;
+END $$;
 
 -- ================================================================
 -- 2. Create advertiser_profiles FIRST — promotions.advertiser_id will FK to it
@@ -98,7 +110,7 @@ CREATE TABLE IF NOT EXISTS promotion_status_events (
   to_review_status text NOT NULL,
   from_payment_status text,
   to_payment_status text,
-  actor_user_id uuid,
+  actor_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   actor_type text NOT NULL
     CHECK (actor_type IN ('admin', 'advertiser', 'system', 'webhook')),
   note text,
@@ -154,6 +166,13 @@ CREATE INDEX IF NOT EXISTS idx_payment_attempts_completed
   ON promotion_payment_attempts(promotion_id, status)
   WHERE status = 'completed';
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_payment_attempts_checkout_session
+  ON promotion_payment_attempts(stripe_checkout_session_id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_ad_analytics_tap_dedup
+  ON ad_analytics(promotion_id, tenant_id, session_id)
+  WHERE event_type = 'tap';
+
 -- ================================================================
 -- 10. RLS for new tables
 -- ================================================================
@@ -178,7 +197,8 @@ CREATE POLICY "Advertisers insert own profile"
 
 CREATE POLICY "Admins manage advertiser profiles"
   ON advertiser_profiles FOR ALL
-  USING (is_landlord());
+  USING (is_landlord())
+  WITH CHECK (is_landlord());
 
 -- promotions: drop old policies (table was renamed from advertiser_promotions)
 DROP POLICY IF EXISTS "Tenants read approved advertiser promotions" ON promotions;
@@ -191,8 +211,10 @@ CREATE POLICY "Tenants read live promotions"
     review_status = 'approved'
     AND start_date::date <= now()::date
     AND end_date::date > now()::date
-    AND property_id IN (
-      SELECT unnest(property_ids) FROM profiles WHERE id = auth.uid()
+    AND EXISTS (
+      SELECT 1 FROM profiles
+      WHERE id = auth.uid()
+      AND property_id = ANY(property_ids)
     )
   );
 
@@ -216,12 +238,17 @@ CREATE POLICY "Advertisers update own promotions"
   USING (
     advertiser_id = auth.uid()
     AND review_status IN ('draft', 'revision_requested')
+  )
+  WITH CHECK (
+    advertiser_id = auth.uid()
+    AND review_status IN ('draft', 'revision_requested')
   );
 
 -- Admin: manage all promotions
 CREATE POLICY "Admins manage all promotions"
   ON promotions FOR ALL
-  USING (is_landlord());
+  USING (is_landlord())
+  WITH CHECK (is_landlord());
 
 -- promotion_payment_attempts
 CREATE POLICY "Advertisers view own payment attempts"
@@ -234,7 +261,8 @@ CREATE POLICY "Advertisers view own payment attempts"
 
 CREATE POLICY "Admins manage payment attempts"
   ON promotion_payment_attempts FOR ALL
-  USING (is_landlord());
+  USING (is_landlord())
+  WITH CHECK (is_landlord());
 
 -- promotion_status_events
 CREATE POLICY "Advertisers view own status events"
@@ -247,7 +275,8 @@ CREATE POLICY "Advertisers view own status events"
 
 CREATE POLICY "Admins insert and read status events"
   ON promotion_status_events FOR ALL
-  USING (is_landlord());
+  USING (is_landlord())
+  WITH CHECK (is_landlord());
 
 -- ad_analytics
 CREATE POLICY "Tenants insert own analytics"
