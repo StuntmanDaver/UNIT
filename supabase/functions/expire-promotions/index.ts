@@ -19,15 +19,19 @@ Deno.serve(async (_req) => {
   }
 
   let expired = 0;
+  let failed = 0;
   for (const promo of toExpire ?? []) {
     const { error: updateError } = await supabase
       .from('promotions')
       .update({ review_status: 'expired' })
       .eq('id', promo.id);
 
-    if (updateError) continue;
+    if (updateError) {
+      failed++;
+      continue;
+    }
 
-    await supabase
+    const { error: insertError } = await supabase
       .from('promotion_status_events')
       .insert({
         promotion_id: promo.id,
@@ -40,10 +44,14 @@ Deno.serve(async (_req) => {
         note: null,
       });
 
-    expired++;
+    if (!insertError) {
+      expired++;
+    } else {
+      failed++;
+    }
   }
 
-  return new Response(JSON.stringify({ expired }), {
+  return new Response(JSON.stringify({ expired, failed }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' },
   });
