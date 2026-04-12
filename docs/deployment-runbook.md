@@ -10,7 +10,7 @@ This document covers everything needed to develop, build, and ship the UNIT app 
 
 - Node.js 18+
 - npm
-- Expo CLI (`npm install -g expo-cli`)
+- Expo CLI (via `npx expo`)
 - iOS Simulator (via Xcode, macOS only) or Android Emulator (via Android Studio)
 
 ### Setup
@@ -50,56 +50,80 @@ This document covers everything needed to develop, build, and ship the UNIT app 
 
 ### Database Migrations
 
-Apply migrations in order. Either use the Supabase CLI:
+Ensure your project is linked and you are authenticated with the Supabase CLI.
 
 ```bash
-supabase db push
+npx supabase link --project-ref <your-project-ref>
 ```
 
-Or apply each SQL file manually in the Supabase dashboard SQL editor, in this order:
+For the current production project, the project ref is `ouvneoaqoilnigynlvbp`.
+
+Verify the local migration history matches the remote project before applying anything:
+
+```bash
+npx supabase db push --dry-run
+```
+
+Apply all pending migrations with:
+
+```bash
+npx supabase db push
+```
+
+**Seed strategy:** the canonical Decker property/unit data now lives in `20260406000500_seed_decker_properties.sql`.
+- `20260406000300_seed_properties.sql` is a legacy no-op placeholder kept only to preserve migration ordering.
+- `20260407193000_reconcile_property_seeds.sql` repairs older deployments by moving any short-name property references onto the canonical LLC-backed rows before deleting the duplicates.
+
+The migrations include:
 
 | File | Description |
 |------|-------------|
-| `supabase/migrations/001_initial_schema.sql` | Core tables and types |
-| `supabase/migrations/002_units_table.sql` | Units table |
-| `supabase/migrations/003_landlord_auth.sql` | Landlord auth and RLS |
-| `supabase/migrations/004_auto_profile_creation.sql` | Auto-create profile on signup |
-| `supabase/migrations/005_financial_workflows.sql` | Invoices, payments, financials |
-| `supabase/migrations/006_mobile_mvp.sql` | MVP mobile features |
-| `supabase/migrations/007_m2_schema_fixes.sql` | Milestone 2 schema corrections |
+| `20260406000100_initial_schema.sql` | Core tables and types |
+| `20260406000200_units_table.sql` | Units table |
+| `20260406000300_seed_properties.sql` | Legacy placeholder kept for migration continuity |
+| `20260406000400_landlord_auth.sql` | Landlord auth and RLS |
+| `20260406000500_seed_decker_properties.sql` | Canonical Decker properties and unit data |
+| `20260406000600_auto_profile_creation.sql` | Auto-create profile on signup |
+| `20260406000700_financial_workflows.sql` | Invoices, payments, financials |
+| `20260406000800_mobile_mvp.sql` | MVP mobile features |
+| `20260406000900_m2_schema_fixes.sql` | Milestone 2 schema corrections |
+| `20260406001000_security_hardening.sql` | Security hardening and fixes |
+| `20260407193000_reconcile_property_seeds.sql` | Reconcile older duplicate short-name property seeds |
 
-Note: The `002_seed_properties.sql` and `003_seed_decker_properties.sql` files are seed data — apply only in development/staging environments, not production.
+*(Alternatively, you can apply them via the Supabase Dashboard SQL editor sequentially).*
 
 ### Edge Functions
 
 Deploy all active Edge Functions:
 
 ```bash
-supabase functions deploy invite-tenant
-supabase functions deploy complete-onboarding
-supabase functions deploy add-property-to-admin
-supabase functions deploy send-push-notification
+npx supabase functions deploy invite-tenant
+npx supabase functions deploy complete-onboarding
+npx supabase functions deploy add-property-to-admin
+npx supabase functions deploy send-push-notification
 ```
 
 ### Edge Function Secrets
 
-Set the required secrets for Edge Functions:
+Hosted Supabase automatically injects `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` for Edge Functions. Set the custom Resend secrets explicitly:
 
 ```bash
-supabase secrets set \
-  SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key> \
+npx supabase secrets set \
   RESEND_API_KEY=<your-resend-api-key> \
   RESEND_FROM_EMAIL=<your-sender-email>
 ```
 
-These are used by `invite-tenant` (email delivery) and any function requiring elevated database access.
+`invite-tenant` uses these values for invitation emails. If `RESEND_FROM_EMAIL` is omitted, the function falls back to `UNIT <noreply@unit-app.com>`, but production should use a verified sender address.
 
 ### Storage
 
-Create the public assets bucket in the Supabase dashboard (Storage > New bucket):
+The `public-assets` bucket can be created manually in the Supabase dashboard (Storage > New bucket), or by running the following SQL in the SQL editor:
 
-- **Name:** `public-assets`
-- **Public access:** enabled
+```sql
+insert into storage.buckets (id, name, public) values ('public-assets', 'public-assets', true);
+create policy "Public Access" on storage.objects for select using ( bucket_id = 'public-assets' );
+create policy "Authenticated users can upload" on storage.objects for insert to authenticated with check ( bucket_id = 'public-assets' );
+```
 
 This bucket stores property images, business logos, and other publicly accessible media.
 
@@ -212,7 +236,7 @@ eas update --branch production --message "Brief description of change"
 | `EXPO_PUBLIC_SUPABASE_URL` | `.env.local` | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` | Supabase anon/public key |
 | `EXPO_PUBLIC_APP_URL` | `.env.local` | App deep link base URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Edge Function secrets | Admin-level DB operations |
+| `SUPABASE_SERVICE_ROLE_KEY` | Auto-injected by hosted Supabase Edge Functions | Admin-level DB operations |
 | `RESEND_API_KEY` | Edge Function secrets | Transactional email delivery |
 | `RESEND_FROM_EMAIL` | Edge Function secrets | Sender email address for invites |
 

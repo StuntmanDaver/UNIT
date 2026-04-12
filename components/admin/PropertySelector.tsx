@@ -19,7 +19,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     let cancelled = false;
     setLoading(true);
 
-    Promise.all(propertyIds.map((id) => propertiesService.getById(id)))
+    propertiesService.getByIds(propertyIds)
       .then((results) => {
         if (!cancelled) {
           setProperties(results);
@@ -39,7 +39,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds, selected, onSelect]);
+  }, [propertyIds, onSelect]); // `selected` removed — re-fetching on every selection is unnecessary
 
   if (loading) {
     return (
@@ -57,7 +57,11 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   // Single property — no need for a dropdown
   if (properties.length === 1) {
     return (
-      <Text className="text-base font-semibold text-brand-navy">{properties[0].name}</Text>
+      <View className="flex-row items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-2">
+        <Text className="text-sm font-semibold text-brand-navy flex-1" numberOfLines={1}>
+          {properties[0].name}
+        </Text>
+      </View>
     );
   }
 

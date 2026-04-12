@@ -33,7 +33,16 @@ Deno.serve(async (req) => {
     });
   }
 
-  const { property_id } = await req.json();
+  let body: { property_id?: string };
+  try {
+    body = await req.json();
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  const { property_id } = body;
   if (!property_id) {
     return new Response(JSON.stringify({ error: 'property_id is required' }), {
       status: 400,
@@ -58,10 +67,20 @@ Deno.serve(async (req) => {
   }
 
   // Use service role to update property_ids (RLS prevents client-side update)
+  // Fetch existing property_ids first so we append rather than overwrite
+  const { data: existingProfile } = await adminClient
+    .from('profiles')
+    .select('property_ids')
+    .eq('id', user.id)
+    .single();
+  const mergedPropertyIds = Array.from(
+    new Set([...(existingProfile?.property_ids ?? []), property_id])
+  );
+
   const { error } = await adminClient
     .from('profiles')
     .update({
-      property_ids: [property_id],
+      property_ids: mergedPropertyIds,
       status: 'active',
       activated_at: new Date().toISOString(),
     })

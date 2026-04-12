@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
 import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
 const loginSchema = z.object({
-  email: z.string().email('Please enter a valid email'),
+  email: z.string().trim().email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 });
 
@@ -81,59 +81,69 @@ export default function LoginScreen() {
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 py-10">
-          <Text className="text-3xl font-bold text-white text-center mb-2">UNIT</Text>
-          <Text className="text-brand-steel text-center mb-10">Where Tenants Connect</Text>
+        <View className="px-6 py-10 w-full max-w-md mx-auto">
+          <View className="items-center mb-8">
+            <Image
+              source={require('../../assets/logo-transparent-light.png')}
+              style={{ width: 160, height: 160 }}
+              resizeMode="contain"
+            />
+          </View>
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Email"
-                placeholder="you@business.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                error={errors.email?.message}
-              />
-            )}
-          />
+          <View className="bg-brand-navy-light p-6 rounded-3xl border border-brand-blue shadow-xl">
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Email"
+                  placeholder="you@business.com"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  value={value}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  error={errors.email?.message}
+                />
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                label="Password"
-                placeholder="Enter your password"
-                secureTextEntry
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                error={errors.password?.message}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="Password"
+                  placeholder="Enter your password"
+                  secureTextEntry
+                  textContentType="oneTimeCode"
+                  value={value}
+                  onBlur={onBlur}
+                  onChangeText={onChange}
+                  error={errors.password?.message}
+                />
+              )}
+            />
 
-          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-2">
-            Log In
-          </Button>
+            <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4">
+              Log In
+            </Button>
+          </View>
 
-          <Pressable onPress={handleForgotPassword} className="mt-4 items-center">
-            <Text className="text-brand-steel text-sm">Forgot password?</Text>
+          <Pressable onPress={handleForgotPassword} className="mt-8 items-center">
+            <Text className="text-brand-steel text-sm font-arcadia">Forgot password?</Text>
           </Pressable>
 
-          <View className="mt-8 items-center">
-            <Text className="text-brand-steel">
-              Don't have an account?{' '}
-              <Link href="/(auth)/signup" className="text-white font-semibold">
-                Sign Up
-              </Link>
+          <View className="mt-6 flex-row justify-center items-center gap-2">
+            <Text className="text-brand-steel font-arcadia">
+              Don't have an account?
             </Text>
+            <Link href="/(auth)/signup" asChild>
+              <Pressable className="p-2 -m-2">
+                <Text className="text-white font-semibold font-arcadia">Sign Up</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
       </ScrollView>

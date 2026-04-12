@@ -54,8 +54,8 @@ export default function OnboardingScreen() {
   const filteredProperties = properties.filter(
     (p) =>
       p.name.toLowerCase().includes(propertySearch.toLowerCase()) ||
-      p.address.toLowerCase().includes(propertySearch.toLowerCase()) ||
-      p.city.toLowerCase().includes(propertySearch.toLowerCase())
+      p.address?.toLowerCase().includes(propertySearch.toLowerCase()) ||
+      p.city?.toLowerCase().includes(propertySearch.toLowerCase())
   );
 
   const {

@@ -7,9 +7,9 @@ import {
   Linking,
   ActivityIndicator,
   Alert,
+  Share,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as Sharing from 'expo-sharing';
 import QRCode from 'react-native-qrcode-svg';
 import { ArrowLeft, Phone, Mail, Globe, Share2, Edit2 } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
@@ -45,12 +45,14 @@ export default function BusinessDetailScreen() {
   const qrValue = `unit://directory/${business.id}`;
 
   const handleShare = async () => {
-    const canShare = await Sharing.isAvailableAsync();
-    if (!canShare) {
-      Alert.alert('Sharing not available', 'Sharing is not supported on this device.');
-      return;
+    try {
+      await Share.share({
+        message: `Check out ${business.business_name} on UNIT! ${qrValue}`,
+        url: qrValue,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Could not share this profile.');
     }
-    await Sharing.shareAsync(qrValue);
   };
 
   return (

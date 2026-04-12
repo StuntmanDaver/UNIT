@@ -4,6 +4,9 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        arcadia: ['"Arcadia Text"', 'system-ui', 'sans-serif'],
+      },
       colors: {
         brand: {
           navy: '#101B29',

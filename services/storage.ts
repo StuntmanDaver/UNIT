@@ -6,6 +6,7 @@ export const storageService = {
     const filePath = `uploads/${fileName}`;
 
     const response = await fetch(uri);
+    if (!response.ok) throw new Error(`Failed to fetch image: ${response.status}`);
     const blob = await response.blob();
     const arrayBuffer = await new Response(blob).arrayBuffer();
 

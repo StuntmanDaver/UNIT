@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 
 export type Notification = {
   id: string;
+  user_id: string;
   user_email: string;
   property_id: string;
   type: string;
@@ -24,7 +25,7 @@ export const notificationsService = {
       query = query.eq(key, value);
     }
     query = query.order(orderBy, { ascending });
-    if (limit) {
+    if (limit !== null) {
       query = query.limit(limit);
     }
     const { data, error } = await query;
@@ -53,21 +54,21 @@ export const notificationsService = {
     return data;
   },
 
-  async markAllRead(userEmail: string, propertyId: string): Promise<void> {
+  async markAllRead(userId: string, propertyId: string): Promise<void> {
     const { error } = await supabase
       .from('notifications')
       .update({ read: true })
-      .eq('user_email', userEmail)
+      .eq('user_id', userId)
       .eq('property_id', propertyId)
       .eq('read', false);
     if (error) throw error;
   },
 
-  async getUnreadCount(userEmail: string, propertyId: string): Promise<number> {
+  async getUnreadCount(userId: string, propertyId: string): Promise<number> {
     const { count, error } = await supabase
       .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('user_email', userEmail)
+      .eq('user_id', userId)
       .eq('property_id', propertyId)
       .eq('read', false);
     if (error) throw error;

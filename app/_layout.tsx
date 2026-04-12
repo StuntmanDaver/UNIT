@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -16,17 +16,21 @@ function AuthGuard() {
   const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding } = useAuth();
   const segments = useSegments();
   const router = useRouter();
+  const splashHiddenRef = useRef(false);
 
   useEffect(() => {
     if (isLoading) return;
 
-    SplashScreen.hideAsync();
+    if (!splashHiddenRef.current) {
+      splashHiddenRef.current = true;
+      SplashScreen.hideAsync();
+    }
 
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!isAuthenticated && !inAuthGroup) {
       router.replace('/(auth)/login');
-    } else if (isAuthenticated && needsPasswordChange) {
+    } else if (isAuthenticated && needsPasswordChange && !segments.includes('reset-password')) {
       router.replace('/(auth)/reset-password');
     } else if (isAuthenticated && needsOnboarding && !inAuthGroup) {
       router.replace('/(auth)/onboarding');

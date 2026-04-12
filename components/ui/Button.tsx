@@ -13,12 +13,12 @@ type ButtonProps = {
 
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
   primary: {
-    container: 'bg-brand-navy',
+    container: 'bg-brand-blue',
     text: 'text-white',
   },
   secondary: {
-    container: 'bg-brand-gray border border-brand-steel',
-    text: 'text-brand-navy',
+    container: 'bg-brand-navy-light border border-brand-steel',
+    text: 'text-white',
   },
   destructive: {
     container: 'bg-red-600',
@@ -26,7 +26,7 @@ const variantStyles: Record<ButtonVariant, { container: string; text: string }> 
   },
   ghost: {
     container: 'bg-transparent',
-    text: 'text-brand-navy',
+    text: 'text-brand-gray',
   },
 };
 
@@ -50,9 +50,9 @@ export function Button({
       style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.8 : 1 })}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' ? '#101B29' : '#FFFFFF'} />
+        <ActivityIndicator color={variant === 'secondary' ? '#FFFFFF' : '#FFFFFF'} />
       ) : (
-        <Text className={`text-base font-semibold ${styles.text}`}>{children}</Text>
+        <Text className={`text-base font-semibold font-arcadia ${styles.text}`}>{children}</Text>
       )}
     </Pressable>
   );

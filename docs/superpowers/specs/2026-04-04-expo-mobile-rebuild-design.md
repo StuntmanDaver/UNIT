@@ -655,7 +655,7 @@ CATEGORY_COLORS: per business category (restaurant=red, accounting=blue, legal=p
 
 ### Typography
 
-System fonts (San Francisco on iOS, Roboto on Android). No custom fonts in V1. NativeWind handles type scale via Tailwind classes (`text-sm`, `text-xl`, etc.).
+"Arcadia Text" is the custom font used globally (`font-arcadia` class in Tailwind). NativeWind handles type scale via Tailwind classes (`text-sm`, `text-xl`, etc.).
 
 ### Gradient Headers
 

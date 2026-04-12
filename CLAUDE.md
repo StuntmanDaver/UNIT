@@ -183,10 +183,11 @@ assets/                 # App icons, splash screen images
 - Location: `lib/query-client.ts`
 - Global QueryClient instance with default options
 ## Brand Theming
-- Brand colors defined in `tailwind.config.js`: `brand-navy` (#101B29), `brand-navy-light` (#1D263A), `brand-blue` (#465A75), `brand-steel` (#7C8DA7), `brand-gray` (#E0E1DE)
+- Brand colors defined in `tailwind.config.js`: `brand-navy` (#101B29 - Dark Navy), `brand-navy-light` (#1D263A - Deep Blue), `brand-blue` (#465A75 - Slate Blue), `brand-steel` (#7C8DA7 - Light Steel Blue), `brand-gray` (#E0E1DE - Soft Light Gray)
+- Global Font: `font-arcadia` ("Arcadia Text", system-ui, sans-serif) MUST be used on ALL Text components in the app.
 - Additional color constants in `constants/colors.ts`
-- Navy-to-steel-blue gradient used throughout the app via `expo-linear-gradient`
 - Splash screen background: #101B29 (brand navy)
+- Meticulously ensure these exact colors and fonts are used in every current and future page.
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->

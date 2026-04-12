@@ -87,40 +87,40 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
 
 export default function NotificationsScreen() {
   const { user, propertyIds } = useAuth();
-  const email = user?.email ?? '';
+  const userId = user?.id ?? '';
   const propertyId = propertyIds[0] ?? '';
 
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading, refetch, isRefetching } = useNotifications(email, propertyId);
-  const { data: unreadCount } = useUnreadCount(email, propertyId);
+  const { data: notifications, isLoading, refetch, isRefetching } = useNotifications(userId, propertyId);
+  const { data: unreadCount } = useUnreadCount(userId, propertyId);
 
   const handlePress = useCallback(
     async (item: Notification) => {
       if (!item.read) {
         try {
           await notificationsService.update(item.id, { read: true });
-          await queryClient.invalidateQueries({ queryKey: ['notifications', email, propertyId] });
-          await queryClient.invalidateQueries({ queryKey: ['unreadCount', email, propertyId] });
+          await queryClient.invalidateQueries({ queryKey: ['notifications', userId, propertyId] });
+          await queryClient.invalidateQueries({ queryKey: ['unreadCount', userId, propertyId] });
         } catch {
           // best-effort mark read; navigate anyway
         }
       }
       navigateByType(item.type);
     },
-    [email, propertyId, queryClient]
+    [userId, propertyId, queryClient]
   );
 
   const handleMarkAllRead = useCallback(async () => {
     try {
-      await notificationsService.markAllRead(email, propertyId);
-      await queryClient.invalidateQueries({ queryKey: ['notifications', email, propertyId] });
-      await queryClient.invalidateQueries({ queryKey: ['unreadCount', email, propertyId] });
+      await notificationsService.markAllRead(userId, propertyId);
+      await queryClient.invalidateQueries({ queryKey: ['notifications', userId, propertyId] });
+      await queryClient.invalidateQueries({ queryKey: ['unreadCount', userId, propertyId] });
       Toast.show({ type: 'success', text1: 'All notifications marked as read' });
     } catch {
       Toast.show({ type: 'error', text1: 'Failed to mark notifications as read' });
     }
-  }, [email, propertyId, queryClient]);
+  }, [userId, propertyId, queryClient]);
 
   const keyExtractor = useCallback((item: Notification) => item.id, []);
 

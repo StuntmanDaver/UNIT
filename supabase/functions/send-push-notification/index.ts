@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
   // Verify caller is authenticated
   const callerClient = createClient(supabaseUrl, anonKey, {
@@ -76,7 +77,7 @@ Deno.serve(async (req) => {
   }
 
   // Verify caller has access to the property
-  const { data: callerProfile, error: callerProfileError } = await callerClient
+  const { data: callerProfile, error: callerProfileError } = await adminClient
     .from('profiles')
     .select('property_ids, role')
     .eq('id', user.id)
@@ -106,11 +107,9 @@ Deno.serve(async (req) => {
   }
 
   // Use service role client to query profiles
-  const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
   let profilesQuery = adminClient
     .from('profiles')
-    .select('email, push_token')
+    .select('id, email, push_token')
     .contains('property_ids', [property_id]);
 
   if (audience === 'active') {
@@ -131,7 +130,7 @@ Deno.serve(async (req) => {
   }
 
   const targetedProfiles = profiles ?? [];
-  const targetedEmails = targetedProfiles.map((p: { email: string }) => p.email);
+  const targetedEmails = targetedProfiles.map((p: { id: string; email: string }) => p.email);
 
   // Build push messages for profiles that have a push token
   const tokens: string[] = targetedProfiles
@@ -165,6 +164,10 @@ Deno.serve(async (req) => {
         body: JSON.stringify(messages),
       });
 
+      if (!response.ok) {
+        throw new Error(`Expo push request failed with status ${response.status}`);
+      }
+
       const result = await response.json() as ExpoPushResponse;
       const tickets = result.data ?? [];
 
@@ -183,8 +186,9 @@ Deno.serve(async (req) => {
 
   // Insert notification records for ALL targeted users
   if (targetedEmails.length > 0) {
-    const notificationRecords = targetedEmails.map((email: string) => ({
-      user_email: email,
+    const notificationRecords = targetedProfiles.map((p: { id: string; email: string }) => ({
+      user_id: p.id,
+      user_email: p.email,
       property_id,
       type: (data?.type as string | undefined) ?? 'broadcast',
       title,
@@ -193,7 +197,24 @@ Deno.serve(async (req) => {
       read: false,
     }));
 
-    await adminClient.from('notifications').insert(notificationRecords);
+    const { error: notificationInsertError } = await adminClient
+      .from('notifications')
+      .insert(notificationRecords);
+
+    if (notificationInsertError) {
+      return new Response(
+        JSON.stringify({
+          error: notificationInsertError.message,
+          sent,
+          failed,
+          total,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
   }
 
   return new Response(JSON.stringify({ sent, failed, total }), {

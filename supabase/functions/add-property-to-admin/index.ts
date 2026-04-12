@@ -20,6 +20,7 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
   // Verify caller is a landlord
   const callerClient = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
@@ -33,7 +34,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  const { data: profile } = await callerClient
+  const { data: profile } = await adminClient
     .from('profiles')
     .select('role, property_ids')
     .eq('id', user.id)
@@ -55,7 +56,6 @@ Deno.serve(async (req) => {
   }
 
   // Use service role to append to property_ids array
-  const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const currentIds: string[] = profile.property_ids ?? [];
 
   // Prevent duplicate property_ids

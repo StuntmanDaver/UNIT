@@ -6,9 +6,9 @@ import {
   Pressable,
   Alert,
   Switch,
+  Share,
 } from 'react-native';
 import { router } from 'expo-router';
-import * as Sharing from 'expo-sharing';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
 import { Edit2, Share2 } from 'lucide-react-native';
@@ -35,12 +35,14 @@ export default function ProfileScreen() {
   const qrValue = business ? `unit://directory/${business.id}` : 'unit://profile';
 
   const handleShare = async () => {
-    const canShare = await Sharing.isAvailableAsync();
-    if (!canShare) {
-      Alert.alert('Sharing not available', 'Sharing is not supported on this device.');
-      return;
+    try {
+      await Share.share({
+        message: `Connect with my business on UNIT! ${qrValue}`,
+        url: qrValue,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Could not share this profile.');
     }
-    await Sharing.shareAsync(qrValue);
   };
 
   const handleLogout = () => {

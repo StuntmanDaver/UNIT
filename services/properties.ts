@@ -33,6 +33,16 @@ export const propertiesService = {
     return data;
   },
 
+  async getByIds(ids: string[]): Promise<Property[]> {
+    if (ids.length === 0) return [];
+    const { data, error } = await supabase
+      .from('properties')
+      .select(PROPERTY_COLUMNS)
+      .in('id', ids);
+    if (error) throw error;
+    return data;
+  },
+
   async filter(filters: Record<string, string>): Promise<Property[]> {
     let query = supabase.from('properties').select(PROPERTY_COLUMNS);
     for (const [key, value] of Object.entries(filters)) {

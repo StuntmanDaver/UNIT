@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
 import { Link } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/Input';
 
 const signupSchema = z
   .object({
-    email: z.string().email('Please enter a valid email'),
+    email: z.string().trim().email('Please enter a valid email'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     confirmPassword: z.string(),
   })
@@ -36,7 +36,7 @@ export default function SignupScreen() {
 
   const onSubmit = async (data: SignupForm) => {
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
     });
@@ -47,6 +47,13 @@ export default function SignupScreen() {
         type: 'error',
         text1: 'Signup failed',
         text2: error.message,
+      });
+    } else if (signUpData?.user && !signUpData.session) {
+      Toast.show({
+        type: 'success',
+        text1: 'Check your email',
+        text2: 'A confirmation link has been sent to your email.',
+        visibilityTime: 6000,
       });
     }
     // On success, auto-trigger creates profile, onAuthStateChange fires,
@@ -63,8 +70,8 @@ export default function SignupScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-10">
-          <Text className="text-3xl font-bold text-white text-center mb-2">Create Account</Text>
-          <Text className="text-brand-steel text-center mb-10">Join your property community</Text>
+          <Text className="text-3xl font-bold text-white text-center mb-2 font-arcadia">Create Account</Text>
+          <Text className="text-brand-steel text-center mb-10 font-arcadia">Join your property community</Text>
 
           <Controller
             control={control}
@@ -92,6 +99,7 @@ export default function SignupScreen() {
                 label="Password"
                 placeholder="At least 8 characters"
                 secureTextEntry
+                textContentType="oneTimeCode"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -108,6 +116,7 @@ export default function SignupScreen() {
                 label="Confirm Password"
                 placeholder="Re-enter your password"
                 secureTextEntry
+                textContentType="oneTimeCode"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -120,13 +129,15 @@ export default function SignupScreen() {
             Sign Up
           </Button>
 
-          <View className="mt-8 items-center">
-            <Text className="text-brand-steel">
-              Already have an account?{' '}
-              <Link href="/(auth)/login" className="text-white font-semibold">
-                Log In
-              </Link>
+          <View className="mt-8 flex-row justify-center items-center gap-2">
+            <Text className="text-brand-steel font-arcadia">
+              Already have an account?
             </Text>
+            <Link href="/(auth)/login" asChild>
+              <Pressable className="p-2 -m-2">
+                <Text className="text-white font-semibold font-arcadia">Log In</Text>
+              </Pressable>
+            </Link>
           </View>
         </View>
       </ScrollView>

@@ -9,17 +9,20 @@ export default function TabLayout() {
   const { isAdmin, user, propertyIds } = useAuth();
   usePushNotifications();
 
-  const { data: unreadCount } = useUnreadCount(user?.email ?? '', propertyIds[0] ?? '');
+  const { data: unreadCount } = useUnreadCount(user?.id ?? '', propertyIds[0] ?? '');
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: BRAND.navy,
+        tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: BRAND.steel,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopColor: BRAND.gray,
+          backgroundColor: BRAND.navy,
+          borderTopColor: '#1D263A',
+        },
+        tabBarLabelStyle: {
+          fontFamily: '"Arcadia Text", system-ui, sans-serif',
         },
       }}
     >

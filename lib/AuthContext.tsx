@@ -24,11 +24,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
 
   const fetchProfile = async (userId: string, userEmail: string) => {
-    const { data: profileData } = await supabase
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
+
+    if (profileError) throw profileError;
 
     setProfile(profileData);
 
@@ -47,28 +49,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
 
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id, session.user.email ?? '');
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user.id, session.user.email ?? '');
+        }
+      } catch (err) {
+        console.error('initAuth error:', err);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user.id, session.user.email ?? '');
-        } else {
-          setUser(null);
-          setProfile(null);
-          setNeedsOnboarding(false);
+        try {
+          if (session?.user) {
+            setUser(session.user);
+            await fetchProfile(session.user.id, session.user.email ?? '');
+          } else {
+            setUser(null);
+            setProfile(null);
+            setNeedsOnboarding(false);
+          }
+        } catch (err) {
+          console.error('onAuthStateChange error:', err);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 

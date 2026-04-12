@@ -82,6 +82,10 @@ export const adminService = {
         .gte('created_at', thirtyDaysAgo),
     ]);
 
+    if (businesses.error) throw businesses.error;
+    if (profiles.error) throw profiles.error;
+    if (promotions.error) throw promotions.error;
+
     const profileData = profiles.data ?? [];
     const activeCount = profileData.filter((p) => p.status === 'active').length;
     const pendingCount = profileData.filter((p) => p.status === 'invited').length;
