@@ -371,6 +371,9 @@ verify_jwt = false
 [functions.send-push-notification]
 verify_jwt = false
 
+[functions.expire-promotions]
+schedule = "0 0 * * *"
+
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
