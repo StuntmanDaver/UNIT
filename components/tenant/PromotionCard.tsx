@@ -1,6 +1,6 @@
 import { View, Text, Pressable, Linking, Image } from 'react-native';
 import { Post } from '@/services/posts';
-import { AdvertiserPromotion } from '@/services/advertiser-promotions';
+import { type Promotion } from '@/services/promotions';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -13,7 +13,7 @@ type TenantVariant = {
 
 type AdvertiserVariant = {
   variant: 'advertiser';
-  data: AdvertiserPromotion;
+  data: Promotion;
   onPress?: () => void;
 };
 

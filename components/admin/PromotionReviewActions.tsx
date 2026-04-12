@@ -80,15 +80,14 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           Provide a note for the advertiser explaining what needs to change.
         </Text>
         <Input
+          label="Note"
           value={note}
           onChangeText={(t) => { setNote(t); setNoteError(''); }}
           placeholder="e.g. Image dimensions don't meet requirements"
           multiline
           numberOfLines={3}
+          error={noteError || undefined}
         />
-        {!!noteError && (
-          <Text className="text-xs text-red-500 mt-1">{noteError}</Text>
-        )}
         <View className="flex-row gap-3 mt-4 mb-2">
           <View className="flex-1">
             <Button onPress={handleClose} variant="secondary">Cancel</Button>
