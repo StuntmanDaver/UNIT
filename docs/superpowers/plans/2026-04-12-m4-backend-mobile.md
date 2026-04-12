@@ -76,6 +76,10 @@ CREATE POLICY "Advertisers update own advertiser_profile"
   USING (id = auth.uid())
   WITH CHECK (id = auth.uid());
 
+CREATE POLICY "Advertisers insert own advertiser_profile"
+  ON advertiser_profiles FOR INSERT TO authenticated
+  WITH CHECK (id = auth.uid());
+
 CREATE POLICY "Admins manage advertiser_profiles"
   ON advertiser_profiles FOR ALL TO authenticated
   USING (is_landlord());
@@ -1807,7 +1811,8 @@ Add these two methods inside the `adminService` object, after `getStats`:
           .lt('created_at', monthEnd),
       ]);
 
-      const gross = (completed.data ?? []).reduce((sum, r) => sum + (r.amount_cents ?? 0), 0);
+      // Both completed and refunded represent gross revenue received; only refunded subtracts from net
+      const gross = ([...(completed.data ?? []), ...(refunded.data ?? [])]).reduce((sum, r) => sum + (r.amount_cents ?? 0), 0);
       const refunds = (refunded.data ?? []).reduce((sum, r) => sum + (r.amount_cents ?? 0), 0);
 
       months.push({ month: `${year}-${month}`, gross_cents: gross, net_cents: gross - refunds });
