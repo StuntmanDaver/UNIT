@@ -189,7 +189,11 @@ CREATE POLICY "Advertisers read own profile"
 
 CREATE POLICY "Advertisers update own profile"
   ON advertiser_profiles FOR UPDATE
-  USING (id = auth.uid());
+  USING (id = auth.uid())
+  WITH CHECK (
+    id = auth.uid()
+    AND status = (SELECT status FROM advertiser_profiles WHERE id = auth.uid())
+  );
 
 CREATE POLICY "Advertisers insert own profile"
   ON advertiser_profiles FOR INSERT
