@@ -11,6 +11,9 @@ import { useAuth } from '@/lib/AuthContext';
 import { useAdminStats } from '@/hooks/useAdminStats';
 import { usePosts } from '@/hooks/usePosts';
 import { useBusinesses } from '@/hooks/useBusinesses';
+import { RevenueChart } from '@/components/admin/RevenueChart';
+import { AdEngagementStats } from '@/components/admin/AdEngagementStats';
+import { useMonthlyRevenue, useMonthlyEngagement } from '@/hooks/usePromotionStats';
 import { BRAND } from '@/constants/colors';
 
 export default function AdminDashboard() {
@@ -22,6 +25,8 @@ export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = useAdminStats(activePropertyId);
   const { data: posts, isLoading: postsLoading } = usePosts(activePropertyId);
   const { data: businesses } = useBusinesses(activePropertyId);
+  const { data: revenueData = [] } = useMonthlyRevenue(activePropertyId);
+  const { data: engagementData } = useMonthlyEngagement(activePropertyId);
 
   const recentPosts = posts?.slice(0, 10) ?? [];
   const businessMap = new Map(businesses?.map((b) => [b.id, b]) ?? []);
@@ -106,6 +111,40 @@ export default function AdminDashboard() {
               <ChevronRight size={18} color={BRAND.steel} />
             </Pressable>
           </View>
+
+          {/* Revenue Section */}
+          {activePropertyId && (
+            <View className="px-4 mt-4">
+              <Text className="text-base font-semibold text-brand-navy mb-2">Ad Revenue</Text>
+              <View className="bg-white rounded-xl p-4 shadow-sm">
+                {revenueData.length > 0 && (
+                  <View className="flex-row justify-between mb-3">
+                    <View>
+                      <Text className="text-xs text-brand-steel">This month gross</Text>
+                      <Text className="text-lg font-bold text-brand-navy">
+                        ${(revenueData[revenueData.length - 1]?.gross ?? 0).toFixed(2)}
+                      </Text>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-xs text-brand-steel">This month net</Text>
+                      <Text className="text-lg font-bold text-green-600">
+                        ${(revenueData[revenueData.length - 1]?.net ?? 0).toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+                <RevenueChart data={revenueData} />
+              </View>
+            </View>
+          )}
+
+          {/* Ad Engagement Section */}
+          {activePropertyId && engagementData && (
+            <View className="px-4 mt-4">
+              <Text className="text-base font-semibold text-brand-navy mb-2">Ad Engagement</Text>
+              <AdEngagementStats data={engagementData} />
+            </View>
+          )}
 
           {/* Recent Activity */}
           <View className="px-4 mt-6">
