@@ -147,17 +147,17 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
 
   if (parsedData.length === 0) {
     return (
-      <View className="bg-white rounded-xl border border-gray-200 p-6 mb-6 mx-4 mt-4">
-        <Text className="text-lg font-bold text-brand-navy mb-2">CSV Bulk Import</Text>
-        <Text className="text-sm text-brand-steel mb-4">
-          Expected headers: <Text className="font-mono bg-gray-100 px-1">email, business_name, category, contact_name, contact_phone, services</Text>
+      <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-6 mb-6 mx-4 mt-4">
+        <Text className="text-2xl font-lora-semibold text-brand-gray mb-2">CSV Bulk Import</Text>
+        <Text className="text-sm font-nunito text-brand-gray mb-4">
+          Expected headers: <Text className="text-sm font-nunito-semibold text-brand-gray bg-brand-navy px-1">email, business_name, category, contact_name, contact_phone, services</Text>
         </Text>
         <Pressable
           onPress={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-brand-blue/30 rounded-xl py-8 items-center bg-blue-50/50"
+          className="border-2 border-dashed border-brand-blue/40 rounded-xl py-8 items-center bg-brand-navy"
         >
           <Upload size={24} color={BRAND.blue} />
-          <Text className="text-brand-navy font-semibold mt-3">Click to upload CSV</Text>
+          <Text className="text-base font-nunito-semibold text-brand-gray mt-3">Click to upload CSV</Text>
         </Pressable>
         <input
           type="file"
@@ -173,26 +173,26 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
   const validCount = parsedData.filter(r => r._isValid).length;
 
   return (
-    <View className="bg-white rounded-xl border border-gray-200 p-6 mb-6 mx-4 mt-4">
+    <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-6 mb-6 mx-4 mt-4">
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-lg font-bold text-brand-navy">Import Preview</Text>
+        <Text className="text-2xl font-lora-semibold text-brand-gray">Import Preview</Text>
         <Pressable onPress={clearData} className="p-2 -mr-2" disabled={isImporting}>
           <X size={20} color={BRAND.steel} />
         </Pressable>
       </View>
 
-      <View className="bg-gray-50 rounded-lg p-3 mb-4">
-        <Text className="text-sm font-medium text-brand-navy">
+      <View className="bg-brand-navy rounded-xl p-4 mb-4">
+        <Text className="text-sm font-nunito-semibold text-brand-gray">
           Found {parsedData.length} rows ({validCount} valid)
         </Text>
       </View>
 
-      <View className="max-h-60 mb-6 border border-gray-100 rounded-lg overflow-hidden">
+      <View className="max-h-60 mb-6 border border-brand-blue/40 rounded-xl overflow-hidden">
         {parsedData.slice(0, 100).map((row, idx) => (
-          <View 
-            key={idx} 
-            className={`flex-row items-center px-4 py-3 border-b border-gray-100 ${
-              !row._isValid ? 'bg-red-50/50' : ''
+          <View
+            key={idx}
+            className={`flex-row items-center px-4 py-3 border-b border-brand-blue/40 ${
+              !row._isValid ? 'bg-red-500/10' : ''
             }`}
           >
             {row._isValid ? (
@@ -201,25 +201,25 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
               <AlertCircle size={16} color="#EF4444" />
             )}
             <View className="ml-3 flex-1 flex-row">
-              <Text className="text-sm text-brand-navy font-medium w-1/3" numberOfLines={1}>{row.email}</Text>
-              <Text className="text-sm text-brand-steel w-1/3" numberOfLines={1}>{row.business_name}</Text>
+              <Text className="text-sm font-nunito-semibold text-brand-gray w-1/3" numberOfLines={1}>{row.email}</Text>
+              <Text className="text-sm font-nunito text-brand-gray w-1/3" numberOfLines={1}>{row.business_name}</Text>
               {row._error && (
-                <Text className="text-sm text-red-500 w-1/3" numberOfLines={1}>{row._error}</Text>
+                <Text className="text-sm font-nunito text-red-500 w-1/3" numberOfLines={1}>{row._error}</Text>
               )}
             </View>
           </View>
         ))}
         {parsedData.length > 100 && (
-          <View className="px-4 py-3 bg-gray-50">
-            <Text className="text-sm text-brand-steel text-center">... and {parsedData.length - 100} more rows</Text>
+          <View className="px-4 py-3 bg-brand-navy">
+            <Text className="text-sm font-nunito text-brand-gray text-center">... and {parsedData.length - 100} more rows</Text>
           </View>
         )}
       </View>
 
       {isImporting ? (
         <View className="items-center py-2">
-          <ActivityIndicator color={BRAND.navy} />
-          <Text className="text-sm text-brand-navy mt-3 font-medium">Importing... {progress}%</Text>
+          <ActivityIndicator color={BRAND.blue} />
+          <Text className="text-sm font-nunito-semibold text-brand-gray mt-3">Importing... {progress}%</Text>
         </View>
       ) : (
       <Button 

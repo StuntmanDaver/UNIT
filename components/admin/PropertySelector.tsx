@@ -45,7 +45,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return (
       <View className="flex-row items-center gap-2 px-1">
         <ActivityIndicator size="small" color={BRAND.steel} />
-        <Text className="text-sm text-brand-steel">Loading properties...</Text>
+        <Text className="text-sm font-nunito text-brand-steel">Loading properties...</Text>
       </View>
     );
   }
@@ -57,8 +57,8 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   // Single property — no need for a dropdown
   if (properties.length === 1) {
     return (
-      <View className="flex-row items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-2">
-        <Text className="text-sm font-semibold text-brand-navy flex-1" numberOfLines={1}>
+      <View className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3">
+        <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
           {properties[0].name}
         </Text>
       </View>
@@ -71,17 +71,17 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     <View className="relative z-10">
       <Pressable
         onPress={() => setOpen((prev) => !prev)}
-        className="flex-row items-center gap-1.5 bg-white border border-gray-200 rounded-lg px-3 py-2"
+        className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
         style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
       >
-        <Text className="text-sm font-semibold text-brand-navy flex-1" numberOfLines={1}>
+        <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
           {selectedProperty?.name ?? 'Select property'}
         </Text>
         <ChevronDown size={16} color={BRAND.steel} />
       </Pressable>
 
       {open && (
-        <View className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
+        <View className="absolute top-full mt-1 left-0 right-0 bg-brand-navy-light border border-brand-blue/40 rounded-xl shadow-md overflow-hidden">
           {properties.map((property) => {
             const isSelected = property.id === selected;
             return (
@@ -91,17 +91,13 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
                   onSelect(property.id);
                   setOpen(false);
                 }}
-                className="flex-row items-center px-3 py-2.5 border-b border-gray-50"
+                className="flex-row items-center px-4 py-3 border-b border-brand-blue/40"
                 style={({ pressed }) => ({
-                  backgroundColor: pressed ? '#F9FAFB' : isSelected ? '#F0F4FF' : '#FFFFFF',
+                  backgroundColor: pressed ? '#101B29' : isSelected ? '#101B29' : '#1D263A',
                 })}
               >
                 <Text
-                  className="flex-1 text-sm"
-                  style={{
-                    color: isSelected ? BRAND.navy : '#374151',
-                    fontWeight: isSelected ? '600' : '400',
-                  }}
+                  className={`flex-1 text-sm text-brand-gray ${isSelected ? 'font-nunito-semibold' : 'font-nunito'}`}
                   numberOfLines={1}
                 >
                   {property.name}

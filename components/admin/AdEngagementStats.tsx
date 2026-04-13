@@ -12,17 +12,17 @@ export function AdEngagementStats({ data }: Props) {
 
   return (
     <View className="flex-row gap-3">
-      <View className="flex-1 bg-white rounded-xl p-4 shadow-sm">
-        <Text className="text-2xl font-bold text-brand-navy">{data.totalViews.toLocaleString()}</Text>
-        <Text className="text-xs text-brand-steel mt-1">Views (this month)</Text>
+      <View className="flex-1 bg-brand-navy-light rounded-xl p-4 shadow-sm border border-brand-blue/40">
+        <Text className="text-2xl font-lora-semibold text-brand-gray">{data.totalViews.toLocaleString()}</Text>
+        <Text className="text-sm font-nunito text-brand-gray mt-1">Views (this month)</Text>
       </View>
-      <View className="flex-1 bg-white rounded-xl p-4 shadow-sm">
-        <Text className="text-2xl font-bold text-brand-navy">{data.totalTaps.toLocaleString()}</Text>
-        <Text className="text-xs text-brand-steel mt-1">Taps (this month)</Text>
+      <View className="flex-1 bg-brand-navy-light rounded-xl p-4 shadow-sm border border-brand-blue/40">
+        <Text className="text-2xl font-lora-semibold text-brand-gray">{data.totalTaps.toLocaleString()}</Text>
+        <Text className="text-sm font-nunito text-brand-gray mt-1">Taps (this month)</Text>
       </View>
-      <View className="flex-1 bg-white rounded-xl p-4 shadow-sm">
-        <Text className="text-2xl font-bold text-brand-navy">{tapRate}</Text>
-        <Text className="text-xs text-brand-steel mt-1">Tap rate</Text>
+      <View className="flex-1 bg-brand-navy-light rounded-xl p-4 shadow-sm border border-brand-blue/40">
+        <Text className="text-2xl font-lora-semibold text-brand-gray">{tapRate}</Text>
+        <Text className="text-sm font-nunito text-brand-gray mt-1">Tap rate</Text>
       </View>
     </View>
   );

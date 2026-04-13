@@ -15,12 +15,12 @@ export function StatCard({ label, value, icon: Icon, onPress }: StatCardProps) {
     <Card onPress={onPress} className="p-4 flex-1">
       <View className="flex-row items-start justify-between">
         <View className="flex-1">
-          <Text className="text-3xl font-bold text-brand-navy">{value}</Text>
-          <Text className="text-sm text-brand-steel mt-1">{label}</Text>
+          <Text className="text-2xl font-lora-semibold text-brand-gray">{value}</Text>
+          <Text className="text-sm font-nunito text-brand-gray mt-1">{label}</Text>
         </View>
         {Icon && (
-          <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
-            <Icon size={20} color={BRAND.blue} />
+          <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
+            <Icon size={20} color="#FFFFFF" />
           </View>
         )}
       </View>

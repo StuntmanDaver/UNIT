@@ -76,7 +76,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
       </View>
 
       <Modal visible={!!pendingAction} onClose={handleClose} title={modalTitle}>
-        <Text className="text-sm text-brand-steel mb-3">
+        <Text className="text-sm font-nunito text-brand-gray mb-3">
           Provide a note for the advertiser explaining what needs to change.
         </Text>
         <Input
