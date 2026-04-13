@@ -26,11 +26,11 @@ export function BusinessCard({ business, onPress, compact = false }: BusinessCar
         />
         <View className="flex-1 min-w-0">
           <View className="flex-row items-start justify-between gap-2">
-            <Text className="text-base font-semibold text-brand-navy flex-1" numberOfLines={1}>
+            <Text className="text-base font-nunito-semibold text-brand-gray flex-1 leading-relaxed" numberOfLines={1}>
               {business.business_name}
             </Text>
             {business.unit_number && (
-              <Text className="text-xs text-brand-steel">Unit {business.unit_number}</Text>
+              <Text className="text-sm font-nunito text-brand-gray">Unit {business.unit_number}</Text>
             )}
           </View>
 
@@ -43,7 +43,7 @@ export function BusinessCard({ business, onPress, compact = false }: BusinessCar
           </View>
 
           {!compact && business.business_description && (
-            <Text className="text-sm text-brand-steel leading-5" numberOfLines={2}>
+            <Text className="text-sm font-nunito text-brand-gray leading-relaxed" numberOfLines={2}>
               {business.business_description}
             </Text>
           )}

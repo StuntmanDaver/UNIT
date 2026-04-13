@@ -31,11 +31,11 @@ export function PromotionCard(props: PromotionCardProps) {
         <View className="flex-row items-start justify-between mb-2">
           <Badge label="Offer" color={OFFER_COLOR} size="sm" />
           {post.expiry_date && (
-            <Text className="text-xs text-brand-steel">Expires {post.expiry_date}</Text>
+            <Text className="text-sm font-nunito text-brand-gray">Expires {post.expiry_date}</Text>
           )}
         </View>
-        <Text className="text-base font-semibold text-brand-navy mb-1">{post.title}</Text>
-        <Text className="text-sm text-brand-steel leading-5" numberOfLines={3}>
+        <Text className="text-base font-nunito-semibold text-brand-gray mb-1 leading-relaxed">{post.title}</Text>
+        <Text className="text-base font-nunito text-brand-gray leading-relaxed" numberOfLines={3}>
           {post.content}
         </Text>
       </Card>
@@ -64,9 +64,9 @@ export function PromotionCard(props: PromotionCardProps) {
         <View className="flex-row items-start justify-between mb-2">
           <Badge label="Local Business" color={LOCAL_BIZ_COLOR} size="sm" />
         </View>
-        <Text className="text-lg font-bold text-brand-navy mb-1">{promo.headline}</Text>
+        <Text className="text-base font-nunito-semibold text-brand-gray mb-1 leading-relaxed">{promo.headline}</Text>
         {promo.description && (
-          <Text className="text-sm text-brand-steel leading-5 mb-3" numberOfLines={3}>
+          <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-3" numberOfLines={3}>
             {promo.description}
           </Text>
         )}
