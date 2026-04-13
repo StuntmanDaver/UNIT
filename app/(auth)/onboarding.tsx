@@ -119,11 +119,16 @@ export default function OnboardingScreen() {
     setLoading(true);
 
     try {
+      // Logo upload is best-effort — a stalled upload should not block profile creation
       let logoUrl: string | null = null;
       if (logoUri) {
-        const ext = logoUri.split('.').pop() ?? 'jpg';
-        const { file_url } = await storageService.uploadFile(logoUri, ext);
-        logoUrl = file_url;
+        try {
+          const ext = logoUri.split('.').pop() ?? 'jpg';
+          const { file_url } = await storageService.uploadFile(logoUri, ext);
+          logoUrl = file_url;
+        } catch {
+          // continue without logo; user can update it later
+        }
       }
 
       await businessesService.create({
@@ -234,8 +239,11 @@ export default function OnboardingScreen() {
           }
         />
 
-        <Pressable onPress={() => setStep('property')} className="mt-4 items-center">
-          <Text className="font-nunito text-base text-brand-steel">Back to properties</Text>
+        <Pressable
+          onPress={() => setStep('property')}
+          className="mt-6 mx-6 py-4 bg-brand-navy-light rounded-xl items-center border border-brand-blue/40"
+        >
+          <Text className="font-nunito-semibold text-base text-white">← Back to properties</Text>
         </Pressable>
       </View>
     );
