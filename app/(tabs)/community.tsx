@@ -60,9 +60,9 @@ export default function CommunityScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-2xl font-bold font-lora-semibold text-white mb-3">Community</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight mb-3">Community</Text>
         <SegmentedControl
           segments={SEGMENTS as unknown as string[]}
           selected={segment}
@@ -82,7 +82,7 @@ export default function CommunityScreen() {
           <EmptyState
             icon={Users}
             title="No posts yet"
-            message="Announcements and events from tenants will appear here."
+            message="Share an update, ask a question, or promote your service. Tap the + button to post."
           />
         }
       />

@@ -88,9 +88,9 @@ export default function PromotionsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-2xl font-bold font-lora-semibold text-white mb-3">Promotions</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight mb-3">Promotions</Text>
         <SegmentedControl
           segments={SEGMENTS as unknown as string[]}
           selected={segment}
@@ -110,8 +110,8 @@ export default function PromotionsScreen() {
         ListEmptyComponent={
           <EmptyState
             icon={Megaphone}
-            title="No promotions yet"
-            message="Tenant offers and local deals will appear here."
+            title="No active promotions"
+            message="Offers from your neighbors will show up here. Create one to get started."
           />
         }
       />

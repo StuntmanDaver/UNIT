@@ -14,7 +14,8 @@ import { useAuth } from '@/lib/AuthContext';
 import { notificationsService, type Notification } from '@/services/notifications';
 import { BRAND } from '@/constants/colors';
 
-const UNREAD_BG = '#F0F4FF';
+// Unread tint: brand-navy-light +10% lightness — stays on-brand, subtle enough to feel like a state, not a new surface
+const UNREAD_BG = '#22304A';
 
 function getIcon(type: string) {
   switch (type) {
@@ -59,7 +60,7 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
 
   return (
     <TouchableOpacity
-      style={[styles.row, { backgroundColor: isUnread ? UNREAD_BG : '#FFFFFF' }]}
+      style={[styles.row, { backgroundColor: isUnread ? UNREAD_BG : BRAND.navyLight }]}
       onPress={() => onPress(item)}
       activeOpacity={0.7}
     >
@@ -68,15 +69,15 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
       </View>
       <View style={styles.textContainer}>
         <Text
-          style={[styles.title, isUnread && styles.titleUnread]}
+          className={`text-base leading-relaxed ${isUnread ? 'font-nunito-semibold text-white' : 'font-nunito text-brand-gray'}`}
           numberOfLines={1}
         >
           {item.title}
         </Text>
-        <Text style={styles.message} numberOfLines={1}>
+        <Text className="text-sm font-nunito text-brand-steel leading-normal" numberOfLines={1}>
           {item.message}
         </Text>
-        <Text style={styles.timestamp}>
+        <Text className="text-sm font-nunito text-brand-steel leading-normal">
           {formatDistanceToNow(new Date(item.created_date), { addSuffix: true })}
         </Text>
       </View>
@@ -136,13 +137,13 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Notifications</Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="text-3xl font-lora-semibold text-white leading-tight">Notifications</Text>
           {unreadCount != null && unreadCount > 0 && (
             <TouchableOpacity onPress={handleMarkAllRead} activeOpacity={0.7}>
-              <Text style={styles.markAllRead}>Mark all read</Text>
+              <Text className="text-base font-nunito text-white leading-relaxed">Mark all read</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -159,8 +160,8 @@ export default function NotificationsScreen() {
         ListEmptyComponent={
           <EmptyState
             icon={Bell}
-            title="No notifications"
-            message="You're all caught up! New alerts will appear here."
+            title="You're all caught up"
+            message="New activity from your property will appear here."
           />
         }
       />
@@ -169,26 +170,6 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    fontFamily: 'Lora_600SemiBold',
-  },
-  markAllRead: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.85)',
-    fontWeight: '500',
-  },
   listContent: {
     paddingBottom: 100,
   },
@@ -198,13 +179,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E0E1DE',
+    borderBottomColor: '#465A75',
   },
   iconContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#1D263A',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -214,28 +195,11 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  title: {
-    fontSize: 15,
-    color: BRAND.navy,
-    marginBottom: 2,
-  },
-  titleUnread: {
-    fontWeight: '700',
-  },
-  message: {
-    fontSize: 13,
-    color: BRAND.steel,
-    marginBottom: 4,
-  },
-  timestamp: {
-    fontSize: 11,
-    color: BRAND.steel,
-  },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#3B82F6',
+    backgroundColor: BRAND.blue,
     flexShrink: 0,
   },
 });

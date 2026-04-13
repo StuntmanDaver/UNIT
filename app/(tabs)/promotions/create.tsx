@@ -128,9 +128,9 @@ export default function CreatePromotionScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-2xl font-bold text-white">Post an Offer</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight">Post an Offer</Text>
       </GradientHeader>
 
       <ScrollView
@@ -189,7 +189,7 @@ export default function CreatePromotionScreen() {
 
         {/* Image picker */}
         <View className="mb-4">
-          <Text className="text-sm font-medium text-brand-navy mb-1.5">Image (optional)</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Image (optional)</Text>
           {imageUri ? (
             <View className="relative rounded-xl overflow-hidden">
               <Image
@@ -210,7 +210,7 @@ export default function CreatePromotionScreen() {
               className="border-2 border-dashed border-brand-steel/40 rounded-xl h-32 items-center justify-center gap-2"
             >
               <ImagePlus size={24} color="#7C8DA7" />
-              <Text className="text-sm text-brand-steel">Add an image</Text>
+              <Text className="text-sm font-nunito text-brand-steel leading-normal">Add an image</Text>
             </Pressable>
           )}
         </View>
@@ -218,7 +218,7 @@ export default function CreatePromotionScreen() {
         {/* Actions */}
         <View className="gap-3 mt-2">
           <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving}>
-            Post Offer
+            Create promotion
           </Button>
           <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>
             Cancel
