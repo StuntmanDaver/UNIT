@@ -22,7 +22,8 @@ export default function TabLayout() {
           borderTopColor: '#1D263A',
         },
         tabBarLabelStyle: {
-          fontFamily: '"Arcadia Text", system-ui, sans-serif',
+          fontFamily: 'Nunito_600SemiBold',
+          fontSize: 12,
         },
       }}
     >
@@ -70,6 +71,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }) => <Shield size={size} color={color} />,
         }}
       />
+      {/* Hide sub-screens from tab bar */}
+      <Tabs.Screen name="directory/[id]" options={{ href: null }} />
+      <Tabs.Screen name="promotions/create" options={{ href: null }} />
+      <Tabs.Screen name="profile/edit" options={{ href: null }} />
+      <Tabs.Screen name="community/create" options={{ href: null }} />
     </Tabs>
   );
 }
