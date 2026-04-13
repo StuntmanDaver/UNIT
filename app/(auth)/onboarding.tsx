@@ -294,7 +294,7 @@ export default function OnboardingScreen() {
             )}
           />
 
-          <Text className="text-sm font-nunito-semibold text-brand-steel mb-1.5">Category</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Category</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
             <Controller
               control={control}
@@ -306,12 +306,12 @@ export default function OnboardingScreen() {
                       key={cat}
                       onPress={() => onChange(cat)}
                       className={`px-4 py-2 rounded-full ${
-                        value === cat ? 'bg-white' : 'bg-brand-navy-light'
+                        value === cat ? 'bg-brand-blue' : 'bg-brand-navy-light border border-brand-blue/40'
                       }`}
                     >
                       <Text
                         className={`text-sm font-nunito ${
-                          value === cat ? 'text-brand-navy font-nunito-semibold' : 'text-brand-steel'
+                          value === cat ? 'text-white font-nunito-semibold' : 'text-brand-gray'
                         }`}
                       >
                         {getCategoryLabel(cat)}

@@ -9,6 +9,12 @@ import { supabase } from '@/services/supabase';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 
+const TEST_ACCOUNTS = [
+  { label: 'Admin', email: 'david@cultrhealth.com', password: 'admin123' },
+  { label: 'Tenant 1', email: 'tenant1@unit-test.com', password: 'admin123' },
+  { label: 'Tenant 2', email: 'tenant2@unit-test.com', password: 'admin123' },
+];
+
 const loginSchema = z.object({
   email: z.string().trim().email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
@@ -23,6 +29,7 @@ export default function LoginScreen() {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -90,6 +97,19 @@ export default function LoginScreen() {
             />
           </View>
 
+          {/* Dev quick-fill */}
+          <View className="flex-row gap-2 mb-4">
+            {TEST_ACCOUNTS.map((acct) => (
+              <Pressable
+                key={acct.email}
+                onPress={() => { setValue('email', acct.email); setValue('password', acct.password); }}
+                className="flex-1 bg-brand-navy-light border border-brand-blue rounded-xl py-2 items-center"
+              >
+                <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal">{acct.label}</Text>
+              </Pressable>
+            ))}
+          </View>
+
           <View className="bg-brand-navy-light p-6 rounded-3xl border border-brand-blue shadow-xl">
             <Controller
               control={control}
@@ -132,16 +152,16 @@ export default function LoginScreen() {
           </View>
 
           <Pressable onPress={handleForgotPassword} className="mt-8 items-center">
-            <Text className="text-brand-steel text-sm font-arcadia">Forgot password?</Text>
+            <Text className="text-brand-steel text-sm font-nunito">Forgot password?</Text>
           </Pressable>
 
           <View className="mt-6 flex-row justify-center items-center gap-2">
-            <Text className="text-brand-steel font-arcadia">
+            <Text className="text-brand-steel font-nunito">
               Don't have an account?
             </Text>
             <Link href="/(auth)/signup" asChild>
               <Pressable className="p-2 -m-2">
-                <Text className="text-white font-semibold font-arcadia">Sign Up</Text>
+                <Text className="text-base font-nunito-semibold text-white">Sign Up</Text>
               </Pressable>
             </Link>
           </View>

@@ -91,8 +91,8 @@ export default function ResetPasswordScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-10">
-          <Text className="text-3xl font-bold text-white text-center mb-2">Set New Password</Text>
-          <Text className="text-brand-steel text-center mb-10">
+          <Text className="text-3xl font-lora-semibold text-white text-center mb-2 leading-tight">Set New Password</Text>
+          <Text className="text-base font-nunito text-brand-steel text-center mb-10 leading-relaxed">
             Please create a new password to secure your account
           </Text>
 
