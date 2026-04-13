@@ -4,15 +4,21 @@
     "slug": "unit-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "scheme": "unit",
-    "splash": {
-      "image": "./assets/logo-transparent-light.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#101B29"
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     },
-    "assetBundlePatterns": ["**/*"],
+    "updates": {
+      "url": "https://u.expo.dev/YOUR_EAS_PROJECT_ID",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    },
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "unit",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.unitapp.mobile"
@@ -28,8 +34,22 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      }
+    },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#101B29",
+          "image": "./assets/logo-transparent-light.png",
+          "imageWidth": 200,
+          "resizeMode": "contain"
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -43,7 +63,8 @@
           "icon": "./assets/icon.png",
           "color": "#101B29"
         }
-      ]
+      ],
+      "@sentry/react-native"
     ]
   }
 }
