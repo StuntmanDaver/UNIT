@@ -51,9 +51,9 @@ export default function DirectoryScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-2xl font-bold font-lora-semibold text-white mb-3">Directory</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight mb-3">Directory</Text>
         <SearchBar
           value={search}
           onChangeText={setSearch}

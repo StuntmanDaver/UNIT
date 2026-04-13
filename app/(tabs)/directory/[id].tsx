@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import { ArrowLeft, Phone, Mail, Globe, Share2, Edit2 } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
+import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -33,13 +34,13 @@ export default function BusinessDetailScreen() {
 
   if (!business) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-brand-steel text-base">Business not found.</Text>
+      <View className="flex-1 items-center justify-center bg-brand-navy">
+        <Text className="text-base font-nunito text-brand-gray leading-relaxed">Business not found.</Text>
       </View>
     );
   }
 
-  const categoryColor = CATEGORY_COLORS[business.category] ?? '#6B7280';
+  const categoryColor = CATEGORY_COLORS[business.category] ?? '#465A75';
   const badgeColor = { bg: categoryColor + '20', text: categoryColor };
   const isOwner = business.owner_email === user?.email;
   const qrValue = `unit://directory/${business.id}`;
@@ -56,7 +57,7 @@ export default function BusinessDetailScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView className="flex-1 bg-brand-navy" contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Dark header */}
       <View className="bg-brand-navy px-4 pt-14 pb-8">
         <Pressable
@@ -65,7 +66,7 @@ export default function BusinessDetailScreen() {
           hitSlop={8}
         >
           <ArrowLeft size={20} color="#FFFFFF" />
-          <Text className="text-white text-sm font-medium">Back</Text>
+          <Text className="text-base font-nunito text-white leading-relaxed">Back</Text>
         </Pressable>
 
         <View className="items-center">
@@ -74,11 +75,11 @@ export default function BusinessDetailScreen() {
             name={business.business_name}
             size={80}
           />
-          <Text className="text-white text-2xl font-bold mt-3 text-center">
+          <Text className="text-3xl font-lora-semibold text-white leading-tight mt-3 text-center">
             {business.business_name}
           </Text>
           {business.unit_number && (
-            <Text className="text-brand-steel text-sm mt-1">Unit {business.unit_number}</Text>
+            <Text className="text-sm font-nunito text-brand-steel leading-normal mt-1">Unit {business.unit_number}</Text>
           )}
           <View className="mt-2">
             <Badge
@@ -93,21 +94,21 @@ export default function BusinessDetailScreen() {
       <View className="px-4 pt-6">
         {/* Description */}
         {business.business_description && (
-          <View className="mb-6">
-            <Text className="text-base font-semibold text-brand-navy mb-2">About</Text>
-            <Text className="text-sm text-brand-steel leading-6">
+          <Card className="p-6 mb-6">
+            <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">About</Text>
+            <Text className="text-base font-nunito text-brand-gray leading-relaxed">
               {business.business_description}
             </Text>
-          </View>
+          </Card>
         )}
 
         {/* Contact section */}
         {(business.contact_name || business.contact_phone || business.contact_email || business.website) && (
-          <View className="mb-6">
-            <Text className="text-base font-semibold text-brand-navy mb-3">Contact</Text>
+          <Card className="p-6 mb-6">
+            <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-3">Contact</Text>
 
             {business.contact_name && (
-              <Text className="text-sm text-brand-steel mb-3">{business.contact_name}</Text>
+              <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-3">{business.contact_name}</Text>
             )}
 
             {/* Action buttons */}
@@ -115,12 +116,12 @@ export default function BusinessDetailScreen() {
               {business.contact_phone && (
                 <Pressable
                   onPress={() => Linking.openURL(`tel:${business.contact_phone}`)}
-                  className="flex-row items-center gap-3 bg-gray-50 rounded-xl px-4 py-3"
+                  className="flex-row items-center gap-4 p-4"
                 >
-                  <View className="w-8 h-8 rounded-full bg-blue-100 items-center justify-center">
-                    <Phone size={16} color="#1D4ED8" />
+                  <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
+                    <Phone size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-sm text-brand-navy font-medium">
+                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1">
                     {business.contact_phone}
                   </Text>
                 </Pressable>
@@ -129,12 +130,12 @@ export default function BusinessDetailScreen() {
               {business.contact_email && (
                 <Pressable
                   onPress={() => Linking.openURL(`mailto:${business.contact_email}`)}
-                  className="flex-row items-center gap-3 bg-gray-50 rounded-xl px-4 py-3"
+                  className="flex-row items-center gap-4 p-4"
                 >
-                  <View className="w-8 h-8 rounded-full bg-green-100 items-center justify-center">
-                    <Mail size={16} color="#065F46" />
+                  <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
+                    <Mail size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-sm text-brand-navy font-medium">
+                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1">
                     {business.contact_email}
                   </Text>
                 </Pressable>
@@ -143,23 +144,23 @@ export default function BusinessDetailScreen() {
               {business.website && (
                 <Pressable
                   onPress={() => Linking.openURL(business.website!)}
-                  className="flex-row items-center gap-3 bg-gray-50 rounded-xl px-4 py-3"
+                  className="flex-row items-center gap-4 p-4"
                 >
-                  <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center">
-                    <Globe size={16} color="#7C3AED" />
+                  <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
+                    <Globe size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-sm text-brand-navy font-medium" numberOfLines={1}>
+                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1" numberOfLines={1}>
                     {business.website}
                   </Text>
                 </Pressable>
               )}
             </View>
-          </View>
+          </Card>
         )}
 
         {/* QR Code section */}
-        <View className="mb-6 items-center bg-gray-50 rounded-2xl p-6">
-          <Text className="text-base font-semibold text-brand-navy mb-4">Business QR Code</Text>
+        <Card className="mb-6 items-center p-6">
+          <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-4">Business QR Code</Text>
           <QRCode
             value={qrValue}
             size={150}
@@ -167,12 +168,12 @@ export default function BusinessDetailScreen() {
           />
           <Pressable
             onPress={handleShare}
-            className="mt-4 flex-row items-center gap-2 bg-brand-navy rounded-xl px-5 py-2.5"
+            className="mt-4 flex-row items-center gap-2 bg-brand-blue rounded-xl px-5 py-3"
           >
             <Share2 size={16} color="#FFFFFF" />
-            <Text className="text-white text-sm font-semibold">Share</Text>
+            <Text className="text-base font-nunito-semibold text-white">Share</Text>
           </Pressable>
-        </View>
+        </Card>
 
         {/* Edit Profile button for owner */}
         {isOwner && (

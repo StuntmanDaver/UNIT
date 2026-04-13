@@ -13,6 +13,7 @@ import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
 import { Edit2, Share2, LogOut } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
+import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { BusinessCard } from '@/components/tenant/BusinessCard';
@@ -57,13 +58,13 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-2xl font-bold font-lora-semibold text-white">Profile</Text>
+            <Text className="text-3xl font-lora-semibold text-white leading-tight">Profile</Text>
             {user?.email && (
-              <Text className="text-brand-steel text-sm mt-0.5">{user.email}</Text>
+              <Text className="text-brand-steel text-sm font-nunito leading-normal mt-0.5">{user.email}</Text>
             )}
           </View>
           <Pressable
@@ -89,20 +90,20 @@ export default function ProfileScreen() {
               </View>
             </View>
           ) : (
-            <View className="bg-gray-50 rounded-2xl p-5 mb-4">
-              <Text className="text-brand-navy font-semibold text-base mb-1">
+            <Card className="p-6 mb-4">
+              <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">
                 No business profile yet
               </Text>
-              <Text className="text-brand-steel text-sm">
+              <Text className="text-base font-nunito text-brand-gray leading-relaxed">
                 Set up your business profile to appear in the directory.
               </Text>
-            </View>
+            </Card>
           )}
 
           {/* QR Code */}
           {business && (
-            <View className="items-center bg-gray-50 rounded-2xl p-6 mb-4">
-              <Text className="text-base font-semibold text-brand-navy mb-4">My QR Code</Text>
+            <Card className="items-center p-6 mb-4">
+              <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-4">My QR Code</Text>
               <QRCode
                 value={qrValue}
                 size={150}
@@ -110,45 +111,45 @@ export default function ProfileScreen() {
               />
               <Pressable
                 onPress={handleShare}
-                className="mt-4 flex-row items-center gap-2 bg-brand-navy rounded-xl px-5 py-2.5"
+                className="mt-4 flex-row items-center gap-2 bg-brand-blue rounded-xl px-5 py-3"
               >
                 <Share2 size={16} color="#FFFFFF" />
-                <Text className="text-white text-sm font-semibold">Share</Text>
+                <Text className="text-base font-nunito-semibold text-white">Share</Text>
               </Pressable>
-            </View>
+            </Card>
           )}
 
           {/* Settings section */}
-          <View className="bg-gray-50 rounded-2xl overflow-hidden mb-6">
-            <Text className="text-xs font-semibold text-brand-steel uppercase tracking-wide px-4 pt-4 pb-2">
+          <Card className="overflow-hidden mb-6">
+            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
               Settings
             </Text>
 
             {propertyName ? (
-              <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
-                <Text className="text-sm text-brand-navy font-medium">Property</Text>
-                <Text className="text-sm text-brand-steel">{propertyName}</Text>
+              <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
+                <Text className="text-base font-nunito text-brand-gray leading-relaxed">Property</Text>
+                <Text className="text-sm font-nunito text-brand-steel leading-normal">{propertyName}</Text>
               </View>
             ) : null}
 
-            <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
-              <Text className="text-sm text-brand-navy font-medium">App Version</Text>
-              <Text className="text-sm text-brand-steel">{appVersion}</Text>
+            <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
+              <Text className="text-base font-nunito text-brand-gray leading-relaxed">App Version</Text>
+              <Text className="text-sm font-nunito text-brand-steel leading-normal">{appVersion}</Text>
             </View>
 
             <View className="flex-row justify-between items-center px-4 py-3">
-              <Text className="text-sm text-brand-navy font-medium">Push Notifications</Text>
+              <Text className="text-base font-nunito text-brand-gray leading-relaxed">Push Notifications</Text>
               <Switch
                 value={permissionGranted}
                 onValueChange={(enabled) => {
                   if (enabled) enablePush();
                   else disablePush();
                 }}
-                trackColor={{ false: '#D1D5DB', true: BRAND.blue }}
-                thumbColor={permissionGranted ? BRAND.navy : '#F3F4F6'}
+                trackColor={{ false: '#465A75', true: BRAND.blue }}
+                thumbColor={permissionGranted ? '#E0E1DE' : '#7C8DA7'}
               />
             </View>
-          </View>
+          </Card>
 
           {/* Log Out */}
           <Button onPress={handleLogout} variant="destructive">
