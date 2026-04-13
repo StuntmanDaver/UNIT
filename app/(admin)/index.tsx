@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Pressable, ScrollView } from 'react-native';
+import { View, Text, FlatList, Pressable, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { Users, UserCheck, Clock, Megaphone, ChevronRight, Bell } from 'lucide-react-native';
+import { Users, UserCheck, Clock, Megaphone, ChevronRight, Bell, LogOut } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { StatCard } from '@/components/admin/StatCard';
@@ -17,7 +17,14 @@ import { useMonthlyRevenue, useMonthlyEngagement } from '@/hooks/usePromotionSta
 import { BRAND } from '@/constants/colors';
 
 export default function AdminDashboard() {
-  const { propertyIds } = useAuth();
+  const { propertyIds, logout } = useAuth();
+
+  const handleLogout = () => {
+    Alert.alert('Log Out', 'Are you sure you want to log out?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Log Out', style: 'destructive', onPress: logout },
+    ]);
+  };
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
   const activePropertyId = selectedPropertyId ?? '';
@@ -32,9 +39,18 @@ export default function AdminDashboard() {
   const businessMap = new Map(businesses?.map((b) => [b.id, b]) ?? []);
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-2xl font-bold text-white">Admin Dashboard</Text>
+        <View className="flex-row items-center justify-between">
+          <Text className="text-2xl font-lora-semibold text-white leading-tight">Admin Dashboard</Text>
+          <Pressable
+            onPress={handleLogout}
+            hitSlop={8}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
+            <LogOut size={22} color={BRAND.steel} />
+          </Pressable>
+        </View>
         <View className="mt-3">
           <PropertySelector
             propertyIds={propertyIds}
@@ -46,7 +62,7 @@ export default function AdminDashboard() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-brand-steel text-base text-center">
+          <Text className="text-base font-nunito text-brand-steel text-center">
             Select a property to view stats
           </Text>
         </View>
@@ -86,11 +102,11 @@ export default function AdminDashboard() {
           <View className="px-4 mt-4">
             <Pressable
               onPress={() => router.push('/(admin)/advertisers')}
-              className="bg-white rounded-xl border border-gray-100 shadow-sm flex-row items-center px-4 py-3.5"
+              className="bg-brand-navy-light rounded-xl border border-brand-blue/40 shadow-sm flex-row items-center px-4 py-3.5"
               style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
               <Megaphone size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-semibold text-brand-navy ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-white ml-3">
                 View Pending Approvals
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -101,11 +117,11 @@ export default function AdminDashboard() {
           <View className="px-4 mt-3">
             <Pressable
               onPress={() => router.push('/(admin)/push')}
-              className="bg-blue-50 rounded-xl border border-blue-100 shadow-sm flex-row items-center px-4 py-3.5"
+              className="bg-brand-navy-light rounded-xl border border-brand-blue/40 shadow-sm flex-row items-center px-4 py-3.5"
               style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
             >
               <Bell size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-semibold text-brand-navy ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-white ml-3">
                 Send Push Notification
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -115,19 +131,19 @@ export default function AdminDashboard() {
           {/* Revenue Section */}
           {activePropertyId && (
             <View className="px-4 mt-4">
-              <Text className="text-base font-semibold text-brand-navy mb-2">Ad Revenue</Text>
-              <View className="bg-white rounded-xl p-4 shadow-sm">
+              <Text className="text-base font-nunito-semibold text-brand-gray mb-2">Ad Revenue</Text>
+              <View className="bg-brand-navy-light rounded-xl p-4 shadow-sm border border-brand-blue/40">
                 {revenueData.length > 0 && (
                   <View className="flex-row justify-between mb-3">
                     <View>
-                      <Text className="text-xs text-brand-steel">This month gross</Text>
-                      <Text className="text-lg font-bold text-brand-navy">
+                      <Text className="text-sm font-nunito text-brand-gray">This month gross</Text>
+                      <Text className="text-2xl font-lora-semibold text-white leading-tight">
                         ${(revenueData[revenueData.length - 1]?.gross ?? 0).toFixed(2)}
                       </Text>
                     </View>
                     <View className="items-end">
-                      <Text className="text-xs text-brand-steel">This month net</Text>
-                      <Text className="text-lg font-bold text-green-600">
+                      <Text className="text-sm font-nunito text-brand-gray">This month net</Text>
+                      <Text className="text-2xl font-lora-semibold text-green-400 leading-tight">
                         ${(revenueData[revenueData.length - 1]?.net ?? 0).toFixed(2)}
                       </Text>
                     </View>
@@ -141,21 +157,21 @@ export default function AdminDashboard() {
           {/* Ad Engagement Section */}
           {activePropertyId && engagementData && (
             <View className="px-4 mt-4">
-              <Text className="text-base font-semibold text-brand-navy mb-2">Ad Engagement</Text>
+              <Text className="text-base font-nunito-semibold text-brand-gray mb-2">Ad Engagement</Text>
               <AdEngagementStats data={engagementData} />
             </View>
           )}
 
           {/* Recent Activity */}
           <View className="px-4 mt-6">
-            <Text className="text-lg font-bold text-brand-navy mb-3">Recent Activity</Text>
+            <Text className="text-2xl font-lora-semibold text-white leading-tight mb-3">Recent Activity</Text>
             {postsLoading ? (
               <View className="items-center py-8">
-                <Text className="text-brand-steel">Loading activity...</Text>
+                <Text className="text-base font-nunito text-brand-steel">Loading activity...</Text>
               </View>
             ) : recentPosts.length === 0 ? (
               <View className="items-center py-8">
-                <Text className="text-brand-steel">No recent activity</Text>
+                <Text className="text-base font-nunito text-brand-steel">No recent activity</Text>
               </View>
             ) : (
               <View className="gap-3">
