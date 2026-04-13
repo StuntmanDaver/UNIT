@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
-import { Megaphone } from 'lucide-react-native';
+import { Megaphone, ChevronLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { BRAND } from '@/constants/colors';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -60,6 +61,14 @@ export default function AdvertisersScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <GradientHeader>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          className="mb-2 self-start"
+        >
+          <ChevronLeft size={24} color={BRAND.gray} />
+        </Pressable>
         <Text className="text-2xl font-bold text-white">Advertisers</Text>
         <View className="mt-3">
           <PropertySelector

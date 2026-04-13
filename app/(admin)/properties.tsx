@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
-import { Building2 } from 'lucide-react-native';
+import { View, Text, FlatList, Pressable } from 'react-native';
+import { Building2, ChevronLeft } from 'lucide-react-native';
+import { router } from 'expo-router';
+import { BRAND } from '@/constants/colors';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -106,6 +108,14 @@ export default function PropertiesScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <GradientHeader>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          className="mb-2 self-start"
+        >
+          <ChevronLeft size={24} color={BRAND.gray} />
+        </Pressable>
         <Text className="text-2xl font-bold text-white">Properties</Text>
       </GradientHeader>
 
