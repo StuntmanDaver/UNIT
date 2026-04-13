@@ -140,7 +140,7 @@ export default function TenantsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
           onPress={() => router.back()}
@@ -150,7 +150,7 @@ export default function TenantsScreen() {
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
-        <Text className="text-2xl font-bold text-white">Tenants</Text>
+        <Text className="text-2xl font-lora-semibold text-white leading-tight">Tenants</Text>
         <View className="mt-3">
           <PropertySelector
             propertyIds={propertyIds}
@@ -162,7 +162,7 @@ export default function TenantsScreen() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-brand-steel text-base text-center">
+          <Text className="text-base font-nunito text-brand-steel text-center">
             Select a property to manage tenants
           </Text>
         </View>
@@ -225,7 +225,7 @@ export default function TenantsScreen() {
               ListFooterComponent={
                 Platform.OS !== 'web' ? (
                   <View className="px-4 py-3 mt-4">
-                    <Text className="text-xs text-brand-steel text-center">
+                    <Text className="text-sm font-nunito text-brand-steel text-center">
                       For bulk import, use the admin web panel
                     </Text>
                   </View>
