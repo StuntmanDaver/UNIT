@@ -7,7 +7,7 @@ type CardProps = {
 };
 
 export function Card({ children, onPress, className = '' }: CardProps) {
-  const baseClass = `bg-white rounded-xl shadow-sm border border-gray-100 ${className}`;
+  const baseClass = `bg-brand-navy-light rounded-xl shadow-sm border border-brand-blue/40 ${className}`;
 
   if (onPress) {
     return (

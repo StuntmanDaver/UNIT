@@ -8,19 +8,25 @@ type SegmentedControlProps = {
 
 export function SegmentedControl({ segments, selected, onChange }: SegmentedControlProps) {
   return (
-    <View className="flex-row bg-gray-100 rounded-lg p-1">
+    <View className="flex-row bg-brand-navy-light rounded-xl p-1">
       {segments.map((segment) => {
         const isSelected = segment === selected;
         return (
           <Pressable
             key={segment}
             onPress={() => onChange(segment)}
-            className="flex-1 items-center justify-center rounded-md py-1.5"
-            style={{ backgroundColor: isSelected ? '#101B29' : 'transparent' }}
+            className={
+              isSelected
+                ? 'flex-1 bg-brand-blue rounded-lg px-4 py-2 items-center'
+                : 'flex-1 bg-transparent rounded-lg px-4 py-2 items-center'
+            }
           >
             <Text
-              className="text-sm font-semibold"
-              style={{ color: isSelected ? '#FFFFFF' : '#6B7280' }}
+              className={
+                isSelected
+                  ? 'text-white font-nunito-semibold text-sm'
+                  : 'text-brand-steel font-nunito text-sm'
+              }
             >
               {segment}
             </Text>
