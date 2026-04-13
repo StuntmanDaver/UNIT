@@ -18,6 +18,7 @@ import Toast from 'react-native-toast-message';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/services/supabase';
 import { propertiesService, type Property } from '@/services/properties';
+import { unitsService, type Unit } from '@/services/units';
 import { businessesService } from '@/services/businesses';
 import { storageService } from '@/services/storage';
 import { adminService } from '@/services/admin';
@@ -40,9 +41,11 @@ type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function OnboardingScreen() {
   const { user } = useAuth();
-  const [step, setStep] = useState<'property' | 'profile'>('property');
+  const [step, setStep] = useState<'property' | 'unit' | 'profile'>('property');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [propertySearch, setPropertySearch] = useState('');
+  const [unitSearch, setUnitSearch] = useState('');
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -51,11 +54,23 @@ export default function OnboardingScreen() {
     queryFn: propertiesService.list,
   });
 
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', selectedProperty?.id],
+    queryFn: () => unitsService.listByProperty(selectedProperty!.id),
+    enabled: !!selectedProperty,
+  });
+
   const filteredProperties = properties.filter(
     (p) =>
       p.name.toLowerCase().includes(propertySearch.toLowerCase()) ||
       p.address?.toLowerCase().includes(propertySearch.toLowerCase()) ||
       p.city?.toLowerCase().includes(propertySearch.toLowerCase())
+  );
+
+  const filteredUnits = units.filter(
+    (u) =>
+      u.unit_number.toLowerCase().includes(unitSearch.toLowerCase()) ||
+      u.street_address.toLowerCase().includes(unitSearch.toLowerCase())
   );
 
   const {
@@ -77,6 +92,11 @@ export default function OnboardingScreen() {
 
   const handleSelectProperty = (property: Property) => {
     setSelectedProperty(property);
+    setStep('unit');
+  };
+
+  const handleSelectUnit = (unit: Unit) => {
+    setSelectedUnit(unit);
     setStep('profile');
   };
 
@@ -117,6 +137,7 @@ export default function OnboardingScreen() {
         contact_phone: data.contact_phone || null,
         website: data.website || null,
         logo_url: logoUrl,
+        unit_number: selectedUnit?.unit_number ?? null,
       });
 
       // Set property_ids and activate profile via Edge Function
@@ -141,8 +162,8 @@ export default function OnboardingScreen() {
   if (step === 'property') {
     return (
       <View className="flex-1 bg-brand-navy px-6 pt-16">
-        <Text className="text-2xl font-bold text-white mb-2">Select Your Property</Text>
-        <Text className="text-brand-steel mb-6">Which business park are you located in?</Text>
+        <Text className="text-2xl font-lora-semibold text-white mb-2">Select Your Property</Text>
+        <Text className="font-nunito text-base text-brand-steel mb-6">Which business park are you located in?</Text>
 
         <View className="flex-row items-center bg-brand-navy-light rounded-xl px-4 mb-4">
           <Search size={20} color="#7C8DA7" />
@@ -163,16 +184,59 @@ export default function OnboardingScreen() {
               onPress={() => handleSelectProperty(item)}
               className="bg-brand-navy-light rounded-xl p-4 mb-3"
             >
-              <Text className="text-white font-semibold text-base">{item.name}</Text>
-              <Text className="text-brand-steel text-sm mt-1">
+              <Text className="text-white font-nunito-semibold text-base">{item.name}</Text>
+              <Text className="text-brand-steel font-nunito text-sm mt-1">
                 {item.address}, {item.city}, {item.state}
               </Text>
             </Pressable>
           )}
           ListEmptyComponent={
-            <Text className="text-brand-steel text-center mt-8">No properties found</Text>
+            <Text className="font-nunito text-base text-brand-steel text-center mt-8">No properties found</Text>
           }
         />
+      </View>
+    );
+  }
+
+  if (step === 'unit') {
+    return (
+      <View className="flex-1 bg-brand-navy px-6 pt-16">
+        <Text className="text-2xl font-lora-semibold text-white mb-2">Select Your Unit</Text>
+        <Text className="font-nunito text-base text-brand-steel mb-6">
+          Which unit are you in at {selectedProperty?.name}?
+        </Text>
+
+        <View className="flex-row items-center bg-brand-navy-light rounded-xl px-4 mb-4">
+          <Search size={20} color="#7C8DA7" />
+          <Input
+            label=""
+            placeholder="Search units..."
+            value={unitSearch}
+            onChangeText={setUnitSearch}
+            className="flex-1 mb-0 border-0"
+          />
+        </View>
+
+        <FlatList
+          data={filteredUnits}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <Pressable
+              onPress={() => handleSelectUnit(item)}
+              className="bg-brand-navy-light rounded-xl p-4 mb-3"
+            >
+              <Text className="text-white font-nunito-semibold text-base">{item.unit_number}</Text>
+              <Text className="text-brand-steel font-nunito text-sm mt-1">{item.street_address}</Text>
+            </Pressable>
+          )}
+          ListEmptyComponent={
+            <Text className="font-nunito text-base text-brand-steel text-center mt-8">No units found</Text>
+          }
+        />
+
+        <Pressable onPress={() => setStep('property')} className="mt-4 items-center">
+          <Text className="font-nunito text-base text-brand-steel">Back to properties</Text>
+        </Pressable>
       </View>
     );
   }
@@ -187,9 +251,9 @@ export default function OnboardingScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 pt-16 pb-10">
-          <Text className="text-2xl font-bold text-white mb-2">Create Your Profile</Text>
-          <Text className="text-brand-steel mb-6">
-            at {selectedProperty?.name}
+          <Text className="text-2xl font-lora-semibold text-white mb-2">Create Your Profile</Text>
+          <Text className="font-nunito text-base text-brand-steel mb-6">
+            {selectedUnit ? `Unit ${selectedUnit.unit_number} at` : 'at'} {selectedProperty?.name}
           </Text>
 
           {/* Logo picker */}
@@ -201,10 +265,10 @@ export default function OnboardingScreen() {
               />
             ) : (
               <View className="w-24 h-24 rounded-2xl bg-brand-navy-light items-center justify-center">
-                <Text className="text-brand-steel text-sm">Add Logo</Text>
+                <Text className="font-nunito text-sm text-brand-steel">Add Logo</Text>
               </View>
             )}
-            <Text className="text-brand-steel text-sm mt-2">Tap to upload</Text>
+            <Text className="font-nunito text-sm text-brand-steel mt-2">Tap to upload</Text>
           </Pressable>
 
           <Controller
@@ -222,7 +286,7 @@ export default function OnboardingScreen() {
             )}
           />
 
-          <Text className="text-sm font-medium text-brand-navy mb-1.5">Category</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-steel mb-1.5">Category</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
             <Controller
               control={control}
@@ -238,8 +302,8 @@ export default function OnboardingScreen() {
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
-                          value === cat ? 'text-brand-navy font-semibold' : 'text-brand-steel'
+                        className={`text-sm font-nunito ${
+                          value === cat ? 'text-brand-navy font-nunito-semibold' : 'text-brand-steel'
                         }`}
                       >
                         {getCategoryLabel(cat)}
@@ -251,7 +315,7 @@ export default function OnboardingScreen() {
             />
           </ScrollView>
           {errors.category && (
-            <Text className="text-sm text-red-500 -mt-2 mb-4">{errors.category.message}</Text>
+            <Text className="text-sm font-nunito text-red-500 -mt-2 mb-4">{errors.category.message}</Text>
           )}
 
           <Controller
@@ -336,8 +400,15 @@ export default function OnboardingScreen() {
             Create Profile
           </Button>
 
-          <Pressable onPress={() => setStep('property')} className="mt-4 items-center">
-            <Text className="text-brand-steel">Change property</Text>
+          <Pressable
+            onPress={() => {
+              setSelectedProperty(null);
+              setSelectedUnit(null);
+              setStep('property');
+            }}
+            className="mt-4 items-center"
+          >
+            <Text className="font-nunito text-base text-brand-steel">Change property</Text>
           </Pressable>
         </View>
       </ScrollView>
