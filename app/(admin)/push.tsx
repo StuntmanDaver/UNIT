@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Bell, Send } from 'lucide-react-native';
+import { Bell, Send, ChevronLeft } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { formatDistanceToNow } from 'date-fns';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -92,8 +92,13 @@ export default function AdminPushScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <GradientHeader>
-        <Pressable onPress={() => router.back()} className="mb-1" hitSlop={8}>
-          <Text className="text-sm text-white/70">← Back</Text>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          className="mb-2 self-start"
+        >
+          <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
         <Text className="text-2xl font-bold text-white">Push Notifications</Text>
         <View className="mt-3">

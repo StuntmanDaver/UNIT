@@ -1,7 +1,9 @@
 // app/(admin)/promotions/[id].tsx
 import { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, Pressable } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
+import { BRAND } from '@/constants/colors';
 import { useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -124,7 +126,15 @@ export default function AdminPromotionDetailScreen() {
   return (
     <View className="flex-1 bg-gray-50">
       <GradientHeader>
-        <Text className="text-xl font-bold text-white">{promotion.headline}</Text>
+        <Pressable
+          onPress={() => router.back()}
+          hitSlop={8}
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+          className="mb-2 self-start"
+        >
+          <ChevronLeft size={24} color={BRAND.gray} />
+        </Pressable>
+        <Text className="text-2xl font-lora-semibold text-white">{promotion.headline}</Text>
         <View className="flex-row gap-2 mt-2">
           <StatusPill label={promotion.review_status} />
           {promotion.payment_status && (
