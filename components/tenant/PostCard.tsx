@@ -62,7 +62,7 @@ export function PostCard({ post, authorBusiness, onPress }: PostCardProps) {
       {/* Event Date */}
       {post.type === 'event' && post.event_date && (
         <View className="mt-2 flex-row items-center">
-          <Text className="text-sm font-nunito-semibold text-green-700">
+          <Text className="text-sm font-nunito-semibold text-brand-gray">
             {formatEventDate(post.event_date, post.event_time)}
           </Text>
         </View>
