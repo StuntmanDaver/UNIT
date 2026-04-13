@@ -22,8 +22,8 @@ function StatusPill({ label }: { label: string }) {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
   return (
-    <View className="bg-gray-200 rounded-full px-3 py-1">
-      <Text className="text-xs font-semibold text-gray-700">{display}</Text>
+    <View className="bg-brand-blue/40 rounded-full px-3 py-1">
+      <Text className="text-sm font-nunito-semibold text-white">{display}</Text>
     </View>
   );
 }
@@ -124,7 +124,7 @@ export default function AdminPromotionDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
           onPress={() => router.back()}
@@ -145,35 +145,35 @@ export default function AdminPromotionDetailScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
         {anomaly === true && (
-          <View className="bg-yellow-100 border border-yellow-400 rounded-xl p-3 mb-4">
-            <Text className="text-yellow-800 font-semibold text-sm">
+          <View className="bg-yellow-500/20 border border-yellow-500/60 rounded-xl p-4 mb-4">
+            <Text className="text-sm font-nunito-semibold text-yellow-300">
               ⚠ No completed payment record found — verify before approving.
             </Text>
           </View>
         )}
 
         {promotion.review_note && (
-          <View className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
-            <Text className="text-xs font-semibold text-amber-700 mb-1">Admin note</Text>
-            <Text className="text-sm text-amber-800">{promotion.review_note}</Text>
+          <View className="bg-brand-navy-light border border-brand-blue/40 rounded-xl p-4 mb-4">
+            <Text className="text-sm font-nunito-semibold text-brand-gray mb-1">Admin note</Text>
+            <Text className="text-sm font-nunito text-brand-gray">{promotion.review_note}</Text>
           </View>
         )}
 
-        <View className="bg-white rounded-xl p-4 shadow-sm mb-4">
-          <Text className="text-base font-semibold text-brand-navy mb-1">
+        <View className="bg-brand-navy-light rounded-xl p-4 border border-brand-blue/40 shadow-sm mb-4">
+          <Text className="text-base font-nunito-semibold text-white mb-1">
             {promotion.business_name}
           </Text>
           {promotion.description && (
-            <Text className="text-sm text-brand-steel mb-2">{promotion.description}</Text>
+            <Text className="text-sm font-nunito text-brand-gray mb-2">{promotion.description}</Text>
           )}
-          <Text className="text-xs text-brand-steel">
+          <Text className="text-sm font-nunito text-brand-gray">
             {promotion.start_date} → {promotion.end_date}
           </Text>
         </View>
 
         {canReview && (
           <View className="mb-4">
-            <Text className="text-sm font-semibold text-brand-navy mb-2">Review Actions</Text>
+            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2">Review Actions</Text>
             <PromotionReviewActions onAction={handleReviewAction} loading={actionLoading} />
           </View>
         )}

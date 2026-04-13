@@ -87,26 +87,26 @@ export default function PropertiesScreen() {
 
   const renderProperty = ({ item }: { item: Property }) => (
     <Card className="mx-4 mb-3 p-4">
-      <Text className="text-base font-bold text-brand-navy">{item.name}</Text>
-      <Text className="text-sm text-brand-steel mt-1">{item.address}</Text>
-      <Text className="text-sm text-brand-steel">
+      <Text className="text-base font-nunito-semibold text-white">{item.name}</Text>
+      <Text className="text-sm font-nunito text-brand-gray mt-1">{item.address}</Text>
+      <Text className="text-sm font-nunito text-brand-gray">
         {item.city}, {item.state}
       </Text>
       <View className="flex-row items-center gap-3 mt-2">
         {item.type ? (
-          <View className="bg-gray-100 rounded-md px-2 py-0.5">
-            <Text className="text-xs text-brand-steel capitalize">{item.type}</Text>
+          <View className="bg-brand-blue/40 rounded-md px-2 py-0.5">
+            <Text className="text-sm font-nunito text-brand-gray capitalize">{item.type}</Text>
           </View>
         ) : null}
         {item.total_units > 0 ? (
-          <Text className="text-xs text-brand-steel">{item.total_units} units</Text>
+          <Text className="text-sm font-nunito text-brand-gray">{item.total_units} units</Text>
         ) : null}
       </View>
     </Card>
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
           onPress={() => router.back()}
@@ -116,7 +116,7 @@ export default function PropertiesScreen() {
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
-        <Text className="text-2xl font-bold text-white">Properties</Text>
+        <Text className="text-2xl font-lora-semibold text-white leading-tight">Properties</Text>
       </GradientHeader>
 
       <View className="px-4 pt-4">
