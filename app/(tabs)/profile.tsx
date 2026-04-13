@@ -11,7 +11,7 @@ import {
 import { router } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
-import { Edit2, Share2 } from 'lucide-react-native';
+import { Edit2, Share2, LogOut } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
@@ -59,10 +59,21 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-white">
       <GradientHeader>
-        <Text className="text-2xl font-bold text-white">Profile</Text>
-        {user?.email && (
-          <Text className="text-brand-steel text-sm mt-0.5">{user.email}</Text>
-        )}
+        <View className="flex-row items-center justify-between">
+          <View>
+            <Text className="text-2xl font-bold font-lora-semibold text-white">Profile</Text>
+            {user?.email && (
+              <Text className="text-brand-steel text-sm mt-0.5">{user.email}</Text>
+            )}
+          </View>
+          <Pressable
+            onPress={handleLogout}
+            hitSlop={8}
+            style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+          >
+            <LogOut size={22} color="#7C8DA7" />
+          </Pressable>
+        </View>
       </GradientHeader>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>

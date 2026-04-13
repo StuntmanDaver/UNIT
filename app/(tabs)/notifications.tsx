@@ -182,6 +182,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    fontFamily: 'Lora_600SemiBold',
   },
   markAllRead: {
     fontSize: 14,
