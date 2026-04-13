@@ -17,11 +17,11 @@ const variantStyles: Record<ButtonVariant, { container: string; text: string }> 
     text: 'text-white',
   },
   secondary: {
-    container: 'bg-brand-navy-light border border-brand-steel',
-    text: 'text-white',
+    container: 'bg-brand-navy-light border border-brand-blue/40',
+    text: 'text-brand-gray',
   },
   destructive: {
-    container: 'bg-red-600',
+    container: 'bg-red-500',
     text: 'text-white',
   },
   ghost: {
@@ -44,15 +44,15 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      className={`rounded-xl px-6 py-3.5 items-center justify-center ${styles.container} ${
+      className={`rounded-xl px-4 py-3 min-h-[44px] items-center justify-center ${styles.container} ${
         disabled ? 'opacity-50' : ''
       } ${className}`}
-      style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.8 : 1 })}
+      style={({ pressed }) => ({ opacity: pressed && !disabled ? 0.7 : 1 })}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' ? '#FFFFFF' : '#FFFFFF'} />
+        <ActivityIndicator color="#FFFFFF" />
       ) : (
-        <Text className={`text-base font-semibold font-arcadia ${styles.text}`}>{children}</Text>
+        <Text className={`text-base font-nunito-semibold ${styles.text}`}>{children}</Text>
       )}
     </Pressable>
   );

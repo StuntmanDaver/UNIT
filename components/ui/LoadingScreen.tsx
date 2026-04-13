@@ -13,7 +13,7 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
         resizeMode="contain"
       />
       <ActivityIndicator size="large" color="#7C8DA7" />
-      {message && <Text className="text-brand-steel mt-4 text-base font-arcadia">{message}</Text>}
+      {message && <Text className="text-brand-steel mt-4 text-base font-nunito">{message}</Text>}
     </View>
   );
 }

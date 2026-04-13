@@ -1,5 +1,4 @@
 import { View, Text, Image } from 'react-native';
-import { BRAND } from '@/constants/colors';
 
 type AvatarProps = {
   imageUrl?: string | null;
@@ -27,16 +26,17 @@ export function Avatar({ imageUrl, name, size = 40 }: AvatarProps) {
 
   return (
     <View
+      className="bg-brand-blue items-center justify-center"
       style={{
         width: size,
         height: size,
         borderRadius: size / 2,
-        backgroundColor: BRAND.blue,
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
-      <Text style={{ color: BRAND.gray, fontSize, fontWeight: '600' }}>
+      <Text
+        className="text-white font-nunito-semibold text-base"
+        style={{ fontSize }}
+      >
         {getInitials(name)}
       </Text>
     </View>
