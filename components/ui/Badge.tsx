@@ -7,15 +7,16 @@ type BadgeProps = {
 };
 
 export function Badge({ label, color, size = 'md' }: BadgeProps) {
-  const paddingClass = size === 'sm' ? 'px-2 py-0.5' : 'px-3 py-1';
-  const textClass = size === 'sm' ? 'text-xs' : 'text-sm';
+  // Spacing stays on the 4/8 grid; both sizes use the single permitted Badge text
+  // class (font-nunito text-sm) per UI-SPEC §Primitive Contract.
+  const paddingClass = size === 'sm' ? 'px-2 py-1' : 'px-4 py-1';
 
   return (
     <View
       className={`rounded-full ${paddingClass} self-start`}
       style={{ backgroundColor: color.bg }}
     >
-      <Text className={`${textClass} font-medium`} style={{ color: color.text }}>
+      <Text className="text-sm font-nunito" style={{ color: color.text }}>
         {label}
       </Text>
     </View>

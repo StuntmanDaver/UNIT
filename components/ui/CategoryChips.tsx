@@ -1,6 +1,5 @@
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Pressable, Text } from 'react-native';
 import { BUSINESS_CATEGORIES, getCategoryLabel } from '@/constants/categories';
-import { CATEGORY_COLORS } from '@/constants/colors';
 
 type CategoryChipsProps = {
   selected: string | null;
@@ -27,20 +26,22 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
       renderItem={({ item }) => {
         const isAll = item.key === '__all__';
         const isSelected = isAll ? selected === null : selected === item.key;
-        const accentColor = isAll ? '#101B29' : (CATEGORY_COLORS[item.key] ?? '#6B7280');
 
         return (
           <Pressable
             onPress={() => onSelect(isAll ? null : item.key)}
-            className="rounded-full px-3 py-1.5 border"
-            style={{
-              backgroundColor: isSelected ? accentColor : '#FFFFFF',
-              borderColor: isSelected ? accentColor : '#D1D5DB',
-            }}
+            className={
+              isSelected
+                ? 'rounded-full px-4 py-2 bg-brand-blue'
+                : 'rounded-full px-4 py-2 bg-brand-navy-light border border-brand-blue/40'
+            }
           >
             <Text
-              className="text-sm font-medium"
-              style={{ color: isSelected ? '#FFFFFF' : '#374151' }}
+              className={
+                isSelected
+                  ? 'text-sm font-nunito-semibold text-white'
+                  : 'text-sm font-nunito text-brand-gray'
+              }
             >
               {item.label}
             </Text>
