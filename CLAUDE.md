@@ -155,7 +155,7 @@ constants/              # App constants (colors, categories)
 lib/                    # Core libraries (AuthContext, query-client)
 supabase/
   migrations/           # SQL migration files
-  functions/            # Deno Edge Functions (7 functions)
+  functions/            # Deno Edge Functions (10 functions)
 assets/                 # App icons, splash screen images
 ```
 ## Auth Flow
@@ -166,13 +166,13 @@ assets/                 # App icons, splash screen images
 5. Users needing onboarding go to `/(auth)/onboarding`
 6. Authenticated users in auth group are redirected to `/(tabs)/directory`
 ## Service Layer
-- Location: `services/*.ts` (10 modules)
-- Modules: `supabase.ts` (client singleton), `businesses.ts`, `posts.ts`, `profiles.ts`, `properties.ts`, `notifications.ts`, `admin.ts`, `advertiser-promotions.ts`, `storage.ts`, `push.ts`
+- Location: `services/*.ts` (11 modules)
+- Modules: `supabase.ts` (client singleton), `businesses.ts`, `posts.ts`, `profiles.ts`, `properties.ts`, `notifications.ts`, `admin.ts`, `promotions.ts`, `analytics.ts`, `storage.ts`, `push.ts`
 - Pattern: Exported async functions that call `supabase.from().select/insert/update/delete`
 - Used by: Screen components via React Query `queryFn` / `mutationFn`
 ## Edge Functions
-- Location: `supabase/functions/` (7 functions)
-- Functions: `add-property-to-admin`, `complete-onboarding`, `invite-tenant`, `mark-escalated-requests`, `mark-overdue-invoices`, `send-escalation-email`, `send-invoice-email`
+- Location: `supabase/functions/` (10 functions)
+- Functions: `add-property-to-admin`, `complete-onboarding`, `invite-tenant`, `mark-escalated-requests`, `mark-overdue-invoices`, `send-escalation-email`, `send-invoice-email`, `send-push-notification`, `issue-refund`, `expire-promotions`
 - Runtime: Deno (deployed to Supabase Edge)
 ## State Management
 - **Server state:** TanStack React Query -- all API data cached and synchronized
@@ -183,11 +183,51 @@ assets/                 # App icons, splash screen images
 - Location: `lib/query-client.ts`
 - Global QueryClient instance with default options
 ## Brand Theming
-- Brand colors defined in `tailwind.config.js`: `brand-navy` (#101B29 - Dark Navy), `brand-navy-light` (#1D263A - Deep Blue), `brand-blue` (#465A75 - Slate Blue), `brand-steel` (#7C8DA7 - Light Steel Blue), `brand-gray` (#E0E1DE - Soft Light Gray)
-- Global Font: `font-arcadia` ("Arcadia Text", system-ui, sans-serif) MUST be used on ALL Text components in the app.
-- Additional color constants in `constants/colors.ts`
-- Splash screen background: #101B29 (brand navy)
-- Meticulously ensure these exact colors and fonts are used in every current and future page.
+
+### Colors (locked in `tailwind.config.js`)
+- `brand-navy` (#101B29) — Dominant (60%): screen backgrounds, splash, tab bar, status bar, nav headers
+- `brand-navy-light` (#1D263A) — Secondary (30%): cards, modals, inputs, elevated surfaces
+- `brand-blue` (#465A75) — Accent (10%, reserved): primary buttons, focused input borders, selected segments, card hairlines (`border-brand-blue/40`), `GradientHeader` endpoint
+- `brand-steel` (#7C8DA7) — Muted text on `brand-navy` ONLY (WCAG ratio 5.15:1); BANNED for body text on `brand-navy-light` (ratio 4.48:1 fails WCAG AA)
+- `brand-gray` (#E0E1DE) — Primary text on any brand surface (passes AAA)
+- `white` (#FFFFFF) — High-emphasis titles, button labels on `bg-brand-blue`
+- `red-500` (#EF4444) — Destructive actions only (only non-brand color permitted)
+- Additional constants in `constants/colors.ts`
+
+### Fonts
+The app uses **Lora** (serif, headings/display) and **Nunito** (sans-serif, body/UI). Both are loaded via `@expo-google-fonts/lora` and `@expo-google-fonts/nunito` in `app/_layout.tsx` via `useFonts()`. The Tailwind classes live in `tailwind.config.js`.
+
+**Exactly 4 font classes are permitted on `<Text>` elements:**
+- `font-nunito` (Nunito 400) — body/label/caption regular
+- `font-nunito-semibold` (Nunito 600) — body emphasis, button labels, small heading
+- `font-lora` (Lora 400) — rarely used; reserved for serif body if needed
+- `font-lora-semibold` (Lora 600) — section headings and screen titles
+
+**Banned on `<Text>`:** `font-bold`, `font-medium`, `font-nunito-bold`, `font-lora-bold`, any legacy Arcadia-prefixed class, bare `<Text>` with no font class. Tailwind's `font-bold`/`font-medium` would synthesize weights the loaded font files cannot provide and will render wrong on Android.
+
+**Type scale (exactly 4 sizes):**
+- `text-sm` (14px) — labels / captions → `leading-normal`
+- `text-base` (16px) — body → `leading-relaxed`
+- `text-2xl` (24px) — section headings → `leading-tight`, `font-lora-semibold`
+- `text-3xl` (30px) — screen titles → `leading-tight`, `font-lora-semibold`
+
+Banned sizes: `text-xs`, `text-lg`, `text-xl`, `text-4xl+`.
+
+### Splash & app icon
+- Splash background: `#101B29` (brand-navy)
+- Splash image: `./assets/logo-transparent-light.png` via the `expo-splash-screen` config plugin in `app.json` (do NOT use the legacy top-level `splash` block)
+- `userInterfaceStyle` in `app.json` must be `"dark"` — this app is dark-theme only
+
+### Enforcement
+- Every `<Text>` MUST have one of the 4 font classes and one of the 4 size classes
+- Every screen root `<View>` in `app/(tabs)/**` and `app/(admin)/**` MUST start with `bg-brand-navy` (or `GradientHeader` + inner `bg-brand-navy` wrapper)
+- No raw Tailwind color classes: `bg-white`, `bg-gray-*`, `text-gray-*`, `border-gray-*`, `bg-black` (except `bg-black/50` on Modal scrim), `text-black`
+- Spacing uses the strict 4/8pt grid: `{4, 8, 16, 24, 32, 48, 64}` px. `p-3` is permitted ONLY on icon-only `Pressable` hit targets and on `Button` padding (`py-3 px-4`), justified by the 44pt Apple HIG touch-target requirement
+- Touch targets: minimum 44×44pt on every interactive element; use `activeOpacity={0.7}` on `Pressable`
+- Icons: `lucide-react-native` only — no emoji as icons
+- Run `npm run brand-lint` (in `unit/`) after any UI change — must exit 0
+
+*This section supersedes any earlier Arcadia-branded font directive. That font was never loaded at runtime and has been removed from the codebase.*
 <!-- GSD:architecture-end -->
 
 <!-- GSD:workflow-start source:GSD defaults -->
