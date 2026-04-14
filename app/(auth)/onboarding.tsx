@@ -8,6 +8,7 @@ import {
   FlatList,
   Pressable,
   Image,
+  Alert,
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,6 +70,12 @@ export default function OnboardingScreen() {
     queryKey: ['units', selectedProperty?.id],
     queryFn: () => unitsService.listByProperty(selectedProperty!.id),
     enabled: !!selectedProperty,
+  });
+
+  const { data: occupiedUnits } = useQuery({
+    queryKey: ['occupiedUnits', selectedProperty?.id],
+    queryFn: () => businessesService.getOccupiedUnits(selectedProperty!.id),
+    enabled: !!selectedProperty && step === 'unit',
   });
 
   const filteredProperties = properties.filter(
@@ -237,15 +244,32 @@ export default function OnboardingScreen() {
         <FlatList
           data={filteredUnits}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <Pressable
-              onPress={() => handleSelectUnit(item)}
-              className="bg-brand-navy-light rounded-xl p-4 mb-3"
-            >
-              <Text className="text-white font-nunito-semibold text-base">{item.unit_number}</Text>
-              <Text className="text-brand-steel font-nunito text-sm mt-1">{item.street_address}</Text>
-            </Pressable>
-          )}
+          renderItem={({ item }) => {
+            const isClaimed = occupiedUnits?.has(item.unit_number) ?? false;
+            return (
+              <Pressable
+                onPress={() => {
+                  if (isClaimed) {
+                    Alert.alert(
+                      'Unit Already Claimed',
+                      'This unit already has a tenant profile. Please contact your landlord if you believe this is an error.'
+                    );
+                    return;
+                  }
+                  handleSelectUnit(item);
+                }}
+                className={`bg-brand-navy-light rounded-xl p-4 mb-3 ${isClaimed ? 'opacity-50' : ''}`}
+              >
+                <View className="flex-row items-center">
+                  <Text className="text-white font-nunito-semibold text-base">{item.unit_number}</Text>
+                  {isClaimed && (
+                    <Text className="font-nunito text-sm text-brand-gray ml-2">Claimed</Text>
+                  )}
+                </View>
+                <Text className="text-brand-steel font-nunito text-sm mt-1">{item.street_address}</Text>
+              </Pressable>
+            );
+          }}
           ListEmptyComponent={
             <Text className="font-nunito text-base text-brand-steel text-center mt-8">No units found</Text>
           }
