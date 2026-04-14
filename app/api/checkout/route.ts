@@ -12,23 +12,23 @@ export async function POST(req: Request) {
 
   const { promotionId, attemptType = 'initial' } = await req.json();
 
-  // Validate ownership
-  const { data: promotion } = await supabase
-    .from('promotions')
-    .select('id, advertiser_id, headline')
-    .eq('id', promotionId)
-    .eq('advertiser_id', user.id)
-    .single();
-  if (!promotion) return NextResponse.json({ error: 'Promotion not found' }, { status: 404 });
-
   const serviceClient = createServiceRoleClient();
 
-  // Get or create Stripe Customer
-  const { data: profile } = await serviceClient
-    .from('advertiser_profiles')
-    .select('stripe_customer_id, contact_email')
-    .eq('id', user.id)
-    .single();
+  // Validate ownership and fetch advertiser profile in parallel
+  const [{ data: promotion }, { data: profile }] = await Promise.all([
+    supabase
+      .from('promotions')
+      .select('id, advertiser_id, headline')
+      .eq('id', promotionId)
+      .eq('advertiser_id', user.id)
+      .single(),
+    serviceClient
+      .from('advertiser_profiles')
+      .select('stripe_customer_id, contact_email')
+      .eq('id', user.id)
+      .single(),
+  ]);
+  if (!promotion) return NextResponse.json({ error: 'Promotion not found' }, { status: 404 });
 
   let customerId = profile?.stripe_customer_id;
   if (!customerId) {
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       quantity: 1,
     }],
     success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${appUrl}/promotions/${promotionId}?canceled=true`,
+    cancel_url: `${appUrl}/promotions/new/review?id=${promotionId}&canceled=true`,
     metadata: { promotionId },
   });
 
