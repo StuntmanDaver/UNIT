@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   View,
   Text,
+  TextInput,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,6 +11,8 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -17,7 +20,6 @@ import * as ImagePicker from 'expo-image-picker';
 import { Search } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/services/supabase';
 import { propertiesService, type Property } from '@/services/properties';
 import { unitsService, type Unit } from '@/services/units';
 import { businessesService } from '@/services/businesses';
@@ -41,18 +43,20 @@ const businessSchema = z.object({
 type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function OnboardingScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   const SignOutLink = () => (
     <Pressable
-      onPress={async () => {
-        await logout();
-      }}
+      onPress={async () => { await logout(); }}
+
       className="mt-4 py-3 items-center"
     >
       <Text className="font-nunito text-sm text-red-500">Sign out</Text>
     </Pressable>
   );
+
   const [step, setStep] = useState<'property' | 'unit' | 'profile'>('property');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -168,9 +172,9 @@ export default function OnboardingScreen() {
 
       Toast.show({ type: 'success', text1: 'Profile created!' });
 
-      // AuthGuard detects onboarding complete and redirects to tabs
-      // Force re-check by refreshing session
-      await supabase.auth.refreshSession();
+      // Re-fetch auth state now that the business exists, then navigate
+      await refreshProfile();
+      router.replace('/(tabs)/directory');
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -184,18 +188,20 @@ export default function OnboardingScreen() {
 
   if (step === 'property') {
     return (
-      <View className="flex-1 bg-brand-navy px-6 pt-16">
+      <View className="flex-1 bg-brand-navy px-6" style={{ paddingTop: insets.top + 16 }}>
         <Text className="text-2xl font-lora-semibold text-white mb-2">Select Your Property</Text>
-        <Text className="font-nunito text-base text-brand-steel mb-6">Which business park are you located in?</Text>
+        <Text className="font-nunito text-base text-brand-steel mb-6">
+          Which business park are you located in?
+        </Text>
 
         <View className="flex-row items-center bg-brand-navy-light rounded-xl px-4 mb-4">
           <Search size={20} color="#7C8DA7" />
-          <Input
-            label=""
+          <TextInput
             placeholder="Search properties..."
+            placeholderTextColor="#7C8DA7"
             value={propertySearch}
             onChangeText={setPropertySearch}
-            className="flex-1 mb-0 border-0"
+            className="flex-1 py-3 ml-2 text-base text-white font-nunito"
           />
         </View>
 
@@ -205,6 +211,7 @@ export default function OnboardingScreen() {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => handleSelectProperty(item)}
+        
               className="bg-brand-navy-light rounded-xl p-4 mb-3"
             >
               <Text className="text-white font-nunito-semibold text-base">{item.name}</Text>
@@ -214,7 +221,9 @@ export default function OnboardingScreen() {
             </Pressable>
           )}
           ListEmptyComponent={
-            <Text className="font-nunito text-base text-brand-steel text-center mt-8">No properties found</Text>
+            <Text className="font-nunito text-base text-brand-steel text-center mt-8">
+              No properties found
+            </Text>
           }
         />
         <SignOutLink />
@@ -224,7 +233,7 @@ export default function OnboardingScreen() {
 
   if (step === 'unit') {
     return (
-      <View className="flex-1 bg-brand-navy px-6 pt-16">
+      <View className="flex-1 bg-brand-navy px-6" style={{ paddingTop: insets.top + 16 }}>
         <Text className="text-2xl font-lora-semibold text-white mb-2">Select Your Unit</Text>
         <Text className="font-nunito text-base text-brand-steel mb-6">
           Which unit are you in at {selectedProperty?.name}?
@@ -232,12 +241,12 @@ export default function OnboardingScreen() {
 
         <View className="flex-row items-center bg-brand-navy-light rounded-xl px-4 mb-4">
           <Search size={20} color="#7C8DA7" />
-          <Input
-            label=""
+          <TextInput
             placeholder="Search units..."
+            placeholderTextColor="#7C8DA7"
             value={unitSearch}
             onChangeText={setUnitSearch}
-            className="flex-1 mb-0 border-0"
+            className="flex-1 py-3 ml-2 text-base text-white font-nunito"
           />
         </View>
 
@@ -258,6 +267,7 @@ export default function OnboardingScreen() {
                   }
                   handleSelectUnit(item);
                 }}
+          
                 className={`bg-brand-navy-light rounded-xl p-4 mb-3 ${isClaimed ? 'opacity-50' : ''}`}
               >
                 <View className="flex-row items-center">
@@ -271,12 +281,15 @@ export default function OnboardingScreen() {
             );
           }}
           ListEmptyComponent={
-            <Text className="font-nunito text-base text-brand-steel text-center mt-8">No units found</Text>
+            <Text className="font-nunito text-base text-brand-steel text-center mt-8">
+              No units found
+            </Text>
           }
         />
 
         <Pressable
           onPress={() => setStep('property')}
+    
           className="mt-6 mx-6 py-4 bg-brand-navy-light rounded-xl items-center border border-brand-blue/40"
         >
           <Text className="font-nunito-semibold text-base text-white">← Back to properties</Text>
@@ -295,7 +308,7 @@ export default function OnboardingScreen() {
         contentContainerStyle={{ flexGrow: 1 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="px-6 pt-16 pb-10">
+        <View className="px-6 pb-10" style={{ paddingTop: insets.top + 16 }}>
           <Text className="text-2xl font-lora-semibold text-white mb-2">Create Your Profile</Text>
           <Text className="font-nunito text-base text-brand-steel mb-6">
             {selectedUnit ? `Unit ${selectedUnit.unit_number} at` : 'at'} {selectedProperty?.name}
@@ -304,10 +317,7 @@ export default function OnboardingScreen() {
           {/* Logo picker */}
           <Pressable onPress={pickImage} className="items-center mb-6">
             {logoUri ? (
-              <Image
-                source={{ uri: logoUri }}
-                className="w-24 h-24 rounded-2xl"
-              />
+              <Image source={{ uri: logoUri }} className="w-24 h-24 rounded-2xl" />
             ) : (
               <View className="w-24 h-24 rounded-2xl bg-brand-navy-light items-center justify-center">
                 <Text className="font-nunito text-sm text-brand-steel">Add Logo</Text>
@@ -331,7 +341,9 @@ export default function OnboardingScreen() {
             )}
           />
 
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Category</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">
+            Category
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
             <Controller
               control={control}
@@ -342,6 +354,7 @@ export default function OnboardingScreen() {
                     <Pressable
                       key={cat}
                       onPress={() => onChange(cat)}
+                
                       className={`px-4 py-2 rounded-full ${
                         value === cat ? 'bg-brand-blue' : 'bg-brand-navy-light border border-brand-blue/40'
                       }`}
@@ -360,7 +373,9 @@ export default function OnboardingScreen() {
             />
           </ScrollView>
           {errors.category && (
-            <Text className="text-sm font-nunito text-red-500 -mt-2 mb-4">{errors.category.message}</Text>
+            <Text className="text-sm font-nunito text-red-500 -mt-2 mb-4">
+              {errors.category.message}
+            </Text>
           )}
 
           <Controller
@@ -450,7 +465,8 @@ export default function OnboardingScreen() {
               setSelectedUnit(null);
               setStep('unit');
             }}
-            className="mt-4 items-center"
+      
+            className="mt-4 items-center py-3"
           >
             <Text className="font-nunito-semibold text-base text-brand-steel">← Back to units</Text>
           </Pressable>

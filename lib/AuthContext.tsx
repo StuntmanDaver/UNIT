@@ -13,6 +13,7 @@ type AuthState = {
   needsOnboarding: boolean;
   propertyIds: string[];
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -94,6 +95,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
   };
 
+  const refreshProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id, user.email ?? '');
+    }
+  };
+
   const isAuthenticated = !!user;
   const isAdmin = profile?.role === 'landlord';
   const needsPasswordChange = profile?.needs_password_change ?? false;
@@ -111,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         needsOnboarding,
         propertyIds,
         logout,
+        refreshProfile,
       }}
     >
       {children}
