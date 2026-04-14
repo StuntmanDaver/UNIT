@@ -5,7 +5,11 @@ import {
   ScrollView,
   Pressable,
   Image,
+  Modal,
+  Platform,
 } from 'react-native';
+import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,11 +17,10 @@ import { z } from 'zod';
 import * as ImagePicker from 'expo-image-picker';
 import { useQueryClient } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
-import { ImagePlus, X } from 'lucide-react-native';
+import { ImagePlus, X, Calendar } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { postsService } from '@/services/posts';
 import { storageService } from '@/services/storage';
@@ -27,13 +30,6 @@ import { useAuth } from '@/lib/AuthContext';
 const createOfferSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
-  expiry_date: z
-    .string()
-    .optional()
-    .refine(
-      (val) => !val || /^\d{4}-\d{2}-\d{2}$/.test(val),
-      { message: 'Date must be in YYYY-MM-DD format' }
-    ),
 });
 
 type CreateOfferFormData = z.infer<typeof createOfferSchema>;
@@ -44,8 +40,11 @@ export default function CreatePromotionScreen() {
   const { data: business } = useCurrentUser();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const propertyId = propertyIds[0] ?? '';
+  const minDate = new Date();
 
   const {
     control,
@@ -53,11 +52,7 @@ export default function CreatePromotionScreen() {
     formState: { errors },
   } = useForm<CreateOfferFormData>({
     resolver: zodResolver(createOfferSchema),
-    defaultValues: {
-      title: '',
-      description: '',
-      expiry_date: '',
-    },
+    defaultValues: { title: '', description: '' },
   });
 
   const handlePickImage = async () => {
@@ -69,6 +64,11 @@ export default function CreatePromotionScreen() {
     if (!result.canceled && result.assets[0]) {
       setImageUri(result.assets[0].uri);
     }
+  };
+
+  const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
+    if (Platform.OS === 'android') setShowDatePicker(false);
+    if (date) setSelectedDate(date);
   };
 
   const onSubmit = async (data: CreateOfferFormData) => {
@@ -92,7 +92,7 @@ export default function CreatePromotionScreen() {
         type: 'offer',
         title: data.title,
         content: data.description,
-        expiry_date: data.expiry_date || null,
+        expiry_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
         image_url,
       });
 
@@ -171,21 +171,76 @@ export default function CreatePromotionScreen() {
           )}
         />
 
-        {/* Expiry Date */}
-        <Controller
-          control={control}
-          name="expiry_date"
-          render={({ field: { onChange, value } }) => (
-            <Input
-              label="Expiry Date (optional)"
-              value={value}
-              onChangeText={onChange}
-              placeholder="YYYY-MM-DD"
-              keyboardType="numeric"
-              error={errors.expiry_date?.message}
-            />
-          )}
-        />
+        {/* Expiry Date picker */}
+        <View className="mb-4">
+          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">
+            Expiry Date (optional)
+          </Text>
+          <Pressable
+            onPress={() => setShowDatePicker(true)}
+            className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
+          >
+            <Calendar size={18} color="#7C8DA7" />
+            <Text className={`flex-1 ml-3 text-base font-nunito leading-relaxed ${selectedDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
+              {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
+            </Text>
+            {selectedDate && (
+              <Pressable
+                onPress={() => setSelectedDate(null)}
+                hitSlop={8}
+              >
+                <X size={16} color="#7C8DA7" />
+              </Pressable>
+            )}
+          </Pressable>
+        </View>
+
+        {/* iOS date picker modal */}
+        {Platform.OS === 'ios' && (
+          <Modal
+            visible={showDatePicker}
+            transparent
+            animationType="slide"
+          >
+            <Pressable
+              className="flex-1 bg-black/50 justify-end"
+              onPress={() => setShowDatePicker(false)}
+            >
+              <Pressable onPress={(e) => e.stopPropagation()}>
+                <View className="bg-brand-navy-light rounded-t-2xl pb-8">
+                  <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
+                    <Pressable onPress={() => { setSelectedDate(null); setShowDatePicker(false); }}>
+                      <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal">Clear</Text>
+                    </Pressable>
+                    <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">Expiry Date</Text>
+                    <Pressable onPress={() => setShowDatePicker(false)}>
+                      <Text className="text-sm font-nunito-semibold text-white leading-normal">Done</Text>
+                    </Pressable>
+                  </View>
+                  <DateTimePicker
+                    value={selectedDate ?? minDate}
+                    mode="date"
+                    display="spinner"
+                    minimumDate={minDate}
+                    onChange={handleDateChange}
+                    themeVariant="dark"
+                  />
+                </View>
+              </Pressable>
+            </Pressable>
+          </Modal>
+        )}
+
+        {/* Android date picker (inline native dialog) */}
+        {Platform.OS === 'android' && showDatePicker && (
+          <DateTimePicker
+            value={selectedDate ?? minDate}
+            mode="date"
+            display="default"
+            minimumDate={minDate}
+            onChange={handleDateChange}
+          />
+        )}
 
         {/* Image picker */}
         <View className="mb-4">

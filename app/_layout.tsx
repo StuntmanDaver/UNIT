@@ -1,9 +1,15 @@
 import '../global.css';
 import { useEffect, useRef } from 'react';
+import { LogBox } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+
+// Suppress Supabase SDK's internal console.error for expired/missing refresh tokens.
+// The BUG-13 handler in AuthContext already catches this, signs the user out, and
+// clears state. The error overlay is dev-only noise — production builds don't show it.
+LogBox.ignoreLogs(['Invalid Refresh Token', 'AuthApiError']);
 
 SplashScreen.preventAutoHideAsync();
 import { QueryClientProvider } from '@tanstack/react-query';
