@@ -66,4 +66,17 @@ export const businessesService = {
     if (error) throw error;
     return data;
   },
+
+  async getOccupiedUnits(propertyId: string): Promise<Set<string>> {
+    const { data, error } = await supabase
+      .from('businesses')
+      .select('unit_number')
+      .eq('property_id', propertyId);
+    if (error) throw error;
+    return new Set(
+      (data ?? [])
+        .map((row: { unit_number: string | null }) => row.unit_number)
+        .filter((unitNumber): unitNumber is string => !!unitNumber)
+    );
+  },
 };
