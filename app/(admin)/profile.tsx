@@ -6,7 +6,7 @@ import {
   Alert,
   Switch,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, Redirect } from 'expo-router';
 import Constants from 'expo-constants';
 import { ChevronLeft, LogOut } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -17,7 +17,10 @@ import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 
 export default function AdminProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
+
+  // Defense-in-depth: only landlords should reach this screen
+  if (!isAdmin) return <Redirect href="/(tabs)/directory" />;
   const { permissionGranted, enablePush, disablePush } = usePushNotifications();
 
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';

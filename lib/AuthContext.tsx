@@ -36,13 +36,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(profileData);
 
     if (profileData && !profileData.needs_password_change) {
-      const { data: businesses } = await supabase
-        .from('businesses')
-        .select('id')
-        .eq('owner_email', userEmail)
-        .limit(1);
+      // Landlords never have a business profile — skip the check to avoid
+      // bouncing admins to the tenant onboarding flow.
+      if (profileData.role === 'landlord') {
+        setNeedsOnboarding(false);
+      } else {
+        const { data: businesses } = await supabase
+          .from('businesses')
+          .select('id')
+          .eq('owner_email', userEmail)
+          .limit(1);
 
-      setNeedsOnboarding(!businesses || businesses.length === 0);
+        setNeedsOnboarding(!businesses || businesses.length === 0);
+      }
     } else {
       setNeedsOnboarding(false);
     }

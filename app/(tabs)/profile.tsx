@@ -8,7 +8,7 @@ import {
   Switch,
   Share,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, Redirect } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
 import { Edit2, Share2, LogOut } from 'lucide-react-native';
@@ -24,7 +24,10 @@ import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 
 export default function ProfileScreen() {
-  const { user, propertyIds, logout } = useAuth();
+  const { user, propertyIds, logout, isAdmin } = useAuth();
+
+  // Defense-in-depth: admins should never reach the tenant profile screen
+  if (isAdmin) return <Redirect href="/(admin)/" />;
   const { data: business, isLoading } = useCurrentUser();
   const { data: properties } = useProperties(propertyIds);
   const { permissionGranted, enablePush, disablePush } = usePushNotifications();
