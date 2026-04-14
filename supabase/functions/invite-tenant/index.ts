@@ -1,3 +1,6 @@
+// REQUIRES: Supabase project secrets RESEND_API_KEY (and optionally RESEND_FROM_EMAIL)
+// set via `supabase secrets set RESEND_API_KEY=<key>`. Missing config returns 500
+// per D-03c — configure, don't skip. See 02-01 Plan §BUG-07.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
 
 const corsHeaders = {
@@ -100,31 +103,25 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Check if user already exists
-      let page = 1;
-      let exists = false;
+      // BUG-06: Check if user already exists via O(1) profile lookup instead of
+      // O(n) auth.admin.listUsers pagination. The auto-profile trigger inserts a
+      // row into public.profiles keyed on auth.users.email for every created
+      // auth user, so a profile existence check is a reliable proxy.
+      const { data: existingProfile, error: lookupError } = await adminClient
+        .from('profiles')
+        .select('id')
+        .eq('email', tenant.email)
+        .maybeSingle();
 
-      while (!exists) {
-        const { data: existingUsers, error: listUsersError } = await adminClient.auth.admin.listUsers({
-          page,
-          perPage: 1000,
+      if (lookupError) {
+        results.failed.push({
+          email: tenant.email,
+          reason: `Lookup failed: ${lookupError.message}`,
         });
-
-        if (listUsersError) {
-          throw new Error(listUsersError.message);
-        }
-
-        const users = existingUsers?.users ?? [];
-        exists = users.some((u: { email?: string }) => u.email === tenant.email);
-
-        if (exists || users.length < 1000) {
-          break;
-        }
-
-        page += 1;
+        continue;
       }
 
-      if (exists) {
+      if (existingProfile) {
         results.failed.push({ email: tenant.email, reason: 'Account already exists' });
         continue;
       }
