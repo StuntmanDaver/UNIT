@@ -28,15 +28,43 @@ function AuthGuard() {
     }
 
     const inAuthGroup = segments[0] === '(auth)';
+    const onResetPassword = segments.includes('reset-password');
+    const onOnboarding = segments.includes('onboarding');
 
-    if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/login');
-    } else if (isAuthenticated && needsPasswordChange && !segments.includes('reset-password')) {
+    // Unauthenticated: anyone outside the auth group goes to login.
+    if (!isAuthenticated) {
+      if (!inAuthGroup) router.replace('/(auth)/login');
+      return;
+    }
+
+    // Authenticated from here down.
+
+    // Password change branch — highest priority. No longer gated on inAuthGroup
+    // so a mid-session flag flip from inside (tabs) still forces the redirect.
+    if (needsPasswordChange && !onResetPassword) {
       router.replace('/(auth)/reset-password');
-    } else if (isAuthenticated && needsOnboarding && !inAuthGroup) {
+      return;
+    }
+
+    // Onboarding branch (BUG-03 fix) — the previous guard required !inAuthGroup,
+    // which stranded fresh signups on /signup with needsOnboarding=true. The
+    // check now fires as long as we're not already ON the onboarding screen.
+    if (!needsPasswordChange && needsOnboarding && !onOnboarding) {
       router.replace('/(auth)/onboarding');
-    } else if (isAuthenticated && !needsPasswordChange && !needsOnboarding && inAuthGroup) {
-      if (segments.includes('reset-password')) {
+      return;
+    }
+
+    // Stranded-in-auth-group branch: authed user with nothing to do is sitting
+    // on login/signup/reset-password/onboarding — push them to the right home.
+    if (!needsPasswordChange && !needsOnboarding && inAuthGroup) {
+      // BUG-04 decision: post-reset landing stays at /(tabs)/profile/edit.
+      // Invited tenants have a business profile stub-created by the invite-tenant
+      // Edge Function with no logo / unit_number / contact fields — sending them
+      // to profile/edit lets them complete those fields immediately. Fresh
+      // signups that went through onboarding hit the onboarding branch above
+      // and land on /(tabs)/directory (or /(admin)/ for landlords) via the
+      // else branches below.
+      if (onResetPassword) {
         router.replace('/(tabs)/profile/edit');
       } else if (isAdmin) {
         router.replace('/(admin)/');
