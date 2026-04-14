@@ -75,10 +75,10 @@ export const adminService = {
         .select('id, status', { count: 'exact' })
         .contains('property_ids', [propertyId]),
       supabase
-        .from('advertiser_promotions')
+        .from('promotions')
         .select('id', { count: 'exact', head: true })
         .eq('property_id', propertyId)
-        .eq('approval_status', 'approved')
+        .eq('review_status', 'approved')
         .gte('created_at', thirtyDaysAgo),
     ]);
 
@@ -96,5 +96,51 @@ export const adminService = {
       pendingInvites: pendingCount,
       activePromotions: promotions.count ?? 0,
     };
+  },
+
+  async getRecentActivity(propertyId: string): Promise<Array<{
+    id: string;
+    type: 'tenant' | 'promotion';
+    label: string;
+    sublabel: string;
+    created_at: string;
+  }>> {
+    const [profilesRes, promotionsRes] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('id, full_name, email, created_at, status')
+        .contains('property_ids', [propertyId])
+        .order('created_at', { ascending: false })
+        .limit(5),
+      supabase
+        .from('promotions')
+        .select('id, business_name, headline, created_at, review_status')
+        .eq('property_id', propertyId)
+        .order('created_at', { ascending: false })
+        .limit(5),
+    ]);
+
+    if (profilesRes.error) throw profilesRes.error;
+    if (promotionsRes.error) throw promotionsRes.error;
+
+    const tenantItems = (profilesRes.data ?? []).map((p) => ({
+      id: p.id,
+      type: 'tenant' as const,
+      label: p.full_name || p.email || 'New tenant',
+      sublabel: p.status === 'invited' ? 'Invited' : 'Joined',
+      created_at: p.created_at,
+    }));
+
+    const promoItems = (promotionsRes.data ?? []).map((p) => ({
+      id: p.id,
+      type: 'promotion' as const,
+      label: p.business_name || 'Unknown',
+      sublabel: `Promotion: ${p.headline ?? ''}`,
+      created_at: p.created_at,
+    }));
+
+    return [...tenantItems, ...promoItems]
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 8);
   },
 };

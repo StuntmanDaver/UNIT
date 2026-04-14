@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Platform, Pressable } from 'react-native';
 import { Users, ChevronLeft } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { BRAND } from '@/constants/colors';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,10 +27,20 @@ const STATUS_SEGMENTS = ['All', 'Invited', 'Active', 'Inactive'];
 export default function TenantsScreen() {
   const { propertyIds } = useAuth();
   const queryClient = useQueryClient();
+  const params = useLocalSearchParams<{ filter?: string }>();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
+
+  const initialFilter = (() => {
+    const f = params.filter?.toLowerCase();
+    if (f === 'active') return 'Active';
+    if (f === 'invited') return 'Invited';
+    if (f === 'inactive') return 'Inactive';
+    return 'All';
+  })();
+
+  const [statusFilter, setStatusFilter] = useState(initialFilter);
   const [modalVisible, setModalVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 

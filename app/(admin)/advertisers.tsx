@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { Megaphone, ChevronLeft } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { BRAND } from '@/constants/colors';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -25,7 +25,12 @@ export default function AdvertisersScreen() {
   const { propertyIds } = useAuth();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState('Pending');
+  const params = useLocalSearchParams<{ filter?: string }>();
+  const [statusFilter, setStatusFilter] = useState(
+    params.filter && STATUS_SEGMENTS.includes(params.filter as typeof STATUS_SEGMENTS[number])
+      ? (params.filter as typeof STATUS_SEGMENTS[number])
+      : 'Pending'
+  );
 
   const activePropertyId = selectedPropertyId ?? '';
 

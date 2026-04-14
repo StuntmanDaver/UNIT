@@ -19,6 +19,8 @@ import { queryClient } from '@/lib/query-client';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
+// LoadingScreen is also used below while fonts are loading
+
 function AuthGuard() {
   const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin } = useAuth();
   const segments = useSegments();
@@ -98,7 +100,7 @@ export default function RootLayout() {
   });
 
   if (!fontsLoaded) {
-    return null;
+    return <LoadingScreen message="Starting..." />;
   }
 
   return (

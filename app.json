@@ -65,7 +65,8 @@
         }
       ],
       "@sentry/react-native",
-      "expo-font"
+      "expo-font",
+      "@react-native-community/datetimepicker"
     ]
   }
 }
