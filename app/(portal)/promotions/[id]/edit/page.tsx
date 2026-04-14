@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { createClient } from '@/lib/supabase/client';
 import type { Promotion } from '@/lib/supabase/types';
+import { getPromotion, updatePromotion } from '@/app/(portal)/promotions/actions';
 
 const schema = z.object({
   headline: z.string().min(5),
@@ -19,7 +19,6 @@ type FormData = z.infer<typeof schema>;
 export default function EditPromotionPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const supabase = createClient();
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,48 +27,38 @@ export default function EditPromotionPage() {
   });
 
   useEffect(() => {
-    supabase
-      .from('promotions')
-      .select('*')
-      .eq('id', id)
-      .single()
-      .then(({ data }) => {
-        const p = data as Promotion;
-        setPromotion(p);
-        // Guard: only editable states
-        if (!['draft', 'revision_requested'].includes(p.review_status)) {
-          router.replace(`/promotions/${id}`);
-          return;
-        }
-        reset({
-          headline: p.headline,
-          description: p.description ?? '',
-          startDate: p.start_date ?? '',
-          endDate: p.end_date ?? '',
-        });
+    getPromotion(id).then((p) => {
+      if (!p) return;
+      setPromotion(p as Promotion);
+      if (!['draft', 'revision_requested'].includes(p.review_status)) {
+        router.replace(`/promotions/${id}`);
+        return;
+      }
+      reset({
+        headline: p.headline,
+        description: p.description ?? '',
+        startDate: p.start_date ?? '',
+        endDate: p.end_date ?? '',
       });
+    });
   }, [id]);
 
   const onSubmit = async (data: FormData) => {
     if (!promotion) return;
     setLoading(true);
-
-    const { error } = await supabase
-      .from('promotions')
-      .update({
+    try {
+      await updatePromotion(id, {
         headline: data.headline,
-        description: data.description ?? null,
-        start_date: data.startDate,
-        end_date: data.endDate,
-      })
-      .eq('id', id);
-
-    setLoading(false);
-
-    if (error) {
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      });
+    } catch {
       toast.error('Failed to save changes');
+      setLoading(false);
       return;
     }
+    setLoading(false);
 
     // Navigate based on what action is needed next
     if (promotion.payment_status === 'repayment_required') {

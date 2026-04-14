@@ -82,6 +82,14 @@ export function PromotionCTA({ promotion }: Props) {
       </button>
     );
   }
+  if (review_status === 'draft' && payment_status === 'unpaid') {
+    return (
+      <button onClick={() => router.push(`/promotions/new/review?id=${id}`)} disabled={loading}
+        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
+        Pay & Submit →
+      </button>
+    );
+  }
   if (review_status === 'rejected') {
     return <p className="text-sm text-red-600">Closed</p>;
   }

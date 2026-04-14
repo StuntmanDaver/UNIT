@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { createClient } from '@/lib/supabase/client';
+import { createAdvertiserProfile } from './actions';
 
 const schema = z.object({
   businessName: z.string().min(2, 'Business name required'),
@@ -24,7 +25,7 @@ export default function SignupPage() {
     setLoading(true);
     const { data: authData, error: signUpError } = await supabase.auth.signUp({ email: data.email, password: data.password });
     if (signUpError || !authData.user) { setLoading(false); toast.error(signUpError?.message ?? 'Signup failed'); return; }
-    const { error: profileError } = await supabase.from('advertiser_profiles').insert({ id: authData.user.id, business_name: data.businessName, contact_email: data.email, status: 'pending' });
+    const { error: profileError } = await createAdvertiserProfile(authData.user.id, data.businessName, data.email);
     setLoading(false);
     if (profileError) { toast.error('Account created but profile setup failed. Please contact support.'); return; }
     toast.success('Account created! Your account is pending admin approval.');

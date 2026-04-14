@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
@@ -37,7 +38,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isPortalRoute && user) {
-    const { data: profile } = await supabase
+    // Use service role to bypass RLS — user identity already verified above via getUser()
+    const serviceClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { data: profile } = await serviceClient
       .from('advertiser_profiles')
       .select('id')
       .eq('id', user.id)

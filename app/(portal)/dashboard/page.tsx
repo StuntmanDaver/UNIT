@@ -1,11 +1,13 @@
+export const dynamic = 'force-dynamic';
+
 import Link from 'next/link';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { ReviewStatusBadge, PaymentStatusBadge } from '@/components/StatusBadges';
 import type { Promotion, AdvertiserProfile } from '@/lib/supabase/types';
 
 async function getAdvertiserData(userId: string) {
-  const supabase = await createServerSupabaseClient();
+  const supabase = createServiceRoleClient();
 
   const [profileResult, promotionsResult, attemptsResult, analyticsResult] = await Promise.all([
     supabase
@@ -100,26 +102,38 @@ export default async function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {promotions.map((promo) => (
-            <Link
-              key={promo.id}
-              href={`/promotions/${promo.id}`}
-              className="block bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="font-semibold text-gray-900">{promo.headline}</p>
-                  <p className="text-sm text-gray-500 mt-0.5">
-                    {promo.start_date} → {promo.end_date}
-                  </p>
+          {promotions.map((promo) => {
+            const needsPayment = promo.review_status === 'draft' && promo.payment_status === 'unpaid';
+            const href = needsPayment
+              ? `/promotions/new/review?id=${promo.id}`
+              : `/promotions/${promo.id}`;
+            return (
+              <Link
+                key={promo.id}
+                href={href}
+                className="block bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-semibold text-gray-900">{promo.headline}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      {promo.start_date} → {promo.end_date}
+                    </p>
+                  </div>
+                  <div className="flex gap-2">
+                    <ReviewStatusBadge status={promo.review_status} />
+                    <PaymentStatusBadge status={promo.payment_status} />
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <ReviewStatusBadge status={promo.review_status} />
-                  <PaymentStatusBadge status={promo.payment_status} />
-                </div>
-              </div>
-            </Link>
-          ))}
+                {needsPayment && (
+                  <div className="mt-3 pt-3 border-t border-amber-100 flex items-center justify-between">
+                    <p className="text-xs text-amber-700 font-medium">Payment required to submit for review</p>
+                    <span className="text-xs text-blue-600 font-semibold">Complete payment →</span>
+                  </div>
+                )}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

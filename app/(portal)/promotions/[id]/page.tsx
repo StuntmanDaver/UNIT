@@ -1,15 +1,9 @@
 import { notFound } from 'next/navigation';
-import dynamic from 'next/dynamic';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { ReviewStatusBadge, PaymentStatusBadge } from '@/components/StatusBadges';
 import { PromotionCTA } from '@/components/PromotionCTA';
+import { AnalyticsChart } from '@/components/AnalyticsChartWrapper';
 import type { Promotion, AdAnalyticsRow } from '@/lib/supabase/types';
-
-// Dynamic import — Recharts (~100KB) loads after page hydration
-const AnalyticsChart = dynamic(
-  () => import('@/components/AnalyticsChart').then((m) => m.AnalyticsChart),
-  { ssr: false, loading: () => <div className="h-48 bg-gray-50 rounded animate-pulse" /> }
-);
 
 type DayData = { date: string; views: number; taps: number };
 
@@ -32,9 +26,10 @@ export default async function PromotionDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createServerSupabaseClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const authClient = await createServerSupabaseClient();
+  const { data: { user } } = await authClient.auth.getUser();
 
+  const supabase = createServiceRoleClient();
   // Fetch promotion and analytics in parallel
   const [promoResult, analyticsResult] = await Promise.all([
     supabase

@@ -4,8 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { createClient } from '@/lib/supabase/client';
 import type { AdvertiserProfile } from '@/lib/supabase/types';
+import { getMyProfile, updateMyProfile } from './actions';
 
 const schema = z.object({
   businessName: z.string().min(2, 'Business name required'),
@@ -14,7 +14,6 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function SettingsPage() {
-  const supabase = createClient();
   const [profile, setProfile] = useState<AdvertiserProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,32 +22,22 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      supabase
-        .from('advertiser_profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-        .then(({ data }) => {
-          const p = data as AdvertiserProfile;
-          setProfile(p);
-          reset({ businessName: p.business_name, contactEmail: p.contact_email });
-        });
+    getMyProfile().then((p) => {
+      if (!p) return;
+      setProfile(p as AdvertiserProfile);
+      reset({ businessName: p.business_name, contactEmail: p.contact_email });
     });
   }, []);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-    const { error } = await supabase
-      .from('advertiser_profiles')
-      .update({ business_name: data.businessName, contact_email: data.contactEmail })
-      .eq('id', profile!.id);
-    setLoading(false);
-    if (error) {
-      toast.error('Failed to save');
-    } else {
+    try {
+      await updateMyProfile(data.businessName, data.contactEmail);
       toast.success('Settings saved');
+    } catch {
+      toast.error('Failed to save');
+    } finally {
+      setLoading(false);
     }
   };
 

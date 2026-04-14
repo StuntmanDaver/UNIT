@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import type { AdvertiserProfile } from '@/lib/supabase/types';
 
@@ -8,7 +8,8 @@ export default async function PortalLayout({ children }: { children: React.React
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase
+  const service = createServiceRoleClient();
+  const { data: profile } = await service
     .from('advertiser_profiles')
     .select('*')
     .eq('id', user.id)

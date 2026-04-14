@@ -1,11 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { createClient } from '@/lib/supabase/client';
+import { createPromotion, getProperties } from './actions';
 
 const PLACEMENT_FEE_CENTS = 4999; // $49.99
 
@@ -21,16 +21,14 @@ const schema = z.object({
 });
 type FormData = z.infer<typeof schema>;
 
-// TODO: replace with a real properties list from Supabase
-const AVAILABLE_PROPERTIES = [
-  { id: '', label: 'Select a property' },
-  // These IDs come from your `properties` table — fetch them dynamically in production
-];
-
 export default function NewPromotionPage() {
   const router = useRouter();
-  const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [properties, setProperties] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    getProperties().then(setProperties);
+  }, []);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -38,46 +36,19 @@ export default function NewPromotionPage() {
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { router.push('/login'); return; }
-
-    const { data: profile } = await supabase
-      .from('advertiser_profiles')
-      .select('status, business_name')
-      .eq('id', user.id)
-      .single();
-
-    if (profile?.status !== 'active') {
-      toast.error('Your account is pending approval. You cannot submit promotions yet.');
-      setLoading(false);
-      return;
-    }
-
-    const { data: promotion, error } = await supabase
-      .from('promotions')
-      .insert({
-        advertiser_id: user.id,
-        business_name: profile.business_name,
-        property_id: data.propertyId,
+    try {
+      const promotionId = await createPromotion({
+        propertyId: data.propertyId,
         headline: data.headline,
-        description: data.description ?? null,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        review_status: 'draft',
-        payment_status: 'unpaid',
-      })
-      .select('id')
-      .single();
-
-    setLoading(false);
-
-    if (error || !promotion) {
-      toast.error('Failed to save promotion. Please try again.');
-      return;
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      });
+      router.push(`/promotions/new/review?id=${promotionId}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save promotion. Please try again.');
+      setLoading(false);
     }
-
-    router.push(`/promotions/new/review?id=${promotion.id}`);
   };
 
   return (
@@ -105,8 +76,9 @@ export default function NewPromotionPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Property *</label>
           <select {...register('propertyId')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            {AVAILABLE_PROPERTIES.map((p) => (
-              <option key={p.id} value={p.id}>{p.label}</option>
+            <option value="">Select a property</option>
+            {properties.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
             ))}
           </select>
           {errors.propertyId && <p className="text-xs text-red-500 mt-1">{errors.propertyId.message}</p>}

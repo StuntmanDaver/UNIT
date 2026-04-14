@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { createClient } from '@/lib/supabase/client';
 import type { Promotion } from '@/lib/supabase/types';
+import { getPromotion } from '@/app/(portal)/promotions/actions';
 
 const PLACEMENT_FEE_CENTS = 4999;
 
@@ -14,18 +14,12 @@ export default function ReviewAndPayPage() {
   const wasCanceled = searchParams.get('canceled') === 'true';
   const isRepayment = searchParams.get('repayment') === 'true';
 
-  const supabase = createClient();
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!promotionId) { router.push('/dashboard'); return; }
-    supabase
-      .from('promotions')
-      .select('*')
-      .eq('id', promotionId)
-      .single()
-      .then(({ data }) => setPromotion(data as Promotion));
+    getPromotion(promotionId).then((data) => setPromotion(data as Promotion));
   }, [promotionId]);
 
   if (!promotion) {
