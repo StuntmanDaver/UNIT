@@ -11,7 +11,6 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -42,20 +41,18 @@ const businessSchema = z.object({
 
 type BusinessForm = z.infer<typeof businessSchema>;
 
-export default function OnboardingScreen() {
-  const { user, logout, refreshProfile } = useAuth();
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-
-  const SignOutLink = () => (
-    <Pressable
-      onPress={async () => { await logout(); }}
-
-      className="mt-4 py-3 items-center"
-    >
+// Defined outside the screen component so its type identity is stable across re-renders
+function SignOutLink({ onSignOut }: { onSignOut: () => Promise<void> }) {
+  return (
+    <Pressable onPress={onSignOut} className="mt-4 py-3 items-center">
       <Text className="font-nunito text-sm text-red-500">Sign out</Text>
     </Pressable>
   );
+}
+
+export default function OnboardingScreen() {
+  const { user, logout, refreshProfile } = useAuth();
+  const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<'property' | 'unit' | 'profile'>('property');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -105,7 +102,7 @@ export default function OnboardingScreen() {
       business_name: '',
       category: '',
       business_description: '',
-      contact_name: '',
+      contact_name: user?.email ?? '',
       contact_email: user?.email ?? '',
       contact_phone: '',
       website: '',
@@ -172,9 +169,11 @@ export default function OnboardingScreen() {
 
       Toast.show({ type: 'success', text1: 'Profile created!' });
 
-      // Re-fetch auth state now that the business exists, then navigate
+      // Update auth state — needsOnboarding becomes false, which triggers
+      // AuthGuard to navigate to /(tabs)/directory automatically.
+      // Do NOT call router.replace here: AuthGuard must be the one to navigate
+      // so it sees needsOnboarding=false before leaving the auth group.
       await refreshProfile();
-      router.replace('/(tabs)/directory');
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -211,7 +210,6 @@ export default function OnboardingScreen() {
           renderItem={({ item }) => (
             <Pressable
               onPress={() => handleSelectProperty(item)}
-        
               className="bg-brand-navy-light rounded-xl p-4 mb-3"
             >
               <Text className="text-white font-nunito-semibold text-base">{item.name}</Text>
@@ -225,8 +223,8 @@ export default function OnboardingScreen() {
               No properties found
             </Text>
           }
+          ListFooterComponent={<SignOutLink onSignOut={logout} />}
         />
-        <SignOutLink />
       </View>
     );
   }
@@ -267,7 +265,6 @@ export default function OnboardingScreen() {
                   }
                   handleSelectUnit(item);
                 }}
-          
                 className={`bg-brand-navy-light rounded-xl p-4 mb-3 ${isClaimed ? 'opacity-50' : ''}`}
               >
                 <View className="flex-row items-center">
@@ -285,16 +282,18 @@ export default function OnboardingScreen() {
               No units found
             </Text>
           }
+          ListFooterComponent={
+            <View>
+              <Pressable
+                onPress={() => setStep('property')}
+                className="mt-6 py-4 bg-brand-navy-light rounded-xl items-center border border-brand-blue/40"
+              >
+                <Text className="font-nunito-semibold text-base text-white">← Back to properties</Text>
+              </Pressable>
+              <SignOutLink onSignOut={logout} />
+            </View>
+          }
         />
-
-        <Pressable
-          onPress={() => setStep('property')}
-    
-          className="mt-6 mx-6 py-4 bg-brand-navy-light rounded-xl items-center border border-brand-blue/40"
-        >
-          <Text className="font-nunito-semibold text-base text-white">← Back to properties</Text>
-        </Pressable>
-        <SignOutLink />
       </View>
     );
   }
@@ -354,7 +353,6 @@ export default function OnboardingScreen() {
                     <Pressable
                       key={cat}
                       onPress={() => onChange(cat)}
-                
                       className={`px-4 py-2 rounded-full ${
                         value === cat ? 'bg-brand-blue' : 'bg-brand-navy-light border border-brand-blue/40'
                       }`}
@@ -465,12 +463,11 @@ export default function OnboardingScreen() {
               setSelectedUnit(null);
               setStep('unit');
             }}
-      
             className="mt-4 items-center py-3"
           >
             <Text className="font-nunito-semibold text-base text-brand-steel">← Back to units</Text>
           </Pressable>
-          <SignOutLink />
+          <SignOutLink onSignOut={logout} />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
