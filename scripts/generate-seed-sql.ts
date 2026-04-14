@@ -27,7 +27,7 @@ async function main() {
 
     if (data.length === 0) continue;
 
-    const firstRowKeys = Object.keys(data[0]);
+    const firstRowKeys = Object.keys(data[0] as Record<string, unknown>);
     const propertyNameRaw = firstRowKeys[0];
     let propertyName = propertyNameRaw.trim();
     
