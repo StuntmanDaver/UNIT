@@ -35,10 +35,10 @@ export async function POST(req: Request) {
       ? session.payment_intent
       : session.payment_intent?.id ?? null;
 
-    // Fetch current promotion for the status event
+    // Fetch current promotion for the status event and admin notification
     const { data: currentPromo } = await supabase
       .from('promotions')
-      .select('review_status, payment_status')
+      .select('review_status, payment_status, property_id, headline, business_name')
       .eq('id', promotionId)
       .single();
 
@@ -69,6 +69,56 @@ export async function POST(req: Request) {
       actor_user_id: null,
       note: null,
     });
+
+    // Notify admins who manage this property
+    const propertyId = currentPromo?.property_id;
+    if (propertyId) {
+      const { data: adminProfiles } = await supabase
+        .from('profiles')
+        .select('id, email, push_token')
+        .eq('role', 'landlord')
+        .contains('property_ids', [propertyId]);
+
+      if (adminProfiles && adminProfiles.length > 0) {
+        const notifTitle = 'New Promotion Pending Review';
+        const notifBody = `${currentPromo?.business_name ?? 'An advertiser'} submitted "${currentPromo?.headline ?? 'a promotion'}" — tap to review.`;
+
+        // Push notifications to admins that have a token
+        const tokens = adminProfiles
+          .map((p: { push_token: string | null }) => p.push_token)
+          .filter((t): t is string => t !== null);
+
+        if (tokens.length > 0) {
+          await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(
+              tokens.map((token) => ({
+                to: token,
+                title: notifTitle,
+                body: notifBody,
+                data: { type: 'advertiser_approved', promotionId },
+                sound: 'default',
+              }))
+            ),
+          });
+        }
+
+        // In-app notification records so admins see it in the notifications tab
+        await supabase.from('notifications').insert(
+          adminProfiles.map((p: { id: string; email: string }) => ({
+            user_id: p.id,
+            user_email: p.email,
+            property_id: propertyId,
+            type: 'advertiser_approved',
+            title: notifTitle,
+            message: notifBody,
+            data: { promotionId },
+            read: false,
+          }))
+        );
+      }
+    }
   }
 
   return NextResponse.json({ received: true });
