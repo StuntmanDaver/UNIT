@@ -64,7 +64,8 @@
           "color": "#101B29"
         }
       ],
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "expo-font"
     ]
   }
 }

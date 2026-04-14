@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 
 SplashScreen.preventAutoHideAsync();
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -51,6 +52,19 @@ function AuthGuard() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Lora_400Regular: require('../assets/fonts/Lora_400Regular.ttf'),
+    Lora_600SemiBold: require('../assets/fonts/Lora_600SemiBold.ttf'),
+    Lora_700Bold: require('../assets/fonts/Lora_700Bold.ttf'),
+    Nunito_400Regular: require('../assets/fonts/Nunito_400Regular.ttf'),
+    Nunito_600SemiBold: require('../assets/fonts/Nunito_600SemiBold.ttf'),
+    Nunito_700Bold: require('../assets/fonts/Nunito_700Bold.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>

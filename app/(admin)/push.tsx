@@ -90,7 +90,7 @@ export default function AdminPushScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
           onPress={() => router.back()}
@@ -100,7 +100,7 @@ export default function AdminPushScreen() {
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
-        <Text className="text-2xl font-bold text-white">Push Notifications</Text>
+        <Text className="text-2xl font-lora-semibold text-white leading-tight">Push Notifications</Text>
         <View className="mt-3">
           <PropertySelector
             propertyIds={propertyIds}
@@ -116,14 +116,14 @@ export default function AdminPushScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {/* Compose section */}
-        <View className="px-4 pt-5">
-          <Text className="text-lg font-bold text-brand-navy mb-4">Compose</Text>
+        <View className="px-4 pt-4">
+          <Text className="text-2xl font-lora-semibold text-white leading-tight mb-4">Compose</Text>
 
           {/* Title input */}
           <View className="mb-1">
-            <View className="flex-row justify-between items-center mb-1.5">
-              <Text className="text-sm font-medium text-brand-navy">Title</Text>
-              <Text className="text-xs text-brand-steel">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-sm font-nunito-semibold text-brand-gray">Title</Text>
+              <Text className="text-sm font-nunito text-brand-steel">
                 {title.length}/{TITLE_MAX}
               </Text>
             </View>
@@ -139,9 +139,9 @@ export default function AdminPushScreen() {
 
           {/* Message input */}
           <View className="mb-4">
-            <View className="flex-row justify-between items-center mb-1.5">
-              <Text className="text-sm font-medium text-brand-navy">Message</Text>
-              <Text className="text-xs text-brand-steel">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-sm font-nunito-semibold text-brand-gray">Message</Text>
+              <Text className="text-sm font-nunito text-brand-steel">
                 {message.length}/{MESSAGE_MAX}
               </Text>
             </View>
@@ -158,8 +158,8 @@ export default function AdminPushScreen() {
           </View>
 
           {/* Audience */}
-          <View className="mb-5">
-            <Text className="text-sm font-medium text-brand-navy mb-2">Audience</Text>
+          <View className="mb-4">
+            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2">Audience</Text>
             <SegmentedControl
               segments={[...AUDIENCE_SEGMENTS]}
               selected={audience}
@@ -169,8 +169,8 @@ export default function AdminPushScreen() {
         </View>
 
         {/* Preview card */}
-        <View className="px-4 mb-5">
-          <Text className="text-sm font-semibold text-brand-steel uppercase tracking-wide mb-2">
+        <View className="px-4 mb-4">
+          <Text className="text-sm font-nunito-semibold text-brand-steel uppercase tracking-wide mb-2">
             Preview
           </Text>
           <Card className="p-4">
@@ -183,13 +183,13 @@ export default function AdminPushScreen() {
               </View>
               <View className="flex-1">
                 <Text
-                  className="text-sm font-semibold text-brand-navy"
+                  className="text-sm font-nunito-semibold text-white"
                   numberOfLines={2}
                 >
                   {title.trim() || 'Notification title'}
                 </Text>
                 <Text
-                  className="text-sm text-brand-steel mt-0.5"
+                  className="text-sm font-nunito text-brand-gray mt-0.5"
                   numberOfLines={3}
                 >
                   {message.trim() || 'Your message will appear here.'}
@@ -212,16 +212,16 @@ export default function AdminPushScreen() {
 
         {/* Sent history */}
         <View className="px-4">
-          <Text className="text-lg font-bold text-brand-navy mb-3">Sent History</Text>
+          <Text className="text-2xl font-lora-semibold text-white leading-tight mb-3">Sent History</Text>
 
           {!activePropertyId ? (
-            <Text className="text-brand-steel text-sm text-center py-4">
+            <Text className="font-nunito text-brand-steel text-sm text-center py-4">
               Select a property to view history
             </Text>
           ) : broadcastHistory.length === 0 ? (
             <View className="items-center py-8">
               <Bell size={32} color={BRAND.steel} />
-              <Text className="text-brand-steel text-sm mt-2">No broadcasts sent yet</Text>
+              <Text className="font-nunito text-brand-steel text-sm mt-2">No broadcasts sent yet</Text>
             </View>
           ) : (
             <View className="gap-3">
@@ -229,14 +229,14 @@ export default function AdminPushScreen() {
                 <Card key={item.id} className="p-4">
                   <View className="flex-row items-start justify-between gap-2">
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-brand-navy" numberOfLines={1}>
+                      <Text className="text-sm font-nunito-semibold text-white" numberOfLines={1}>
                         {item.title}
                       </Text>
-                      <Text className="text-sm text-brand-steel mt-0.5" numberOfLines={2}>
+                      <Text className="text-sm font-nunito text-brand-gray mt-0.5" numberOfLines={2}>
                         {item.message}
                       </Text>
                     </View>
-                    <Text className="text-xs text-brand-steel shrink-0">
+                    <Text className="text-sm font-nunito text-brand-steel shrink-0">
                       {formatDistanceToNow(new Date(item.created_date), { addSuffix: true })}
                     </Text>
                   </View>
@@ -266,18 +266,18 @@ export default function AdminPushScreen() {
         ]}
       >
         <View className="pb-2">
-          <Text className="text-sm text-brand-steel mb-3">
+          <Text className="text-sm font-nunito text-brand-gray mb-3">
             This will send a push notification to{' '}
-            <Text className="font-semibold text-brand-navy">
+            <Text className="font-nunito-semibold text-white">
               {audience === 'All Tenants' ? 'all tenants' : 'active tenants only'}
             </Text>{' '}
             at the selected property.
           </Text>
-          <Card className="p-3 bg-gray-50">
-            <Text className="text-xs font-semibold text-brand-navy uppercase tracking-wide mb-1">
+          <Card className="p-4">
+            <Text className="text-sm font-nunito-semibold text-white uppercase tracking-wide mb-1">
               {title}
             </Text>
-            <Text className="text-sm text-brand-steel">{message}</Text>
+            <Text className="text-sm font-nunito text-brand-gray">{message}</Text>
           </Card>
         </View>
       </Modal>

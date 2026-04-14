@@ -5,7 +5,14 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        arcadia: ['"Arcadia Text"', 'system-ui', 'sans-serif'],
+        // Lora — serif, used for headings and brand display text
+        lora: ['Lora_400Regular', 'serif'],
+        'lora-semibold': ['Lora_600SemiBold', 'serif'],
+        'lora-bold': ['Lora_700Bold', 'serif'],
+        // Nunito — friendly sans-serif, used for body/UI text
+        nunito: ['Nunito_400Regular', 'sans-serif'],
+        'nunito-semibold': ['Nunito_600SemiBold', 'sans-serif'],
+        'nunito-bold': ['Nunito_700Bold', 'sans-serif'],
       },
       colors: {
         brand: {

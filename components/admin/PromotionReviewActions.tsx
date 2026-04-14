@@ -48,21 +48,21 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
         <Button
           onPress={() => onAction({ action: 'approve' })}
           disabled={loading}
-          className="bg-green-600"
+          variant="primary"
         >
           Approve
         </Button>
         <Button
           onPress={() => setPendingAction('allow_revision')}
           disabled={loading}
-          className="bg-amber-500"
+          variant="secondary"
         >
           Allow Revision
         </Button>
         <Button
           onPress={() => setPendingAction('require_repayment')}
           disabled={loading}
-          className="bg-purple-600"
+          variant="secondary"
         >
           Require Repayment
         </Button>
