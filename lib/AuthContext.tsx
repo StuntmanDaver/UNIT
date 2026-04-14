@@ -80,9 +80,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // BUG-13: fetchProfile failed while a session existed. Do NOT proceed
           // as "authenticated with null profile" — that state leaks through the
           // AuthGuard with `needsPasswordChange=false` / `needsOnboarding=false`
-          // defaults and flashes the wrong screen. Sign out and clear state.
-          console.error('initAuth fetchProfile failed, signing out:', profileErr);
-          await supabase.auth.signOut();
+          // defaults and flashes the wrong screen. Sign out locally and clear state.
+          // Use scope:'local' to skip the server-side revocation request — a network
+          // call here can hang (expired token, slow network) and block the finally
+          // block from ever running, leaving the app stuck on the boot screen.
+          console.warn('initAuth fetchProfile failed, clearing local session:', profileErr);
+          await supabase.auth.signOut({ scope: 'local' });
           setUser(null);
           setProfile(null);
           setNeedsOnboarding(false);
