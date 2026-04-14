@@ -15,6 +15,7 @@ export default function AdminLayout() {
       <Stack.Screen name="advertisers" />
       <Stack.Screen name="properties" />
       <Stack.Screen name="push" />
+      <Stack.Screen name="profile" />
     </Stack>
   );
 }

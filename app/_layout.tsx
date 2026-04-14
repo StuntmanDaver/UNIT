@@ -14,7 +14,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 function AuthGuard() {
-  const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding } = useAuth();
+  const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const splashHiddenRef = useRef(false);
@@ -38,11 +38,13 @@ function AuthGuard() {
     } else if (isAuthenticated && !needsPasswordChange && !needsOnboarding && inAuthGroup) {
       if (segments.includes('reset-password')) {
         router.replace('/(tabs)/profile/edit');
+      } else if (isAdmin) {
+        router.replace('/(admin)/');
       } else {
         router.replace('/(tabs)/directory');
       }
     }
-  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, segments]);
+  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin, segments]);
 
   if (isLoading) {
     return <LoadingScreen message="Loading..." />;

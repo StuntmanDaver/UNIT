@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, FlatList, Pressable, ScrollView, Alert } from 'react-native';
 import { router } from 'expo-router';
-import { Users, UserCheck, Clock, Megaphone, ChevronRight, Bell, LogOut } from 'lucide-react-native';
+import { Users, UserCheck, Clock, Megaphone, ChevronRight, Bell, LogOut, User } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { StatCard } from '@/components/admin/StatCard';
@@ -123,6 +123,21 @@ export default function AdminDashboard() {
               <Bell size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-white ml-3">
                 Send Push Notification
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Pressable>
+          </View>
+
+          {/* Account Settings */}
+          <View className="px-4 mt-3">
+            <Pressable
+              onPress={() => router.push('/(admin)/profile')}
+              className="bg-brand-navy-light rounded-xl border border-brand-blue/40 shadow-sm flex-row items-center px-4 py-3.5"
+              style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
+            >
+              <User size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-white ml-3">
+                Account Settings
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Pressable>
