@@ -40,7 +40,18 @@ const businessSchema = z.object({
 type BusinessForm = z.infer<typeof businessSchema>;
 
 export default function OnboardingScreen() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  const SignOutLink = () => (
+    <Pressable
+      onPress={async () => {
+        await logout();
+      }}
+      className="mt-4 py-3 items-center"
+    >
+      <Text className="font-nunito text-sm text-red-500">Sign out</Text>
+    </Pressable>
+  );
   const [step, setStep] = useState<'property' | 'unit' | 'profile'>('property');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
@@ -199,6 +210,7 @@ export default function OnboardingScreen() {
             <Text className="font-nunito text-base text-brand-steel text-center mt-8">No properties found</Text>
           }
         />
+        <SignOutLink />
       </View>
     );
   }
@@ -245,6 +257,7 @@ export default function OnboardingScreen() {
         >
           <Text className="font-nunito-semibold text-base text-white">← Back to properties</Text>
         </Pressable>
+        <SignOutLink />
       </View>
     );
   }
@@ -410,14 +423,14 @@ export default function OnboardingScreen() {
 
           <Pressable
             onPress={() => {
-              setSelectedProperty(null);
               setSelectedUnit(null);
-              setStep('property');
+              setStep('unit');
             }}
             className="mt-4 items-center"
           >
-            <Text className="font-nunito text-base text-brand-steel">Change property</Text>
+            <Text className="font-nunito-semibold text-base text-brand-steel">← Back to units</Text>
           </Pressable>
+          <SignOutLink />
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
