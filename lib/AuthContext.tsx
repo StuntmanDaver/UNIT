@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef, type ReactNode } from 'react';
 import { supabase } from '@/services/supabase';
 import { type Profile } from '@/services/profiles';
 import type { User } from '@supabase/supabase-js';
@@ -23,6 +23,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  // BUG-01 guard: supabase-js synchronously emits INITIAL_SESSION the moment
+  // onAuthStateChange is subscribed. Without this guard, initAuth() and the
+  // subscription both race to fetch the profile on cold start. isInitializedRef
+  // flips true inside initAuth()'s finally; the subscription skips
+  // INITIAL_SESSION until init is the sole writer of the cold-start state.
+  const isInitializedRef = useRef(false);
 
   const fetchProfile = async (userId: string, userEmail: string) => {
     const { data: profileData, error: profileError } = await supabase
@@ -59,13 +65,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (session?.user) {
-          setUser(session.user);
+        if (!session?.user) {
+          // No session — cleanly settled, nothing to fetch.
+          setUser(null);
+          setProfile(null);
+          setNeedsOnboarding(false);
+          return;
+        }
+
+        setUser(session.user);
+        try {
           await fetchProfile(session.user.id, session.user.email ?? '');
+        } catch (profileErr) {
+          // BUG-13: fetchProfile failed while a session existed. Do NOT proceed
+          // as "authenticated with null profile" — that state leaks through the
+          // AuthGuard with `needsPasswordChange=false` / `needsOnboarding=false`
+          // defaults and flashes the wrong screen. Sign out and clear state.
+          console.error('initAuth fetchProfile failed, signing out:', profileErr);
+          await supabase.auth.signOut();
+          setUser(null);
+          setProfile(null);
+          setNeedsOnboarding(false);
         }
       } catch (err) {
         console.error('initAuth error:', err);
+        setUser(null);
+        setProfile(null);
+        setNeedsOnboarding(false);
       } finally {
+        // Mark init complete BEFORE releasing the loading screen so the
+        // subscription's INITIAL_SESSION skip is already armed.
+        isInitializedRef.current = true;
         setIsLoading(false);
       }
     };
@@ -74,6 +104,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // BUG-01: Skip the synchronous INITIAL_SESSION event emitted at subscribe
+        // time. initAuth() is the single source of truth for the cold-start
+        // session. We deliberately DO NOT skip TOKEN_REFRESHED, SIGNED_IN, or
+        // SIGNED_OUT — reset-password.tsx relies on TOKEN_REFRESHED to refetch
+        // the profile after clearing needs_password_change.
+        if (event === 'INITIAL_SESSION' && !isInitializedRef.current) {
+          return;
+        }
         try {
           if (session?.user) {
             setUser(session.user);
