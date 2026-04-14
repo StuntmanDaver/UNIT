@@ -90,11 +90,16 @@ export default function LoginScreen() {
       >
         <View className="px-6 py-10 w-full max-w-md mx-auto">
           <View className="items-center mb-8">
-            <Image
-              source={require('../../assets/logo-transparent-light.png')}
-              style={{ width: 160, height: 160 }}
-              resizeMode="contain"
-            />
+            <View
+              className="rounded-3xl p-4"
+              style={{ backgroundColor: '#FFFFFF' }}
+            >
+              <Image
+                source={require('../../assets/unit-logo-transparent.png')}
+                style={{ width: 140, height: 140 }}
+                resizeMode="contain"
+              />
+            </View>
           </View>
 
           {/* Dev quick-fill */}
