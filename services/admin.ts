@@ -8,6 +8,10 @@ export type TenantImportInput = {
   contact_phone?: string;
   services?: string;
   description?: string;
+  // BUG-08: optional — when present, the invite-tenant Edge Function writes
+  // this to businesses.unit_number on the created row. When omitted the
+  // tenant must claim a unit during onboarding on first login.
+  unit_number?: string;
   property_id: string;
 };
 

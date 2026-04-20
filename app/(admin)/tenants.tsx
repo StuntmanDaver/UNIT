@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, FlatList, Platform, Pressable } from 'react-native';
+import { View, Text, FlatList, Pressable } from 'react-native';
 import { Users, ChevronLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { BRAND } from '@/constants/colors';
@@ -118,21 +118,25 @@ export default function TenantsScreen() {
     }
   };
 
+  // Export CSV remains web-only because it writes to the browser file system;
+  // a native export would require expo-sharing + FileSystem write which is
+  // out of scope for 02-02 (import, not export, is M1-04).
   const handleExportCSV = () => {
-    if (Platform.OS !== 'web') return;
+    if (typeof document === 'undefined') return;
     if (!tenants || tenants.length === 0) {
       Toast.show({ type: 'info', text1: 'No tenants to export' });
       return;
     }
 
-    const headers = ['email', 'business_name', 'category', 'status', 'contact_name', 'contact_phone'];
+    const headers = ['email', 'business_name', 'category', 'status', 'contact_name', 'contact_phone', 'unit_number'];
     const rows = tenants.map(t => [
       t.profile.email || '',
       t.business?.business_name || '',
       t.business?.category || '',
       t.profile.status || '',
       t.business?.contact_name || '',
-      t.business?.contact_phone || ''
+      t.business?.contact_phone || '',
+      t.business?.unit_number || ''
     ]);
 
     const csvContent = [
@@ -190,7 +194,7 @@ export default function TenantsScreen() {
               selected={statusFilter}
               onChange={setStatusFilter}
             />
-            {Platform.OS === 'web' ? (
+            {typeof document !== 'undefined' ? (
               <View className="flex-row gap-3">
                 <View className="flex-1">
                   <Button onPress={() => setModalVisible(true)}>Add Tenant</Button>
@@ -212,7 +216,7 @@ export default function TenantsScreen() {
               data={tenants ?? []}
               keyExtractor={(item) => item.profile.id}
               ListHeaderComponent={
-                Platform.OS === 'web' ? <CSVImporter propertyId={activePropertyId} /> : null
+                <CSVImporter propertyId={activePropertyId} />
               }
               renderItem={({ item }) => (
                 <TenantRow
@@ -232,15 +236,7 @@ export default function TenantsScreen() {
                   }
                 />
               }
-              ListFooterComponent={
-                Platform.OS !== 'web' ? (
-                  <View className="px-4 py-3 mt-4">
-                    <Text className="text-sm font-nunito text-brand-steel text-center">
-                      For bulk import, use the admin web panel
-                    </Text>
-                  </View>
-                ) : null
-              }
+              ListFooterComponent={null}
               contentContainerStyle={{ flexGrow: 1 }}
               showsVerticalScrollIndicator={false}
             />

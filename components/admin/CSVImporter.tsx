@@ -1,233 +1,305 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, Pressable, ActivityIndicator } from 'react-native';
+// Cross-platform CSV bulk importer for tenant invitations.
+//
+// Replaces the previous web-only implementation (HTMLInputElement + FileReader)
+// with expo-document-picker + expo-file-system + papaparse so that the same
+// component renders on iOS, Android, and the web (react-native-web).
+//
+// Bug fixes vs. the previous implementation:
+//   BUG-02 (parent fix): the component now works on native, so the
+//     `Platform.OS === 'web'` gate in `app/(admin)/tenants.tsx` can be removed.
+//   BUG-09: papaparse handles quoted commas (e.g. `"Consulting, LLC"`) without
+//     shifting downstream fields.
+//   BUG-10: progress is clamped to 100% via `computeProgress`.
+//   BUG-11: batch-level rejections populate the `failed` array row-by-row
+//     rather than being silently dropped.
+//   BUG-08 (client side): unit_number is carried through the parse → validate
+//     → invite pipeline when present on the CSV.
+import React, { useState } from 'react';
+import { View, Text, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import { Upload, X, AlertCircle, CheckCircle2 } from 'lucide-react-native';
-import { Button } from '@/components/ui/Button';
-import { adminService } from '@/services/admin';
+import * as DocumentPicker from 'expo-document-picker';
+import { File } from 'expo-file-system';
 import Toast from 'react-native-toast-message';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/Button';
+import { adminService } from '@/services/admin';
 import { BRAND } from '@/constants/colors';
+import {
+  parseCSV,
+  computeProgress,
+  toInviteRow,
+  MAX_CSV_BYTES,
+  type ParsedRow,
+} from './_csvImporter.utils';
 
 interface CSVImporterProps {
   propertyId: string;
 }
 
-interface ParsedRow {
-  email: string;
-  business_name: string;
-  category: string;
-  contact_name: string;
-  contact_phone: string;
-  services: string;
-  _isValid: boolean;
-  _error?: string;
-}
+const BATCH_SIZE = 25;
 
 export function CSVImporter({ propertyId }: CSVImporterProps) {
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [failedRows, setFailedRows] = useState<Array<{ email: string; reason: string }>>([]);
   const queryClient = useQueryClient();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handlePickFile = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['text/csv', 'text/comma-separated-values', 'application/vnd.ms-excel'],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const text = e.target?.result as string;
-      parseCSV(text);
-    };
-    reader.readAsText(file);
-  };
-
-  const parseCSV = (csvText: string) => {
-    const lines = csvText.split('\n').filter(line => line.trim().length > 0);
-    if (lines.length < 2) {
-      Toast.show({ type: 'error', text1: 'CSV is empty or missing headers' });
-      return;
-    }
-
-    const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
-    const emailIdx = headers.indexOf('email');
-    const businessNameIdx = headers.indexOf('business_name');
-    const categoryIdx = headers.indexOf('category');
-    const contactNameIdx = headers.indexOf('contact_name');
-    const contactPhoneIdx = headers.indexOf('contact_phone');
-    const servicesIdx = headers.indexOf('services');
-
-    if (emailIdx === -1 || businessNameIdx === -1 || categoryIdx === -1) {
-      Toast.show({ type: 'error', text1: 'Missing required columns: email, business_name, category' });
-      return;
-    }
-
-    const rows: ParsedRow[] = [];
-    for (let i = 1; i < lines.length; i++) {
-      // Basic CSV splitting that handles quotes poorly, but enough for MVP
-      const row = lines[i].split(',').map(col => col.trim().replace(/^"|"$/g, ''));
-      
-      const email = row[emailIdx] || '';
-      const business_name = row[businessNameIdx] || '';
-      const category = row[categoryIdx] || '';
-      const contact_name = contactNameIdx !== -1 ? row[contactNameIdx] : '';
-      const contact_phone = contactPhoneIdx !== -1 ? row[contactPhoneIdx] : '';
-      const services = servicesIdx !== -1 ? row[servicesIdx] : '';
-
-      const _isValid = !!(email && email.includes('@') && business_name && category);
-      let _error;
-      if (!_isValid) {
-        if (!email || !email.includes('@')) _error = 'Invalid email';
-        else if (!business_name) _error = 'Missing business name';
-        else if (!category) _error = 'Missing category';
+      if (result.canceled) {
+        // User cancelled — idle state, no toast needed.
+        return;
       }
 
-      rows.push({
-        email,
-        business_name,
-        category,
-        contact_name,
-        contact_phone,
-        services,
-        _isValid,
-        _error,
-      });
-    }
+      const asset = result.assets?.[0];
+      if (!asset) {
+        Toast.show({ type: 'error', text1: 'No file selected' });
+        return;
+      }
 
-    setParsedData(rows);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+      // T-02-14: reject pathologically large CSVs before they hit the JS bridge
+      if (typeof asset.size === 'number' && asset.size > MAX_CSV_BYTES) {
+        Toast.show({
+          type: 'error',
+          text1: 'CSV too large',
+          text2: 'Split the file into smaller batches (<2MB).',
+        });
+        return;
+      }
+
+      // expo-file-system v19 File API — `new File(uri).text()` returns the
+      // file contents as a UTF-8 string.
+      const file = new File(asset.uri);
+      const csvText = await file.text();
+
+      const rows = parseCSV(csvText);
+
+      if (rows.length === 0) {
+        Toast.show({ type: 'error', text1: 'CSV is empty or missing headers' });
+        return;
+      }
+
+      setParsedData(rows);
+      setFailedRows([]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to read CSV';
+      Toast.show({ type: 'error', text1: 'CSV read failed', text2: message });
+    }
   };
 
   const handleImport = async () => {
-    const validRows = parsedData.filter(r => r._isValid);
+    const validRows = parsedData.filter((r) => r._isValid);
     if (validRows.length === 0) return;
 
     setIsImporting(true);
     setProgress(0);
+    setFailedRows([]);
 
-    const batchSize = 25;
+    const total = validRows.length;
     let successCount = 0;
-    let failCount = 0;
+    const failed: Array<{ email: string; reason: string }> = [];
 
-    for (let i = 0; i < validRows.length; i += batchSize) {
-      const batch = validRows.slice(i, i + batchSize).map(r => ({
-        email: r.email,
-        business_name: r.business_name,
-        category: r.category,
-        contact_name: r.contact_name,
-        contact_phone: r.contact_phone,
-        description: r.services ? `Services: ${r.services}` : undefined,
-        property_id: propertyId,
-      }));
+    for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
+      const slice = validRows.slice(i, i + BATCH_SIZE);
+      const batch = slice.map((r) => toInviteRow(r, propertyId));
 
       try {
         const result = await adminService.inviteTenants(batch);
         successCount += result.imported;
-        failCount += result.failed.length;
+        // BUG-11: propagate per-row failures from the Edge Function response
+        // into the UI rather than swallowing them.
+        if (Array.isArray(result.failed)) {
+          failed.push(...result.failed);
+        }
       } catch (err) {
-        failCount += batch.length;
+        // BUG-11: on batch-level rejection, surface one failed entry per row
+        // in the batch with a contextual reason.
+        const reason = err instanceof Error ? err.message : 'Unknown error';
+        slice.forEach((r) =>
+          failed.push({ email: r.email, reason: `Batch failed: ${reason}` }),
+        );
       }
 
-      setProgress(Math.round(((i + batchSize) / validRows.length) * 100));
+      // BUG-10: computeProgress clamps to 100 even when the last batch is
+      // partial and `i + BATCH_SIZE` overshoots `total`.
+      const processed = Math.min(total, i + slice.length);
+      setProgress(computeProgress(processed, total));
     }
 
+    setFailedRows(failed);
+
     Toast.show({
-      type: 'success',
-      text1: 'Import Complete',
-      text2: `Imported: ${successCount}, Failed: ${failCount}`,
+      type: failed.length === 0 ? 'success' : 'info',
+      text1: 'Import complete',
+      text2: `${successCount} imported, ${failed.length} failed`,
     });
 
     queryClient.invalidateQueries({ queryKey: ['tenants'] });
     setIsImporting(false);
-    setParsedData([]);
+    // Keep the parsed data visible only when there were failures so the admin
+    // can review the error list; otherwise reset.
+    if (failed.length === 0) {
+      setParsedData([]);
+    }
   };
 
   const clearData = () => {
     setParsedData([]);
+    setFailedRows([]);
+    setProgress(0);
   };
 
-  if (parsedData.length === 0) {
+  if (parsedData.length === 0 && failedRows.length === 0) {
     return (
-      <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-6 mb-6 mx-4 mt-4">
-        <Text className="text-2xl font-lora-semibold text-brand-gray mb-2">CSV Bulk Import</Text>
+      <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
+        <Text className="text-2xl font-lora-semibold text-brand-gray mb-2">
+          CSV Bulk Import
+        </Text>
         <Text className="text-sm font-nunito text-brand-gray mb-4">
-          Expected headers: <Text className="text-sm font-nunito-semibold text-brand-gray bg-brand-navy px-1">email, business_name, category, contact_name, contact_phone, services</Text>
+          Required headers: email, business_name, category. Optional:
+          contact_name, contact_phone, services, unit_number.
         </Text>
         <Pressable
-          onPress={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-brand-blue/40 rounded-xl py-8 items-center bg-brand-navy"
+          onPress={handlePickFile}
+          className="border-2 border-dashed border-brand-blue/40 rounded-xl p-8 items-center bg-brand-navy min-h-[44px]"
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
           <Upload size={24} color={BRAND.blue} />
-          <Text className="text-base font-nunito-semibold text-brand-gray mt-3">Click to upload CSV</Text>
+          <Text className="text-base font-nunito-semibold text-brand-gray mt-2">
+            Pick CSV
+          </Text>
         </Pressable>
-        <input
-          type="file"
-          accept=".csv"
-          ref={fileInputRef}
-          onChange={handleFileUpload}
-          style={{ display: 'none' }}
-        />
       </View>
     );
   }
 
-  const validCount = parsedData.filter(r => r._isValid).length;
+  const validCount = parsedData.filter((r) => r._isValid).length;
+  const invalidCount = parsedData.length - validCount;
 
   return (
-    <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-6 mb-6 mx-4 mt-4">
+    <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-2xl font-lora-semibold text-brand-gray">Import Preview</Text>
-        <Pressable onPress={clearData} className="p-2 -mr-2" disabled={isImporting}>
-          <X size={20} color={BRAND.steel} />
+        <Text className="text-2xl font-lora-semibold text-brand-gray">
+          Import Preview
+        </Text>
+        <Pressable
+          onPress={clearData}
+          disabled={isImporting}
+          hitSlop={8}
+          className="p-2 min-h-[44px] min-w-[44px] items-center justify-center"
+          style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
+        >
+          <X size={20} color={BRAND.gray} />
         </Pressable>
       </View>
 
-      <View className="bg-brand-navy rounded-xl p-4 mb-4">
-        <Text className="text-sm font-nunito-semibold text-brand-gray">
-          Found {parsedData.length} rows ({validCount} valid)
-        </Text>
-      </View>
+      {parsedData.length > 0 && (
+        <View className="bg-brand-navy rounded-xl p-4 mb-4">
+          <Text className="text-sm font-nunito-semibold text-brand-gray">
+            Found {parsedData.length} rows ({validCount} valid, {invalidCount} invalid)
+          </Text>
+        </View>
+      )}
 
-      <View className="max-h-60 mb-6 border border-brand-blue/40 rounded-xl overflow-hidden">
-        {parsedData.slice(0, 100).map((row, idx) => (
-          <View
-            key={idx}
-            className={`flex-row items-center px-4 py-3 border-b border-brand-blue/40 ${
-              !row._isValid ? 'bg-red-500/10' : ''
-            }`}
-          >
-            {row._isValid ? (
-              <CheckCircle2 size={16} color="#10B981" />
-            ) : (
-              <AlertCircle size={16} color="#EF4444" />
-            )}
-            <View className="ml-3 flex-1 flex-row">
-              <Text className="text-sm font-nunito-semibold text-brand-gray w-1/3" numberOfLines={1}>{row.email}</Text>
-              <Text className="text-sm font-nunito text-brand-gray w-1/3" numberOfLines={1}>{row.business_name}</Text>
-              {row._error && (
-                <Text className="text-sm font-nunito text-red-500 w-1/3" numberOfLines={1}>{row._error}</Text>
+      {parsedData.length > 0 && (
+        <ScrollView
+          className="max-h-64 mb-4 border border-brand-blue/40 rounded-xl"
+          showsVerticalScrollIndicator={false}
+        >
+          {parsedData.slice(0, 100).map((row, idx) => (
+            <View
+              key={idx}
+              className={`px-4 py-2 border-b border-brand-blue/40 ${
+                !row._isValid ? 'bg-red-500/10' : ''
+              }`}
+            >
+              <View className="flex-row items-center gap-2">
+                {row._isValid ? (
+                  <CheckCircle2 size={16} color={BRAND.blue} />
+                ) : (
+                  <AlertCircle size={16} color="#EF4444" />
+                )}
+                <Text
+                  className="text-sm font-nunito-semibold text-brand-gray flex-1"
+                  numberOfLines={1}
+                >
+                  {row.email || '(missing email)'}
+                </Text>
+                <Text
+                  className="text-sm font-nunito text-brand-gray flex-1"
+                  numberOfLines={1}
+                >
+                  {row.business_name || '—'}
+                </Text>
+              </View>
+              {!row._isValid && row._errors.length > 0 && (
+                <View className="mt-2 gap-1">
+                  {row._errors.map((err, errIdx) => (
+                    <Text
+                      key={errIdx}
+                      className="text-sm font-nunito text-red-500"
+                    >
+                      • {err}
+                    </Text>
+                  ))}
+                </View>
               )}
             </View>
-          </View>
-        ))}
-        {parsedData.length > 100 && (
-          <View className="px-4 py-3 bg-brand-navy">
-            <Text className="text-sm font-nunito text-brand-gray text-center">... and {parsedData.length - 100} more rows</Text>
-          </View>
-        )}
-      </View>
+          ))}
+          {parsedData.length > 100 && (
+            <View className="px-4 py-2 bg-brand-navy">
+              <Text className="text-sm font-nunito text-brand-gray text-center">
+                … and {parsedData.length - 100} more rows
+              </Text>
+            </View>
+          )}
+        </ScrollView>
+      )}
+
+      {failedRows.length > 0 && !isImporting && (
+        <View className="bg-red-500/10 border border-red-500/40 rounded-xl p-4 mb-4">
+          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2">
+            {failedRows.length} import failures:
+          </Text>
+          {failedRows.slice(0, 5).map((f, idx) => (
+            <Text
+              key={idx}
+              className="text-sm font-nunito text-red-500"
+              numberOfLines={2}
+            >
+              • {f.email}: {f.reason}
+            </Text>
+          ))}
+          {failedRows.length > 5 && (
+            <Text className="text-sm font-nunito text-brand-gray mt-2">
+              … and {failedRows.length - 5} more
+            </Text>
+          )}
+        </View>
+      )}
 
       {isImporting ? (
         <View className="items-center py-2">
           <ActivityIndicator color={BRAND.blue} />
-          <Text className="text-sm font-nunito-semibold text-brand-gray mt-3">Importing... {progress}%</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-gray mt-2">
+            Importing… {progress}%
+          </Text>
         </View>
+      ) : parsedData.length > 0 ? (
+        <Button onPress={handleImport} disabled={validCount === 0}>
+          {`Import ${validCount} valid row${validCount === 1 ? '' : 's'}`}
+        </Button>
       ) : (
-      <Button 
-        onPress={handleImport} 
-        disabled={validCount === 0}
-      >
-        {`Import ${validCount} Tenants`}
-      </Button>
+        <Button variant="secondary" onPress={clearData}>
+          Dismiss
+        </Button>
       )}
     </View>
   );

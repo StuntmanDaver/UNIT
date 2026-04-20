@@ -126,6 +126,32 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      // BUG-08 / T-02-11: if a unit_number is supplied, reject the import if
+      // that unit is already claimed on the same property. Without this check
+      // two concurrent imports could silently write duplicate unit_numbers.
+      // If unit_number is omitted, the import is allowed — the tenant claims
+      // a unit at onboarding on first login.
+      const unitNumber =
+        typeof tenant.unit_number === 'string' && tenant.unit_number.trim().length > 0
+          ? tenant.unit_number.trim()
+          : null;
+
+      if (unitNumber) {
+        const { data: unitConflict } = await adminClient
+          .from('businesses')
+          .select('id')
+          .eq('property_id', tenant.property_id)
+          .eq('unit_number', unitNumber)
+          .maybeSingle();
+        if (unitConflict) {
+          results.failed.push({
+            email: tenant.email,
+            reason: `Unit ${unitNumber} is already claimed on this property`,
+          });
+          continue;
+        }
+      }
+
       // Generate temp password — 16 random alphanumeric chars
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
       const bytes = crypto.getRandomValues(new Uint8Array(16));
@@ -159,18 +185,22 @@ Deno.serve(async (req) => {
         throw new Error(profileError.message);
       }
 
-      // Create business record
+      // Create business record. BUG-08: persist unit_number when provided;
+      // leaving it null allows the tenant to pick a unit during onboarding.
+      const businessInsert: Record<string, unknown> = {
+        property_id: tenant.property_id,
+        owner_email: tenant.email,
+        business_name: tenant.business_name,
+        category: tenant.category,
+        contact_name: tenant.contact_name ?? null,
+        contact_phone: tenant.contact_phone ?? null,
+        business_description: tenant.description ?? null,
+        unit_number: unitNumber,
+      };
+
       const { data: business, error: businessError } = await adminClient
         .from('businesses')
-        .insert({
-          property_id: tenant.property_id,
-          owner_email: tenant.email,
-          business_name: tenant.business_name,
-          category: tenant.category,
-          contact_name: tenant.contact_name ?? null,
-          contact_phone: tenant.contact_phone ?? null,
-          business_description: tenant.description ?? null,
-        })
+        .insert(businessInsert)
         .select('id')
         .single();
 
