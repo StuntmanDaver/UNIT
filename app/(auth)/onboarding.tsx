@@ -146,7 +146,14 @@ export default function OnboardingScreen() {
           const { file_url } = await storageService.uploadFile(logoUri, ext);
           logoUrl = file_url;
         } catch {
-          // continue without logo; user can update it later
+          // Per D-05 / Risk Area 5: continue without logo so the user is not
+          // blocked, but surface a warning so they know the upload failed and
+          // can retry from profile edit later.
+          Toast.show({
+            type: 'info',
+            text1: 'Logo upload failed',
+            text2: 'You can try again from your profile settings.',
+          });
         }
       }
 
