@@ -42,6 +42,14 @@ async function registerForPushNotifications(): Promise<string | null> {
     return null;
   }
 
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(projectId)) {
+    if (__DEV__) {
+      console.warn(`EAS projectId in app.json is not a valid UUID (got "${projectId}"). Run \`eas init\` in unit/ to create an Expo project, then rebuild the dev client. Remote push requires a real EAS project ID.`);
+    }
+    return null;
+  }
+
   try {
     const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
     return tokenData.data;
@@ -51,7 +59,7 @@ async function registerForPushNotifications(): Promise<string | null> {
   }
 }
 
-function handleNotificationResponse(response: Notifications.NotificationResponse): void {
+export function handleNotificationResponse(response: Notifications.NotificationResponse): void {
   const data = response.notification.request.content.data as { type?: string } | null;
   const type = data?.type;
 
@@ -63,6 +71,9 @@ function handleNotificationResponse(response: Notifications.NotificationResponse
     case 'promotion':
     case 'advertiser_approved':
       router.push('/(tabs)/promotions');
+      break;
+    case 'broadcast':
+      router.push('/(tabs)/notifications');
       break;
     default:
       router.push('/(tabs)/notifications');
