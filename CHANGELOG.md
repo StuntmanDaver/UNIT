@@ -1,5 +1,32 @@
 # UNIT Mobile App — Changelog
 
+## 2026-04-20 — Phases 02→05 marathon (milestone code-complete)
+
+All five milestone phases shipped code-complete in a single session. Five commits land on `main`; full Jest suite passes 52/52; brand-lint clean; tsc clean; production iOS bundle exports cleanly with zero warnings.
+
+### Added
+- **Cross-platform `CSVImporter`** (`b524a34`) — `components/admin/CSVImporter.tsx` + new `_csvImporter.utils.ts` using `expo-document-picker ~14.0.8` + `expo-file-system ~19.0.21` File API + `papaparse ^5.5.3` + `@types/papaparse`. Replaces the web-only `HTMLInputElement` + `FileReader` + `<input type="file">` importer. Removed the `Platform.OS === 'web'` gate in `app/(admin)/tenants.tsx:219`. Mobile admins can finally bulk-invite tenants. Closes **BUG-02** (importer unreachable on mobile), **BUG-09** (quoted-comma parsing — `"Consulting, LLC"` no longer splits across columns), **BUG-10** (progress bar clamped ≤100%), **BUG-11** (per-row errors propagate from Edge Function response into UI).
+- **Unit tests for CSV parse/validate** (`b524a34`) — `components/admin/__tests__/CSVImporter.test.tsx`. 18 tests covering quoted commas, invalid rows, progress clamp, unit_number paths.
+- **Non-blocking logo-upload toast in onboarding** (`c536fe4`) — `app/(auth)/onboarding.tsx:140-158`. Wraps storage upload in its own try/catch; failure surfaces a non-blocking info toast while profile creation still completes. Per D-05 / Risk Area 5.
+- **Sentry initialized at app boot** (`b44b838`) — `app/_layout.tsx` now calls `initSentry()` at module load before `SplashScreen.preventAutoHideAsync()`. Scaffolding was present since Apr 14 but never wired in. Closes **DEP-05**. `initSentry()` guards Expo Go via `isRunningInExpoGo()` so dev is safe.
+- **Non-blocking logo-upload toast in profile/edit** (`23c17ec`) — `app/(tabs)/profile/edit.tsx:99-110`. Mirrors the Phase 02 onboarding pattern — logo upload failure shows info toast, profile save still persists other fields. Closes **M2-01** code gap.
+- **UUID format check on EAS projectId** (`5ec601f`) — `hooks/usePushNotifications.ts`. New regex guard catches the literal `"YOUR_EAS_PROJECT_ID"` placeholder in `app.json` with a dev-only warning pointing to `eas init`. Without this, `Notifications.getExpoPushTokenAsync` returned a silent `Invalid uuid` from `exp.host`.
+- **Explicit `broadcast` case in deep-link router** (`5ec601f`) — `handleNotificationResponse` now has an explicit branch for `type: 'broadcast'` → `/(tabs)/notifications`. Functionally identical to the prior default fall-through, but self-documenting.
+- **Deep-link router unit tests** (`5ec601f`) — `__tests__/hooks/usePushNotifications.test.ts`. 7 tests covering all 5 push types (`post`, `offer`, `promotion`, `advertiser_approved`, `broadcast`) + unknown + no-type. `handleNotificationResponse` exported for testability.
+
+### BUG-08 — `invite-tenant` Edge Function
+- `supabase/functions/invite-tenant/index.ts` now persists `unit_number` on the created `businesses` row when the CSV row supplies it. Duplicate `unit_number` per property is rejected (T-02-11). Tenants created without a `unit_number` are marked for unit-claim on first login.
+
+### Fixed
+- **Push token registration silent failure** — `hooks/usePushNotifications.ts` previously accepted the `"YOUR_EAS_PROJECT_ID"` placeholder as a truthy projectId and posted it to `exp.host/--/api/v2/push/getExpoPushToken`, which returned HTTP 400 `Invalid uuid` with no surfaced error. Now the UUID regex guard bails out early with a helpful dev warning.
+
+### Infrastructure
+- Supabase Edge Functions redeployed to project `ouvneoaqoilnigynlvbp` (UNIT Shane): `invite-tenant` + `complete-onboarding`.
+
+### Notes
+- Remaining sign-off work is human-interactive: ~2-2.5h user UAT session (iOS simulator + Vercel dashboard fix for KNOWN-BUG-06 + `eas init` + dev build for NOTIF push).
+- No portal code changes this session; portal `vitest run` stays green at 3/3.
+
 ## 2026-04-14
 
 ### Fixed
