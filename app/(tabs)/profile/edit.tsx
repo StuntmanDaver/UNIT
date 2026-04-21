@@ -97,9 +97,17 @@ export default function EditProfileScreen() {
       let logo_url = business.logo_url;
 
       if (logoUri) {
-        const ext = logoUri.split('.').pop() ?? 'jpg';
-        const { file_url } = await storageService.uploadFile(logoUri, ext);
-        logo_url = file_url;
+        try {
+          const ext = logoUri.split('.').pop() ?? 'jpg';
+          const { file_url } = await storageService.uploadFile(logoUri, ext);
+          logo_url = file_url;
+        } catch {
+          Toast.show({
+            type: 'info',
+            text1: 'Logo upload failed',
+            text2: 'You can try again later — the rest of your profile was saved.',
+          });
+        }
       }
 
       await businessesService.update(business.id, {
