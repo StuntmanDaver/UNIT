@@ -8,7 +8,7 @@
       "policy": "sdkVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/YOUR_EAS_PROJECT_ID",
+      "url": "https://u.expo.dev/1a4f5cf7-5e70-4c3e-8121-e1c356f19d51",
       "enabled": true,
       "fallbackToCacheTimeout": 0,
       "checkAutomatically": "ON_LOAD"
@@ -28,16 +28,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f5f5f7"
       },
-      "package": "com.unitapp.mobile"
+      "package": "com.unitapp.mobile",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
-      }
     },
     "plugins": [
       "expo-router",
@@ -67,6 +65,13 @@
       "@sentry/react-native",
       "expo-font",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1a4f5cf7-5e70-4c3e-8121-e1c356f19d51"
+      }
+    },
+    "owner": "stuntmandaver"
   }
 }
