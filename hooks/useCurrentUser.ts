@@ -13,5 +13,7 @@ export function useCurrentUser() {
       return businesses[0] ?? null;
     },
     enabled: !!user?.email,
+    retry: 0,
+    networkMode: 'always',
   });
 }
