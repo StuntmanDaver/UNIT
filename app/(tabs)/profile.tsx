@@ -56,10 +56,6 @@ export default function ProfileScreen() {
     ]);
   };
 
-  if (isLoading) {
-    return <LoadingScreen message="Loading profile..." />;
-  }
-
   return (
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
@@ -80,6 +76,9 @@ export default function ProfileScreen() {
         </View>
       </GradientHeader>
 
+      {isLoading ? (
+        <LoadingScreen message="Loading profile..." />
+      ) : (
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View className="px-4 pt-6">
           {/* Business card */}
@@ -160,6 +159,7 @@ export default function ProfileScreen() {
           </Button>
         </View>
       </ScrollView>
+      )}
     </View>
   );
 }
