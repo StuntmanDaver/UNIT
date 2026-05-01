@@ -71,7 +71,7 @@ export default function ProfileScreen() {
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
-            <LogOut size={22} color="#7C8DA7" />
+            <LogOut size={22} color={BRAND.gray} />
           </Pressable>
         </View>
       </GradientHeader>
