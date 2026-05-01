@@ -154,14 +154,16 @@ export default function ProfileScreen() {
               />
             </View>
           </Card>
-
-          {/* Log Out */}
-          <Button onPress={handleLogout} variant="destructive">
-            Log Out
-          </Button>
         </View>
       </ScrollView>
       )}
+
+      {/* Log Out always visible regardless of loading state */}
+      <View className="px-4 pb-8">
+        <Button onPress={handleLogout} variant="destructive">
+          Log Out
+        </Button>
+      </View>
     </View>
   );
 }
