@@ -53,7 +53,7 @@ export default function AdvertisersScreen() {
   }, [promotions, recentWindowActive]);
 
   const renderPromotion = ({ item }: { item: Promotion }) => (
-    <Pressable onPress={() => router.push(`/promotions/${item.id}`)}>
+    <Pressable onPress={() => router.push(`/(admin)/promotions/${item.id}`)}>
       <Card className="mx-4 mb-3 p-4">
         <View className="flex-row items-start justify-between mb-2">
           <View className="flex-1 mr-3">

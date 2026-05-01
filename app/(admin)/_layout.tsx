@@ -16,6 +16,7 @@ export default function AdminLayout() {
       <Stack.Screen name="properties" />
       <Stack.Screen name="push" />
       <Stack.Screen name="profile" />
+      <Stack.Screen name="promotions/[id]" />
     </Stack>
   );
 }
