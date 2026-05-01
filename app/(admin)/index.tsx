@@ -99,7 +99,7 @@ export default function AdminDashboard() {
                 label="Promotions 30d"
                 value={stats?.activePromotions ?? 0}
                 icon={Megaphone}
-                onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { filter: 'Approved', propertyId: activePropertyId } })}
+                onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { filter: 'Approved', window: 'recent', propertyId: activePropertyId } })}
               />
             </View>
           </View>

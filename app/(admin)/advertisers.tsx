@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { View, Text, FlatList, Pressable } from 'react-native';
 import { Megaphone, ChevronLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -24,15 +24,16 @@ const statusMap: Record<string, Promotion['review_status'][]> = {
 export default function AdvertisersScreen() {
   const { propertyIds } = useAuth();
 
-  const params = useLocalSearchParams<{ filter?: string; propertyId?: string }>();
+  const params = useLocalSearchParams<{ filter?: string; window?: string; propertyId?: string }>();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
     typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
   );
-  const [statusFilter, setStatusFilter] = useState(
+  const [initialFilter] = useState<typeof STATUS_SEGMENTS[number]>(() =>
     params.filter && STATUS_SEGMENTS.includes(params.filter as typeof STATUS_SEGMENTS[number])
       ? (params.filter as typeof STATUS_SEGMENTS[number])
       : 'Pending'
   );
+  const [statusFilter, setStatusFilter] = useState(initialFilter);
 
   const activePropertyId = selectedPropertyId ?? '';
 
@@ -40,6 +41,16 @@ export default function AdvertisersScreen() {
     activePropertyId,
     statusMap[statusFilter] ?? ['pending']
   );
+
+  const recentWindowActive =
+    params.window === 'recent' && statusFilter === 'Approved' && statusFilter === initialFilter;
+
+  const visiblePromotions = useMemo(() => {
+    if (!promotions) return [];
+    if (!recentWindowActive) return promotions;
+    const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    return promotions.filter((p) => new Date(p.created_at).getTime() >= cutoff);
+  }, [promotions, recentWindowActive]);
 
   const renderPromotion = ({ item }: { item: Promotion }) => (
     <Pressable onPress={() => router.push(`/promotions/${item.id}`)}>
@@ -100,13 +111,16 @@ export default function AdvertisersScreen() {
               selected={statusFilter}
               onChange={setStatusFilter}
             />
+            {recentWindowActive ? (
+              <Text className="text-sm font-nunito text-brand-steel">Last 30 days</Text>
+            ) : null}
           </View>
 
           {isLoading ? (
             <LoadingScreen message="Loading promotions..." />
           ) : (
             <FlatList
-              data={promotions ?? []}
+              data={visiblePromotions}
               keyExtractor={(item) => item.id}
               renderItem={renderPromotion}
               contentContainerStyle={{ flexGrow: 1, paddingTop: 12, paddingBottom: 32 }}
@@ -115,7 +129,11 @@ export default function AdvertisersScreen() {
                 <EmptyState
                   icon={Megaphone}
                   title="No promotions"
-                  message={`No ${statusFilter.toLowerCase()} promotions for this property`}
+                  message={
+                    recentWindowActive
+                      ? 'No approved promotions in the last 30 days for this property'
+                      : `No ${statusFilter.toLowerCase()} promotions for this property`
+                  }
                 />
               }
             />
