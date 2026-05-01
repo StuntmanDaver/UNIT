@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import {
   Users,
   UserCheck,
+  User,
   Clock,
   Megaphone,
   ChevronRight,
@@ -133,6 +134,14 @@ export default function AdminDashboard() {
               <Bell size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
                 Send Push Notification
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card onPress={() => router.push('/(admin)/profile')} className="flex-row items-center px-4 py-3.5">
+              <User size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+                Account & Settings
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>
