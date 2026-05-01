@@ -139,7 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setProfile(null);
     setNeedsOnboarding(false);
-    await supabase.auth.signOut();
+    // scope:'local' clears AsyncStorage immediately without a network call,
+    // avoiding a race where autoRefreshToken restores the session mid-signout.
+    await supabase.auth.signOut({ scope: 'local' });
   };
 
   const refreshProfile = async () => {
