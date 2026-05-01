@@ -24,8 +24,10 @@ const statusMap: Record<string, Promotion['review_status'][]> = {
 export default function AdvertisersScreen() {
   const { propertyIds } = useAuth();
 
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
-  const params = useLocalSearchParams<{ filter?: string }>();
+  const params = useLocalSearchParams<{ filter?: string; propertyId?: string }>();
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
+    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+  );
   const [statusFilter, setStatusFilter] = useState(
     params.filter && STATUS_SEGMENTS.includes(params.filter as typeof STATUS_SEGMENTS[number])
       ? (params.filter as typeof STATUS_SEGMENTS[number])

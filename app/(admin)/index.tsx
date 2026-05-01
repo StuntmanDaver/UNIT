@@ -79,13 +79,13 @@ export default function AdminDashboard() {
                 label="Total Tenants"
                 value={stats?.totalTenants ?? 0}
                 icon={Users}
-                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'all' } })}
+                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'all', propertyId: activePropertyId } })}
               />
               <StatCard
                 label="Active"
                 value={stats?.activeAccounts ?? 0}
                 icon={UserCheck}
-                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'active' } })}
+                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'active', propertyId: activePropertyId } })}
               />
             </View>
             <View className="flex-row gap-3">
@@ -93,20 +93,23 @@ export default function AdminDashboard() {
                 label="Pending Invites"
                 value={stats?.pendingInvites ?? 0}
                 icon={Clock}
-                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'invited' } })}
+                onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'invited', propertyId: activePropertyId } })}
               />
               <StatCard
                 label="Promotions 30d"
                 value={stats?.activePromotions ?? 0}
                 icon={Megaphone}
-                onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { filter: 'Approved' } })}
+                onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { filter: 'Approved', propertyId: activePropertyId } })}
               />
             </View>
           </View>
 
           {/* Action Buttons */}
           <View className="px-4 mt-4 gap-3">
-            <Card onPress={() => router.push('/(admin)/advertisers')} className="flex-row items-center px-4 py-3.5">
+            <Card
+              onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { propertyId: activePropertyId } })}
+              className="flex-row items-center px-4 py-3.5"
+            >
               <Megaphone size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
                 View Pending Approvals
@@ -114,7 +117,10 @@ export default function AdminDashboard() {
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>
 
-            <Card onPress={() => router.push('/(admin)/tenants')} className="flex-row items-center px-4 py-3.5">
+            <Card
+              onPress={() => router.push({ pathname: '/(admin)/tenants', params: { propertyId: activePropertyId } })}
+              className="flex-row items-center px-4 py-3.5"
+            >
               <Users size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
                 Manage Tenants
@@ -130,7 +136,10 @@ export default function AdminDashboard() {
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>
 
-            <Card onPress={() => router.push('/(admin)/push')} className="flex-row items-center px-4 py-3.5">
+            <Card
+              onPress={() => router.push({ pathname: '/(admin)/push', params: { propertyId: activePropertyId } })}
+              className="flex-row items-center px-4 py-3.5"
+            >
               <Bell size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
                 Send Push Notification

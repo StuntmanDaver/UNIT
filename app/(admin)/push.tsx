@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Bell, Send, ChevronLeft } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,7 +25,10 @@ const HISTORY_LIMIT = 20;
 
 export default function AdminPushScreen() {
   const { user, propertyIds } = useAuth();
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const params = useLocalSearchParams<{ propertyId?: string }>();
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
+    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+  );
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');

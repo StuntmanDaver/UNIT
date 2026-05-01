@@ -27,9 +27,11 @@ const STATUS_SEGMENTS = ['All', 'Invited', 'Active', 'Inactive'];
 export default function TenantsScreen() {
   const { propertyIds } = useAuth();
   const queryClient = useQueryClient();
-  const params = useLocalSearchParams<{ filter?: string }>();
+  const params = useLocalSearchParams<{ filter?: string; propertyId?: string }>();
 
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
+    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+  );
   const [searchText, setSearchText] = useState('');
 
   const initialFilter = (() => {
