@@ -28,12 +28,12 @@ export default function AdvertisersScreen() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
     typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
   );
-  const [initialFilter] = useState<typeof STATUS_SEGMENTS[number]>(() =>
+  const [statusFilter, setStatusFilter] = useState<typeof STATUS_SEGMENTS[number]>(() =>
     params.filter && STATUS_SEGMENTS.includes(params.filter as typeof STATUS_SEGMENTS[number])
       ? (params.filter as typeof STATUS_SEGMENTS[number])
       : 'Pending'
   );
-  const [statusFilter, setStatusFilter] = useState(initialFilter);
+  const [recencyDismissed, setRecencyDismissed] = useState(false);
 
   const activePropertyId = selectedPropertyId ?? '';
 
@@ -43,7 +43,12 @@ export default function AdvertisersScreen() {
   );
 
   const recentWindowActive =
-    params.window === 'recent' && statusFilter === 'Approved' && statusFilter === initialFilter;
+    !recencyDismissed && params.window === 'recent' && statusFilter === 'Approved';
+
+  const handleSegmentChange = (seg: string) => {
+    if (seg !== statusFilter) setRecencyDismissed(true);
+    setStatusFilter(seg);
+  };
 
   const visiblePromotions = useMemo(() => {
     if (!promotions) return [];
@@ -109,7 +114,7 @@ export default function AdvertisersScreen() {
             <SegmentedControl
               segments={STATUS_SEGMENTS}
               selected={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleSegmentChange}
             />
             {recentWindowActive ? (
               <Text className="text-sm font-nunito text-brand-steel">Last 30 days</Text>
