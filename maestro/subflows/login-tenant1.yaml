@@ -1,0 +1,8 @@
+# Reusable subflow: log in as Tenant 1
+# Precondition: app is on login screen
+# Postcondition: app is on Directory tab
+- tapOn: "Tenant 1"
+- tapOn: "Log In"
+- assertVisible:
+    text: "Directory"
+    timeout: 15000

@@ -1,0 +1,35 @@
+appId: com.unitapp.mobile
+---
+# M2-04: Tenant creates a promotion offer
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Navigate to Promotions tab
+- tapOn: "Promotions"
+- assertVisible: "Promotions"
+
+# Tap FAB (+) to create
+- tapOn:
+    text: "+"
+- assertVisible:
+    text: "Create"
+    timeout: 8000
+
+# Fill promotion form
+- tapOn:
+    accessibilityLabel: "Title"
+- inputText: "E2E Test Offer"
+- tapOn:
+    accessibilityLabel: "Description"
+- inputText: "This is an automated test promotion"
+- hideKeyboard
+
+# Submit
+- tapOn: "Post"
+- assertVisible:
+    text: "E2E Test Offer"
+    timeout: 10000
+
+- runFlow: ../subflows/logout.yaml

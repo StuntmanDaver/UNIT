@@ -1,0 +1,43 @@
+appId: com.unitapp.mobile
+---
+# M2-02: Directory browse, search, and category filter
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Directory should be visible already (default tab)
+- assertVisible: "Directory"
+
+# Businesses should render (wait for query)
+- waitForAnimationToEnd
+
+# Search: type partial name
+- tapOn:
+    id: "search-input"
+- inputText: "Test"
+- waitForAnimationToEnd
+# Results should filter — just assert search bar has text (visible)
+- assertVisible: "Test"
+- hideKeyboard
+
+# Clear search
+- tapOn:
+    id: "search-input"
+- clearText
+- hideKeyboard
+
+# Category filter: tap a category chip
+- scrollUntilVisible:
+    element:
+      text: "Services"
+    direction: RIGHT
+- tapOn: "Services"
+- waitForAnimationToEnd
+
+# Tap "All" to clear filter — CategoryChips shows "All" chip
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# Log out
+- runFlow: ../subflows/logout.yaml

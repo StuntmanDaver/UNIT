@@ -1,0 +1,67 @@
+appId: com.unitapp.mobile
+---
+# ADMIN-01 + ADMIN-02 + M1-04: CSV bulk import
+#
+# MANUAL PREREQUISITE (run once before this flow):
+#   Stage m1-test-tenants.csv into iOS Simulator Files app.
+#   Method: In simulator Safari, open http://127.0.0.1:9292/m1-test-tenants.csv
+#   (run: cd /tmp && python3 -m http.server 9292)
+#   then tap Share → Save to Files → On My iPhone → Downloads
+#
+# This flow cannot automate the system file picker (expo-document-picker
+# opens a native iOS Files sheet that Maestro cannot interact with).
+# Mark admin-01-02 as SEMI-AUTOMATED: Maestro covers navigation + assertions,
+# file pick step is still manual.
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-admin.yaml
+
+# Select property
+- tapOn: "Manage Tenants"
+- assertVisible:
+    text: "Tenants"
+    timeout: 8000
+
+# Select property in the tenants screen PropertySelector
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+
+# CSVImporter card should be visible at top of tenant list
+- scrollUntilVisible:
+    element:
+      text: "Pick CSV"
+    direction: DOWN
+- assertVisible: "Pick CSV"
+
+# MANUAL: tap Pick CSV and select m1-test-tenants.csv from Files app
+# After file is selected, assert preview appears:
+# - assertVisible: "Found 7 rows"    # or "5 valid"
+# - assertVisible: "Consulting, LLC" # BUG-09: quoted comma preserved
+# - tapOn: "Import 5 valid rows"
+# - assertVisible: "imported"        # success toast
+
+# Cancel path (automated):
+- tapOn: "Pick CSV"
+# System file picker opens — Maestro cannot interact with it
+# Press Back/Cancel in the picker to dismiss
+- back
+# No toast should appear after cancel
+- assertNotVisible: "imported"
+- assertNotVisible: "Error"
+
+# Log out
+- tapOn:
+    index: 0
+    childOf:
+      text: "Tenants"
+- back
+- tapOn: "Account & Settings"
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- assertVisible:
+    text: "Log In"
+    timeout: 8000

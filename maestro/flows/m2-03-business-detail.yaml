@@ -1,0 +1,27 @@
+appId: com.unitapp.mobile
+---
+# M2-03: Business card tap → detail view → contact actions
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-tenant1.yaml
+
+- assertVisible: "Directory"
+- waitForAnimationToEnd
+
+# Tap first business card (scrolled to top)
+- tapOn:
+    index: 0
+    childOf:
+      text: "Directory"
+
+# Detail page should open (has business name + contact icons)
+# Assert we navigated away from the list
+- assertNotVisible: "Directory"
+- waitForAnimationToEnd
+
+# Back to directory
+- back
+- assertVisible: "Directory"
+
+- runFlow: ../subflows/logout.yaml

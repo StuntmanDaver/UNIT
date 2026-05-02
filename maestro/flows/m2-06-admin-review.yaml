@@ -1,0 +1,55 @@
+appId: com.unitapp.mobile
+---
+# M2-06: Admin approves/rejects advertiser promotions
+# Precondition: at least one promotion in Pending status exists
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-admin.yaml
+
+# Select a property — tap first available in PropertySelector
+- waitForAnimationToEnd
+# PropertySelector shows property names — tap the first non-empty one
+# If "Select a property to view stats" is shown, tap the selector
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+
+# Navigate to View Pending Approvals
+- tapOn: "View Pending Approvals"
+- assertVisible:
+    text: "Pending"
+    timeout: 8000
+
+# Tap first pending promotion if any exist
+# (If no pending promotions, this flow will fail — add test data first)
+- tapOn:
+    index: 0
+    childOf:
+      text: "Pending"
+
+# Detail screen: Approve button
+- assertVisible: "Approve"
+- tapOn: "Approve"
+- assertVisible:
+    text: "approved"
+    timeout: 8000
+
+# Back to list
+- back
+
+# Reject a different promotion if available
+# (Skip if only one exists)
+
+# Log out via Account & Settings
+- back
+- tapOn: "Account & Settings"
+- assertVisible: "Account"
+- tapOn:
+    id: "admin-logout-btn"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn: "Log Out"
+- assertVisible:
+    text: "Log In"
+    timeout: 8000

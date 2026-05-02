@@ -1,0 +1,46 @@
+appId: com.unitapp.mobile
+---
+# ADMIN-03: Tenant list filter, search, and status toggle
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-admin.yaml
+
+- tapOn: "Manage Tenants"
+- assertVisible:
+    text: "Tenants"
+    timeout: 8000
+
+# Select property
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+- waitForAnimationToEnd
+
+# Segments: All → Invited → Active → All
+- tapOn: "All"
+- waitForAnimationToEnd
+- tapOn: "Invited"
+- waitForAnimationToEnd
+- tapOn: "Active"
+- waitForAnimationToEnd
+- tapOn: "All"
+
+# Search
+- tapOn:
+    id: "search-input"
+- inputText: "Test"
+- waitForAnimationToEnd
+- clearText
+- hideKeyboard
+
+# Log out
+- back
+- tapOn: "Account & Settings"
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- assertVisible:
+    text: "Log In"
+    timeout: 8000

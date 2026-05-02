@@ -1,0 +1,8 @@
+# Reusable subflow: log in as admin
+# Precondition: app is on login screen
+# Postcondition: app is on Admin Dashboard with property selector visible
+- tapOn: "Admin"
+- tapOn: "Log In"
+- assertVisible:
+    text: "Admin Dashboard"
+    timeout: 15000

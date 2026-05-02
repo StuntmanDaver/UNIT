@@ -1,0 +1,12 @@
+# Reusable subflow: log out from tenant profile tab
+# Precondition: logged in as tenant, on any tab
+# Postcondition: app is on login screen
+- tapOn: "Profile"
+- assertVisible: "Log Out"
+- tapOn: "Log Out"
+# Confirm the Alert
+- assertVisible: "Are you sure you want to log out?"
+- tapOn: "Log Out"
+- assertVisible:
+    text: "Log In"
+    timeout: 8000

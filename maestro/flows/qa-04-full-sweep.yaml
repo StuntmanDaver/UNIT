@@ -1,0 +1,67 @@
+appId: com.unitapp.mobile
+---
+# QA-04: Drive through every tab + admin screen
+# Metro console should show only the known benign push-token warning
+
+- launchApp:
+    clearState: false
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Tab sweep
+- tapOn: "Directory"
+- assertVisible: "Directory"
+- waitForAnimationToEnd
+
+- tapOn: "Promotions"
+- assertVisible: "Promotions"
+- waitForAnimationToEnd
+
+- tapOn: "Community"
+- assertVisible: "Community"
+- waitForAnimationToEnd
+
+- tapOn: "Alerts"
+- waitForAnimationToEnd
+
+- tapOn: "Profile"
+- assertNotVisible:
+    text: "Loading profile..."
+    timeout: 15000
+
+- runFlow: ../subflows/logout.yaml
+
+# Admin sweep
+- runFlow: ../subflows/login-admin.yaml
+
+# Select property
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+- waitForAnimationToEnd
+
+# Admin screen sweep
+- assertVisible: "Admin Dashboard"
+- tapOn: "Manage Tenants"
+- assertVisible: "Tenants"
+- back
+
+- tapOn: "Manage Properties"
+- assertVisible: "Properties"
+- back
+
+- tapOn: "View Pending Approvals"
+- assertVisible: "Pending"
+- back
+
+- tapOn: "Account & Settings"
+- assertVisible: "Account"
+- back
+
+# Log out
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- assertVisible:
+    text: "Log In"
+    timeout: 8000
