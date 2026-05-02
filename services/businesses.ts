@@ -19,13 +19,19 @@ export type Business = {
 
 export const businessesService = {
   async filter(
-    filters: Record<string, string>,
+    filters: Record<string, string | string[]>,
     search?: string,
     signal?: AbortSignal
   ): Promise<Business[]> {
     let query = supabase.from('businesses').select('*');
     for (const [key, value] of Object.entries(filters)) {
-      query = query.eq(key, value);
+      // Array values (e.g., property_ids for grouped feeds) → SQL IN
+      if (Array.isArray(value)) {
+        if (value.length === 0) return [];
+        query = query.in(key, value);
+      } else {
+        query = query.eq(key, value);
+      }
     }
     if (search) {
       query = query.or(

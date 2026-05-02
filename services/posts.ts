@@ -16,13 +16,19 @@ export type Post = {
 
 export const postsService = {
   async filter(
-    filters: Record<string, string>,
+    filters: Record<string, string | string[]>,
     orderBy = 'created_date',
     ascending = false
   ): Promise<Post[]> {
     let query = supabase.from('posts').select('*');
     for (const [key, value] of Object.entries(filters)) {
-      query = query.eq(key, value);
+      // Array values (e.g., property_ids for grouped feeds) → SQL IN
+      if (Array.isArray(value)) {
+        if (value.length === 0) return [];
+        query = query.in(key, value);
+      } else {
+        query = query.eq(key, value);
+      }
     }
     query = query.order(orderBy, { ascending });
     const { data, error } = await query;

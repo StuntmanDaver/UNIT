@@ -175,6 +175,22 @@ export const promotionsService = {
     return data;
   },
 
+  /** Tenant: fetch live promotions for multiple properties (grouped/cluster feed) */
+  async getLiveForProperties(propertyIds: string[]): Promise<Promotion[]> {
+    if (propertyIds.length === 0) return [];
+    const today = new Date().toISOString().split('T')[0];
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .in('property_id', propertyIds)
+      .eq('review_status', 'approved')
+      .lte('start_date', today)
+      .gt('end_date', today)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
   /** Check anomaly: payment_status = paid but no completed attempt row exists */
   async hasCompletedPaymentAttempt(promotionId: string): Promise<boolean> {
     const { data, error } = await supabase

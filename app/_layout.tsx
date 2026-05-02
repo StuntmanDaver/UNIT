@@ -42,9 +42,17 @@ function AuthGuard() {
     const onResetPassword = segments.includes('reset-password');
     const onOnboarding = segments.includes('onboarding');
 
-    // Unauthenticated: anyone outside the auth group goes to login.
+    // Unauthenticated: redirect to login from anywhere except login/signup
+    // themselves. Previously this only fired when !inAuthGroup, which stranded
+    // users who tapped "Sign out" while on /(auth)/onboarding or
+    // /(auth)/reset-password — logout() cleared the session but the guard
+    // refused to navigate because we were already inside the auth group.
     if (!isAuthenticated) {
-      if (!inAuthGroup) router.replace('/(auth)/login');
+      const onLogin = segments.includes('login');
+      const onSignup = segments.includes('signup');
+      if (!onLogin && !onSignup) {
+        router.replace('/(auth)/login');
+      }
       return;
     }
 
