@@ -22,6 +22,7 @@ export function SearchBar({ value, onChangeText, placeholder = 'Search...' }: Se
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"
+        testID="search-input"
       />
       {value.length > 0 && (
         <Pressable onPress={() => onChangeText('')} hitSlop={8}>

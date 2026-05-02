@@ -49,6 +49,7 @@ export default function AdminDashboard() {
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             className="p-3"
+            testID="admin-logout-btn"
           >
             <LogOut size={22} color={BRAND.gray} />
           </Pressable>

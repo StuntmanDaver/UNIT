@@ -14,6 +14,7 @@ export function Input({ label, error, className = '', ...props }: InputProps) {
           error ? 'border-red-500' : 'border-brand-blue/40'
         }`}
         placeholderTextColor="#7C8DA7"
+        accessibilityLabel={label}
         {...props}
       />
       {error && <Text className="text-sm font-nunito text-red-500 mt-1">{error}</Text>}
