@@ -1,0 +1,126 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-02T00:26:47Z",
+  "phase": "05",
+  "phase_name": "qa-handoff",
+  "phase_dir": ".planning/phases/05-qa-handoff",
+  "plan": "QA-03",
+  "task": 1,
+  "total_tasks": 5,
+  "status": "paused",
+  "completed_tasks": [
+    {
+      "id": 1,
+      "name": "useCurrentUser 10s timeout fix",
+      "status": "done",
+      "commit": "6505d2e"
+    },
+    {
+      "id": 2,
+      "name": "Admin Account & Settings card for logout",
+      "status": "done",
+      "commit": "f562857"
+    },
+    {
+      "id": 3,
+      "name": "Tenant logout always visible outside loading gate",
+      "status": "done",
+      "commit": "cff8ff7"
+    },
+    {
+      "id": 4,
+      "name": "scope:local signout to prevent autoRefresh race",
+      "status": "done",
+      "commit": "7f11a2a"
+    },
+    {
+      "id": 5,
+      "name": "requestAnimationFrame Alert defer",
+      "status": "done",
+      "commit": "fea1ea8"
+    },
+    {
+      "id": 6,
+      "name": "Maestro E2E suite (quick task 260501-m9k)",
+      "status": "done",
+      "commit": "34b3c58"
+    },
+    {
+      "id": 7,
+      "name": "AuthGuard fix: redirect from onboarding/reset-password on signout",
+      "status": "done",
+      "commit": "4e0519c"
+    }
+  ],
+  "remaining_tasks": [
+    {
+      "id": 8,
+      "name": "Section 1 iOS simulator UAT — Block B (admin path: CSV import, ADMIN-03, M2-06)",
+      "status": "not_started"
+    },
+    {
+      "id": 9,
+      "name": "Section 1 iOS simulator UAT — Block C (tenant path: M1-05 onboarding, M2-01..07)",
+      "status": "not_started"
+    },
+    {
+      "id": 10,
+      "name": "Section 1 iOS simulator UAT — Block D (QA-04 full runtime sweep)",
+      "status": "not_started"
+    },
+    {
+      "id": 11,
+      "name": "Section 2 — Vercel dashboard KNOWN-BUG-06 env re-entry (user action)",
+      "status": "not_started"
+    },
+    {
+      "id": 12,
+      "name": "Section 3 — Production Stripe test cycle (after Section 2)",
+      "status": "not_started"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "CSV staging into iOS Simulator Files app is manual — expo-document-picker opens native sheet Maestro cannot drive",
+      "type": "human_action",
+      "workaround": "Run: cd /tmp && python3 -m http.server 9292, serve CSV, open in Simulator Safari, Save to Files"
+    },
+    {
+      "description": "Section 2 (Vercel env fix) requires dashboard access — cannot be automated",
+      "type": "human_action",
+      "workaround": "Follow recipe in .planning/phases/03-m2-core-mvp-audit/followups/M2-05-production-verify.md"
+    }
+  ],
+  "human_actions_pending": [
+    {
+      "action": "Stage m1-test-tenants.csv into iOS Simulator Files app before admin-01-02 UAT",
+      "context": "CSVImporter uses expo-document-picker which opens native iOS Files sheet",
+      "blocking": true
+    },
+    {
+      "action": "Run Section 2 Vercel dashboard KNOWN-BUG-06 env re-entry",
+      "context": "Unlocks Section 3 production Stripe test",
+      "blocking": false
+    }
+  ],
+  "decisions": [
+    {
+      "decision": "Added 10s AbortController timeout to useCurrentUser queryFn",
+      "rationale": "Supabase JS auth-token refresh can hang indefinitely, blocking businesses query and keeping isLoading:true forever. Signal threads through businessesService.filter via .abortSignal()",
+      "phase": "QA-03"
+    },
+    {
+      "decision": "Maestro placed at unit/maestro/ (not .maestro/) to keep it co-located with the app",
+      "rationale": "Follows project convention of unit/ being the mobile app root",
+      "phase": "QA-03"
+    },
+    {
+      "decision": "Maestro admin-01-02-csv-import.yaml is semi-automated only",
+      "rationale": "Native iOS Files picker cannot be driven by Maestro; CSV staging remains manual",
+      "phase": "QA-03"
+    }
+  ],
+  "uncommitted_files": [],
+  "next_action": "Boot iPhone 16 Pro Max simulator, run `npm run maestro test maestro/flows/qa-04-full-sweep.yaml` as a smoke test, then proceed with Section 1 Block B (admin UAT). Stage the test CSV first.",
+  "context_notes": "Mid QA-03 Section 1 iOS simulator UAT. All code fixes committed. Maestro suite is ready. The profile tab spinner fix (6505d2e) should be verified in the simulator — shake to reload Metro bundle, then navigate to Profile tab. The AuthGuard fix (4e0519c) was also committed this session — logout from onboarding/reset-password now correctly redirects to login instead of stranding the user."
+}
