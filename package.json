@@ -12,7 +12,9 @@
     "test:watch": "jest --watch",
     "build:web": "npx expo export --platform web",
     "start:web": "npx serve dist",
-    "db:seed": "tsx scripts/generate-seed-sql.ts"
+    "db:seed": "tsx scripts/generate-seed-sql.ts",
+    "test:e2e": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro test maestro/flows/",
+    "maestro": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.24",
