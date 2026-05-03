@@ -323,8 +323,8 @@
         "Visual diff in iOS simulator: every existing Card-using screen looks identical"
       ],
       "priority": 17,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added CardVariant = 'dark' | 'light' union (exported). variant prop defaults to 'dark' — all existing callers unchanged, pixel-identical. Light variant applies bg-brand-mist border border-brand-paper. Added three-line header comment documenting when to use each variant and the AA contrast requirement for text inside light cards. tsc + brand-lint both pass."
     },
     {
       "id": "US-018",

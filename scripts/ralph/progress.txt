@@ -241,3 +241,18 @@ Started: Sat May  2 21:38:29 EDT 2026
   - For two-condition deny rules (file has A AND file lacks B), the `! { f=$(grep -rl ... A ...); [ -n "$f" ] && echo "$f" | xargs grep -L B | grep -q .; }` pattern is reliable: the `[ -n "$f" ]` guard handles the no-A-files case without relying on `xargs --no-run-if-empty` (which may not be available on all platforms).
   - `xargs grep -ql PATTERN` exits 0 when ANY of the input files matches. Combined with `! { }`, this is a clean "fail-if-any-file-matches" deny test without needing to redirect stderr separately.
 ---
+
+## 2026-05-03 - US-017
+- Updated `unit/components/ui/Card.tsx` to export `CardVariant = 'dark' | 'light'` union and accept `variant?: CardVariant` prop (default `'dark'`).
+- dark variant: `bg-brand-navy-light rounded-xl shadow-sm border border-brand-blue/40` — identical to previous hard-coded class, pixel-for-pixel.
+- light variant: `bg-brand-mist border border-brand-paper rounded-xl shadow-sm` — only for Home Feed and explicitly migrated light-surface screens. Text inside must use `text-brand-ink` / `text-brand-ink-muted`.
+- No existing caller changed — all default to `'dark'` implicitly.
+- Added three-line header comment explaining when each variant is appropriate and the AA contrast rule.
+- Files changed: `unit/components/ui/Card.tsx`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (`brand-lint-clean`).
+- Visual check: zero existing callers touched — every Card-using screen is pixel-identical. iOS-simulator visual diff not required for a pure-default-variant additive change.
+- **Learnings for future iterations:**
+  - Defaulting `variant` to `'dark'` preserves 100% backward compatibility — no caller audit needed, tsc confirms all callers continue to compile, and the runtime behavior is unchanged.
+  - Export `CardVariant` as a named type alongside the component so consumers can type their own variant-selection state (`useState<CardVariant>('dark')`) without importing a string literal.
+  - The comment at the top of the file (documenting the AA contrast rule) is the right place for this — it will appear in editor tooltips when a developer hovers the import, reducing the chance of misuse on dark screens.
+---
