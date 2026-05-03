@@ -240,8 +240,8 @@
         "Maestro E2E: admin → admin promotions → New External → fill → save → row visible with External badge"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added ExternalPromotionInput type + promotionsService.createExternal() + getAdminAllList() in services/promotions.ts. Added useAdminAllPromotionList() in hooks/useAdminPromotions.ts. Created unit/app/(admin)/promotions/index.tsx — full list with All/Pending/Approved/External SegmentedControl segments, External Badge (brand-blue bg) on advertiser_id IS NULL rows, Plus icon button routing to new-external, PropertySelector, FlatList with EmptyState. Created unit/app/(admin)/promotions/new-external.tsx — react-hook-form + zod form with PropertySelector, business_name/headline/description/cta_text/cta_link (required), start/end date pickers (single modal with activePicker state: null|'start'|'end'), image upload via expo-image-picker + storageService.uploadFile, optional external contact name/email/phone fields. On submit: validates property + both dates + zod fields, uploads image, calls createExternal(), invalidates admin-promotions-all + admin-promotions query keys, shows success toast, calls router.back(). Updated app/(admin)/_layout.tsx to register promotions/index and promotions/new-external. Added 'Manage Promotions' card to admin dashboard linking to /(admin)/promotions/index (existing 'View Pending Approvals' card unchanged). tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-010",

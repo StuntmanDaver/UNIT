@@ -161,3 +161,20 @@ Started: Sat May  2 21:38:29 EDT 2026
   - When disabling a segment option, the simplest pattern (no SegmentedControl API change) is: guard in `onChange`, make the tap a no-op, and show an explanatory Text below the control. Avoids extending the component for a single use-case.
   - The existing SegmentedControl uses `text-brand-steel` on `bg-brand-navy-light`. Per CLAUDE.md this fails WCAG AA (4.48:1). That's a pre-existing issue in the component that US-018 will address as part of the dark-on-dark audit sweep.
 ---
+
+## 2026-05-03 - US-009
+- Added `ExternalPromotionInput` type and `promotionsService.createExternal()` (sets `advertiser_id=null`, `review_status='approved'`) + `promotionsService.getAdminAllList()` (no review_status filter) to `unit/services/promotions.ts`.
+- Added `useAdminAllPromotionList(propertyId)` hook to `unit/hooks/useAdminPromotions.ts` with key `['admin-promotions-all', propertyId]`.
+- Created `unit/app/(admin)/promotions/index.tsx` — dedicated promotions list with All/Pending/Approved/External SegmentedControl. External badge (`Badge` component with `bg: BRAND.blue`) on rows where `advertiser_id IS NULL`. Plus icon in header routes to `new-external`. `useMemo` client-side filtering over `useAdminAllPromotionList` data.
+- Created `unit/app/(admin)/promotions/new-external.tsx` — react-hook-form + zod form. Fields: PropertySelector, business_name/headline/description/cta_text/cta_link (required), start+end date pickers (one modal, `activePicker: null|'start'|'end'` state), optional external contact fields, image upload. Validates property + both dates before calling `createExternal()`. Invalidates `admin-promotions-all` + `admin-promotions` query keys on success.
+- Updated `unit/app/(admin)/_layout.tsx` — registered `promotions/index` and `promotions/new-external` Stack screens.
+- Updated `unit/app/(admin)/index.tsx` — added "Manage Promotions" Card above the existing "View Pending Approvals" card, linking to `/(admin)/promotions/index`. Existing tile kept as-is.
+- Files changed: `unit/services/promotions.ts`, `unit/hooks/useAdminPromotions.ts`, `unit/app/(admin)/promotions/index.tsx` (new), `unit/app/(admin)/promotions/new-external.tsx` (new), `unit/app/(admin)/_layout.tsx`, `unit/app/(admin)/index.tsx`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0; `npm test` 13 suites / 65 tests all green.
+- Visual check: by inspection — no existing screen's output changed. New screens follow dark brand-navy pattern (GradientHeader + bg-brand-navy root). iOS-simulator Maestro verification lands in US-021.
+- **Learnings for future iterations:**
+  - When a form has two date fields (start/end), a single `activePicker: null | 'start' | 'end'` state is cleaner than two separate `showStartPicker` / `showEndPicker` booleans — one Modal/DateTimePicker handles both.
+  - Expo Router Stack screens inside a route group need to be named WITH the subfolder prefix in `_layout.tsx`: `name="promotions/index"` (not just `name="index"`). Missing the folder prefix causes 404 navigation.
+  - For client-side filter+segment patterns over a single cached list, `useMemo(() => filter(allData, segment), [allData, segment])` avoids extra React Query keys while still being reactive to segment changes. Fine for small-to-medium admin lists (<1000 rows).
+  - `getAdminAllList` intentionally omits a `review_status` filter to power the "All" and "External" segments without a separate query. Future stories that add more columns to the list (e.g. payment_status) should still use `select('*')` here — the full Promotion type is needed for badge logic.
+---
