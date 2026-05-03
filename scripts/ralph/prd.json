@@ -305,8 +305,8 @@
         "cd unit && npm run brand-lint exits 0"
       ],
       "priority": 16,
-      "passes": false,
-      "notes": "May need to ship together with US-001 in a single iteration so the new tokens don't fail brand-lint when first added."
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added two additive deny-rules to the inline brand-lint bash chain in package.json: (1) any .tsx file containing both bg-brand-mist AND text-brand-gray fails (AA contrast violation on white); (2) any .tsx file using bg-brand-cloud must also import @/components/ui/GradientHeader (light surface must keep navy header anchor). Rephrased a JSDoc comment in home.tsx that mentioned the literal class name to avoid a false positive on rule 1. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-017",
