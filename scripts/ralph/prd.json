@@ -148,8 +148,8 @@
         "cd unit && npx tsc --noEmit and npm test pass"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Chose client-side haversine over the SECURITY DEFINER RPC option — no migration, no PG extensions to provision, and the math is unit-testable as a pure function. Public API of getNearbyPropertyIds is stable, so a future swap to supabase.rpc() is a drop-in change. Added unit/services/nearbyProperties.ts (exports haversineMiles + getNearbyPropertyIds), unit/hooks/useNearbyPropertyIds.ts (React Query, key ['nearby-properties', originId, radiusMiles], staleTime 1h, disabled when originPropertyId is falsy), and __tests__/services/nearbyProperties.test.ts (4 haversine cases including the Daytona cluster + 3 service-level cases for null-coord origin, null-coord neighbours, and distance sorting). Origin is always element 0 even when its lat/lon are null. tsc + jest (12 suites / 59 tests) + brand-lint all green."
     },
     {
       "id": "US-005",
