@@ -291,3 +291,17 @@ Started: Sat May  2 21:38:29 EDT 2026
   - React Navigation's `tabBarStyle.height` sets the total tab bar height. On iPhone X+ devices, safe area insets are still applied inside the bar so content doesn't underlap the home indicator. Setting `height: 88` is safe; just don't also add `paddingBottom` in the same `tabBarStyle` or they compound.
   - `'#A4B5CC'` is not in `constants/colors.ts` by design — it's a tab-bar-specific override for inactive icon contrast, not a brand token. Keep it as an inline string in `_layout.tsx` to avoid polluting the color constant file with a one-off value.
 ---
+
+## 2026-05-03 - US-020
+- Updated `unit/CLAUDE.md` Brand Theming section — Light-surface tokens subsection:
+  - Removed the stale "US-016 will add an additive rule" note; replaced with "live since US-016" statements for both active lint rules (mist+gray pairing, cloud+GradientHeader requirement).
+  - Added explicit **Delta app design references** block listing all 4 screenshot paths (`/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.*.png`) for future re-design work.
+- Updated the **Self-Correcting CLAUDE.md Rule** section to add a **Design references** callout pointing to the Delta Downloads screenshots as the canonical visual reference for light-surface UI decisions.
+- Created `unit/maestro/flows/qa-05-light-surface-sweep.yaml`: tenant login → assert Home tab is default → 3 scroll+takeScreenshot steps → tap Nearby segment + screenshot → verify remaining tabs navigate (Directory, Promotions, Community, Alerts) → return to Home + final screenshot → logout.
+- Files changed: `unit/CLAUDE.md`, `unit/maestro/flows/qa-05-light-surface-sweep.yaml` (new), `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (brand-lint-clean).
+- **Learnings for future iterations:**
+  - CLAUDE.md rules that reference "upcoming stories" (e.g. "US-016 will add X") become stale immediately after that story ships. Convention: update the rule in place to say "live since USxxx" rather than leaving the promise language.
+  - Maestro `takeScreenshot` commands save PNG files to the run output directory — name them descriptively (`home-feed-initial`, `home-feed-nearby-segment`) so visual diffs are easy to interpret in CI artifacts.
+  - When a Maestro flow tests a conditional UI element (Nearby segment only activates when neighbours exist), design the test to tap the element and proceed — even if the segment has no effect (no neighbours), the tap must not crash the flow. The flow is checking for regressions, not functional correctness.
+---

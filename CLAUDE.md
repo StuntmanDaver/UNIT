@@ -207,7 +207,14 @@ Added 2026-05-02 to support the new Home Feed and incrementally migrated screens
 - Permitted ONLY on the Home Feed (`app/(tabs)/home.tsx`) and screens explicitly migrated in a future story.
 - Header surfaces and the bottom tab bar background MUST stay `brand-navy`.
 - `text-brand-gray` is BANNED on `bg-brand-mist` (white) — fails AA contrast. Use `text-brand-ink` / `text-brand-ink-muted` instead.
-- The existing `brand-lint` deny-list does not block these new tokens; a future story (US-016) will add an additive rule that fails any file mixing `bg-brand-mist` with `text-brand-gray`.
+- Any `.tsx` file that uses `bg-brand-mist` AND `text-brand-gray` together will FAIL brand-lint (AA violation rule, live since US-016).
+- Any `.tsx` file that uses `bg-brand-cloud` MUST also import `@/components/ui/GradientHeader` — brand-lint enforces this (navy header anchor rule, live since US-016).
+
+**Delta app design references** (for future re-design or light-surface expansion work):
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.21 PM.png` — Find My Trip (light gray bg, white card, navy header)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.40 PM.png` — Travel Information list (white card + chevron rows, navy header, light bottom nav)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.51 PM.png` — Book screen (white card with form, red CTA)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.05.10 PM.png` — Home/Explore (promotional cards on light surface)
 
 ### Fonts
 The app uses **Lora** (serif, headings/display) and **Nunito** (sans-serif, body/UI). Both are loaded via `@expo-google-fonts/lora` and `@expo-google-fonts/nunito` in `app/_layout.tsx` via `useFonts()`. The Tailwind classes live in `tailwind.config.js`.
@@ -272,3 +279,5 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 **Every time Claude gets something wrong about this project -- a wrong file path, incorrect assumption, outdated pattern, misunderstood convention -- add the correction directly to CLAUDE.md.** Do not just re-prompt or fix inline. Update this file so the correction persists across every future session, every subagent, and every teammate.
 
 Over time, CLAUDE.md becomes a precision-tuned instruction set that makes Claude increasingly effective. This applies to all contributors: when you spot Claude making a recurring mistake, codify the fix here.
+
+**Design references**: The Delta app screenshots in `/Users/davidk/Downloads/` (4 files starting with "Screenshot 2026-05-02 at 8.04") are the canonical visual reference for the light-surface direction (white cards on light-gray screen, navy headers). Consult these before making any further light-surface UI decisions.

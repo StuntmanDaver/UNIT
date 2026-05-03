@@ -370,8 +370,8 @@
         "cd unit && npx tsc --noEmit and npm run brand-lint pass"
       ],
       "priority": 20,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Updated unit/CLAUDE.md Brand Theming / Light-surface tokens section: (1) removed stale 'US-016 will add...' note and replaced with 'live since US-016' statements for both the mist+gray pairing rule and the cloud+GradientHeader rule; (2) added explicit 'Delta app design references' block listing all 4 screenshot paths for future re-design work; (3) added a 'Design references' note to the Self-Correcting CLAUDE.md Rule section pointing to the 4 Delta Downloads files. Created unit/maestro/flows/qa-05-light-surface-sweep.yaml: launchApp + tenant login \u2192 assert Home tab default landing \u2192 3 scroll+screenshot steps \u2192 tap Nearby segment + screenshot \u2192 tab sweep (Directory/Promotions/Community/Alerts) \u2192 return to Home + final screenshot \u2192 logout. tsc + brand-lint both pass."
     },
     {
       "id": "US-012",
