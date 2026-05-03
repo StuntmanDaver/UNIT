@@ -115,8 +115,8 @@
         "cd unit && npx tsc --noEmit passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Promotion type extended with created_by_admin_id + external_contact_{name,email,phone}; PromotionKind union + getPromotionKind() helper exported (kept off the row type to avoid polluting Supabase select shape). Property type gained latitude/longitude (nullable); PROPERTY_COLUMNS updated. New files services/promotionLeads.ts and services/propertyGroups.ts hold V2-scaffold types. Caller in app/(admin)/properties.tsx now passes lat/lon: null on create. tsc + brand-lint pass."
     },
     {
       "id": "US-003",

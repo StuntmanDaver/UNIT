@@ -70,6 +70,8 @@ export default function PropertiesScreen() {
         type: type.trim() || 'commercial',
         total_units: units || 0,
         image_url: null,
+        latitude: null,
+        longitude: null,
       });
 
       await adminService.addPropertyToAdmin(newProperty.id);

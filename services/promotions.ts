@@ -36,7 +36,28 @@ export type Promotion = {
   created_at: string;
   // Legacy column — retained but not written to after M4
   approval_status: 'pending' | 'approved' | 'rejected' | null;
+  // Two-Path Promotions (migration 20260501000003_external_promotions.sql).
+  // When advertiser_id IS NULL the row is admin-authored on behalf of an
+  // external local business; created_by_admin_id is set in that case.
+  created_by_admin_id: string | null;
+  external_contact_name: string | null;
+  external_contact_email: string | null;
+  external_contact_phone: string | null;
 };
+
+/**
+ * Discriminator for the two promotion authoring paths added by the
+ * 2026-05-01 external-promotions migration. `advertiser_id IS NULL`
+ * means an admin authored the promotion for an external (non-tenant)
+ * business; otherwise the tenant business owns it.
+ */
+export type PromotionKind = 'tenant' | 'external';
+
+export function getPromotionKind(
+  promotion: Pick<Promotion, 'advertiser_id'>
+): PromotionKind {
+  return promotion.advertiser_id === null ? 'external' : 'tenant';
+}
 
 export type AdminPromotionReviewAction =
   | { action: 'approve' }
