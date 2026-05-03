@@ -145,3 +145,19 @@ Started: Sat May  2 21:38:29 EDT 2026
   - Inline `style` on Pressable can combine both a function `(state) => ({...})` for press feedback and a fixed value (`minHeight:88`) in the same expression: `style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1, minHeight: 88 })}`. This is established by the existing `Card.tsx` Pressable pattern.
   - `router.push` with a runtime string (not a literal) needs an explicit cast in Expo Router typed-routes mode. The safest cast that stays type-aware is `as Parameters<typeof router.push>[0]` — it extracts the actual `Href` type rather than blindly casting to `never`.
 ---
+
+## 2026-05-03 - US-008
+- Updated `unit/app/(tabs)/home.tsx` to add a SegmentedControl with two options ('My Property' / 'Nearby (≤ 2 mi)') above the FlatList, below the GradientHeader. The control is sticky — it sits outside the FlatList so it's always visible while scrolling.
+- Wired `useNearbyPropertyIds(propertyId || null)` (staleTime 1h). `hasNearbyNeighbors = nearbyIds.length > 1` (origin is always element 0, so >1 = at least one real neighbour). `feedIds` computed with `useMemo`: Nearby segment returns the full `nearbyIds` array when neighbours exist; otherwise falls back to `[propertyId]`.
+- `handleSegmentChange` is a no-op when the user taps 'Nearby' and `!hasNearbyNeighbors` — the segment stays on 'My Property'. A helper text 'No nearby properties within 2 miles.' is shown below the control whenever `!hasNearbyNeighbors`.
+- Segment state is `React.useState` — persists for session only, resets on cold start (per acceptance criteria).
+- The SegmentedControl component uses dark tokens (`bg-brand-navy-light`, `bg-brand-blue`) — rendered on the light `bg-brand-cloud` background it appears as a dark pill, which is an intentional contrast element (Delta-inspired). No brand-lint violations.
+- Files changed: `unit/app/(tabs)/home.tsx`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (`brand-lint-clean`); `npm test` 13 suites / 65 tests all green.
+- Visual check: by inspection — the only screen modified was home.tsx. No existing screen was touched. iOS-simulator Maestro verification lands in US-021.
+- **Learnings for future iterations:**
+  - For a segmented control above a long list, placing the control OUTSIDE the FlatList (between GradientHeader and FlatList) gives a sticky-header effect at zero extra complexity — no need for `stickyHeaderIndices` or `ListHeaderComponent`.
+  - `useMemo` for `feedIds` prevents unnecessary React Query re-fetches when the screen re-renders: the memoized array only changes when `segment`, `hasNearbyNeighbors`, `nearbyIds`, or `propertyId` change.
+  - When disabling a segment option, the simplest pattern (no SegmentedControl API change) is: guard in `onChange`, make the tap a no-op, and show an explanatory Text below the control. Avoids extending the component for a single use-case.
+  - The existing SegmentedControl uses `text-brand-steel` on `bg-brand-navy-light`. Per CLAUDE.md this fails WCAG AA (4.48:1). That's a pre-existing issue in the component that US-018 will address as part of the dark-on-dark audit sweep.
+---

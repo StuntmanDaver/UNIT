@@ -1,12 +1,17 @@
-import { useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { View, Text, FlatList, RefreshControl } from 'react-native';
 import { Inbox } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { ActivityFeedCard } from '@/components/tenant/ActivityFeedCard';
+import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
+import { useNearbyPropertyIds } from '@/hooks/useNearbyPropertyIds';
 import { useAuth } from '@/lib/AuthContext';
 import type { ActivityFeedItem } from '@/services/activityFeed';
+
+const SEGMENT_MY = 'My Property';
+const SEGMENT_NEARBY = 'Nearby (≤ 2 mi)';
 
 /**
  * Skeleton placeholder card shown while the feed is loading.
@@ -56,11 +61,29 @@ export default function HomeScreen() {
   const { propertyIds } = useAuth();
   const propertyId = propertyIds[0] ?? '';
 
-  // feedIds drives both My Property (one id) and Nearby (origin + cluster ids
-  // from useNearbyPropertyIds, added in US-008). Default is current property only.
-  const feedIds = propertyId ? [propertyId] : [];
+  const [segment, setSegment] = useState(SEGMENT_MY);
+
+  // Nearby IDs — staleTime 1h, disabled when propertyId is absent.
+  // Returns [origin, ...neighbours] sorted nearest-first; length > 1 means
+  // at least one neighbour exists within the 2-mile radius.
+  const { data: nearbyIds = [] } = useNearbyPropertyIds(propertyId || null);
+  const hasNearbyNeighbors = nearbyIds.length > 1;
+
+  const feedIds = useMemo(() => {
+    if (segment === SEGMENT_NEARBY && hasNearbyNeighbors) return nearbyIds;
+    return propertyId ? [propertyId] : [];
+  }, [segment, hasNearbyNeighbors, nearbyIds, propertyId]);
 
   const { data: items, isLoading, refetch, isRefetching } = useActivityFeed(feedIds);
+
+  // Prevent switching to Nearby when there are no neighbours within 2 mi.
+  const handleSegmentChange = useCallback(
+    (next: string) => {
+      if (next === SEGMENT_NEARBY && !hasNearbyNeighbors) return;
+      setSegment(next);
+    },
+    [hasNearbyNeighbors]
+  );
 
   const handlePress = useCallback((item: ActivityFeedItem) => {
     if (item.ctaRoute) {
@@ -91,6 +114,18 @@ export default function HomeScreen() {
         <GradientHeader>
           <Text className="font-lora-semibold text-3xl text-white leading-tight">Home</Text>
         </GradientHeader>
+        <View className="px-4 pt-4 pb-2">
+          <SegmentedControl
+            segments={[SEGMENT_MY, SEGMENT_NEARBY]}
+            selected={segment}
+            onChange={handleSegmentChange}
+          />
+          {!hasNearbyNeighbors && (
+            <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">
+              No nearby properties within 2 miles.
+            </Text>
+          )}
+        </View>
         <View className="pt-4">
           <SkeletonCard />
           <SkeletonCard />
@@ -105,11 +140,23 @@ export default function HomeScreen() {
       <GradientHeader>
         <Text className="font-lora-semibold text-3xl text-white leading-tight">Home</Text>
       </GradientHeader>
+      <View className="px-4 pt-4 pb-2">
+        <SegmentedControl
+          segments={[SEGMENT_MY, SEGMENT_NEARBY]}
+          selected={segment}
+          onChange={handleSegmentChange}
+        />
+        {!hasNearbyNeighbors && (
+          <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">
+            No nearby properties within 2 miles.
+          </Text>
+        )}
+      </View>
       <FlatList
         data={items ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingTop: 16, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingTop: 8, paddingBottom: 100 }}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}

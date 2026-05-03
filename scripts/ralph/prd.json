@@ -221,8 +221,8 @@
         "Verify in iOS simulator with two seeded properties within 2 mi: segment switching refreshes feed visibly"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added SegmentedControl ('My Property' / 'Nearby (≤ 2 mi)') above the FlatList in home.tsx. Calls useNearbyPropertyIds(propertyId || null) — staleTime 1h, disabled when propertyId is absent. feedIds computed via useMemo: Nearby segment returns nearbyIds (origin + neighbours) when hasNearbyNeighbors (length > 1); My Property (or no neighbours) returns [propertyId]. handleSegmentChange blocks the switch to Nearby and returns early when !hasNearbyNeighbors so the tap is a no-op. Helper text 'No nearby properties within 2 miles.' shown below the control whenever !hasNearbyNeighbors. Segment state is React useState — persists for session, resets on cold start. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-009",
