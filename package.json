@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --passWithNoTests",
-    "brand-lint": "bash -c '! grep -rn --include=\"*.tsx\" -E \"bg-white|bg-gray-|text-gray-|border-gray-|text-black[^-]|bg-black([^/]|$)\" app components && ! grep -rn --include=\"*.tsx\" -E \"font-arcadia|font-bold|font-medium|font-nunito-bold|font-lora-bold\" app components && ! grep -rn --include=\"*.tsx\" -E \"text-xs|text-lg|text-xl|text-4xl\" app components && echo brand-lint-clean'",
+    "brand-lint": "bash -c '! grep -rn --include=\"*.tsx\" -E \"bg-white|bg-gray-|text-gray-|border-gray-|text-black[^-]|bg-black([^/]|$)\" app components && ! grep -rn --include=\"*.tsx\" -E \"font-arcadia|font-bold|font-medium|font-nunito-bold|font-lora-bold\" app components && ! grep -rn --include=\"*.tsx\" -E \"text-xs|text-lg|text-xl|text-4xl\" app components && ! { f=$(grep -rl --include=\"*.tsx\" bg-brand-mist app components 2>/dev/null); [ -n \"$f\" ] && echo \"$f\" | xargs grep -ql text-brand-gray; } && ! { f2=$(grep -rl --include=\"*.tsx\" bg-brand-cloud app components 2>/dev/null); [ -n \"$f2\" ] && echo \"$f2\" | xargs grep -L @/components/ui/GradientHeader | grep -q .; } && echo brand-lint-clean'",
     "test:watch": "jest --watch",
     "build:web": "npx expo export --platform web",
     "start:web": "npx serve dist",

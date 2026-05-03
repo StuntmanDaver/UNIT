@@ -38,8 +38,8 @@ function SkeletonCard() {
 /**
  * Empty state tuned for the light (brand-cloud) background.
  * Uses brand-ink / brand-ink-muted text to meet AA contrast on white cards.
- * The generic EmptyState component uses text-brand-gray which fails AA on
- * bg-brand-mist (white), so we use inline text here.
+ * The generic EmptyState component is designed for dark surfaces only — its
+ * gray brand text class fails AA on the white (brand-mist) card surface.
  */
 function HomeFeedEmpty() {
   return (
