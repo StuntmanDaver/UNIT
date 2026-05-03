@@ -167,8 +167,8 @@
         "Verify in iOS simulator using dev-browser/Maestro"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added unit/app/(tabs)/home.tsx placeholder (GradientHeader + bg-brand-navy root; 'Welcome' / 'Your activity feed is coming soon.' copy using approved Lora/Nunito + text-3xl/text-base classes). Registered Home as the FIRST <Tabs.Screen> in unit/app/(tabs)/_layout.tsx with the lucide Home icon; tab order is now Home, Directory, Promotions, Community, Alerts, Profile. Home tab is hidden from admins via href: isAdmin ? null : undefined (mirrors the existing Profile-tab pattern). Updated the post-login redirect at unit/app/_layout.tsx (the 'stranded-in-auth-group' branch) so tenants land on /(tabs)/home instead of /(tabs)/directory; admins still land on /(admin)/. Real activity feed lands in US-007. tsc + brand-lint + jest (12 suites / 59 tests) all green. iOS-simulator visual check is by inspection — no existing tab screen was modified, only one new tab inserted at index 0."
     },
     {
       "id": "US-006",

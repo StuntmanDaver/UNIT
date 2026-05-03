@@ -88,7 +88,8 @@ function AuthGuard() {
       } else if (isAdmin) {
         router.replace('/(admin)/');
       } else {
-        router.replace('/(tabs)/directory');
+        // US-005: tenants land on the new Home tab (6th tab, first position).
+        router.replace('/(tabs)/home');
       }
     }
   }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin, segments]);

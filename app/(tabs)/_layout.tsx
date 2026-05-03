@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Building2, Megaphone, Users, Bell, User } from 'lucide-react-native';
+import { Home, Building2, Megaphone, Users, Bell, User } from 'lucide-react-native';
 import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
@@ -27,6 +27,15 @@ export default function TabLayout() {
         },
       }}
     >
+      <Tabs.Screen
+        name="home"
+        options={{
+          // Home tab is tenant-only; admins keep their existing landing.
+          href: isAdmin ? null : undefined,
+          title: 'Home',
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+        }}
+      />
       <Tabs.Screen
         name="directory"
         options={{
