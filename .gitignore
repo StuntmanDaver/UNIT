@@ -10,8 +10,13 @@ dist/
 web-build/
 .env
 .env.local
-.claude/worktrees/
+.claude/
 supabase/.temp/
+
+# Ralph runner local state (per-developer, regenerated on each run)
+scripts/ralph/.last-branch
+scripts/ralph/progress.txt
+scripts/ralph/archive/
 
 # Metro
 .metro-health-check*
