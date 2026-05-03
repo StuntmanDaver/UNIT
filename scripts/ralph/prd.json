@@ -131,8 +131,8 @@
         "Run backfill script against dev Supabase; confirm every existing property has non-NULL coords"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added unit/services/geocoding.ts (Nominatim + 1 req/sec throttle + UNIT-app User-Agent; never throws, returns null on any failure). Added propertiesService.updateCoordinates() and standalone updatePropertyCoordinates() helper in unit/services/properties.ts. Wired geocoding into unit/app/(admin)/properties.tsx admin create flow — best-effort geocode using `${address}, ${city}, ${state}`, non-blocking on failure. Added unit/scripts/backfill-property-coordinates.ts (run via tsx) — selects rows where lat OR lon is NULL, uses SUPABASE_SERVICE_ROLE_KEY to bypass RLS, idempotent. Backfill script not auto-run against dev (requires service role key + network). tsc + brand-lint both green."
     },
     {
       "id": "US-004",

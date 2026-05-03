@@ -16,6 +16,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useProperties } from '@/hooks/useProperties';
 import { propertiesService, type Property } from '@/services/properties';
 import { adminService } from '@/services/admin';
+import { geocodeAddress } from '@/services/geocoding';
 
 export default function PropertiesScreen() {
   const { propertyIds } = useAuth();
@@ -62,6 +63,15 @@ export default function PropertiesScreen() {
 
     setSubmitting(true);
     try {
+      // Geocode best-effort BEFORE insert so the row lands with coordinates
+      // when possible. Failure is non-blocking — the property is still
+      // created with NULL coords and the backfill script can retry later.
+      const fullAddress = `${address.trim()}, ${city.trim()}, ${state.trim()}`;
+      const coords = await geocodeAddress(fullAddress);
+      if (!coords) {
+        console.warn(`[properties] No geocode for "${fullAddress}"; saving with NULL coords`);
+      }
+
       const newProperty = await propertiesService.create({
         name: name.trim(),
         address: address.trim(),
@@ -70,8 +80,8 @@ export default function PropertiesScreen() {
         type: type.trim() || 'commercial',
         total_units: units || 0,
         image_url: null,
-        latitude: null,
-        longitude: null,
+        latitude: coords?.lat ?? null,
+        longitude: coords?.lon ?? null,
       });
 
       await adminService.addPropertyToAdmin(newProperty.id);

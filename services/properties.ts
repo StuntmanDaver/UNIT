@@ -79,4 +79,23 @@ export const propertiesService = {
     if (error) throw error;
     return data;
   },
+
+  async updateCoordinates(id: string, lat: number, lon: number): Promise<Property> {
+    const { data, error } = await supabase
+      .from('properties')
+      .update({ latitude: lat, longitude: lon })
+      .eq('id', id)
+      .select(PROPERTY_COLUMNS)
+      .single();
+    if (error) throw error;
+    return data;
+  },
 };
+
+export async function updatePropertyCoordinates(
+  propertyId: string,
+  lat: number,
+  lon: number
+): Promise<Property> {
+  return propertiesService.updateCoordinates(propertyId, lat, lon);
+}
