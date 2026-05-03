@@ -22,17 +22,20 @@ import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { postsService } from '@/services/posts';
+import { promotionsService } from '@/services/promotions';
 import { storageService } from '@/services/storage';
-import { adminService } from '@/services/admin';
 import { useAuth } from '@/lib/AuthContext';
 
-const createOfferSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
+const schema = z.object({
+  headline: z.string().min(1, 'Headline is required'),
   description: z.string().min(1, 'Description is required'),
+  cta_text: z.string().optional(),
+  cta_link: z.string().optional(),
 });
 
-type CreateOfferFormData = z.infer<typeof createOfferSchema>;
+type FormData = z.infer<typeof schema>;
+
+type ActivePicker = null | 'start' | 'end';
 
 export default function CreatePromotionScreen() {
   const queryClient = useQueryClient();
@@ -40,19 +43,20 @@ export default function CreatePromotionScreen() {
   const { data: business } = useCurrentUser();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [activePicker, setActivePicker] = useState<ActivePicker>(null);
 
   const propertyId = propertyIds[0] ?? '';
-  const minDate = new Date();
+  const today = new Date();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<CreateOfferFormData>({
-    resolver: zodResolver(createOfferSchema),
-    defaultValues: { title: '', description: '' },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { headline: '', description: '', cta_text: '', cta_link: '' },
   });
 
   const handlePickImage = async () => {
@@ -67,59 +71,76 @@ export default function CreatePromotionScreen() {
   };
 
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS === 'android') setShowDatePicker(false);
-    if (date) setSelectedDate(date);
+    if (Platform.OS === 'android') setActivePicker(null);
+    if (!date) return;
+    if (activePicker === 'start') {
+      setStartDate(date);
+      // Auto-advance to end picker on iOS
+      if (Platform.OS !== 'android') setActivePicker('end');
+    } else if (activePicker === 'end') {
+      setEndDate(date);
+      if (Platform.OS !== 'android') setActivePicker(null);
+    }
   };
 
-  const onSubmit = async (data: CreateOfferFormData) => {
+  const pickerValue = activePicker === 'start'
+    ? (startDate ?? today)
+    : (endDate ?? startDate ?? today);
+
+  const onSubmit = async (data: FormData) => {
     if (!business) {
       Toast.show({ type: 'error', text1: 'No business profile found' });
       return;
     }
+    if (!user?.id) {
+      Toast.show({ type: 'error', text1: 'Not signed in' });
+      return;
+    }
+    if (!startDate) {
+      Toast.show({ type: 'error', text1: 'Start date is required' });
+      return;
+    }
+    if (!endDate) {
+      Toast.show({ type: 'error', text1: 'End date is required' });
+      return;
+    }
+    if (endDate <= startDate) {
+      Toast.show({ type: 'error', text1: 'End date must be after start date' });
+      return;
+    }
+
     setIsSaving(true);
     try {
       let image_url: string | null = null;
-
       if (imageUri) {
         const ext = imageUri.split('.').pop() ?? 'jpg';
         const { file_url } = await storageService.uploadFile(imageUri, ext);
         image_url = file_url;
       }
 
-      await postsService.create({
-        property_id: propertyId,
-        business_id: business.id,
-        type: 'offer',
-        title: data.title,
-        content: data.description,
-        expiry_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
-        image_url,
-      });
+      const newPromo = await promotionsService.createTenant(
+        {
+          property_id: propertyId,
+          advertiser_id: user.id,
+          business_name: business.business_name,
+          headline: data.headline,
+          description: data.description || null,
+          image_url,
+          cta_text: data.cta_text || null,
+          cta_link: data.cta_link || null,
+          start_date: format(startDate, 'yyyy-MM-dd'),
+          end_date: format(endDate, 'yyyy-MM-dd'),
+        },
+        user.id
+      );
 
       await queryClient.invalidateQueries({ queryKey: ['promotions'] });
-      await queryClient.invalidateQueries({ queryKey: ['posts'] });
 
-      Toast.show({
-        type: 'success',
-        text1: 'Offer posted',
-        text2: 'Your promotion is now live.',
-      });
-
-      if (business) {
-        adminService.sendPush({
-          property_id: propertyId,
-          title: `${business.business_name} posted an offer`,
-          message: data.title,
-          data: { type: 'offer' },
-          exclude_email: user?.email ?? undefined,
-        }).catch(() => {});
-      }
-
-      router.back();
-    } catch (err) {
+      router.replace(`/(tabs)/promotions/pending-payment?id=${newPromo.id}` as Parameters<typeof router.replace>[0]);
+    } catch {
       Toast.show({
         type: 'error',
-        text1: 'Failed to post offer',
+        text1: 'Failed to create promotion',
         text2: 'Please try again.',
       });
     } finally {
@@ -127,27 +148,29 @@ export default function CreatePromotionScreen() {
     }
   };
 
+  const pickerLabel = activePicker === 'start' ? 'Start Date' : 'End Date';
+
   return (
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-3xl font-lora-semibold text-white leading-tight">Post an Offer</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight">Promote My Business</Text>
       </GradientHeader>
 
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Title */}
+        {/* Headline */}
         <Controller
           control={control}
-          name="title"
+          name="headline"
           render={({ field: { onChange, value } }) => (
             <Input
-              label="Title *"
+              label="Headline *"
               value={value}
               onChangeText={onChange}
               placeholder="e.g. 20% off this week only"
-              error={errors.title?.message}
+              error={errors.headline?.message}
             />
           )}
         />
@@ -171,57 +194,57 @@ export default function CreatePromotionScreen() {
           )}
         />
 
-        {/* Expiry Date picker */}
-        <View className="mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">
-            Expiry Date (optional)
-          </Text>
-          <Pressable
-            onPress={() => setShowDatePicker(true)}
-            className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
-          >
-            <Calendar size={18} color="#7C8DA7" />
-            <Text className={`flex-1 ml-3 text-base font-nunito leading-relaxed ${selectedDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
-              {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
-            </Text>
-            {selectedDate && (
-              <Pressable
-                onPress={() => setSelectedDate(null)}
-                hitSlop={8}
-              >
-                <X size={16} color="#7C8DA7" />
-              </Pressable>
-            )}
-          </Pressable>
+        {/* Date pickers */}
+        <View className="flex-row gap-3 mb-4">
+          <View className="flex-1">
+            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Start Date *</Text>
+            <Pressable
+              onPress={() => setActivePicker('start')}
+              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
+            >
+              <Calendar size={16} color="#7C8DA7" />
+              <Text className={`flex-1 ml-2 text-sm font-nunito leading-normal ${startDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
+                {startDate ? format(startDate, 'MMM d, yyyy') : 'Select'}
+              </Text>
+            </Pressable>
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">End Date *</Text>
+            <Pressable
+              onPress={() => setActivePicker('end')}
+              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
+            >
+              <Calendar size={16} color="#7C8DA7" />
+              <Text className={`flex-1 ml-2 text-sm font-nunito leading-normal ${endDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
+                {endDate ? format(endDate, 'MMM d, yyyy') : 'Select'}
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* iOS date picker modal */}
-        {Platform.OS === 'ios' && (
-          <Modal
-            visible={showDatePicker}
-            transparent
-            animationType="slide"
-          >
+        {Platform.OS === 'ios' && activePicker !== null && (
+          <Modal visible transparent animationType="slide">
             <Pressable
               className="flex-1 bg-black/50 justify-end"
-              onPress={() => setShowDatePicker(false)}
+              onPress={() => setActivePicker(null)}
             >
               <Pressable onPress={(e) => e.stopPropagation()}>
                 <View className="bg-brand-navy-light rounded-t-2xl pb-8">
                   <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
-                    <Pressable onPress={() => { setSelectedDate(null); setShowDatePicker(false); }}>
-                      <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal">Clear</Text>
+                    <Pressable onPress={() => setActivePicker(null)}>
+                      <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal">Cancel</Text>
                     </Pressable>
-                    <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">Expiry Date</Text>
-                    <Pressable onPress={() => setShowDatePicker(false)}>
+                    <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">{pickerLabel}</Text>
+                    <Pressable onPress={() => setActivePicker(null)}>
                       <Text className="text-sm font-nunito-semibold text-white leading-normal">Done</Text>
                     </Pressable>
                   </View>
                   <DateTimePicker
-                    value={selectedDate ?? minDate}
+                    value={pickerValue}
                     mode="date"
                     display="spinner"
-                    minimumDate={minDate}
+                    minimumDate={activePicker === 'end' && startDate ? startDate : today}
                     onChange={handleDateChange}
                     themeVariant="dark"
                   />
@@ -231,16 +254,46 @@ export default function CreatePromotionScreen() {
           </Modal>
         )}
 
-        {/* Android date picker (inline native dialog) */}
-        {Platform.OS === 'android' && showDatePicker && (
+        {/* Android inline date picker */}
+        {Platform.OS === 'android' && activePicker !== null && (
           <DateTimePicker
-            value={selectedDate ?? minDate}
+            value={pickerValue}
             mode="date"
             display="default"
-            minimumDate={minDate}
+            minimumDate={activePicker === 'end' && startDate ? startDate : today}
             onChange={handleDateChange}
           />
         )}
+
+        {/* CTA fields */}
+        <Controller
+          control={control}
+          name="cta_text"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              label="Button Label (optional)"
+              value={value ?? ''}
+              onChangeText={onChange}
+              placeholder="e.g. Claim Offer"
+              error={errors.cta_text?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="cta_link"
+          render={({ field: { onChange, value } }) => (
+            <Input
+              label="Button Link (optional)"
+              value={value ?? ''}
+              onChangeText={onChange}
+              placeholder="https://..."
+              autoCapitalize="none"
+              keyboardType="url"
+              error={errors.cta_link?.message}
+            />
+          )}
+        />
 
         {/* Image picker */}
         <View className="mb-4">
@@ -273,7 +326,7 @@ export default function CreatePromotionScreen() {
         {/* Actions */}
         <View className="gap-3 mt-2">
           <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving}>
-            Create promotion
+            Continue to Payment
           </Button>
           <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>
             Cancel

@@ -77,6 +77,7 @@ export default function TabLayout() {
       <Tabs.Screen name="directory/[id]" options={{ href: null }} />
       <Tabs.Screen name="promotions/create" options={{ href: null }} />
       <Tabs.Screen name="promotions/[id]" options={{ href: null }} />
+      <Tabs.Screen name="promotions/pending-payment" options={{ href: null }} />
       <Tabs.Screen name="profile/edit" options={{ href: null }} />
       <Tabs.Screen name="community/create" options={{ href: null }} />
     </Tabs>

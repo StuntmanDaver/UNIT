@@ -258,8 +258,8 @@
         "Maestro E2E: tenant → Profile → 'Promote My Business' → fill → submit → Pending Payment screen"
       ],
       "priority": 10,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added TenantPromotionInput type + promotionsService.createTenant(input, actorUserId) to services/promotions.ts — inserts promotions row (advertiser_id=user.id, review_status='draft', payment_status='unpaid') then inserts promotion_status_events audit row (from_review_status=null, to_review_status='draft', actor_type='advertiser'). Rewrote app/(tabs)/promotions/create.tsx: new form collects headline (required), description (required), start_date+end_date (both required, date pickers with active-picker: null|'start'|'end' pattern), optional cta_text/cta_link, optional image. On submit uploads image, calls createTenant(), invalidates 'promotions' query key, navigates to pending-payment screen via router.replace. Created app/(tabs)/promotions/pending-payment.tsx — fetches the just-created promotion by id param, shows status badge (Clock icon + Pending Payment text), promotion summary Card, disabled 'Pay Now' Button (checkout wired in US-014), and 'Save for Later' ghost button routing back to promotions tab. Added 'Promote My Business' CTA Card on profile.tsx above the QR Code card — visible only when business is truthy (tenant has ≥1 linked business), routes to /promotions/create. Registered promotions/pending-payment as href:null in tabs _layout.tsx. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-011",

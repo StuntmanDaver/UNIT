@@ -66,6 +66,25 @@ export type AdminPromotionReviewAction =
   | { action: 'reject'; note: string };
 
 /**
+ * Input for tenant-authored promotion (advertiser_id = user.id path).
+ * review_status starts as 'draft'; payment_status starts as 'unpaid'.
+ * Portal webhook flips payment_status to 'paid' and review_status to
+ * 'pending' when Stripe checkout.session.completed fires.
+ */
+export type TenantPromotionInput = {
+  property_id: string;
+  advertiser_id: string;
+  business_name: string;
+  headline: string;
+  description: string | null;
+  image_url: string | null;
+  cta_text: string | null;
+  cta_link: string | null;
+  start_date: string;
+  end_date: string;
+};
+
+/**
  * Input for admin-authored external promotion (advertiser_id IS NULL path).
  * Mirrors the CHECK constraint promotions_attribution_required: business_name
  * must be non-empty when advertiser_id is null.
@@ -253,6 +272,48 @@ export const promotionsService = {
       .eq('property_id', propertyId)
       .order('created_at', { ascending: false });
     if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Tenant: create a promotion for their own business.
+   * review_status='draft', payment_status='unpaid' until the Stripe checkout
+   * completes (portal webhook flips to 'pending'). Also inserts the required
+   * promotion_status_events audit row per the two-path promotions schema.
+   */
+  async createTenant(input: TenantPromotionInput, actorUserId: string): Promise<Promotion> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .insert({
+        property_id: input.property_id,
+        advertiser_id: input.advertiser_id,
+        business_name: input.business_name,
+        headline: input.headline,
+        description: input.description,
+        image_url: input.image_url,
+        cta_text: input.cta_text,
+        cta_link: input.cta_link,
+        start_date: input.start_date,
+        end_date: input.end_date,
+        review_status: 'draft',
+        payment_status: 'unpaid',
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+
+    const { error: eventError } = await supabase
+      .from('promotion_status_events')
+      .insert({
+        promotion_id: data.id,
+        from_review_status: null,
+        to_review_status: 'draft',
+        actor_user_id: actorUserId,
+        actor_type: 'advertiser',
+        note: null,
+      });
+    if (eventError) throw eventError;
+
     return data;
   },
 

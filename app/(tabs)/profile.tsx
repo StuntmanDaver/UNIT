@@ -11,7 +11,7 @@ import {
 import { router, Redirect } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
-import { Edit2, Share2, LogOut } from 'lucide-react-native';
+import { Edit2, Share2, LogOut, Megaphone } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -101,6 +101,24 @@ export default function ProfileScreen() {
               <Text className="text-base font-nunito text-brand-gray leading-relaxed">
                 Set up your business profile to appear in the directory.
               </Text>
+            </Card>
+          )}
+
+          {/* Promote My Business CTA — visible only when tenant has a linked business */}
+          {business && (
+            <Card className="p-5 mb-4">
+              <View className="flex-row items-center gap-3 mb-3">
+                <Megaphone size={22} color={BRAND.blue} />
+                <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight flex-1">
+                  Promote My Business
+                </Text>
+              </View>
+              <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-4">
+                Reach tenants across your property with a featured promotion.
+              </Text>
+              <Button onPress={() => router.push('/promotions/create')} variant="primary">
+                Get Started
+              </Button>
             </Card>
           )}
 
