@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
-stopped_at: context exhaustion at 76% (2026-05-02)
-last_updated: "2026-05-02T00:22:13.669Z"
+stopped_at: context exhaustion at 75% (2026-05-03)
+last_updated: "2026-05-03T17:47:22.278Z"
 progress:
   total_phases: 4
   completed_phases: 3
@@ -104,6 +104,16 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-02T00:22:13.665Z
-Stopped at: context exhaustion at 76% (2026-05-02)
+Last session: 2026-05-03T17:47:22.269Z
+Stopped at: context exhaustion at 75% (2026-05-03)
 Resume file: None
+
+### UNIT — Ralph engagement branch (synced 2026-05-03)
+
+Source: live Claude Code sessions + terminal transcripts for this date.
+
+- **Branch:** `ralph/engagement-ui-enhancement` — 18/22 user stories complete in `scripts/ralph/prd.json`; **open:** US-013, US-014, US-021, US-022 (Stripe deploy + mobile checkout wiring + Maestro + final smoke/a11y).
+- **US-012 shipped:** Edge Function `create-promotion-checkout-session` + migration `promotion_payment_attempts.price_tier_id` (see `scripts/ralph/progress.txt` and latest commits on this branch).
+- **Dev Supabase:** Four pending migrations from the PRD track were applied on the dev project; `scripts/backfill-property-coordinates.ts` was run after `properties.latitude/longitude` existed — 5/7 properties geocoded (two rows failed geocoding until addresses are corrected).
+- **Mobile tooling:** Expo Metro with `--clear`; dev client opens on LAN URL; if the app shows a blank screen, verify Metro “Bundling complete” and simulator network to the host IP.
+- **Portal:** No code changes in this workspace pass; Stripe webhook verification for mobile metadata remains US-013 work.
