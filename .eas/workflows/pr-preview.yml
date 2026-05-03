@@ -1,0 +1,22 @@
+name: Preview Build on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_preview:
+    name: Internal Preview Build (iOS + Android)
+    type: build
+    params:
+      platform: all
+      profile: preview
+
+  run_maestro:
+    name: Maestro E2E Tests
+    type: maestro
+    needs: [build_preview]
+    params:
+      flow_path: maestro
+      build_id: ${{ needs.build_preview.outputs.build_id }}
