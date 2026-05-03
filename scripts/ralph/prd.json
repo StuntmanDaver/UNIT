@@ -290,8 +290,8 @@
         "cd unit && npx tsc --noEmit and npm test pass"
       ],
       "priority": 15,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Extended unit/services/promotionLeads.ts with PromotionLeadFilters, CreateLeadInput, UpdateLeadPatch types plus promotionLeadsService.{listLeads(filters?), createLead(input), updateLead(id, patch), convertLeadToPromotion(leadId, promotionId)} — all admin-only (RLS enforced at DB layer). listLeads filters by stage and/or owner_user_id, ordered by updated_at DESC. createLead normalises optional fields to null. convertLeadToPromotion atomically sets promotion_id + advances stage to 'published'. No screens. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-016",

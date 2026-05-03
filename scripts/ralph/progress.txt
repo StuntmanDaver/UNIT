@@ -212,3 +212,18 @@ Started: Sat May  2 21:38:29 EDT 2026
   - The `promotions_attribution_required` CHECK constraint is satisfied as long as `advertiser_id IS NOT NULL` — `business_name` is still set (from the business profile) but the constraint doesn't require it when `advertiser_id` is present.
   - The existing `promotions/create.tsx` was creating community posts (`postsService.create(type:'offer')`), not real promotions rows. US-010 replaces that pattern entirely. Any callers that expected the old post-based behavior (e.g. analytics, the old promotions list union type) are now decoupled.
 ---
+
+## 2026-05-03 - US-015
+- Extended `unit/services/promotionLeads.ts` (scaffolded in US-002 with types only) with full admin-only CRUD service. Added `PromotionLeadFilters`, `CreateLeadInput`, and `UpdateLeadPatch` as named exports alongside the existing `PromotionLeadStage` and `PromotionLead` types.
+- `promotionLeadsService.listLeads(filters?)` — fetches all leads ordered by `updated_at DESC`; optional filter by `stage` and/or `owner_user_id`. RLS enforces admin-only access at the DB layer.
+- `promotionLeadsService.createLead(input)` — inserts a new lead; optional fields default to `null`/`[]`/`'hot_lead'` matching DB column defaults.
+- `promotionLeadsService.updateLead(id, patch)` — patches mutable fields; `updated_at` auto-set by DB trigger.
+- `promotionLeadsService.convertLeadToPromotion(leadId, promotionId)` — atomically sets `promotion_id` and advances `stage` to `'published'`. Caller must ensure the promotions row already exists.
+- No screens added per acceptance criteria and migration comment ("table is intentionally unused at rest until V2").
+- Files changed: `unit/services/promotionLeads.ts`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0; `npm test` 13 suites / 65 tests all green.
+- **Learnings for future iterations:**
+  - For V2-scaffold services with no UI consumers yet, optional filter params (`filters?: PromotionLeadFilters`) are better than separate list overloads — callers can call `listLeads()` with no args for the unfiltered case and the query builder chain is readable.
+  - `UpdateLeadPatch = Partial<Pick<Row, ...mutable fields>>` is the cleanest pattern for a patch function — it excludes immutable fields (`id`, `created_at`, `promotion_id`, `updated_at`) from the type at the boundary without an `Omit` chain of non-obvious field names.
+  - `convertLeadToPromotion` is intentionally a single-step DB update (not a transaction wrapper) because `updated_at` is auto-managed by the trigger and there's only one table touched. If a future story needs to also insert a status event, upgrade to a Supabase Edge Function to get server-side atomicity.
+---
