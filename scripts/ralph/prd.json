@@ -389,8 +389,8 @@
         "Deployed to dev Supabase; smoke test via curl returns Stripe Checkout URL"
       ],
       "priority": 23,
-      "passes": false,
-      "notes": "[DEFERRED 2026-05-03: priority bumped 12\u219223 per user direction \u2014 do Stripe-independent stories US-015\u2192US-020 first.]"
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Created migration 20260502000003_promotion_payment_attempts_price_tier.sql (US-013 dependency) \u2014 adds nullable price_tier_id uuid FK to promotion_payment_attempts with a partial index. Created unit/supabase/functions/create-promotion-checkout-session/index.ts (Deno): CORS preflight \u2192 auth via SUPABASE_ANON_KEY userClient.auth.getUser() \u2192 parse { promotionId, priceTierId } body \u2192 ownership check (promotion.advertiser_id == user.id) via service-role client \u2192 active tier lookup \u2192 Stripe Checkout Session (mode:'payment', customer_email, line_items from tier price_cents/currency, success/cancel URLs unit://promotions/{id}?status=success|cancel, metadata { promotionId, priceTierId, userId, source:'mobile_tenant' }) \u2192 INSERT promotion_payment_attempts (status:'created' per check constraint, attempt_type:'repayment' when payment_status='repayment_required', else 'initial', price_tier_id) \u2192 return { url, sessionId }. status='created' (not 'pending') \u2014 the DB check constraint only permits 'created'|'completed'|'failed'|'canceled'|'refunded'. Stripe@17 used per existing edge-function convention (same as issue-refund). tsc + brand-lint both exit 0. Smoke test via curl requires deployed Supabase + STRIPE_SECRET_KEY secret \u2014 manual step for operator."
     },
     {
       "id": "US-013",

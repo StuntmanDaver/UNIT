@@ -305,3 +305,25 @@ Started: Sat May  2 21:38:29 EDT 2026
   - Maestro `takeScreenshot` commands save PNG files to the run output directory — name them descriptively (`home-feed-initial`, `home-feed-nearby-segment`) so visual diffs are easy to interpret in CI artifacts.
   - When a Maestro flow tests a conditional UI element (Nearby segment only activates when neighbours exist), design the test to tap the element and proceed — even if the segment has no effect (no neighbours), the tap must not crash the flow. The flow is checking for regressions, not functional correctness.
 ---
+
+## 2026-05-03 - US-012
+- Created `unit/supabase/migrations/20260502000003_promotion_payment_attempts_price_tier.sql` (US-013 dependency, added here because US-012 needs the column): adds nullable `price_tier_id uuid REFERENCES promotion_price_tiers(id) ON DELETE SET NULL` to `promotion_payment_attempts` plus a partial index. Purely additive — existing portal advertiser attempts are unaffected.
+- Created `unit/supabase/functions/create-promotion-checkout-session/index.ts` (Deno Edge Function). Flow:
+  1. CORS preflight (OPTIONS → 200)
+  2. Auth: extract `Authorization` header → `userClient.auth.getUser()` using `SUPABASE_ANON_KEY` (same pattern as `invite-tenant` / `issue-refund`)
+  3. Parse POST body `{ promotionId, priceTierId }` with validation
+  4. Ownership check via service-role client: `promotion.advertiser_id == user.id`. Returns 403 if mismatch, 422 if already paid
+  5. Active tier lookup: `promotion_price_tiers` WHERE `id=priceTierId AND is_active=true`
+  6. Stripe Checkout Session (mode: `'payment'`, `customer_email: user.email`): line_items from tier; success/cancel URLs use `unit://promotions/{id}?status=success|cancel` deep-link; metadata `{ promotionId, priceTierId, userId, source:'mobile_tenant' }` — existing portal webhook reads only `metadata.promotionId`
+  7. INSERT `promotion_payment_attempts`: `status='created'` (DB constraint); `attempt_type='repayment'` when `payment_status='repayment_required'`, else `'initial'`; `price_tier_id=priceTierId`
+  8. Return `{ url, sessionId }`
+- Uses `https://esm.sh/stripe@17?target=deno` + `apiVersion: '2026-03-25.dahlia'` per existing edge-function convention (`issue-refund`).
+- Files changed: `unit/supabase/migrations/20260502000003_promotion_payment_attempts_price_tier.sql` (new), `unit/supabase/functions/create-promotion-checkout-session/index.ts` (new), `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (no JSX touched). Edge Function smoke test is a manual step requiring a deployed Supabase project + `STRIPE_SECRET_KEY` secret.
+- **Learnings for future iterations:**
+  - `promotion_payment_attempts.status` check constraint: `'created'|'completed'|'failed'|'canceled'|'refunded'` — NOT `'pending'`. The PRD acceptance criteria had an error. Always verify against the migration DDL.
+  - For mobile-tenant checkout, pass `customer_email` (not `customer`) — `profiles.stripe_customer_id` does NOT exist; only `advertiser_profiles.stripe_customer_id` does. Never add it to profiles in this milestone.
+  - Portal webhook at `portal/app/api/webhooks/stripe/route.ts` reads only `session.metadata.promotionId` — source-agnostic. Mobile metadata must include `promotionId` at the top level.
+  - Use `attempt_type: 'repayment'` when `payment_status === 'repayment_required'`; `'initial'` for all new checkouts.
+  - The `price_tier_id` column is nullable so existing portal advertiser attempts need no backfill.
+---
