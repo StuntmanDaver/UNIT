@@ -275,3 +275,19 @@ Started: Sat May  2 21:38:29 EDT 2026
   - Modal picker sheets that use `bg-brand-navy-light` (the dark bottom sheet) inherit the same constraint: Cancel/action labels must be `text-brand-gray` or `text-white`, never `text-brand-steel`.
   - The image-upload dashed-border placeholder (`border-brand-steel/40`, `color="#7C8DA7"` icon) on `bg-brand-navy` screen backgrounds is fine — steel-on-navy passes for both text (5.15:1) and non-text (3:1 threshold). Do not change these.
 ---
+
+## 2026-05-03 - US-019
+- Updated `unit/app/(tabs)/_layout.tsx` with four Delta-inspired visual refinements — no functionality changes.
+- **tabBarStyle**: added `borderTopWidth: 0.5` + `borderTopColor: BRAND.navyLight` (subtle separator); added `height: 88` for a taller, more premium feel that gives the accent indicator and labels breathing room.
+- **Inactive tint**: bumped from `BRAND.steel` (#7C8DA7) to `'#A4B5CC'` — lighter blue-gray that's more distinctive against the active white, while still passing WCAG AA on BRAND.navy (~8.8:1 contrast ratio).
+- **Label**: `fontSize` reduced from 12 → 11; added `letterSpacing: 0.3` for a slightly airy, Delta-like label cadence.
+- **Accent indicator**: added `makeTabIcon()` factory function that wraps any Lucide icon in a View rendering a 24×2pt BRAND.blue rounded bar directly above the icon when `focused`, transparent otherwise. All 6 tab icons updated to use `makeTabIcon()`. The indicator is part of the flex flow (not absolutely positioned) so it works reliably across icon sizes and device widths.
+- Files changed: `unit/app/(tabs)/_layout.tsx`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (brand-lint-clean); `npm test` 13 suites / 65 tests all green.
+- Visual check: by inspection — existing tab functionality unchanged. No screen layout changed, only the tab bar chrome. iOS-simulator visual verification lands in US-021 / US-022.
+- **Learnings for future iterations:**
+  - The `makeTabIcon(Icon)` factory pattern avoids repeating the wrapper View six times while keeping each `tabBarIcon` referentially stable (same function reference per mount) — better for React's render reconciliation than an inline arrow inside each `options` object.
+  - For the accent indicator, placing a fixed-size View in the normal flex flow (not absolutely positioned) above the icon is the most robust approach: it doesn't depend on knowledge of the tab bar container's padding or height, and it works correctly across different `height` settings.
+  - React Navigation's `tabBarStyle.height` sets the total tab bar height. On iPhone X+ devices, safe area insets are still applied inside the bar so content doesn't underlap the home indicator. Setting `height: 88` is safe; just don't also add `paddingBottom` in the same `tabBarStyle` or they compound.
+  - `'#A4B5CC'` is not in `constants/colors.ts` by design — it's a tab-bar-specific override for inactive icon contrast, not a brand token. Keep it as an inline string in `_layout.tsx` to avoid polluting the color constant file with a one-off value.
+---

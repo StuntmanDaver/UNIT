@@ -356,8 +356,8 @@
         "Verify in iOS simulator: tab switching works, Alerts badge still appears, no breakage on iPhone SE"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Updated unit/app/(tabs)/_layout.tsx: tabBarStyle gains borderTopWidth:0.5 + borderTopColor:BRAND.navyLight + height:88. Inactive tint bumped from BRAND.steel (#7C8DA7) to '#A4B5CC' (passes AA on BRAND.navy ~8.8:1). Label fontSize 12\u219211 + letterSpacing:0.3. Added makeTabIcon() factory that wraps any Lucide icon in a View showing a 24\u00d72pt BRAND.blue rounded bar above the icon when focused and transparent when not. All 6 tab icons updated to use the factory. No tab functionality changed. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-020",

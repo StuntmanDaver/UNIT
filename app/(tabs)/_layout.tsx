@@ -1,9 +1,30 @@
 import { Tabs } from 'expo-router';
 import { Home, Building2, Megaphone, Users, Bell, User } from 'lucide-react-native';
+import { View } from 'react-native';
 import { useAuth } from '@/lib/AuthContext';
 import { BRAND } from '@/constants/colors';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useUnreadCount } from '@/hooks/useUnreadCount';
+
+// Renders icon with a 2pt brand-blue accent bar above it when the tab is active.
+function makeTabIcon(Icon: React.ComponentType<{ size: number; color: string }>) {
+  return function TabIconWithIndicator({ color, size, focused }: { color: string; size: number; focused: boolean }) {
+    return (
+      <View style={{ alignItems: 'center' }}>
+        <View
+          style={{
+            width: 24,
+            height: 2,
+            borderRadius: 1,
+            backgroundColor: focused ? BRAND.blue : 'transparent',
+            marginBottom: 2,
+          }}
+        />
+        <Icon size={size} color={color} />
+      </View>
+    );
+  };
+}
 
 export default function TabLayout() {
   const { isAdmin, user, propertyIds } = useAuth();
@@ -16,14 +37,17 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: BRAND.steel,
+        tabBarInactiveTintColor: '#A4B5CC',
         tabBarStyle: {
           backgroundColor: BRAND.navy,
-          borderTopColor: '#1D263A',
+          borderTopWidth: 0.5,
+          borderTopColor: BRAND.navyLight,
+          height: 88,
         },
         tabBarLabelStyle: {
           fontFamily: 'Nunito_600SemiBold',
-          fontSize: 12,
+          fontSize: 11,
+          letterSpacing: 0.3,
         },
       }}
     >
@@ -33,35 +57,35 @@ export default function TabLayout() {
           // Home tab is tenant-only; admins keep their existing landing.
           href: isAdmin ? null : undefined,
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: makeTabIcon(Home),
         }}
       />
       <Tabs.Screen
         name="directory"
         options={{
           title: 'Directory',
-          tabBarIcon: ({ color, size }) => <Building2 size={size} color={color} />,
+          tabBarIcon: makeTabIcon(Building2),
         }}
       />
       <Tabs.Screen
         name="promotions"
         options={{
           title: 'Promotions',
-          tabBarIcon: ({ color, size }) => <Megaphone size={size} color={color} />,
+          tabBarIcon: makeTabIcon(Megaphone),
         }}
       />
       <Tabs.Screen
         name="community"
         options={{
           title: 'Community',
-          tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
+          tabBarIcon: makeTabIcon(Users),
         }}
       />
       <Tabs.Screen
         name="notifications"
         options={{
           title: 'Alerts',
-          tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
+          tabBarIcon: makeTabIcon(Bell),
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
         }}
       />
@@ -70,7 +94,7 @@ export default function TabLayout() {
         options={{
           href: isAdmin ? null : undefined,
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: makeTabIcon(User),
         }}
       />
       {/* Hide sub-screens from tab bar */}
