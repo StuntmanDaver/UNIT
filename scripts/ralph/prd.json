@@ -276,8 +276,8 @@
         "Verify in iOS simulator: admin can edit a tier price and persistence works"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Added migration 20260502000002_promotion_price_tiers.sql creating promotion_price_tiers table (id, name, duration_days, is_featured, price_cents, currency, is_active, created_at, updated_at) with auto-updated_at trigger. RLS: authenticated tenants SELECT where is_active=true; is_landlord() admins get FULL ACCESS. Seeded two starter tiers: ('7-day Standard', 7, false, 2500) and ('30-day Featured', 30, true, 9900) with ON CONFLICT DO NOTHING for idempotency. Added unit/services/promotionPricing.ts exporting PromotionPriceTier, UpsertTierInput, and promotionPricingService.{listTiers, upsertTier, deactivateTier}. Added unit/hooks/usePromotionPricing.ts exporting usePromotionPriceTiers, useUpsertPriceTier, useDeactivatePriceTier. Created unit/app/(admin)/pricing.tsx — FlatList of tiers with name/duration/price/featured badge/inactive badge per row; Edit + Deactivate buttons on each row; Plus icon in GradientHeader for Add; Modal sheet for Add/Edit with TextInput fields (name, duration_days, price in USD, is_featured Switch, is_active Switch); client-side validation + Toast feedback. Registered 'pricing' in app/(admin)/_layout.tsx. Added 'Promotion Pricing' Card to admin dashboard (index.tsx) with DollarSign icon. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-012",

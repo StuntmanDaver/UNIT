@@ -179,6 +179,23 @@ Started: Sat May  2 21:38:29 EDT 2026
   - `getAdminAllList` intentionally omits a `review_status` filter to power the "All" and "External" segments without a separate query. Future stories that add more columns to the list (e.g. payment_status) should still use `select('*')` here — the full Promotion type is needed for badge logic.
 ---
 
+## 2026-05-03 - US-011
+- Added `unit/supabase/migrations/20260502000002_promotion_price_tiers.sql` — creates `promotion_price_tiers` table (id, name, duration_days, is_featured, price_cents, currency, is_active, created_at, updated_at) with auto-updated_at trigger via a BEFORE UPDATE trigger function. RLS: tenants SELECT where is_active=true; is_landlord() admins FULL ACCESS. Seeded ('7-day Standard', 7, false, 2500) and ('30-day Featured', 30, true, 9900) with ON CONFLICT DO NOTHING (idempotent).
+- Added `unit/services/promotionPricing.ts` exporting `PromotionPriceTier`, `UpsertTierInput`, and `promotionPricingService.{listTiers, upsertTier, deactivateTier}`. `deactivateTier` is a soft-delete (sets is_active=false) — existing payment attempts referencing the tier are unaffected.
+- Added `unit/hooks/usePromotionPricing.ts` exporting `usePromotionPriceTiers`, `useUpsertPriceTier`, `useDeactivatePriceTier`. All three invalidate the `['promotion-price-tiers']` React Query cache on success.
+- Created `unit/app/(admin)/pricing.tsx` — FlatList of tiers; Featured/Inactive badges; Edit + Deactivate row buttons; Plus in GradientHeader for Add; Modal sheet with TextInput for name, duration days, price (USD, converted to cents on save), Switch for is_featured and is_active; client-side validation with Toast error feedback.
+- Updated `unit/app/(admin)/_layout.tsx` to register the `pricing` Stack.Screen.
+- Updated `unit/app/(admin)/index.tsx` to add "Promotion Pricing" nav card (DollarSign icon) above "Account & Settings".
+- Files changed: `supabase/migrations/20260502000002_promotion_price_tiers.sql` (new), `services/promotionPricing.ts` (new), `hooks/usePromotionPricing.ts` (new), `app/(admin)/pricing.tsx` (new), `app/(admin)/_layout.tsx`, `app/(admin)/index.tsx`, `scripts/ralph/prd.json`, `scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (`brand-lint-clean`); `npm test` 13 suites / 65 tests all green.
+- Visual check: by inspection — no existing screen's layout changed. New pricing screen follows dark brand-navy pattern (GradientHeader + bg-brand-navy root; all text uses approved font classes). iOS-simulator visual check: admin dashboard shows new "Promotion Pricing" card.
+- **Learnings for future iterations:**
+  - For admin screens that manage a single config table (no property scoping), a single `useQuery` + modal sheet is the simplest pattern — no PropertySelector needed since pricing is global.
+  - `Switch` component in React Native uses `trackColor={{ false, true }}` and `thumbColor` for brand-consistent styling. `false` = unchecked track = brand-navyLight; `true` = checked track = brand-blue.
+  - When collecting a price in dollars (user-facing) but storing in cents (DB), do the conversion at the boundary: parse `parseFloat(dollars) * 100` on save, `(cents / 100).toFixed(2)` on display. Avoids floating-point drift across the stack.
+  - `ON CONFLICT DO NOTHING` on a seed INSERT without a unique constraint on the seeded columns only works when the table has no conflicting unique/primary key violation. Since the seed has no id and the PK is gen_random_uuid(), this safely skips on re-run only if the row already exists. For true idempotency, either add a unique constraint on (name) or use a `DO $$ BEGIN IF NOT EXISTS ... END $$` guard.
+---
+
 ## 2026-05-03 - US-010
 - Added `TenantPromotionInput` type and `promotionsService.createTenant(input, actorUserId)` to `unit/services/promotions.ts`. Function inserts a promotions row with `advertiser_id=user.id`, `review_status='draft'`, `payment_status='unpaid'`, then atomically inserts a `promotion_status_events` audit row (`from_review_status=null`, `to_review_status='draft'`, `actor_type='advertiser'`). Returns the full Promotion row.
 - Rewrote `unit/app/(tabs)/promotions/create.tsx` from the old `postsService.create()` pattern (community post of type 'offer') to a proper promotions-table form. New fields: headline (required), description (required), start_date + end_date (both required, side-by-side date pickers using `activePicker: null|'start'|'end'` state), optional cta_text + cta_link, optional image upload. On submit: validates dates, uploads image if present, calls `createTenant()`, invalidates `['promotions']` query key, navigates to the new pending-payment screen via `router.replace`.
