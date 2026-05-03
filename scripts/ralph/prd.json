@@ -98,8 +98,8 @@
         "Open iOS simulator and confirm zero visual diff on every existing tab screen"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": "Foundation story. Purely additive Tailwind config + CLAUDE.md doc update. No JSX touched."
+      "passes": true,
+      "notes": "Foundation story. Purely additive Tailwind config + CLAUDE.md doc update. No JSX touched. Implemented 2026-05-02. brand-lint deny-list does not match the new tokens, so it passes without script changes; US-016 will add the additive surface-pairing rules."
     },
     {
       "id": "US-002",
