@@ -256,3 +256,22 @@ Started: Sat May  2 21:38:29 EDT 2026
   - Export `CardVariant` as a named type alongside the component so consumers can type their own variant-selection state (`useState<CardVariant>('dark')`) without importing a string literal.
   - The comment at the top of the file (documenting the AA contrast rule) is the right place for this — it will appear in editor tooltips when a developer hovers the import, reducing the chance of misuse on dark screens.
 ---
+
+## 2026-05-03 - US-018
+- Audited all 10 specified screens for dark-on-dark contrast violations. Found 5 distinct violation sites; fixed each by bumping `text-brand-steel` → `text-brand-gray` on `bg-brand-navy-light` surfaces (ratio 4.48:1 → passes AA with brand-gray).
+- **SegmentedControl.tsx**: inactive segment label `text-brand-steel` → `text-brand-gray`. This fix propagates to every screen that uses SegmentedControl: community.tsx, promotions.tsx, community/create.tsx, home.tsx.
+- **notifications.tsx** NotificationRow: message and timestamp `text-brand-steel` → `text-brand-gray`. Both the read (`BRAND.navyLight`) and unread (`UNREAD_BG = #22304A`) row backgrounds are dark surfaces where steel fails AA.
+- **profile.tsx** Settings Card: "Settings" section label, property value, and app version value all `text-brand-steel` → `text-brand-gray` inside the default dark Card (`bg-brand-navy-light`).
+- **promotions/[id].tsx**: date range line `text-brand-steel` → `text-brand-gray` inside Card.
+- **promotions/create.tsx**: (a) date-picker placeholder text `text-brand-steel` → `text-brand-gray` (both start and end date buttons on `bg-brand-navy-light`); (b) iOS modal "Cancel" button `text-brand-steel` → `text-brand-gray` on `bg-brand-navy-light rounded-t-2xl` modal sheet.
+- Clean files (no violations): directory.tsx, directory/[id].tsx, community.tsx, profile/edit.tsx.
+- No light tokens introduced into any existing screen.
+- Files changed: `components/ui/SegmentedControl.tsx`, `app/(tabs)/notifications.tsx`, `app/(tabs)/profile.tsx`, `app/(tabs)/promotions/[id].tsx`, `app/(tabs)/promotions/create.tsx`, `scripts/ralph/prd.json`, `scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (brand-lint-clean); `npm test` 13 suites / 65 tests all green.
+- Visual check: by inspection — only text color changes from one on-brand token to another on-brand token. No layout change. iOS-simulator screenshot not required for a pure-token-swap fix.
+- **Learnings for future iterations:**
+  - The single most pervasive violation site is `SegmentedControl` — it used `text-brand-steel` for inactive labels and is consumed by 4+ screens. Fixing the component fixes all consumers at once; always audit shared UI components before individual screens.
+  - `BRAND.navyLight` (#1D263A) is the default Card background. Any `text-brand-steel` text placed directly inside a Card (or on any navyLight container) fails WCAG AA. Future stories must use `text-brand-gray` for all text inside Cards, and reserve `text-brand-steel` for use on `bg-brand-navy` only (where it passes at 5.15:1).
+  - Modal picker sheets that use `bg-brand-navy-light` (the dark bottom sheet) inherit the same constraint: Cancel/action labels must be `text-brand-gray` or `text-white`, never `text-brand-steel`.
+  - The image-upload dashed-border placeholder (`border-brand-steel/40`, `color="#7C8DA7"` icon) on `bg-brand-navy` screen backgrounds is fine — steel-on-navy passes for both text (5.15:1) and non-text (3:1 threshold). Do not change these.
+---

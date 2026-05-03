@@ -339,8 +339,8 @@
         "Document before/after screenshots in progress log"
       ],
       "priority": 18,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented 2026-05-03. Audited all 10 screens. Violations found and fixed: (1) SegmentedControl inactive text brand-steel→brand-gray (affects community.tsx + promotions.tsx + community/create.tsx); (2) notifications.tsx message+timestamp brand-steel→brand-gray on BRAND.navyLight row bg; (3) profile.tsx Settings section header+property value+app version brand-steel→brand-gray inside Card (bg-brand-navy-light); (4) promotions/[id].tsx date range brand-steel→brand-gray inside Card; (5) promotions/create.tsx date-picker placeholder text+iOS modal Cancel button brand-steel→brand-gray on bg-brand-navy-light. Clean files (no violations): directory.tsx, directory/[id].tsx, community.tsx, profile/edit.tsx. No light tokens introduced. tsc + brand-lint + jest (13 suites/65 tests) all green."
     },
     {
       "id": "US-019",
