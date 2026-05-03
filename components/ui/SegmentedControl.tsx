@@ -25,7 +25,7 @@ export function SegmentedControl({ segments, selected, onChange }: SegmentedCont
               className={
                 isSelected
                   ? 'text-white font-nunito-semibold text-sm'
-                  : 'text-brand-steel font-nunito text-sm'
+                  : 'text-brand-gray font-nunito text-sm'
               }
             >
               {segment}

@@ -77,7 +77,7 @@ export default function PromotionDetailScreen() {
             </Text>
           )}
           {(promo.start_date || promo.end_date) && (
-            <Text className="text-sm font-nunito text-brand-steel leading-normal mt-3">
+            <Text className="text-sm font-nunito text-brand-gray leading-normal mt-3">
               {promo.start_date && `From ${promo.start_date}`}
               {promo.start_date && promo.end_date && ' · '}
               {promo.end_date && `Until ${promo.end_date}`}

@@ -143,20 +143,20 @@ export default function ProfileScreen() {
 
           {/* Settings section */}
           <Card className="overflow-hidden mb-6">
-            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
+            <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
               Settings
             </Text>
 
             {propertyName ? (
               <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
                 <Text className="text-base font-nunito text-brand-gray leading-relaxed">Property</Text>
-                <Text className="text-sm font-nunito text-brand-steel leading-normal">{propertyName}</Text>
+                <Text className="text-sm font-nunito text-brand-gray leading-normal">{propertyName}</Text>
               </View>
             ) : null}
 
             <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
               <Text className="text-base font-nunito text-brand-gray leading-relaxed">App Version</Text>
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">{appVersion}</Text>
+              <Text className="text-sm font-nunito text-brand-gray leading-normal">{appVersion}</Text>
             </View>
 
             <View className="flex-row justify-between items-center px-4 py-3">

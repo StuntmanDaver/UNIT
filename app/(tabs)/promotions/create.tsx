@@ -203,7 +203,7 @@ export default function CreatePromotionScreen() {
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
             >
               <Calendar size={16} color="#7C8DA7" />
-              <Text className={`flex-1 ml-2 text-sm font-nunito leading-normal ${startDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
+              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-gray">
                 {startDate ? format(startDate, 'MMM d, yyyy') : 'Select'}
               </Text>
             </Pressable>
@@ -215,7 +215,7 @@ export default function CreatePromotionScreen() {
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
             >
               <Calendar size={16} color="#7C8DA7" />
-              <Text className={`flex-1 ml-2 text-sm font-nunito leading-normal ${endDate ? 'text-brand-gray' : 'text-brand-steel'}`}>
+              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-gray">
                 {endDate ? format(endDate, 'MMM d, yyyy') : 'Select'}
               </Text>
             </Pressable>
@@ -233,7 +233,7 @@ export default function CreatePromotionScreen() {
                 <View className="bg-brand-navy-light rounded-t-2xl pb-8">
                   <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
                     <Pressable onPress={() => setActivePicker(null)}>
-                      <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal">Cancel</Text>
+                      <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal">Cancel</Text>
                     </Pressable>
                     <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">{pickerLabel}</Text>
                     <Pressable onPress={() => setActivePicker(null)}>
