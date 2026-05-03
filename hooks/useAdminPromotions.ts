@@ -17,3 +17,11 @@ export function useAdminPromotionList(propertyId: string, reviewStatuses: Promot
     enabled: !!propertyId,
   });
 }
+
+export function useAdminAllPromotionList(propertyId: string) {
+  return useQuery<Promotion[]>({
+    queryKey: ['admin-promotions-all', propertyId],
+    queryFn: () => promotionsService.getAdminAllList(propertyId),
+    enabled: !!propertyId,
+  });
+}

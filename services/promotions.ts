@@ -65,6 +65,27 @@ export type AdminPromotionReviewAction =
   | { action: 'require_repayment'; note: string }
   | { action: 'reject'; note: string };
 
+/**
+ * Input for admin-authored external promotion (advertiser_id IS NULL path).
+ * Mirrors the CHECK constraint promotions_attribution_required: business_name
+ * must be non-empty when advertiser_id is null.
+ */
+export type ExternalPromotionInput = {
+  property_id: string;
+  created_by_admin_id: string;
+  business_name: string;
+  headline: string;
+  description: string | null;
+  image_url: string | null;
+  cta_text: string | null;
+  cta_link: string | null;
+  external_contact_name: string | null;
+  external_contact_email: string | null;
+  external_contact_phone: string | null;
+  start_date: string;
+  end_date: string;
+};
+
 export const promotionsService = {
   /** Admin: list promotions for a property filtered by review_status values */
   async getAdminList(
@@ -222,5 +243,47 @@ export const promotionsService = {
       .limit(1);
     if (error) return false;
     return (data?.length ?? 0) > 0;
+  },
+
+  /** Admin: list ALL promotions for a property regardless of review_status */
+  async getAdminAllList(propertyId: string): Promise<Promotion[]> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .eq('property_id', propertyId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Admin: create a promotion on behalf of an external (non-tenant) business.
+   * advertiser_id is always NULL; review_status pre-approved by admin.
+   */
+  async createExternal(input: ExternalPromotionInput): Promise<Promotion> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .insert({
+        property_id: input.property_id,
+        advertiser_id: null,
+        created_by_admin_id: input.created_by_admin_id,
+        business_name: input.business_name,
+        headline: input.headline,
+        description: input.description,
+        image_url: input.image_url,
+        cta_text: input.cta_text,
+        cta_link: input.cta_link,
+        external_contact_name: input.external_contact_name,
+        external_contact_email: input.external_contact_email,
+        external_contact_phone: input.external_contact_phone,
+        start_date: input.start_date,
+        end_date: input.end_date,
+        review_status: 'approved',
+        payment_status: null,
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+    return data;
   },
 };

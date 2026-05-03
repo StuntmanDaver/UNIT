@@ -108,6 +108,17 @@ export default function AdminDashboard() {
           {/* Action Buttons */}
           <View className="px-4 mt-4 gap-3">
             <Card
+              onPress={() => router.push({ pathname: '/(admin)/promotions/index', params: { propertyId: activePropertyId } } as Parameters<typeof router.push>[0])}
+              className="flex-row items-center px-4 py-3.5"
+            >
+              <Megaphone size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+                Manage Promotions
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card
               onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { propertyId: activePropertyId } })}
               className="flex-row items-center px-4 py-3.5"
             >
