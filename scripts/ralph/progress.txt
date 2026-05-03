@@ -227,3 +227,17 @@ Started: Sat May  2 21:38:29 EDT 2026
   - `UpdateLeadPatch = Partial<Pick<Row, ...mutable fields>>` is the cleanest pattern for a patch function — it excludes immutable fields (`id`, `created_at`, `promotion_id`, `updated_at`) from the type at the boundary without an `Omit` chain of non-obvious field names.
   - `convertLeadToPromotion` is intentionally a single-step DB update (not a transaction wrapper) because `updated_at` is auto-managed by the trigger and there's only one table touched. If a future story needs to also insert a status event, upgrade to a Supabase Edge Function to get server-side atomicity.
 ---
+
+## 2026-05-03 - US-016
+- Extended the inline brand-lint bash chain in `unit/package.json` with two additive deny-rules:
+  1. **bg-brand-mist + text-brand-gray pairing rule**: `! { f=$(grep -rl --include="*.tsx" bg-brand-mist app components 2>/dev/null); [ -n "$f" ] && echo "$f" | xargs grep -ql text-brand-gray; }` — fails if any file uses both (gray text on white fails WCAG AA).
+  2. **bg-brand-cloud requires GradientHeader rule**: `! { f2=$(grep -rl --include="*.tsx" bg-brand-cloud app components 2>/dev/null); [ -n "$f2" ] && echo "$f2" | xargs grep -L @/components/ui/GradientHeader | grep -q .; }` — fails if any bg-brand-cloud screen omits the GradientHeader import (light surfaces must keep the navy header anchor).
+- Rephrased a JSDoc comment in `unit/app/(tabs)/home.tsx` that mentioned the literal class name `text-brand-gray` — the comment is in the same file that uses `bg-brand-mist` (SkeletonCard), so it would have been a false positive for rule 1. Changed to say "gray brand text class" instead.
+- Files changed: `unit/package.json`, `unit/app/(tabs)/home.tsx`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` exits 0; `npm run brand-lint` exits 0 (brand-lint-clean); `npm test` 13 suites / 65 tests all green.
+- Visual check: no JSX layout changed — only a comment rephrase and script update. Zero on-screen pixel diff.
+- **Learnings for future iterations:**
+  - The brand-lint deny-list greps entire file content including comments. If a comment mentions a banned class name in a file that otherwise legitimately uses a paired class, it will false-positive. Convention: rephrase comments to avoid literal banned strings — e.g., say "brand-gray text class" instead of the actual Tailwind class name.
+  - For two-condition deny rules (file has A AND file lacks B), the `! { f=$(grep -rl ... A ...); [ -n "$f" ] && echo "$f" | xargs grep -L B | grep -q .; }` pattern is reliable: the `[ -n "$f" ]` guard handles the no-A-files case without relying on `xargs --no-run-if-empty` (which may not be available on all platforms).
+  - `xargs grep -ql PATTERN` exits 0 when ANY of the input files matches. Combined with `! { }`, this is a clean "fail-if-any-file-matches" deny test without needing to redirect stderr separately.
+---
