@@ -4,7 +4,7 @@ appId: com.unitapp.mobile
 # Metro console should show only the known benign push-token warning
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Tab sweep
@@ -24,8 +24,9 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 - tapOn: "Profile"
-- assertNotVisible:
-    text: "Loading profile..."
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
     timeout: 15000
 
 - runFlow: ../subflows/logout.yaml
@@ -62,6 +63,7 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "admin-logout-btn"
 - tapOn: "Log Out"
-- assertVisible:
-    text: "Log In"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
     timeout: 8000

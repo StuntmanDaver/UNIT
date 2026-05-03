@@ -3,7 +3,7 @@ appId: com.unitapp.mobile
 # M2-03: Business card tap → detail view → contact actions
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
 - assertVisible: "Directory"

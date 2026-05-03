@@ -1,8 +1,20 @@
+appId: com.unitapp.mobile
+---
 # Reusable subflow: log in as Tenant 1
-# Precondition: app is on login screen
+# Precondition: app launched, waiting for login screen
 # Postcondition: app is on Directory tab
-- tapOn: "Tenant 1"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
+- tapOn:
+    label: "Email"
+- inputText: "tenant1@unit-test.com"
+- tapOn:
+    label: "Password"
+- inputText: "admin123"
 - tapOn: "Log In"
-- assertVisible:
-    text: "Directory"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
     timeout: 15000

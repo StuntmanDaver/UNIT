@@ -4,7 +4,7 @@ appId: com.unitapp.mobile
 # Precondition: at least one promotion in Pending status exists
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-admin.yaml
 
 # Select a property — tap first available in PropertySelector
@@ -18,8 +18,9 @@ appId: com.unitapp.mobile
 
 # Navigate to View Pending Approvals
 - tapOn: "View Pending Approvals"
-- assertVisible:
-    text: "Pending"
+- extendedWaitUntil:
+    visible:
+      text: "Pending"
     timeout: 8000
 
 # Tap first pending promotion if any exist
@@ -32,8 +33,9 @@ appId: com.unitapp.mobile
 # Detail screen: Approve button
 - assertVisible: "Approve"
 - tapOn: "Approve"
-- assertVisible:
-    text: "approved"
+- extendedWaitUntil:
+    visible:
+      text: "approved"
     timeout: 8000
 
 # Back to list
@@ -50,6 +52,7 @@ appId: com.unitapp.mobile
     id: "admin-logout-btn"
 - assertVisible: "Are you sure you want to log out?"
 - tapOn: "Log Out"
-- assertVisible:
-    text: "Log In"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
     timeout: 8000

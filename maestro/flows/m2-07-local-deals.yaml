@@ -3,7 +3,7 @@ appId: com.unitapp.mobile
 # M2-07: Local Deals segment shows only approved advertiser promotions
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
 - tapOn: "Promotions"

@@ -1,8 +1,20 @@
+appId: com.unitapp.mobile
+---
 # Reusable subflow: log in as admin
-# Precondition: app is on login screen
+# Precondition: app launched, waiting for login screen
 # Postcondition: app is on Admin Dashboard with property selector visible
-- tapOn: "Admin"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
+- tapOn:
+    label: "Email"
+- inputText: "david@cultrhealth.com"
+- tapOn:
+    label: "Password"
+- inputText: "admin123"
 - tapOn: "Log In"
-- assertVisible:
-    text: "Admin Dashboard"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
     timeout: 15000

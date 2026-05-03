@@ -11,13 +11,17 @@ appId: com.unitapp.mobile
 
 - launchApp:
     clearState: true
-- assertVisible:
-    text: "Log In"
-    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
 
 # Navigate to sign up
 - tapOn: "Sign Up"
-- assertVisible: "Create Account"
+- extendedWaitUntil:
+    visible:
+      text: "Create Account"
+    timeout: 8000
 
 # Generate a unique email for this run
 - evalScript: |
@@ -27,13 +31,13 @@ appId: com.unitapp.mobile
 
 # Fill signup form
 - tapOn:
-    accessibilityLabel: "Email"
+    label: "Email"
 - inputText: ${output.testEmail}
 - tapOn:
-    accessibilityLabel: "Password"
+    label: "Password"
 - inputText: ${output.testPassword}
 - tapOn:
-    accessibilityLabel: "Confirm Password"
+    label: "Confirm Password"
 - inputText: ${output.testPassword}
 - hideKeyboard
 - tapOn: "Sign Up"
@@ -44,8 +48,9 @@ appId: com.unitapp.mobile
 # If confirmation is required, this flow will stop here and need manual email click.
 
 # BUG-03 check: must land on onboarding, not directory
-- assertVisible:
-    text: "Select Your Property"
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Property"
     timeout: 15000
 
 # Step 1: Select property (tap first available property)
@@ -75,7 +80,7 @@ appId: com.unitapp.mobile
 # Step 3: Fill profile
 - assertVisible: "Create Your Profile"
 - tapOn:
-    accessibilityLabel: "Business Name"
+    label: "Business Name"
 - inputText: "E2E Test Business"
 - hideKeyboard
 # Select first category chip
@@ -87,6 +92,7 @@ appId: com.unitapp.mobile
 - tapOn: "Create Profile"
 
 # Success: redirected to directory
-- assertVisible:
-    text: "Directory"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
     timeout: 20000

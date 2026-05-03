@@ -6,8 +6,8 @@ name: Profile Edit Flow
 - assertVisible: "Profile"
 - tapOn: "Edit Profile"
 - assertVisible: "Edit Profile"
-- clearText: "Business Name"
 - tapOn: "Business Name"
+- eraseText: 100
 - inputText: "Updated Business Name"
 - tapOn: "Save Changes"
 - assertVisible: "Profile updated"

@@ -3,7 +3,7 @@ appId: com.unitapp.mobile
 # M2-01: Tenant profile edit — verifies spinner fix and profile edit flow
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Navigate to Profile tab
@@ -12,20 +12,22 @@ appId: com.unitapp.mobile
 # Spinner fix check: profile should load (not spin indefinitely)
 # The useCurrentUser hook now has a 10s timeout — if it hits, "No business profile yet" appears
 # Either way, the spinner must resolve within 15s
-- assertNotVisible:
-    text: "Loading profile..."
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
     timeout: 15000
 
 # If business exists, tap Edit Profile
 - tapOn: "Edit Profile"
-- assertVisible:
-    text: "Edit Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Edit Profile"
     timeout: 8000
 
 # Change business name
 - tapOn:
-    accessibilityLabel: "Business Name"
-- clearText
+    label: "Business Name"
+- eraseText: 100
 - inputText: "Updated Business Name"
 - hideKeyboard
 
@@ -33,8 +35,9 @@ appId: com.unitapp.mobile
 - tapOn: "Save"
 
 # Success toast should appear
-- assertVisible:
-    text: "Profile updated"
+- extendedWaitUntil:
+    visible:
+      text: "Profile updated"
     timeout: 8000
 
 # Values persist on re-open

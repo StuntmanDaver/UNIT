@@ -3,7 +3,7 @@ appId: com.unitapp.mobile
 # M2-02: Directory browse, search, and category filter
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Directory should be visible already (default tab)
@@ -24,7 +24,7 @@ appId: com.unitapp.mobile
 # Clear search
 - tapOn:
     id: "search-input"
-- clearText
+- eraseText: 100
 - hideKeyboard
 
 # Category filter: tap a category chip

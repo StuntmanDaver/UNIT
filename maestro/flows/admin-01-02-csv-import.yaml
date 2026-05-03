@@ -14,13 +14,14 @@ appId: com.unitapp.mobile
 # file pick step is still manual.
 
 - launchApp:
-    clearState: false
+    clearState: true
 - runFlow: ../subflows/login-admin.yaml
 
 # Select property
 - tapOn: "Manage Tenants"
-- assertVisible:
-    text: "Tenants"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
     timeout: 8000
 
 # Select property in the tenants screen PropertySelector
@@ -62,6 +63,7 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "admin-logout-btn"
 - tapOn: "Log Out"
-- assertVisible:
-    text: "Log In"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
     timeout: 8000
