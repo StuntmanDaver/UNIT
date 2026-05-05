@@ -159,6 +159,17 @@ Deno.serve(async (req) => {
         userId: user.id,
         source: 'mobile_tenant',
       },
+      // Propagate metadata to the underlying PaymentIntent so the portal's
+      // payment_intent.payment_failed audit handler can match the row.
+      // Stripe does NOT copy Session metadata to PI metadata by default.
+      payment_intent_data: {
+        metadata: {
+          promotionId,
+          priceTierId,
+          userId: user.id,
+          source: 'mobile_tenant',
+        },
+      },
     });
   } catch (stripeErr: unknown) {
     const msg = stripeErr instanceof Error ? stripeErr.message : 'Failed to create checkout session';
