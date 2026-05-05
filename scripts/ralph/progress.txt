@@ -327,3 +327,23 @@ Started: Sat May  2 21:38:29 EDT 2026
   - Use `attempt_type: 'repayment'` when `payment_status === 'repayment_required'`; `'initial'` for all new checkouts.
   - The `price_tier_id` column is nullable so existing portal advertiser attempts need no backfill.
 ---
+
+## 2026-05-05 - US-013
+- Verified portal webhook (`portal/app/api/webhooks/stripe/route.ts`) reads only `session.metadata.promotionId` — source-agnostic, mobile-tenant flow reuses it without changes to the success path.
+- Added two audit-only failure handlers BEFORE the existing `checkout.session.completed` block:
+  - `checkout.session.expired` → `UPDATE promotion_payment_attempts SET status='failed' WHERE stripe_checkout_session_id = session.id AND status IN ('created')`
+  - `payment_intent.payment_failed` → `UPDATE promotion_payment_attempts SET status='failed' WHERE stripe_payment_intent_id = pi.id AND status IN ('created')`
+  - Both early-return after the audit update; neither touches `promotions.payment_status` (enum has no 'failed' value per migration `20260412000001_m4_monetization.sql:51-53`).
+  - Filter `.in('status', ['created'])` prevents accidental flip of completed/refunded attempts if Stripe ever re-fires an event past the idempotency table window.
+- `price_tier_id` persistence already handled at INSERT time by the mobile Edge Function (`create-promotion-checkout-session`, US-012). Webhook UPDATE only sets `status` + `stripe_payment_intent_id`, so no portal change needed there.
+- Added new "Stripe Payments (Mobile-Tenant Checkout)" section to `unit/docs/deployment-runbook.md` between Supabase Setup and EAS Build:
+  - Documents that mobile and portal share ONE Stripe webhook endpoint (the portal one)
+  - Required Stripe events to subscribe: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.payment_failed`
+  - `STRIPE_WEBHOOK_SECRET` lives on portal (Vercel), `STRIPE_SECRET_KEY` lives on Supabase Edge Functions
+  - Explicit "do not create `unit/supabase/functions/stripe-promotion-webhook/`" guardrail per PRD negative acceptance
+- Files changed: `portal/app/api/webhooks/stripe/route.ts`, `unit/docs/deployment-runbook.md`, `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` (portal) clean; `npx tsc --noEmit` (unit) clean; `npm run brand-lint` → `brand-lint-clean`; `npm test` → 13 suites / 65 tests pass.
+- **Learnings for future iterations:**
+  - The mobile and portal flows share the same Stripe webhook because both insert `metadata.promotionId` at the top level. Any future flow that needs distinct handling MUST add an additional metadata key (e.g., `metadata.source='mobile_tenant'`) and branch on it — do not duplicate the webhook.
+  - `promotions.payment_status` enum only has `'unpaid' | 'paid' | 'repayment_required' | 'refunded'`. There is no failure state on the promotion itself; failure is recorded only on `promotion_payment_attempts.status='failed'`. Tenant UI should derive "needs retry" from the attempt history, not from a `promotions.payment_status='failed'`.
+  - The portal `STRIPE_WEBHOOK_SECRET` must be configured in Vercel env, not in Supabase secrets. `STRIPE_SECRET_KEY` is the only Stripe secret that lives on Supabase (used by the mobile Edge Function).

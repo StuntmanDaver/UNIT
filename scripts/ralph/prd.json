@@ -291,7 +291,7 @@
       ],
       "priority": 15,
       "passes": true,
-      "notes": "Implemented 2026-05-03. Extended unit/services/promotionLeads.ts with PromotionLeadFilters, CreateLeadInput, UpdateLeadPatch types plus promotionLeadsService.{listLeads(filters?), createLead(input), updateLead(id, patch), convertLeadToPromotion(leadId, promotionId)} — all admin-only (RLS enforced at DB layer). listLeads filters by stage and/or owner_user_id, ordered by updated_at DESC. createLead normalises optional fields to null. convertLeadToPromotion atomically sets promotion_id + advances stage to 'published'. No screens. tsc + brand-lint + jest (13 suites / 65 tests) all green."
+      "notes": "Implemented 2026-05-03. Extended unit/services/promotionLeads.ts with PromotionLeadFilters, CreateLeadInput, UpdateLeadPatch types plus promotionLeadsService.{listLeads(filters?), createLead(input), updateLead(id, patch), convertLeadToPromotion(leadId, promotionId)} \u2014 all admin-only (RLS enforced at DB layer). listLeads filters by stage and/or owner_user_id, ordered by updated_at DESC. createLead normalises optional fields to null. convertLeadToPromotion atomically sets promotion_id + advances stage to 'published'. No screens. tsc + brand-lint + jest (13 suites / 65 tests) all green."
     },
     {
       "id": "US-016",
@@ -324,7 +324,7 @@
       ],
       "priority": 17,
       "passes": true,
-      "notes": "Implemented 2026-05-03. Added CardVariant = 'dark' | 'light' union (exported). variant prop defaults to 'dark' — all existing callers unchanged, pixel-identical. Light variant applies bg-brand-mist border border-brand-paper. Added three-line header comment documenting when to use each variant and the AA contrast requirement for text inside light cards. tsc + brand-lint both pass."
+      "notes": "Implemented 2026-05-03. Added CardVariant = 'dark' | 'light' union (exported). variant prop defaults to 'dark' \u2014 all existing callers unchanged, pixel-identical. Light variant applies bg-brand-mist border border-brand-paper. Added three-line header comment documenting when to use each variant and the AA contrast requirement for text inside light cards. tsc + brand-lint both pass."
     },
     {
       "id": "US-018",
@@ -340,7 +340,7 @@
       ],
       "priority": 18,
       "passes": true,
-      "notes": "Implemented 2026-05-03. Audited all 10 screens. Violations found and fixed: (1) SegmentedControl inactive text brand-steel→brand-gray (affects community.tsx + promotions.tsx + community/create.tsx); (2) notifications.tsx message+timestamp brand-steel→brand-gray on BRAND.navyLight row bg; (3) profile.tsx Settings section header+property value+app version brand-steel→brand-gray inside Card (bg-brand-navy-light); (4) promotions/[id].tsx date range brand-steel→brand-gray inside Card; (5) promotions/create.tsx date-picker placeholder text+iOS modal Cancel button brand-steel→brand-gray on bg-brand-navy-light. Clean files (no violations): directory.tsx, directory/[id].tsx, community.tsx, profile/edit.tsx. No light tokens introduced. tsc + brand-lint + jest (13 suites/65 tests) all green."
+      "notes": "Implemented 2026-05-03. Audited all 10 screens. Violations found and fixed: (1) SegmentedControl inactive text brand-steel\u2192brand-gray (affects community.tsx + promotions.tsx + community/create.tsx); (2) notifications.tsx message+timestamp brand-steel\u2192brand-gray on BRAND.navyLight row bg; (3) profile.tsx Settings section header+property value+app version brand-steel\u2192brand-gray inside Card (bg-brand-navy-light); (4) promotions/[id].tsx date range brand-steel\u2192brand-gray inside Card; (5) promotions/create.tsx date-picker placeholder text+iOS modal Cancel button brand-steel\u2192brand-gray on bg-brand-navy-light. Clean files (no violations): directory.tsx, directory/[id].tsx, community.tsx, profile/edit.tsx. No light tokens introduced. tsc + brand-lint + jest (13 suites/65 tests) all green."
     },
     {
       "id": "US-019",
@@ -407,7 +407,7 @@
         "Smoke test: from mobile, complete a Stripe test card \u2192 portal webhook fires \u2192 promotions.payment_status='paid', review_status='pending', status_events row inserted, admin push fires"
       ],
       "priority": 24,
-      "passes": false,
+      "passes": true,
       "notes": "REPLACES the original 'new mobile webhook' story. The portal webhook is sufficient \u2014 verified during deep PRD review.  [DEFERRED 2026-05-03: priority bumped 13\u219224 per user direction \u2014 do Stripe-independent stories US-015\u2192US-020 first.]"
     },
     {

@@ -129,6 +129,51 @@ This bucket stores property images, business logos, and other publicly accessibl
 
 ---
 
+## Stripe Payments (Mobile-Tenant Checkout)
+
+The mobile app's tenant-paid promotion flow (US-012/US-014) uses the Edge Function `create-promotion-checkout-session` to create a Stripe Checkout session, then **reuses the existing portal webhook** at `portal/app/api/webhooks/stripe/route.ts` to confirm payment. There is **no separate Stripe webhook endpoint for the mobile app** and none is required.
+
+### Why one webhook is enough
+
+The portal webhook is source-agnostic: it reads only `session.metadata.promotionId` from the Stripe event and flips the corresponding `promotions` row to `payment_status='paid' / review_status='pending'`. The mobile Edge Function inserts the same `metadata.promotionId` key, so the existing handler covers both flows.
+
+The webhook also handles failure paths (`checkout.session.expired`, `payment_intent.payment_failed`) by marking the matching `promotion_payment_attempts` row as `status='failed'` for audit; it never mutates `promotions.payment_status` on failure (the enum has no `'failed'` value).
+
+### Required Edge Function secrets
+
+```bash
+npx supabase secrets set \
+  STRIPE_SECRET_KEY=<your-stripe-secret-key>
+```
+
+`STRIPE_WEBHOOK_SECRET` lives on the **portal** environment (Vercel), not on Supabase, because the webhook handler is in the Next.js portal.
+
+### Stripe dashboard endpoint
+
+Register exactly one endpoint in the Stripe dashboard pointing at the portal:
+
+```
+https://<portal-host>/api/webhooks/stripe
+```
+
+Subscribe to these events:
+
+- `checkout.session.completed`
+- `checkout.session.expired`
+- `payment_intent.payment_failed`
+
+The portal's `STRIPE_WEBHOOK_SECRET` must match the signing secret Stripe shows for that endpoint.
+
+### Deploy command
+
+```bash
+npx supabase functions deploy create-promotion-checkout-session
+```
+
+> **Do not** create `unit/supabase/functions/stripe-promotion-webhook/`. The mobile app does not own a webhook endpoint.
+
+---
+
 ## EAS Build
 
 ### Prerequisites
