@@ -501,3 +501,60 @@ Second pass. Found additional issues that the first audit missed.
 - `cd unit && npx tsc --noEmit` clean
 - `cd unit && npm run brand-lint` → `brand-lint-clean`
 - `cd unit && npm test` → 13 suites / 65 tests pass
+
+## 2026-05-05 - OUT-OF-SCOPE FOLLOW-UPS RESOLVED
+On instruction "fix these issues" — knocked down all four findings logged as out-of-scope from the deeper review.
+
+### 1. Legacy portal-advertiser checkout — PI metadata propagated
+`portal/app/api/checkout/route.ts:60` now sets `payment_intent_data.metadata: { promotionId }` alongside Session metadata. Same fix as the mobile Edge Function. Now portal-advertiser PI failures get audited too instead of falling through the metadata guard.
+
+### 2. Webhook idempotency — process-then-mark pattern
+**Migration:** `unit/supabase/migrations/20260505000001_stripe_webhook_events_completed_at.sql` adds nullable `completed_at` to `stripe_webhook_events` and backfills existing rows so they retain their old "fully processed" semantics. Adds a partial index on `(processed_at) WHERE completed_at IS NULL` for cheap "incomplete events" queries.
+
+**Webhook:** `portal/app/api/webhooks/stripe/route.ts` now:
+1. INSERT (claim) the event id — duplicate key swallowed via `.then(undefined, undefined)`
+2. SELECT `completed_at` — if non-null, return received (true dedup)
+3. Run handler
+4. `markComplete()` → `UPDATE … SET completed_at=now()` after each successful exit branch
+5. Trailing `markComplete()` for unhandled event types
+
+If the handler throws between (3) and (4), `completed_at` stays NULL. Stripe retries (up to 3 days) and the next attempt runs the handler again. Pre-existing behavior would have permanently lost the event because the row was inserted before the handler ran.
+
+**Residual concern (better but not solved):** if `markComplete()` itself fails after handler succeeds, retries duplicate side effects (status_events insert, push/in-app notification insert). True transactional idempotency would require all writes in one PG transaction, which Supabase JS doesn't expose. Acceptable trade-off; documented in migration comment.
+
+### 3. Tier picker accessibility
+`pending-payment.tsx`:
+- Parent `View` → `accessibilityRole="radiogroup"` + `accessibilityLabel="Promotion price tier"`
+- Each tier `Pressable` → `accessibilityRole="radio"` + `accessibilityState={{ selected }}` + `accessibilityLabel` composed of name, featured badge, duration, and formatted price
+- "Choose a tier" header `Text` → `accessibilityRole="header"`
+
+Now matches React Native's a11y spec for radio groups; VoiceOver/TalkBack will announce "Featured, 30 days, $99.00, radio button, selected" or similar.
+
+### 4. EXPO_PUBLIC_APP_URL doc-vs-code drift
+- `unit/docs/deployment-runbook.md:35` — was `unitapp://`, now `unit://` plus a callout that the Info.plist scheme is `unit` and they must match.
+- `unit/.env.example:3` — was `https://your-app-url.com`, now `unit://`.
+
+Note: `EXPO_PUBLIC_APP_URL` is not actually read anywhere in the unit/ codebase (verified by grep) — the `unit://` scheme is hardcoded in the Edge Function URLs, the pending-payment `RETURN_URL`, and the Info.plist. The env var is vestigial config. Kept the var but documented it correctly so future readers don't propagate the wrong value.
+
+### Files changed
+- `portal/app/api/checkout/route.ts` (advertiser PI metadata)
+- `portal/app/api/webhooks/stripe/route.ts` (process-then-mark)
+- `unit/app/(tabs)/promotions/pending-payment.tsx` (tier picker a11y)
+- `unit/docs/deployment-runbook.md` (scheme + new migration listed)
+- `unit/.env.example` (scheme example corrected)
+- `unit/supabase/migrations/20260505000001_stripe_webhook_events_completed_at.sql` (new)
+- `unit/scripts/ralph/progress.txt` (this entry)
+
+### Quality gates
+- `cd portal && npx tsc --noEmit` clean
+- `cd portal && npm test` → 1 file / 3 tests pass
+- `cd unit && npx tsc --noEmit` clean
+- `cd unit && npm run brand-lint` → `brand-lint-clean`
+- `cd unit && npm test` → 13 suites / 65 tests pass
+
+### Deploy steps required
+1. `cd unit && npx supabase db push` — applies the new completed_at migration
+2. `cd unit && npx supabase functions deploy create-promotion-checkout-session` — already required from prior round
+3. Vercel re-deploy of `origin/portal` — picks up advertiser-flow PI metadata + process-then-mark webhook
+
+Until step (1) lands, the webhook will error trying to read `completed_at` (column does not exist). Strict deployment ordering required: migration first, then portal deploy.

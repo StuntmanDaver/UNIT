@@ -32,7 +32,7 @@ This document covers everything needed to develop, build, and ship the UNIT app 
    Open `.env.local` and set:
    - `EXPO_PUBLIC_SUPABASE_URL` — your Supabase project URL
    - `EXPO_PUBLIC_SUPABASE_ANON_KEY` — your Supabase anon/public key
-   - `EXPO_PUBLIC_APP_URL` — app deep link base URL (e.g. `unitapp://`)
+   - `EXPO_PUBLIC_APP_URL` — app deep link base URL (e.g. `unit://`). The runtime scheme registered in `Info.plist` `CFBundleURLSchemes` is `unit`, not `unitapp` — keep this consistent or the in-app browser will not redirect back after Stripe Checkout.
 
 3. Start the development server:
 
@@ -147,6 +147,7 @@ The mobile-tenant checkout depends on the Stripe / pricing schema added on May 2
 
 - `unit/supabase/migrations/20260502000002_promotion_price_tiers.sql` — pricing tier table read by the tier picker
 - `unit/supabase/migrations/20260502000003_promotion_payment_attempts_price_tier.sql` — adds `price_tier_id` to the audit table
+- `unit/supabase/migrations/20260505000001_stripe_webhook_events_completed_at.sql` — adds `completed_at` to `stripe_webhook_events` so the webhook can use a process-then-mark idempotency pattern (replays from Stripe re-run failed handlers instead of being silently dedup'd as "processed but never executed")
 
 Apply with `cd unit && npx supabase db push`.
 

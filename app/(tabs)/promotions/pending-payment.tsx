@@ -169,16 +169,26 @@ export default function PendingPaymentScreen() {
 
         {!isPaid && (
           <View className="mb-6">
-            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3">
+            <Text
+              accessibilityRole="header"
+              className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3"
+            >
               Choose a tier
             </Text>
-            <View className="gap-3">
+            <View
+              className="gap-3"
+              accessibilityRole="radiogroup"
+              accessibilityLabel="Promotion price tier"
+            >
               {(tiers ?? []).map((tier: PromotionPriceTier) => {
                 const selected = tier.id === selectedTierId;
                 return (
                   <Pressable
                     key={tier.id}
                     onPress={() => setSelectedTierId(tier.id)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={`${tier.name}${tier.is_featured ? ' Featured' : ''}, ${tier.duration_days} days, ${formatPrice(tier.price_cents, tier.currency)}`}
                     className={`rounded-2xl p-4 border ${
                       selected
                         ? 'border-brand-blue bg-brand-navy-light'
