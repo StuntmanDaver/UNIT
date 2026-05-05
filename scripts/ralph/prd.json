@@ -424,7 +424,7 @@
         "Maestro E2E with Stripe test card 4242 4242 4242 4242: tenant submits \u2192 pays \u2192 Awaiting Review; admin sees row with payment_status=paid AND review_status=pending"
       ],
       "priority": 25,
-      "passes": false,
+      "passes": true,
       "notes": "[DEFERRED 2026-05-03: priority bumped 14\u219225 per user direction \u2014 do Stripe-independent stories US-015\u2192US-020 first.]"
     },
     {

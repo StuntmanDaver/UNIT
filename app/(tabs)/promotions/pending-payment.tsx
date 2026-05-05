@@ -1,21 +1,42 @@
-import { View, Text, ScrollView } from 'react-native';
+import { useState } from 'react';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Clock } from 'lucide-react-native';
-import { useQuery } from '@tanstack/react-query';
+import { Clock, CheckCircle } from 'lucide-react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as WebBrowser from 'expo-web-browser';
+import Toast from 'react-native-toast-message';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { promotionsService } from '@/services/promotions';
+import { promotionPricingService, type PromotionPriceTier } from '@/services/promotionPricing';
+import { supabase } from '@/services/supabase';
 import { BRAND } from '@/constants/colors';
+
+const RETURN_URL = 'unit://promotions';
+
+function formatPrice(cents: number, currency: string): string {
+  const amount = (cents / 100).toFixed(2);
+  return currency === 'usd' ? `$${amount}` : `${amount} ${currency.toUpperCase()}`;
+}
 
 export default function PendingPaymentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const queryClient = useQueryClient();
+  const [selectedTierId, setSelectedTierId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const { data: promo, isLoading } = useQuery({
     queryKey: ['promotion', id],
     queryFn: () => promotionsService.getById(id ?? ''),
     enabled: !!id,
+  });
+
+  const { data: tiers } = useQuery({
+    queryKey: ['promotionPriceTiers', 'active'],
+    queryFn: () => promotionPricingService.listTiers(),
+    select: (rows) => rows.filter((t) => t.is_active),
   });
 
   if (isLoading) {
@@ -30,25 +51,67 @@ export default function PendingPaymentScreen() {
     );
   }
 
+  const isPaid = promo.payment_status === 'paid';
+
+  async function handlePayNow() {
+    if (!id || !selectedTierId || submitting) return;
+    setSubmitting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke<{ url: string; sessionId: string }>(
+        'create-promotion-checkout-session',
+        { body: { promotionId: id, priceTierId: selectedTierId } }
+      );
+      if (error || !data?.url) {
+        throw new Error(error?.message ?? 'Could not start checkout. Please try again.');
+      }
+
+      await WebBrowser.openAuthSessionAsync(data.url, RETURN_URL);
+
+      const refreshed = await queryClient.fetchQuery({
+        queryKey: ['promotion', id],
+        queryFn: () => promotionsService.getById(id),
+      });
+
+      if (refreshed.payment_status === 'paid') {
+        Toast.show({ type: 'success', text1: 'Payment received', text2: 'Submitted for admin review.' });
+      } else {
+        Toast.show({ type: 'error', text1: 'Payment was not completed.' });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Checkout failed.';
+      Toast.show({ type: 'error', text1: 'Checkout error', text2: message });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
-        <Text className="text-3xl font-lora-semibold text-white leading-tight">Promotion Created</Text>
+        <Text className="text-3xl font-lora-semibold text-white leading-tight">
+          {isPaid ? 'Awaiting Review' : 'Promotion Created'}
+        </Text>
       </GradientHeader>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}>
-        {/* Status badge */}
         <View className="flex-row items-center gap-3 bg-brand-navy-light border border-brand-blue/40 rounded-2xl p-4 mb-6">
-          <Clock size={24} color={BRAND.steel} />
+          {isPaid ? (
+            <CheckCircle size={24} color={BRAND.gray} />
+          ) : (
+            <Clock size={24} color={BRAND.steel} />
+          )}
           <View className="flex-1">
-            <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">Pending Payment</Text>
+            <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+              {isPaid ? 'Awaiting Review' : 'Pending Payment'}
+            </Text>
             <Text className="text-sm font-nunito text-brand-steel leading-normal mt-0.5">
-              Complete payment to submit your promotion for admin review.
+              {isPaid
+                ? 'Payment received. Admins will review your promotion shortly.'
+                : 'Complete payment to submit your promotion for admin review.'}
             </Text>
           </View>
         </View>
 
-        {/* Promotion summary */}
         <Card className="p-5 mb-6">
           <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3">
             Your Promotion
@@ -70,20 +133,70 @@ export default function PendingPaymentScreen() {
           )}
         </Card>
 
-        {/* Actions */}
+        {!isPaid && (
+          <View className="mb-6">
+            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3">
+              Choose a tier
+            </Text>
+            <View className="gap-3">
+              {(tiers ?? []).map((tier: PromotionPriceTier) => {
+                const selected = tier.id === selectedTierId;
+                return (
+                  <Pressable
+                    key={tier.id}
+                    onPress={() => setSelectedTierId(tier.id)}
+                    className={`rounded-2xl p-4 border ${
+                      selected
+                        ? 'border-brand-blue bg-brand-navy-light'
+                        : 'border-brand-blue/40 bg-brand-navy-light'
+                    }`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1 pr-4">
+                        <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+                          {tier.name}
+                          {tier.is_featured ? ' · Featured' : ''}
+                        </Text>
+                        <Text className="text-sm font-nunito text-brand-steel leading-normal mt-0.5">
+                          {tier.duration_days} days
+                        </Text>
+                      </View>
+                      <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+                        {formatPrice(tier.price_cents, tier.currency)}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })}
+              {(tiers?.length ?? 0) === 0 && (
+                <Text className="text-sm font-nunito text-brand-steel leading-normal">
+                  No tiers available. Contact your property admin.
+                </Text>
+              )}
+            </View>
+          </View>
+        )}
+
         <View className="gap-3">
-          {/* Pay Now — checkout wired up in US-014 */}
-          <Button onPress={() => {}} disabled>
-            Pay Now
-          </Button>
+          {!isPaid && (
+            <Button
+              onPress={handlePayNow}
+              disabled={!selectedTierId || submitting || (tiers?.length ?? 0) === 0}
+              loading={submitting}
+            >
+              Pay Now
+            </Button>
+          )}
           <Button onPress={() => router.replace('/(tabs)/promotions')} variant="ghost">
-            Save for Later
+            {isPaid ? 'Back to Promotions' : 'Save for Later'}
           </Button>
         </View>
 
-        <Text className="text-sm font-nunito text-brand-steel leading-normal text-center mt-6">
-          Your promotion is saved as a draft. You can return to complete payment anytime from the Promotions tab.
-        </Text>
+        {!isPaid && (
+          <Text className="text-sm font-nunito text-brand-steel leading-normal text-center mt-6">
+            Your promotion is saved as a draft. You can return to complete payment anytime from the Promotions tab.
+          </Text>
+        )}
       </ScrollView>
     </View>
   );

@@ -347,3 +347,26 @@ Started: Sat May  2 21:38:29 EDT 2026
   - The mobile and portal flows share the same Stripe webhook because both insert `metadata.promotionId` at the top level. Any future flow that needs distinct handling MUST add an additional metadata key (e.g., `metadata.source='mobile_tenant'`) and branch on it — do not duplicate the webhook.
   - `promotions.payment_status` enum only has `'unpaid' | 'paid' | 'repayment_required' | 'refunded'`. There is no failure state on the promotion itself; failure is recorded only on `promotion_payment_attempts.status='failed'`. Tenant UI should derive "needs retry" from the attempt history, not from a `promotions.payment_status='failed'`.
   - The portal `STRIPE_WEBHOOK_SECRET` must be configured in Vercel env, not in Supabase secrets. `STRIPE_SECRET_KEY` is the only Stripe secret that lives on Supabase (used by the mobile Edge Function).
+
+## 2026-05-05 - US-014
+- Replaced disabled Pay Now button on `app/(tabs)/promotions/pending-payment.tsx` with full tier-picker + checkout flow (148 lines vs 90 prior; +58).
+  - `useQuery(['promotionPriceTiers', 'active'])` calls `promotionPricingService.listTiers()` and filters to `is_active` via the React Query `select` option (RLS already restricts tenants to active tiers but we double-filter to be defensive).
+  - Tier picker rendered as a vertical stack of `Pressable` cards. Selected tier gets `border-brand-blue`; unselected uses `border-brand-blue/40` (matches existing card hairline convention from CLAUDE.md).
+  - Pay Now button wires to `handlePayNow` which:
+    1. Calls `supabase.functions.invoke<{ url, sessionId }>('create-promotion-checkout-session', { body: { promotionId, priceTierId } })`
+    2. Opens `data.url` via `WebBrowser.openAuthSessionAsync(url, 'unit://promotions')` — in-app browser per AC
+    3. After dismissal (any reason — completed, expired, user-cancelled), uses `queryClient.fetchQuery(['promotion', id])` to bypass stale cache and re-read from Supabase
+    4. If `payment_status === 'paid'` → success toast "Payment received". Otherwise → error toast "Payment was not completed." (matches AC schema reality: enum only has 'unpaid' | 'paid' | 'repayment_required' | 'refunded')
+- Added screen-state branching driven by `isPaid = promo.payment_status === 'paid'`:
+  - Header copy switches "Promotion Created" → "Awaiting Review" when paid
+  - Status badge switches Clock icon → CheckCircle icon when paid
+  - Tier picker + Pay Now hidden when paid; only "Back to Promotions" ghost button remains
+  - This means the same screen also serves as the post-payment confirmation — no new route added, satisfies AC "If 'paid' → 'Awaiting Review' screen"
+- Installed `expo-web-browser ~15.0.11` via `npx expo install expo-web-browser` (correct Expo SDK 54-compatible version). Auto-added config plugin to `app.json`.
+- Files changed: `unit/app/(tabs)/promotions/pending-payment.tsx`, `unit/package.json`, `unit/package-lock.json`, `unit/app.json` (config plugin), `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` clean (after dropping `activeOpacity` prop — Pressable does not accept it; that's TouchableOpacity's prop); `npm run brand-lint` → `brand-lint-clean`; `npm test` → 13 suites / 65 tests pass.
+- **Learnings for future iterations:**
+  - `Pressable` does NOT accept `activeOpacity`; that prop is only on `TouchableOpacity`. To get press feedback on `Pressable`, use the function form of `style`/`className` with the `pressed` arg, or wrap in `TouchableOpacity`. CLAUDE.md says "use `activeOpacity={0.7}` on Pressable" but TS rejects it — file an issue against CLAUDE.md if the convention is meant to apply only to TouchableOpacity.
+  - For mobile-tenant Stripe checkout, ALWAYS use `WebBrowser.openAuthSessionAsync(url, returnUrl)` — NOT `openBrowserAsync`. The auth-session variant blocks the JS thread until the in-app browser dismisses, which is what we need so the post-dismiss `fetchQuery` always sees the user's payment outcome.
+  - `queryClient.fetchQuery` (not `invalidateQueries` + re-render) is the right call after the auth session because we need to await the freshest server state before deciding which toast to show. `invalidateQueries` would re-render the screen but we'd race with the toast logic.
+  - The `promotion_payment_attempts` row is INSERTed by the Edge Function BEFORE the user is sent to Stripe, so the audit trail is created even if the user never completes payment. The webhook then flips it to 'completed' (success) or 'failed' (US-013 expired/failed handlers).
