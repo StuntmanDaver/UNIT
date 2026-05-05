@@ -26,10 +26,7 @@ appId: com.unitapp.mobile
       visible: "Development Build"
     commands:
       - tapOn: "http://localhost:8081"
-      - extendedWaitUntil:
-          visible:
-            text: "Log In"
-          timeout: 30000
+      - waitForAnimationToEnd
 
 # ── CASE 1: Push permission prompt on first JS load ───────────────────────────
 - runFlow:

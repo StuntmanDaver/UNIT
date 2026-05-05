@@ -22,10 +22,7 @@ appId: com.unitapp.mobile
       visible: "Development Build"
     commands:
       - tapOn: "http://localhost:8081"
-      - extendedWaitUntil:
-          visible:
-            text: "Log In"
-          timeout: 30000
+      - waitForAnimationToEnd
 - runFlow:
     when:
       visible: "Would Like to Send You Notifications"

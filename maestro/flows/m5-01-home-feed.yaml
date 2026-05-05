@@ -13,10 +13,7 @@ appId: com.unitapp.mobile
       visible: "Development Build"
     commands:
       - tapOn: "http://localhost:8081"
-      - extendedWaitUntil:
-          visible:
-            text: "Log In"
-          timeout: 30000
+      - waitForAnimationToEnd
 # iOS push-notification permission prompt may pop on first JS run after
 # clearState. Allow it if it appears.
 - runFlow:
