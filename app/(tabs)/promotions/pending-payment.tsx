@@ -3,7 +3,6 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Clock, CheckCircle } from 'lucide-react-native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import * as WebBrowser from 'expo-web-browser';
 import Toast from 'react-native-toast-message';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Card } from '@/components/ui/Card';
@@ -57,6 +56,21 @@ export default function PendingPaymentScreen() {
     if (!id || !selectedTierId || submitting) return;
     setSubmitting(true);
     try {
+      // Lazy import: keeps the screen usable on dev-client binaries that pre-date
+      // the expo-web-browser native module. Static import would crash on screen
+      // mount; this surfaces the missing-module error only when the user taps Pay.
+      let WebBrowser: typeof import('expo-web-browser');
+      try {
+        WebBrowser = await import('expo-web-browser');
+      } catch {
+        Toast.show({
+          type: 'error',
+          text1: 'Checkout unavailable',
+          text2: 'This dev build is missing the expo-web-browser native module. Rebuild the dev client.',
+        });
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke<{ url: string; sessionId: string }>(
         'create-promotion-checkout-session',
         { body: { promotionId: id, priceTierId: selectedTierId } }

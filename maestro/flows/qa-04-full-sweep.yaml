@@ -14,7 +14,7 @@ appId: com.unitapp.mobile
       text: "My Property"
     timeout: 8000
 - tapOn:
-    text: "Nearby"
+    text: "Nearby \\(≤ 2 mi\\)"
 - waitForAnimationToEnd
 
 # Tab sweep

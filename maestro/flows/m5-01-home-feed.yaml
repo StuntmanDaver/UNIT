@@ -22,7 +22,7 @@ appId: com.unitapp.mobile
 # Switch to Nearby segment. The toggle is visible regardless of neighbour
 # count; tapping it is allowed even if disabled (no-op should not crash).
 - tapOn:
-    text: "Nearby"
+    text: "Nearby \\(≤ 2 mi\\)"
 - waitForAnimationToEnd
 
 # Tap the first activity card and verify navigation. This proves the

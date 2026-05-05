@@ -393,3 +393,47 @@ Started: Sat May  2 21:38:29 EDT 2026
 - Simulator-dependent gates (Maestro qa-04 sweep, physical-device spot-check, accesslint contrast sweep) parked in `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md` for the next operator before merge.
 - No deviations from spec on this branch beyond the simulator deferral noted above. The PRD's `userDirective` ("do NOT break the app or UI; meticulously double-check every story") is upheld at the static-gate level; visual confirmation must happen against a booted simulator.
 - Files changed: `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+
+## 2026-05-05 - LIVE UAT FINDINGS (post-merge fixes on ralph/engagement-ui-enhancement)
+Driven against booted iPhone 16 Pro Max (iOS 18.6, sim 44D8AC0F-5390-4E5B-8E3C-AFDA28AF880F) connected to Metro at localhost:8081 via the existing dev-client binary.
+
+### Findings
+1. **Critical:** the dev-client binary installed on this simulator was built BEFORE expo-web-browser was added to deps in US-014. Loading the JS bundle via Metro hot-update threw `Error: Cannot find native module 'ExpoWebBrowser'` at the static `import * as WebBrowser from 'expo-web-browser'` line in `pending-payment.tsx:6`. That crash happened on screen MOUNT — a user navigating to pending-payment would see a red-screen runtime error and could not interact with the app from that route.
+2. The static gates we ran (tsc, brand-lint, jest, Metro iOS bundle compile) were ALL green and could not catch this. Native modules are runtime-only — the bundle compiled because expo-web-browser exists in node_modules; the simulator binary was the missing piece.
+3. The `m5-01-home-feed.yaml` and `qa-04-full-sweep.yaml` flows used `text: "Nearby"` to tap the segment, but the actual rendered label is `Nearby (≤ 2 mi)`. Maestro's regex matcher chokes on the parens in this case.
+
+### Fixes applied this commit
+1. `pending-payment.tsx` — replaced static `import * as WebBrowser from 'expo-web-browser'` with a lazy `await import('expo-web-browser')` inside `handlePayNow`. If the dynamic import throws (i.e. the dev binary lacks the native module), the screen now shows a clear Toast: "This dev build is missing the expo-web-browser native module. Rebuild the dev client." Production EAS builds will include the module so this branch only fires for stale dev binaries.
+2. `m5-01-home-feed.yaml` and `qa-04-full-sweep.yaml` — escaped parens in the Nearby segment selector: `text: "Nearby \\(≤ 2 mi\\)"`.
+
+### Verified live on simulator (with new JS bundle, lazy fix applied)
+- ✅ App launched and connected to Metro without static-import crash
+- ✅ Directory tab unchanged from main — no visual regression
+- ✅ Home tab opens cleanly with Delta-inspired light surface (white cards on `brand-cloud` gray, navy `GradientHeader`, navy bottom tab bar). Lora-semibold "Home" title.
+- ✅ Home Feed loaded a real activity card: "Dave's pizza palace joined the property" / "restaurant" / "21 days ago" / "View directory →" — proving `useNearbyPropertyIds`, `activityFeedService`, and the React Query stack all wire through to the dev Supabase project.
+- ✅ "My Property" segment selected by default; the "Nearby (≤ 2 mi)" segment shows the empty-state copy "No nearby properties within 2 miles." (expected — only Dave's pizza palace property has lat/lon set in dev seed data).
+- ✅ Promotions tab opens to the new three-segment control: All / Tenant Offers / Local Deals (US-008 two-path UI). Empty state shows correct megaphone icon + copy + FAB.
+- ✅ FAB → "Promote My Business" form renders with all fields (Headline, Description, Start/End Date, Button Label/Link, Image) and the new "Continue to Payment" CTA replacing the old "Post" button.
+
+### Could NOT verify in this autonomous session
+- ❌ End-to-end Stripe smoke (4242 4242 4242 4242 → checkout → webhook → "Awaiting Review"). Reason: requires a fresh `eas build --profile development --platform ios --local` (or `npx expo run:ios` with a clean pod install) so the dev binary actually has the expo-web-browser native module. The lazy-import fix lets the screen render and shows a clear error toast on Pay Now tap from a stale binary, but the actual checkout path can't be exercised without a rebuild.
+- ❌ Full m5-02 Maestro flow execution. Same reason — the Pay Now button cannot be tapped to drive into Stripe Checkout against this dev binary.
+- ❌ Date-picker-driven form submission. Maestro's iOS date picker handling is unreliable for this app's React Native picker; needs either a custom test ID exposed on the date triggers or a manual test pass.
+
+### Updated re-run checklist (supersedes US-021-022-simulator-uat-rollup.md "Stripe section")
+1. `cd unit && eas build --profile development --platform ios --local` — produces a new dev binary that includes expo-web-browser
+2. Reinstall on the simulator: `xcrun simctl install booted ./build-*.tar.gz` (or use the EAS-emitted .ipa)
+3. Re-run the Maestro flows in `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md` from a clean app state
+4. The lazy-import fallback ("Checkout unavailable" toast) is the regression-protection: if anyone ever ships a JS update to a fleet that hasn't been rebuilt, users see the toast instead of a full screen crash.
+
+### Files changed
+- `unit/app/(tabs)/promotions/pending-payment.tsx` — static → lazy import + defensive try/catch around the dynamic import
+- `unit/maestro/flows/m5-01-home-feed.yaml` — escape parens in Nearby selector
+- `unit/maestro/flows/qa-04-full-sweep.yaml` — same fix in the inlined Home Feed assertion
+
+### Quality gates after the fix
+- `npx tsc --noEmit` clean
+- `npm run brand-lint` → `brand-lint-clean`
+- `npm test` → 13 suites / 65 tests pass
+- Live verified: app boots, navigates Home + Promotions + create form without the ExpoWebBrowser crash that would otherwise appear on pending-payment mount
+
