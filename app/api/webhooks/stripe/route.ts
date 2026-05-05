@@ -17,14 +17,35 @@ export async function POST(req: Request) {
 
   const supabase = createServiceRoleClient();
 
-  // Idempotency: skip if already processed
-  const { error: insertError } = await supabase
+  // Process-then-mark idempotency. The previous pattern recorded the event
+  // BEFORE running the handler — if the handler errored, the event was
+  // permanently marked processed and Stripe's retries became no-ops.
+  // Now we claim the row, look up completed_at, run the handler, and
+  // only mark complete on success. See migration
+  // 20260505000001_stripe_webhook_events_completed_at.sql for the column.
+  await supabase
     .from('stripe_webhook_events')
-    .insert({ id: event.id, type: event.type });
-  if (insertError) {
-    // Duplicate key — already processed
+    .insert({ id: event.id, type: event.type })
+    // Claim the event id. Duplicate-key error is fine — another in-flight
+    // call may have already claimed it; we still need to check completed_at.
+    .then(() => undefined, () => undefined);
+
+  const { data: existing } = await supabase
+    .from('stripe_webhook_events')
+    .select('completed_at')
+    .eq('id', event.id)
+    .maybeSingle();
+
+  if (existing?.completed_at) {
     return NextResponse.json({ received: true });
   }
+
+  const markComplete = async () => {
+    await supabase
+      .from('stripe_webhook_events')
+      .update({ completed_at: new Date().toISOString() })
+      .eq('id', event.id);
+  };
 
   // Audit-only failure handlers (US-013): never mutate promotions.payment_status
   // (the enum has no 'failed' value), only flip the matching attempt row to 'failed'.
@@ -35,6 +56,7 @@ export async function POST(req: Request) {
       .update({ status: 'failed' })
       .eq('stripe_checkout_session_id', session.id)
       .in('status', ['created']);
+    await markComplete();
     return NextResponse.json({ received: true });
   }
 
@@ -45,7 +67,10 @@ export async function POST(req: Request) {
     // the same promotionId. Older portal-advertiser flows do not set PI
     // metadata at all — fall through (received) so we don't poison those.
     const promotionId = intent.metadata?.promotionId;
-    if (!promotionId) return NextResponse.json({ received: true });
+    if (!promotionId) {
+      await markComplete();
+      return NextResponse.json({ received: true });
+    }
 
     // Only the most recent 'created' attempt matches a single PI failure event.
     // If a user has retried, older 'created' attempts belong to abandoned
@@ -66,13 +91,17 @@ export async function POST(req: Request) {
         .eq('id', attempt.id);
     }
 
+    await markComplete();
     return NextResponse.json({ received: true });
   }
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const promotionId = session.metadata?.promotionId;
-    if (!promotionId) return NextResponse.json({ received: true });
+    if (!promotionId) {
+      await markComplete();
+      return NextResponse.json({ received: true });
+    }
 
     const paymentIntentId = typeof session.payment_intent === 'string'
       ? session.payment_intent
@@ -163,6 +192,11 @@ export async function POST(req: Request) {
       }
     }
   }
+
+  // Mark this event as fully processed so subsequent retries dedup.
+  // Reached for: checkout.session.completed (full path) and any
+  // unhandled event.type that fell through.
+  await markComplete();
 
   return NextResponse.json({ received: true });
 }

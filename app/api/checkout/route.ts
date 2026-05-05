@@ -57,6 +57,12 @@ export async function POST(req: Request) {
     success_url: `${appUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${appUrl}/promotions/new/review?id=${promotionId}&canceled=true`,
     metadata: { promotionId },
+    // Stripe Session metadata does not auto-propagate to the underlying
+    // PaymentIntent. Set it explicitly so the webhook's
+    // payment_intent.payment_failed audit handler can match the row.
+    payment_intent_data: {
+      metadata: { promotionId },
+    },
   });
 
   // Insert payment attempt
