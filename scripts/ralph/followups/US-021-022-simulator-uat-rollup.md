@@ -1,11 +1,13 @@
 # US-021 / US-022 — Simulator UAT Rollup
 
-**Status:** Code-complete on this branch (`ralph/engagement-ui-enhancement`). The autonomous Loki session that flipped US-021 and US-022 to `passes: true` could not run the iOS simulator, Maestro CLI, or live Stripe test-mode integration. This document is the explicit re-run checklist before merge to `main`.
+**Status:** Code-complete on this branch (`ralph/engagement-ui-enhancement`). Live UAT against booted iOS simulator was partially executed on 2026-05-05 — Home Feed and Promotions UI verified rendering on a hot-reloaded JS bundle. Two follow-up commits landed after the partial UAT (`6839bc7` lazy-import + Maestro selector escape, `d2fbb17` Edge Function PI metadata, `dbd9cbb` portal webhook). The remaining simulator + Stripe smoke MUST be re-run before merge.
 
 ## Prerequisites
 
-- iOS Simulator (Xcode 15+) booted with the dev build of UNIT installed
-  - `cd unit && eas build --profile development --platform ios --local` (or use the existing dev client)
+- iOS Simulator (Xcode 15+) booted with a **freshly rebuilt** dev binary of UNIT
+  - **Critical:** rebuild the dev client. `expo-web-browser` was added during US-014; any pre-existing dev binary lacks the native `ExpoWebBrowser` module. The lazy-import fix in `pending-payment.tsx` shows a clear "Checkout unavailable" toast on Pay Now if the binary is stale, but the actual checkout cannot complete without a rebuild
+  - `cd unit && eas build --profile development --platform ios --local` (slow; needs Apple signing)
+  - OR `cd unit && npx expo run:ios` (fast; runs CocoaPods + Xcode locally; CLAUDE.md memory notes a prior pod-install hang on this project — if it stalls, kill and retry)
 - Maestro CLI installed (`brew install maestro`)
 - Dev Supabase project with all migrations applied (incl. `20260502000003_promotion_payment_attempts_price_tier.sql`)
 - Edge Function deployed with **test-mode** Stripe key:

@@ -139,6 +139,17 @@ The portal webhook is source-agnostic: it reads only `session.metadata.promotion
 
 The webhook also handles failure paths (`checkout.session.expired`, `payment_intent.payment_failed`) by marking the matching `promotion_payment_attempts` row as `status='failed'` for audit; it never mutates `promotions.payment_status` on failure (the enum has no `'failed'` value).
 
+> **PaymentIntent metadata caveat:** Stripe Session metadata does **not** auto-propagate to the underlying PaymentIntent's metadata. The mobile Edge Function explicitly sets `payment_intent_data.metadata` so the failure handler can match by `intent.metadata.promotionId`. The legacy portal-advertiser checkout flow (`portal/app/api/checkout/route.ts`) does NOT set PI metadata; PI failure events from that flow fall through without touching the audit row, which is the intended safe-default.
+
+### Required migrations
+
+The mobile-tenant checkout depends on the Stripe / pricing schema added on May 2:
+
+- `unit/supabase/migrations/20260502000002_promotion_price_tiers.sql` — pricing tier table read by the tier picker
+- `unit/supabase/migrations/20260502000003_promotion_payment_attempts_price_tier.sql` — adds `price_tier_id` to the audit table
+
+Apply with `cd unit && npx supabase db push`.
+
 ### Required Edge Function secrets
 
 ```bash

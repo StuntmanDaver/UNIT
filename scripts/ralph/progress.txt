@@ -468,3 +468,36 @@ Root cause: Stripe Checkout Session `metadata` does NOT auto-propagate to the un
 
 ### Re-run note
 The Edge Function change requires `npx supabase functions deploy create-promotion-checkout-session` to take effect on the dev/prod project. The portal webhook change deploys with the next portal Vercel deploy (origin/portal branch).
+
+## 2026-05-05 - DEEPER METICULOUS REVIEW (round 2)
+Second pass. Found additional issues that the first audit missed.
+
+### Issues found and fixed
+1. **Webhook timing race in `handlePayNow`** — `WebBrowser.openAuthSessionAsync` returns immediately after the user redirects via `unit://promotions/{id}?status=success|cancel`. The portal webhook (Stripe → Vercel → Supabase) takes ~1-3 s to flip `payment_status='paid'`. My code's "poll once → if 'paid' show success, else show 'Payment was not completed.'" raced the webhook and would falsely show the failure toast for users who actually paid. Fixed by parsing `result.url`'s `?status` query param as the immediate UX signal AND polling once to refresh cached state. The success branch now triggers if EITHER the redirect URL had `status=success` OR the DB poll already shows `payment_status='paid'`. AC's "poll once" is preserved; failure-toast race window closed.
+2. **Runbook missing PI-metadata caveat + migration list** — I added a Stripe section but didn't document the metadata-propagation gotcha I just fixed, and I didn't reference the May-2 migrations the flow depends on. Added both:
+   - "PaymentIntent metadata caveat" callout explaining Session→PI metadata does not auto-propagate
+   - Required migrations list pointing to `20260502000002_promotion_price_tiers.sql` and `20260502000003_promotion_payment_attempts_price_tier.sql`
+3. **Followup file was stale** — wrote before the lazy-import + metadata fixes. Updated the prerequisites section to call out the dev-binary-rebuild requirement (because expo-web-browser was added mid-PRD, any pre-existing dev binary lacks the native module).
+
+### Verified-clean checks (no fix needed)
+- `portal/app/api/checkout/route.ts` (advertiser flow) — does NOT set PI metadata. My new `payment_intent.payment_failed` handler reads `intent.metadata?.promotionId` and returns early on undefined → existing advertiser PI failure events flow through without poisoning their attempt rows. Intended safe-default. ✓
+- `finally { setSubmitting(false); }` runs even when the inner lazy-import catch does an early `return` — `finally` fires regardless of return statements in try/catch. ✓
+- `let WebBrowser: typeof import('expo-web-browser'); ... WebBrowser = await import('expo-web-browser');` is type-correct. `await import(...)` returns `Promise<typeof import(...)>`; the assignment narrows correctly with the early-return-on-catch pattern. tsc passes. ✓
+- `new URL(result.url)` works in React Native 0.81 / Hermes 0.12+ (URL is in the JS runtime). The try/catch around it handles the edge case where URL parsing throws (e.g., malformed redirect). ✓
+- `unit://` deep link is registered in `Info.plist` `CFBundleURLSchemes: ['unit', 'com.unitapp.mobile']`. My `RETURN_URL = 'unit://promotions'` matches the Edge Function's `success_url`/`cancel_url` prefix. ✓
+- Webhook idempotency table (`stripe_webhook_events`) insert happens BEFORE my new handlers, so duplicate event replays are correctly short-circuited before any handler runs. ✓
+- The pre-existing `checkout.session.completed` branch updates by `stripe_checkout_session_id` (not by metadata); when my new failure handlers correctly mark a row as 'failed', a later success on the same session would re-flip it to 'completed' (self-healing on the over-eager edge case if it ever happens). ✓
+
+### Out-of-scope findings (noted for future work, not in this PR)
+- The legacy portal-advertiser checkout flow could also benefit from `payment_intent_data.metadata` so its PI failures get audited. Not in scope; would need a separate PR against `origin/portal`.
+- Portal webhook idempotency: if the `stripe_webhook_events` insert succeeds but the handler then errors (DB hiccup), the event is recorded as processed but never actually processed. Pre-existing; would need a "completed_at" column or dead-letter queue.
+- The `EXPO_PUBLIC_APP_URL` env-var note in the project root CLAUDE.md says `unitapp://` but the actual scheme is `unit://`. Documentation drift; one-line cleanup in a future PR.
+- Tier picker accessibility: each Pressable card lacks an `accessibilityRole="radio"` or `accessibilityState={selected}`. Not required by the PRD but would be a meaningful a11y improvement.
+- Cache-invalidation: after Pay Now → paid → "Back to Promotions", the `['promotions']` list query may show stale data until the next refetch. Self-heals on focus. Out of scope.
+
+### Quality gates (post-deeper-review)
+- `cd portal && npx tsc --noEmit` clean
+- `cd portal && npm test` → 1 file / 3 tests pass
+- `cd unit && npx tsc --noEmit` clean
+- `cd unit && npm run brand-lint` → `brand-lint-clean`
+- `cd unit && npm test` → 13 suites / 65 tests pass

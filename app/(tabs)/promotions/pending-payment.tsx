@@ -79,14 +79,34 @@ export default function PendingPaymentScreen() {
         throw new Error(error?.message ?? 'Could not start checkout. Please try again.');
       }
 
-      await WebBrowser.openAuthSessionAsync(data.url, RETURN_URL);
+      const result = await WebBrowser.openAuthSessionAsync(data.url, RETURN_URL);
 
+      // Determine outcome from the redirect first. Stripe redirects to
+      // success_url (?status=success) on completed payment and cancel_url
+      // (?status=cancel) on user cancel. result.type === 'success' means the
+      // browser reached one of those URLs; we look at the query param.
+      // result.type === 'cancel' / 'dismiss' means the user closed the browser
+      // without redirect → not paid.
+      let userReachedSuccessUrl = false;
+      if (result.type === 'success' && result.url) {
+        try {
+          const status = new URL(result.url).searchParams.get('status');
+          userReachedSuccessUrl = status === 'success';
+        } catch {
+          // Malformed URL — fall through to DB poll.
+        }
+      }
+
+      // Poll the promotion row once. The webhook may not have flipped
+      // payment_status='paid' yet when this fires (Stripe → portal webhook →
+      // Supabase has a ~1-3 s lag), so the redirect signal above is the
+      // immediate source of truth and the DB poll is the confirmation.
       const refreshed = await queryClient.fetchQuery({
         queryKey: ['promotion', id],
         queryFn: () => promotionsService.getById(id),
       });
 
-      if (refreshed.payment_status === 'paid') {
+      if (refreshed.payment_status === 'paid' || userReachedSuccessUrl) {
         Toast.show({ type: 'success', text1: 'Payment received', text2: 'Submitted for admin review.' });
       } else {
         Toast.show({ type: 'error', text1: 'Payment was not completed.' });
