@@ -7,13 +7,13 @@ appId: com.unitapp.mobile
     id: "tab-profile"
 - assertVisible: "Log Out"
 - tapOn: "Log Out"
-# Confirm the Alert. Multiple "Log Out" elements remain in the tree
-# (profile-page button, alert container/title/action), and text matching
-# can hit the dimmed page button behind the modal. Tap the centered alert
-# action location instead.
+# Confirm the alert. Use index: 1 — the profile-page 'Log Out' button occupies
+# index 0 in the accessibility tree even behind the modal, so index: 1 targets
+# the alert action button reliably.
 - assertVisible: "Are you sure you want to log out?"
 - tapOn:
-    point: "65%,56%"
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

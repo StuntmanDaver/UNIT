@@ -116,7 +116,8 @@ appId: com.unitapp.mobile
 - tapOn: "Log Out"
 - assertVisible: "Are you sure you want to log out?"
 - tapOn:
-    point: "65%,56%"
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"
