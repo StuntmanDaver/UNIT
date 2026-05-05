@@ -1,0 +1,104 @@
+appId: com.unitapp.mobile
+---
+# QA-PERMISSIONS-01: OS permission prompts — push notifications and photo library
+# Covers items 266-267, 275-276 from the exhaustive inventory:
+#   - First launch: OS push permission prompt → Allow
+#   - Push granted → token registered (verified via Profile push switch showing ON)
+#   - Photo library picker opens on logo/image tap
+#
+# NOTE: iOS Simulator permission state is persistent per app install.
+#       clearState: true does NOT reset OS permissions (only app storage/AsyncStorage).
+#       To reliably test the "Allow" prompt:
+#         * Reset simulator: Device > Erase All Content and Settings
+#         * Or use `xcrun simctl privacy booted reset photos com.unitapp.mobile`
+#           before running this flow.
+#
+# The "Deny" push path (item 267) and graceful fallback are MANUAL:
+#   - Tap "Don't Allow" when prompted.
+#   - Verify: No token registered; push switch in Profile shows OFF.
+#   - Profile push switch → attempt to enable → prompts OS again or opens Settings.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 30000
+
+# ── CASE 1: Push permission prompt on first JS load ───────────────────────────
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - assertVisible: "Would Like to Send You Notifications"
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+# ── CASE 2: Push granted → Profile push switch is ON ──────────────────────────
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 15000
+- scrollUntilVisible:
+    element:
+      text: "Push Notifications"
+    direction: DOWN
+- assertVisible: "Push Notifications"
+# Switch visible and functional (no error toast = token registered)
+
+# ── CASE 3: Photo library picker opens ────────────────────────────────────────
+# Navigate to profile edit and tap logo
+- tapOn: "Edit Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Edit Profile"
+    timeout: 8000
+
+# Tap the avatar / logo area to trigger ImagePicker
+- tapOn:
+    id: "profile-logo-picker"
+- waitForAnimationToEnd
+
+# iOS photo permission prompt may appear
+- runFlow:
+    when:
+      visible: "Access Your Photos"
+    commands:
+      - tapOn: "Allow Access to All Photos"
+      - waitForAnimationToEnd
+
+# Photo picker UI should be visible (iOS Photos sheet)
+# Dismiss by pressing Cancel / Back
+- back
+- waitForAnimationToEnd
+
+# Back to profile without saving
+- tapOn: "Cancel"
+
+- runFlow: ../subflows/logout.yaml

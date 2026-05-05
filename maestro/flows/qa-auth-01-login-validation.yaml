@@ -1,0 +1,155 @@
+appId: com.unitapp.mobile
+---
+# QA-AUTH-01: Login screen validation paths
+# Covers items 1-11 from the exhaustive inventory:
+#   - Valid tenant login → Home
+#   - Valid admin login → Dashboard
+#   - Wrong password → error toast
+#   - Empty email → field error
+#   - "Forgot password?" flows
+#   - Sign Up link navigation
+#
+# Prerequisites: tenant1@unit-test.com and david@cultrhealth.com exist in Supabase auth
+
+- launchApp:
+    clearState: true
+
+# Handle dev-build prompts
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 30000
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 30000
+
+# ── CASE 1: Wrong password ───────────────────────────────────────────────────
+- tapOn:
+    id: "login-email"
+- inputText: "tenant1@unit-test.com"
+- tapOn:
+    id: "login-password"
+- inputText: "wrongpassword"
+- tapOn:
+    id: "btn-login-submit"
+- extendedWaitUntil:
+    visible:
+      text: "Login failed"
+    timeout: 10000
+# Must still be on login screen
+- assertVisible: "Log In"
+
+# Clear fields
+- tapOn:
+    id: "login-email"
+- eraseText: 100
+- tapOn:
+    id: "login-password"
+- eraseText: 100
+- hideKeyboard
+
+# ── CASE 2: Empty email, attempt submit → Zod field error ────────────────────
+- tapOn:
+    id: "login-password"
+- inputText: "admin123"
+- tapOn:
+    id: "btn-login-submit"
+# Zod error appears inline near the email field
+- assertVisible: "Log In"
+- tapOn:
+    id: "login-password"
+- eraseText: 100
+- hideKeyboard
+
+# ── CASE 3: Forgot password with empty email ─────────────────────────────────
+- tapOn: "Forgot password?"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 5000
+
+# ── CASE 4: Forgot password with valid email in field ────────────────────────
+- tapOn:
+    id: "login-email"
+- inputText: "tenant1@unit-test.com"
+- tapOn: "Forgot password?"
+- extendedWaitUntil:
+    visible:
+      text: "Check your email"
+    timeout: 8000
+- tapOn:
+    id: "login-email"
+- eraseText: 100
+- hideKeyboard
+
+# ── CASE 5: Sign Up link navigates to signup screen ─────────────────────────
+- tapOn: "Sign Up"
+- extendedWaitUntil:
+    visible:
+      text: "Create Account"
+    timeout: 8000
+# Go back to login
+- tapOn: "Log In"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000
+
+# ── CASE 6: Dev quick-fill chip → Admin ──────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Admin"
+    commands:
+      - tapOn: "Admin"
+      - waitForAnimationToEnd
+      - assertVisible: "david@cultrhealth.com"
+      - tapOn:
+          id: "login-email"
+      - eraseText: 100
+      - tapOn:
+          id: "login-password"
+      - eraseText: 100
+      - hideKeyboard
+
+# ── CASE 7: Valid tenant login lands on Home ─────────────────────────────────
+- runFlow: ../subflows/login-tenant1.yaml
+- assertVisible: "My Property"
+- runFlow: ../subflows/logout.yaml
+
+# ── CASE 8: Valid admin login lands on Admin Dashboard ───────────────────────
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

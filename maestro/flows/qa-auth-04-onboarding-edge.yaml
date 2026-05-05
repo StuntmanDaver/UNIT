@@ -1,0 +1,150 @@
+appId: com.unitapp.mobile
+---
+# QA-AUTH-04: Onboarding step edge cases
+# Covers items 21-36 from the exhaustive inventory:
+#   - Property search (debounced)
+#   - "Back to properties" from unit step
+#   - "Back to units" from profile step
+#   - Sign out from any step
+#
+# PREREQUISITE: A fresh account with needsOnboarding=true must exist.
+# Options:
+#   a) Use m1-05-onboarding.yaml to create a new account, then delete the business row.
+#   b) Maintain a dedicated test account: onboarding-test@mailinator.com
+#
+# NOTE: "Unit Already Claimed" (item 25) requires a pre-occupied unit — see comment below.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 30000
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 30000
+
+# ── CASE 1: Sign out from Property step ─────────────────────────────────────
+# Use a fresh onboarding account
+- evalScript: |
+    var ts = Date.now();
+    output.testEmail = 'onboard-edge-' + ts + '@mailinator.com';
+    output.testPassword = 'TestPass123!';
+
+- tapOn: "Sign Up"
+- extendedWaitUntil:
+    visible:
+      text: "Create Account"
+    timeout: 8000
+- tapOn:
+    label: "Email"
+- inputText: ${output.testEmail}
+- tapOn:
+    label: "Password"
+- inputText: ${output.testPassword}
+- tapOn:
+    label: "Confirm Password"
+- inputText: ${output.testPassword}
+- hideKeyboard
+- tapOn:
+    id: "btn-signup-submit"
+
+# Should land on onboarding step 1 — Select Your Property
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Property"
+    timeout: 20000
+
+# ── CASE 2: Property search (debounced) ─────────────────────────────────────
+- tapOn:
+    text: "Search properties..."
+- inputText: "xyz_nonexistent_property"
+- waitForAnimationToEnd
+- assertVisible: "No properties found"
+- eraseText: 100
+
+# Search with valid partial name
+- inputText: "Test"
+- waitForAnimationToEnd
+- hideKeyboard
+
+# Clear search to show full list
+- tapOn:
+    text: "Search properties..."
+- eraseText: 100
+- hideKeyboard
+
+# ── CASE 3: Select property → step 2 ─────────────────────────────────────────
+- tapOn:
+    index: 0
+    childOf:
+      id: "property-list-item"
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Unit"
+    timeout: 8000
+
+# ── CASE 4: "Back to properties" → step 1 ────────────────────────────────────
+- tapOn: "← Back to properties"
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Property"
+    timeout: 6000
+
+# Select property again
+- tapOn:
+    index: 0
+    childOf:
+      id: "property-list-item"
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Unit"
+    timeout: 8000
+
+# ── CASE 5: Select unit → step 3 ─────────────────────────────────────────────
+# (Skip occupied unit test — requires data setup; noted in plan)
+- tapOn:
+    index: 0
+    childOf:
+      id: "unit-list-item"
+- extendedWaitUntil:
+    visible:
+      text: "Create Your Profile"
+    timeout: 8000
+
+# ── CASE 6: "Back to units" → step 2 ──────────────────────────────────────────
+- tapOn: "← Back to units"
+- extendedWaitUntil:
+    visible:
+      text: "Select Your Unit"
+    timeout: 6000
+
+# ── CASE 7: Sign out from unit step ──────────────────────────────────────────
+# SignOutLink renders "Sign out" (lowercase 'o')
+- tapOn: "Sign out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

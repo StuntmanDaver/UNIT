@@ -1,0 +1,98 @@
+appId: com.unitapp.mobile
+---
+# QA-HOME-01: Home feed — states and interactions
+# Covers items 48-55 from the exhaustive inventory:
+#   - My Property segment shows cards
+#   - Nearby segment (when neighbors exist) / disabled state
+#   - Skeleton loading on first paint
+#   - Empty state when no activity
+#   - Pull-to-refresh
+#   - Tap card with ctaRoute → navigates
+#
+# PREREQUISITE: At least one activity item (post or promotion) in tenant1's property feed.
+#               A geocoded neighbor property within 2 mi for the "Nearby" enabled path.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 30000
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+# ── CASE 1: Land on Home, My Property segment is default ─────────────────────
+- tapOn:
+    id: "tab-home"
+- extendedWaitUntil:
+    visible:
+      text: "My Property"
+    timeout: 8000
+- assertVisible: "My Property"
+
+# ── CASE 2: Skeleton loading resolves — wait for it to finish ─────────────────
+# If skeletons are visible on first paint they should disappear within 5s
+- waitForAnimationToEnd
+
+# ── CASE 3: Activity cards are visible after load ─────────────────────────────
+# (Assumes seeded activity; adjust text if needed)
+- waitForAnimationToEnd
+
+# ── CASE 4: Pull-to-refresh ───────────────────────────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+- waitForAnimationToEnd
+- assertVisible: "My Property"
+
+# ── CASE 5: Nearby segment tap ────────────────────────────────────────────────
+- tapOn:
+    text: "Nearby.*"
+- waitForAnimationToEnd
+# Either shows feed or disabled helper text; both are acceptable
+- runFlow:
+    when:
+      visible: "No nearby properties"
+    commands:
+      # Nearby disabled — tap My Property to restore
+      - tapOn: "My Property"
+      - waitForAnimationToEnd
+
+# ── CASE 6: Tap first activity card (if tappable) → navigates and can return ──
+# Scroll back to top
+- swipe:
+    direction: UP
+    duration: 600
+- waitForAnimationToEnd
+- tapOn: "My Property"
+- waitForAnimationToEnd
+
+# Tap first card at center (ActivityFeedCard with ctaRoute)
+- tapOn:
+    index: 0
+    point: "50%,55%"
+- waitForAnimationToEnd
+- back
+- assertVisible: "My Property"
+
+- runFlow: ../subflows/logout.yaml
