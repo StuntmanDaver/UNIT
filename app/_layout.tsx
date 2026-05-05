@@ -39,6 +39,7 @@ function AuthGuard() {
     }
 
     const inAuthGroup = segments[0] === '(auth)';
+    const inTabsGroup = segments[0] === '(tabs)';
     const onResetPassword = segments.includes('reset-password');
     const onOnboarding = segments.includes('onboarding');
 
@@ -91,6 +92,10 @@ function AuthGuard() {
         // US-005: tenants land on the new Home tab (6th tab, first position).
         router.replace('/(tabs)/home');
       }
+    }
+
+    if (!needsPasswordChange && !needsOnboarding && isAdmin && inTabsGroup) {
+      router.replace('/(admin)/');
     }
   }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin, segments]);
 

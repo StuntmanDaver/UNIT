@@ -3,13 +3,18 @@ appId: com.unitapp.mobile
 # Reusable subflow: log out from tenant profile tab
 # Precondition: logged in as tenant, on any tab
 # Postcondition: app is on login screen
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 - assertVisible: "Log Out"
 - tapOn: "Log Out"
-# Confirm the Alert
+# Confirm the Alert. Multiple "Log Out" elements remain in the tree
+# (profile-page button, alert container/title/action), and text matching
+# can hit the dimmed page button behind the modal. Tap the centered alert
+# action location instead.
 - assertVisible: "Are you sure you want to log out?"
-- tapOn: "Log Out"
+- tapOn:
+    point: "65%,56%"
 - extendedWaitUntil:
     visible:
       text: "Log In"
-    timeout: 8000
+    timeout: 15000

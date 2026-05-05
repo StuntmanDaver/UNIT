@@ -90,16 +90,11 @@ export default function LoginScreen() {
       >
         <View className="px-6 py-10 w-full max-w-md mx-auto">
           <View className="items-center mb-8">
-            <View
-              className="rounded-3xl p-4"
-              style={{ backgroundColor: '#FFFFFF' }}
-            >
-              <Image
-                source={require('../../assets/unit-logo-transparent.png')}
-                style={{ width: 140, height: 140 }}
-                resizeMode="contain"
-              />
-            </View>
+            <Image
+              source={require('../../assets/unit-logo-dark.png')}
+              style={{ width: 240, height: 240 }}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Dev quick-fill */}
@@ -122,6 +117,7 @@ export default function LoginScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Email"
+                  testID="login-email"
                   placeholder="you@business.com"
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -140,6 +136,7 @@ export default function LoginScreen() {
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
                   label="Password"
+                  testID="login-password"
                   placeholder="Enter your password"
                   secureTextEntry
                   textContentType="oneTimeCode"
@@ -151,7 +148,7 @@ export default function LoginScreen() {
               )}
             />
 
-            <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4">
+            <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4" testID="btn-login-submit">
               Log In
             </Button>
           </View>

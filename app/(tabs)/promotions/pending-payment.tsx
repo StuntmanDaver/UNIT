@@ -20,6 +20,10 @@ function formatPrice(cents: number, currency: string): string {
   return currency === 'usd' ? `$${amount}` : `${amount} ${currency.toUpperCase()}`;
 }
 
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export default function PendingPaymentScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const queryClient = useQueryClient();
@@ -97,16 +101,30 @@ export default function PendingPaymentScreen() {
         }
       }
 
-      // Poll the promotion row once. The webhook may not have flipped
-      // payment_status='paid' yet when this fires (Stripe → portal webhook →
-      // Supabase has a ~1-3 s lag), so the redirect signal above is the
-      // immediate source of truth and the DB poll is the confirmation.
-      const refreshed = await queryClient.fetchQuery({
+      // Poll the promotion row briefly. The webhook may not have flipped
+      // payment_status='paid' yet when Stripe redirects back, and a single
+      // immediate refetch leaves this screen visually stuck in Pending Payment
+      // even though the DB flips seconds later.
+      let refreshed = await queryClient.fetchQuery({
         queryKey: ['promotion', id],
         queryFn: () => promotionsService.getById(id),
       });
+      for (let attempt = 0; attempt < 8 && userReachedSuccessUrl && refreshed.payment_status !== 'paid'; attempt += 1) {
+        await wait(1000);
+        refreshed = await queryClient.fetchQuery({
+          queryKey: ['promotion', id],
+          queryFn: () => promotionsService.getById(id),
+        });
+      }
 
       if (refreshed.payment_status === 'paid' || userReachedSuccessUrl) {
+        if (refreshed.payment_status !== 'paid') {
+          queryClient.setQueryData(['promotion', id], {
+            ...refreshed,
+            payment_status: 'paid',
+            review_status: 'pending',
+          });
+        }
         Toast.show({ type: 'success', text1: 'Payment received', text2: 'Submitted for admin review.' });
       } else {
         Toast.show({ type: 'error', text1: 'Payment was not completed.' });
@@ -180,12 +198,13 @@ export default function PendingPaymentScreen() {
               accessibilityRole="radiogroup"
               accessibilityLabel="Promotion price tier"
             >
-              {(tiers ?? []).map((tier: PromotionPriceTier) => {
+              {(tiers ?? []).map((tier: PromotionPriceTier, index: number) => {
                 const selected = tier.id === selectedTierId;
                 return (
                   <Pressable
                     key={tier.id}
                     onPress={() => setSelectedTierId(tier.id)}
+                    testID={`promotion-tier-${index}`}
                     accessibilityRole="radio"
                     accessibilityState={{ selected }}
                     accessibilityLabel={`${tier.name}${tier.is_featured ? ' Featured' : ''}, ${tier.duration_days} days, ${formatPrice(tier.price_cents, tier.currency)}`}

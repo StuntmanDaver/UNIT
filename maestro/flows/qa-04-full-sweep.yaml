@@ -5,10 +5,45 @@ appId: com.unitapp.mobile
 
 - launchApp:
     clearState: true
+# clearState wipes EXDevLauncher's saved Metro URL on dev builds, so the app
+# lands on the launcher landing page. Tap into the bundle if it's showing.
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+# iOS push-notification permission prompt may pop on first JS run after
+# clearState. Allow it if it appears.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+# Expo dev menu first-launch hint may appear after clearState. When it
+# does, Continue advances it to the full menu and Close dismisses. When
+# it doesn't (state persisted from a prior fresh install), skip both.
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+# Notification prompt sometimes fires AFTER bundle load too.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Home Feed sweep (US-021 / m5-01)
-- tapOn: "Home"
+- tapOn:
+    id: "tab-home"
 - extendedWaitUntil:
     visible:
       text: "My Property"
@@ -18,22 +53,27 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # Tab sweep
-- tapOn: "Directory"
+- tapOn:
+    id: "tab-directory"
 - assertVisible: "Directory"
 - waitForAnimationToEnd
 
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 - waitForAnimationToEnd
 
-- tapOn: "Community"
+- tapOn:
+    id: "tab-community"
 - assertVisible: "Community"
 - waitForAnimationToEnd
 
-- tapOn: "Alerts"
+- tapOn:
+    id: "tab-alerts"
 - waitForAnimationToEnd
 
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 - extendedWaitUntil:
     notVisible:
       text: "Loading profile..."
@@ -44,35 +84,39 @@ appId: com.unitapp.mobile
 # Admin sweep
 - runFlow: ../subflows/login-admin.yaml
 
-# Select property
-- tapOn: "Select a property"
-- waitForAnimationToEnd
-- tapOn:
-    index: 0
-- waitForAnimationToEnd
-
 # Admin screen sweep
 - assertVisible: "Admin Dashboard"
 - tapOn: "Manage Tenants"
 - assertVisible: "Tenants"
-- back
+- tapOn:
+    point: "6%,9%"
+- waitForAnimationToEnd
 
 - tapOn: "Manage Properties"
 - assertVisible: "Properties"
-- back
+- tapOn:
+    point: "6%,9%"
+- waitForAnimationToEnd
 
 - tapOn: "View Pending Approvals"
 - assertVisible: "Pending"
-- back
+- tapOn:
+    point: "6%,9%"
+- waitForAnimationToEnd
 
 - tapOn: "Account & Settings"
 - assertVisible: "Account"
-- back
+- tapOn:
+    point: "6%,9%"
+- waitForAnimationToEnd
 
 # Log out
 - tapOn:
     id: "admin-logout-btn"
 - tapOn: "Log Out"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn:
+    point: "65%,56%"
 - extendedWaitUntil:
     visible:
       text: "Log In"

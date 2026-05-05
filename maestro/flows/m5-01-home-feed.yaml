@@ -6,10 +6,45 @@ appId: com.unitapp.mobile
 
 - launchApp:
     clearState: true
+# clearState wipes EXDevLauncher's saved Metro URL on dev builds, so the app
+# lands on the launcher landing page. Tap into the bundle if it's showing.
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+# iOS push-notification permission prompt may pop on first JS run after
+# clearState. Allow it if it appears.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+# Expo dev menu first-launch hint may appear after clearState. When it
+# does, Continue advances it to the full menu and Close dismisses. When
+# it doesn't (state persisted from a prior fresh install), skip both.
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+# Notification prompt sometimes fires AFTER bundle load too.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
 - runFlow: ../subflows/login-tenant1.yaml
 
 # After login, tenants now land on Home (US-002 made it the default tab)
-- tapOn: "Home"
+- tapOn:
+    id: "tab-home"
 - extendedWaitUntil:
     visible:
       text: "My Property"

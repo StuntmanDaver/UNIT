@@ -123,6 +123,7 @@ export default function CreatePromotionScreen() {
           property_id: propertyId,
           advertiser_id: user.id,
           business_name: business.business_name,
+          contact_email: user.email ?? '',
           headline: data.headline,
           description: data.description || null,
           image_url,
@@ -137,11 +138,12 @@ export default function CreatePromotionScreen() {
       await queryClient.invalidateQueries({ queryKey: ['promotions'] });
 
       router.replace(`/(tabs)/promotions/pending-payment?id=${newPromo.id}` as Parameters<typeof router.replace>[0]);
-    } catch {
+    } catch (err) {
+      console.error('[create-promotion] failed:', err);
       Toast.show({
         type: 'error',
         text1: 'Failed to create promotion',
-        text2: 'Please try again.',
+        text2: err instanceof Error ? err.message : 'Please try again.',
       });
     } finally {
       setIsSaving(false);
@@ -159,6 +161,7 @@ export default function CreatePromotionScreen() {
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {/* Headline */}
         <Controller
@@ -167,6 +170,7 @@ export default function CreatePromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Headline *"
+              testID="promotion-headline"
               value={value}
               onChangeText={onChange}
               placeholder="e.g. 20% off this week only"
@@ -182,6 +186,7 @@ export default function CreatePromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Description *"
+              testID="promotion-description"
               value={value}
               onChangeText={onChange}
               placeholder="Describe your offer..."
@@ -200,6 +205,7 @@ export default function CreatePromotionScreen() {
             <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Start Date *</Text>
             <Pressable
               onPress={() => setActivePicker('start')}
+              testID="promotion-start-date"
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
             >
               <Calendar size={16} color="#7C8DA7" />
@@ -212,6 +218,7 @@ export default function CreatePromotionScreen() {
             <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">End Date *</Text>
             <Pressable
               onPress={() => setActivePicker('end')}
+              testID="promotion-end-date"
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
             >
               <Calendar size={16} color="#7C8DA7" />
@@ -325,7 +332,7 @@ export default function CreatePromotionScreen() {
 
         {/* Actions */}
         <View className="gap-3 mt-2">
-          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving}>
+          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="promotion-submit">
             Continue to Payment
           </Button>
           <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>

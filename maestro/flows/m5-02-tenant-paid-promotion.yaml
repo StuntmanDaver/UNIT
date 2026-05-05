@@ -10,29 +10,127 @@ appId: com.unitapp.mobile
 
 - launchApp:
     clearState: true
+# clearState wipes EXDevLauncher's saved Metro URL on dev builds, so the app
+# lands on the launcher landing page. Tap into the bundle if it's showing.
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+# iOS push-notification permission prompt may pop on first JS run after
+# clearState. Allow it if it appears.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+# Expo dev menu first-launch hint may appear after clearState. When it
+# does, Continue advances it to the full menu and Close dismisses. When
+# it doesn't (state persisted from a prior fresh install), skip both.
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+# Notification prompt sometimes fires AFTER bundle load too.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Navigate to Promotions tab and start a new promotion
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 
 - tapOn:
-    text: "+"
+    id: "fab-create-promotion"
 - extendedWaitUntil:
     visible:
-      text: "Create"
+      text: "Promote My Business"
     timeout: 8000
 
-# Fill the form with deterministic content
+# Fill the form with deterministic content. Inputs use stable testIDs to
+# avoid the iOS Text-label / TextInput accessibility-label collision.
 - tapOn:
-    label: "Title"
+    id: "promotion-headline"
 - inputText: "M5-02 Paid Test Promotion"
 - tapOn:
-    label: "Description"
+    id: "promotion-description"
 - inputText: "Maestro tenant-paid promotion happy-path verification."
-- hideKeyboard
+# hideKeyboard is flaky on iOS 18.6 + Maestro 2.4. Tap the (non-interactive)
+# header text to dismiss the keyboard instead.
+- tapOn: "Promote My Business"
 
-- tapOn: "Post"
+# Pick Start Date and End Date. Form runtime requires both non-null and
+# end > start. iOS spinner only fires onChange when a wheel is scrolled,
+# so we tap to open and swipe the day wheel.
+#
+# Behavior quirk: handleDateChange in create.tsx auto-advances activePicker
+# from 'start' to 'end' on iOS once the start date is set, so the same
+# modal stays open and the second swipe targets the End Date picker. The
+# end-date scroll then auto-closes the modal (setActivePicker(null)).
+- tapOn:
+    id: "promotion-start-date"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 80%"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 65%"
+- waitForAnimationToEnd
+# Modal exposes its content as one aggregated a11y container so `tapOn`
+# by text doesn't work — tap the Done corner by coordinate as a safety
+# net in case the End scroll didn't auto-close.
+- runFlow:
+    when:
+      visible: "Cancel, Start Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Cancel, End Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+
+# iOS shows a one-time QuickPath keyboard tutorial after the first
+# inputText. Dismiss it if it appears; its Continue button label collides
+# with our "Continue to Payment" so leaving it up confuses tapOn.
+- runFlow:
+    when:
+      visible: "Speed up your typing"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+
+# Continue to Payment is below the fold and the keyboard may still be up
+# from the description input. Scroll the form upward (swipe from form
+# area, NOT keyboard area) to bring the submit button into the viewport.
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "promotion-submit"
 
 # Tenant lands on the pending-payment screen
 - extendedWaitUntil:
@@ -40,24 +138,40 @@ appId: com.unitapp.mobile
       text: "Pending Payment"
     timeout: 10000
 
-# Pick the first available tier
-- tapOn: "Choose a tier"
-- waitForAnimationToEnd
+# Pick the first (cheapest) available tier. Tier rows are ordered by
+# price_cents asc and exposed via testIDs `promotion-tier-{index}`.
 - tapOn:
-    index: 0
-    point: "50%,50%"
+    id: "promotion-tier-0"
+- waitForAnimationToEnd
 
 - tapOn: "Pay Now"
+
+# iOS shows a native ASWebAuthenticationSession consent prompt the first
+# time `openAuthSessionAsync` opens stripe.com. Pay Now triggers a
+# checkout-session RPC then `openAuthSessionAsync`, so the prompt appears
+# ~1-2s after the tap. Do not poll the view hierarchy while this prompt
+# is animating; Maestro/XCUITest intermittently throws
+# kAXErrorInvalidUIElement. Tap the native Continue button by coordinate.
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- tapOn: "Continue"
+- waitForAnimationToEnd
 
 # Stripe Checkout opens in the in-app browser. Card field labels are
 # Stripe-controlled so this section is the most fragile — adjust
 # selectors if Stripe updates their Checkout UI.
 - extendedWaitUntil:
     visible:
+      text: "Payment method"
+    timeout: 30000
+- tapOn: "Card"
+- extendedWaitUntil:
+    visible:
       text: "Card information"
-    timeout: 20000
-- tapOn:
-    text: "Card information"
+    timeout: 10000
+- tapOn: "Card number"
 - inputText: "4242424242424242"
 - tapOn:
     text: "MM / YY"
@@ -68,8 +182,28 @@ appId: com.unitapp.mobile
 - tapOn:
     text: "Cardholder name"
 - inputText: "Maestro Test"
-- hideKeyboard
-- tapOn: "Pay"
+- tapOn:
+    point: "90%,67%"
+- waitForAnimationToEnd
+
+# Stripe now requires a ZIP code for US card payments and enables Link
+# "save my information" by default. Fill ZIP, uncheck Link save, then pay.
+- tapOn: "ZIP"
+- inputText: "10001"
+- tapOn:
+    point: "90%,67%"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%,80%"
+    end: "50%,30%"
+- waitForAnimationToEnd
+- tapOn: "Save my information for faster checkout"
+- waitForAnimationToEnd
+# Stripe exposes several "Pay" labels (Apple Pay, Link copy, final CTA).
+# At this scroll position the final blue Pay button is centered near the
+# lower portion of the viewport, so tap it by coordinate.
+- tapOn:
+    point: "50%,82%"
 
 # Stripe redirects to unit://promotions; the in-app browser dismisses
 # and the screen polls payment_status. On success the screen header
@@ -77,9 +211,15 @@ appId: com.unitapp.mobile
 - extendedWaitUntil:
     visible:
       text: "Awaiting Review"
-    timeout: 20000
+    timeout: 30000
 
-# Sanity assertion: success toast appeared
-- assertVisible: "Payment received"
+# The Safari sheet may remain open with an optional "remember this credit
+# card" prompt after the app has already redirected behind it. Dismiss the
+# sheet by tapping its top-left Cancel location, then assert the durable
+# in-screen success state (more reliable than a short-lived toast).
+- tapOn:
+    point: "10%,53%"
+- waitForAnimationToEnd
+- assertVisible: "Payment received. Admins will review your promotion shortly."
 
 - runFlow: ../subflows/logout.yaml

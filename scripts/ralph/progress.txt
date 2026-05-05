@@ -558,3 +558,208 @@ Note: `EXPO_PUBLIC_APP_URL` is not actually read anywhere in the unit/ codebase 
 3. Vercel re-deploy of `origin/portal` — picks up advertiser-flow PI metadata + process-then-mark webhook
 
 Until step (1) lands, the webhook will error trying to read `completed_at` (column does not exist). Strict deployment ordering required: migration first, then portal deploy.
+
+## 2026-05-05 07:30 EDT - US-021 Maestro re-run (post code-complete)
+
+### Summary
+
+Re-running the three Maestro flows on the freshly rebuilt iOS dev binary
+revealed multiple pre-existing flow + UI gaps that were not exercised in
+the original authoring of US-021. The fixes are split into two layers:
+  1. Test-supporting `testID` props added to existing components/screens
+     (no behavior change, only makes elements addressable via `id:`).
+  2. Test-script patches that handle real iOS dev-build behaviors that
+     the original flows assumed away (EXDevLauncher landing, Expo dev
+     menu first-launch hint, tab bar a11y label format, Log Out alert
+     ambiguity, iOS QuickPath keyboard tutorial, date-picker quirks).
+
+### Verified outcomes
+
+- `m5-01-home-feed.yaml` → green end-to-end (~34s on iPhone 16 Pro Max
+  iOS 18.6, Maestro 2.4.0).
+- Dev binary symbol scan on `unit.app/UNIT.debug.dylib` confirms
+  `ExpoWebBrowser`, `openBrowserAsync`, `WebBrowserModule.swift`,
+  `WebBrowserSession.swift` are linked → step-1 prerequisite from
+  `US-021-022-simulator-uat-rollup.md` is objectively satisfied; the
+  lazy-import fallback toast in `pending-payment.tsx` will not fire on
+  this build.
+- US-022 verification sweep re-run after every patch:
+  - `npx tsc --noEmit` clean
+  - `npm run brand-lint` → `brand-lint-clean`
+  - `npm test` → 13 suites / 65 tests pass
+
+### Outstanding blockers
+
+- `m5-02-tenant-paid-promotion.yaml` reaches the pending-payment screen
+  successfully and selects a tier, BUT the dev Supabase project has no
+  active row in `promotion_price_tiers` — the screen renders
+  "No tiers available. Contact your property admin." and the Pay Now
+  button is disabled, so Stripe Checkout never opens. This is a dev
+  environment seed gap, not a flow defect; the followups doc lists this
+  as a prerequisite ("At least one **active** row in
+  `promotion_price_tiers`"). Without seeding, m5-02 cannot complete and
+  by extension qa-04 (which inlines m5-02) cannot fully pass.
+- Once a tier is seeded, the next likely failure point is the Stripe
+  Checkout selectors ("Card information", "MM / YY", etc.) — that's the
+  drift case the user authorized patching for in step 2 of the request.
+
+### Files changed (test-supporting)
+
+- `unit/app/(auth)/login.tsx` — `testID` on email + password inputs
+- `unit/app/(tabs)/_layout.tsx` — `tabBarButtonTestID` on all six tabs
+- `unit/app/(tabs)/promotions.tsx` — `testID` on the FAB
+- `unit/app/(tabs)/promotions/create.tsx`:
+  - `testID` on headline, description, start/end date pressables, submit
+  - `keyboardDismissMode="on-drag"` on the form ScrollView (small UX
+    win: dragging the form now dismisses the keyboard, which Maestro
+    relies on to expose the Continue to Payment button below the fold)
+- `unit/components/ui/FAB.tsx` — accept `testID` prop
+- `unit/components/ui/Button.tsx` — accept `testID` prop
+
+### Files changed (Maestro flows)
+
+- `unit/maestro/flows/m5-01-home-feed.yaml`
+- `unit/maestro/flows/m5-02-tenant-paid-promotion.yaml`
+- `unit/maestro/flows/qa-04-full-sweep.yaml`
+- `unit/maestro/subflows/login-tenant1.yaml`
+- `unit/maestro/subflows/login-admin.yaml`
+- `unit/maestro/subflows/logout.yaml`
+
+### Diff highlights (Maestro flows)
+
+For all three top-level flows on `launchApp { clearState: true }`:
+  - Conditional `runFlow when visible: "Development Build"` tap on
+    `http://localhost:8081` to re-select the Metro URL after clearState
+    wipes EXDevLauncher's saved selection.
+  - Conditional `runFlow when visible: "Would Like to Send You
+    Notifications"` tap on Allow (Maestro's `permissions: notifications:
+    allow` on iOS 18 was a no-op).
+  - `extendedWaitUntil: visible: "Continue"` + tap Continue + tap Close
+    to dismiss the Expo dev menu first-launch hint that always shows
+    after clearState.
+
+For login subflows:
+  - Switched from `tapOn: { label: "Email/Password" }` (which matched
+    both the visible Text label and the TextInput's accessibilityLabel
+    on iOS, leading to taps that landed on the wrong element) to
+    `tapOn: { id: "login-email"/"login-password" }`.
+  - login-tenant1.yaml post-login assertion changed from "Directory" to
+    "My Property" — US-002 made Home the default tenant landing screen
+    and "Directory" only exists in the iOS tab bar as
+    "Directory, tab, 2 of 12" which the `text` matcher does not pick up.
+
+For logout subflow:
+  - Tab tap switched from `tapOn: "Profile"` (text) to
+    `tapOn: { id: "tab-profile" }` (testID via tabBarButtonTestID) —
+    iOS exposes tab bar buttons with accessibilityText "Profile, tab, X
+    of Y" with empty `text` field, so text matchers cannot find them.
+  - Final Log Out alert dismissal switched from `tapOn: "Log Out"` to
+    `tapOn: { point: "65%, 56%" }` because iOS surfaces four "Log Out"
+    elements simultaneously (page button, alert container, alert title,
+    alert action) and the text/index matchers are unreliable; the alert
+    button is at a stable location in the centered UIAlertController.
+
+For m5-02 specifically:
+  - `tapOn: text: "+"` → `tapOn: { id: "fab-create-promotion" }` (FAB
+    has a Plus icon, no text).
+  - Header wait `Create` → `Promote My Business` (actual screen title).
+  - Form labels `Title/Description` → `id: promotion-headline` /
+    `id: promotion-description` (same iOS Text/TextInput collision as
+    login).
+  - Submit button `Post` → `Continue to Payment` (actual button text).
+  - Date picker handling: tap `id: promotion-start-date`, swipe day
+    wheel up by 5%, then iOS auto-advances activePicker to 'end' so a
+    second swipe of 20% sets End Date and auto-closes the modal. The
+    iOS picker modal exposes Cancel/Done/wheel values as a single
+    aggregated accessibility container, so `tapOn: "Done"` cannot
+    target the actual button — fallback `tapOn: { point: "92%, 71%" }`
+    in `runFlow when` branches handles the case where the End scroll
+    didn't auto-close.
+  - QuickPath keyboard tutorial dismissal via
+    `runFlow when visible: "Speed up your typing"`.
+  - Form scroll: two upward swipes from y=60% to y=15% bring the
+    Continue to Payment button into the viewport (combined with
+    `keyboardDismissMode="on-drag"` on the ScrollView, this dismisses
+    the keyboard and exposes the submit button to Maestro).
+  - Submit via `tapOn: { id: "promotion-submit" }`.
+
+### Quality gates
+
+- `cd unit && npx tsc --noEmit` clean (re-run after every component
+  change including testID additions, FAB/Button testID props,
+  keyboardDismissMode prop)
+- `cd unit && npm run brand-lint` → `brand-lint-clean`
+- `cd unit && npm test` → 13 suites / 65 tests pass
+
+### Follow-up needed
+
+1. Seed at least one active row in `promotion_price_tiers` in the dev
+   Supabase project. Suggested values for the test (`name='Test
+   Tier'`, `duration_days=7`, `is_featured=false`, `price_cents=1000`,
+   `currency='usd'`, `is_active=true`) line up with the m5-02 wait for
+   "Choose a tier" → tap index 0 path.
+2. Re-run `maestro test maestro/flows/m5-02-tenant-paid-promotion.yaml`
+   and patch the Stripe Checkout selectors if they have drifted (the
+   user authorized this in the original step 2).
+3. Run `qa-04-full-sweep.yaml` end-to-end after m5-02 passes.
+4. Verify the Supabase rows landed (step 3 of the original request).
+
+## 2026-05-05 14:50 EDT - US-021/US-022 final simulator sign-off
+
+Final rerun completed on booted iPhone 16 Pro Max simulator (iOS 18.6) using
+`JAVA_HOME=/opt/homebrew/opt/openjdk@17` and Maestro 2.4.0.
+
+### Final Maestro results
+- `maestro test maestro/flows/m5-01-home-feed.yaml` -> green
+- `maestro test maestro/flows/m5-02-tenant-paid-promotion.yaml` -> green
+- `maestro test maestro/flows/qa-04-full-sweep.yaml` -> green (209.4s; includes m5-02 inline)
+
+### Final Supabase verification (latest m5-02 notification run)
+- `promotions.id=d8745308-6bfb-4f39-982f-9516cdbc30c5`
+  - `payment_status='paid'`
+  - `review_status='pending'`
+- `promotion_payment_attempts.id=aa7d9c71-539f-4672-8dea-83b87292a7ba`
+  - `status='completed'`
+  - `price_tier_id='81975c19-d40a-4e82-ad1d-bfeb5afc0d01'`
+- `promotion_status_events.id=fb87e58c-0061-4673-8d54-c06f73246e43`
+  - `to_review_status='pending'`
+- `notifications.id=4e192f41-8157-440e-b791-0bea71cfc1ee`
+  - `title='New Promotion Pending Review'`
+  - `type='advertiser_approved'`
+  - `data.promotionId='d8745308-6bfb-4f39-982f-9516cdbc30c5'`
+
+### Environment/data fixes applied
+- Applied remote Supabase migration `grant_authenticated_promotion_price_tiers`:
+  `GRANT SELECT ON public.promotion_price_tiers TO authenticated;`
+- Added local reproducible migration:
+  `unit/supabase/migrations/20260505000003_grant_authenticated_promotion_price_tiers.sql`
+- Fixed dev seed/admin mismatch by adding tenant property
+  `fb60e5a4-75ed-457c-8493-c8c6bfbe2de5` to admin profile
+  `f09664bc-29e7-4482-ad8a-ded4c4b912d0.property_ids`, which allowed the
+  Stripe webhook notification branch to find the landlord profile and insert
+  the admin notification.
+
+### Product/code fixes from the final UAT loop
+- `pending-payment.tsx` now polls after Stripe success redirects so the UI
+  flips to `Awaiting Review` after webhook lag instead of visually sticking
+  in `Pending Payment` while the DB has already flipped to paid/pending.
+- Root `AuthGuard` now redirects admins out of `(tabs)` to `/(admin)/` if
+  `isAdmin` resolves after the initial post-login tab navigation.
+- Maestro flows were updated for current iOS/Stripe behavior:
+  - ASWebAuthenticationSession consent prompt
+  - expanded Stripe card payment method
+  - ZIP requirement
+  - Link save-info default checkbox
+  - Safari remember-card sheet dismissal
+  - admin screen back chevrons
+  - admin logout alert coordinate tap
+
+### Final quality gates
+- `npx tsc --noEmit` -> clean
+- `npm run brand-lint` -> `brand-lint-clean`
+- `npm test` -> 13 suites / 65 tests pass
+- ReadLints on edited TSX files -> no linter errors
+
+### Rollup doc
+- Required checkboxes ticked in
+  `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md`.

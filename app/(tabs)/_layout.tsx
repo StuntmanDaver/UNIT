@@ -58,6 +58,7 @@ export default function TabLayout() {
           href: isAdmin ? null : undefined,
           title: 'Home',
           tabBarIcon: makeTabIcon(Home),
+          tabBarButtonTestID: 'tab-home',
         }}
       />
       <Tabs.Screen
@@ -65,6 +66,7 @@ export default function TabLayout() {
         options={{
           title: 'Directory',
           tabBarIcon: makeTabIcon(Building2),
+          tabBarButtonTestID: 'tab-directory',
         }}
       />
       <Tabs.Screen
@@ -72,6 +74,7 @@ export default function TabLayout() {
         options={{
           title: 'Promotions',
           tabBarIcon: makeTabIcon(Megaphone),
+          tabBarButtonTestID: 'tab-promotions',
         }}
       />
       <Tabs.Screen
@@ -79,6 +82,7 @@ export default function TabLayout() {
         options={{
           title: 'Community',
           tabBarIcon: makeTabIcon(Users),
+          tabBarButtonTestID: 'tab-community',
         }}
       />
       <Tabs.Screen
@@ -87,6 +91,7 @@ export default function TabLayout() {
           title: 'Alerts',
           tabBarIcon: makeTabIcon(Bell),
           tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
+          tabBarButtonTestID: 'tab-alerts',
         }}
       />
       <Tabs.Screen
@@ -95,6 +100,7 @@ export default function TabLayout() {
           href: isAdmin ? null : undefined,
           title: 'Profile',
           tabBarIcon: makeTabIcon(User),
+          tabBarButtonTestID: 'tab-profile',
         }}
       />
       {/* Hide sub-screens from tab bar */}

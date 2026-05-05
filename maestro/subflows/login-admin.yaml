@@ -8,10 +8,10 @@ appId: com.unitapp.mobile
       text: "Log In"
     timeout: 60000
 - tapOn:
-    label: "Email"
+    id: "login-email"
 - inputText: "david@cultrhealth.com"
 - tapOn:
-    label: "Password"
+    id: "login-password"
 - inputText: "admin123"
 - tapOn: "Log In"
 - extendedWaitUntil:

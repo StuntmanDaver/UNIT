@@ -1,6 +1,6 @@
 # US-021 / US-022 — Simulator UAT Rollup
 
-**Status:** Code-complete on this branch (`ralph/engagement-ui-enhancement`). Live UAT against booted iOS simulator was partially executed on 2026-05-05 — Home Feed and Promotions UI verified rendering on a hot-reloaded JS bundle. Two follow-up commits landed after the partial UAT (`6839bc7` lazy-import + Maestro selector escape, `d2fbb17` Edge Function PI metadata, `dbd9cbb` portal webhook). The remaining simulator + Stripe smoke MUST be re-run before merge.
+**Status:** Complete on this branch (`ralph/engagement-ui-enhancement`). Live UAT against booted iOS simulator was completed on 2026-05-05 after the post-UAT commits (`6839bc7`, `d2fbb17`, `dbd9cbb`) and follow-up simulator/Stripe fixes.
 
 ## Prerequisites
 
@@ -22,11 +22,11 @@
 
 ### US-021: Maestro happy paths
 
-- [ ] `cd unit && maestro test maestro/flows/m5-01-home-feed.yaml` → all green
-- [ ] `cd unit && maestro test maestro/flows/m5-02-tenant-paid-promotion.yaml` → all green
+- [x] `cd unit && maestro test maestro/flows/m5-01-home-feed.yaml` → all green
+- [x] `cd unit && maestro test maestro/flows/m5-02-tenant-paid-promotion.yaml` → all green
   - Card field selectors are Stripe-controlled; if they have changed, update m5-02 selectors and append the diff to `unit/scripts/ralph/progress.txt`
-- [ ] `cd unit && maestro test maestro/flows/qa-04-full-sweep.yaml` → all green (this also re-runs m5-02 inline)
-- [ ] After the run, log into the dev Supabase dashboard and confirm:
+- [x] `cd unit && maestro test maestro/flows/qa-04-full-sweep.yaml` → all green (this also re-runs m5-02 inline)
+- [x] After the run, log into the dev Supabase dashboard and confirm:
   - `promotions` row created with `payment_status='paid' AND review_status='pending'`
   - `promotion_payment_attempts` row with `status='completed' AND price_tier_id IS NOT NULL`
   - `promotion_status_events` row with `to_review_status='pending'`
@@ -34,11 +34,11 @@
 
 ### US-022: Final verification sweep
 
-- [ ] `cd unit && npx tsc --noEmit` exits 0 (already green at code-complete)
-- [ ] `cd unit && npm run brand-lint` exits 0 (already green at code-complete)
-- [ ] `cd unit && npm test` exits 0 (already green: 65/65 jest)
-- [ ] `cd unit && maestro test maestro/flows/qa-04-full-sweep.yaml` (covered above)
-- [ ] Spot-check on iOS simulator:
+- [x] `cd unit && npx tsc --noEmit` exits 0 (already green at code-complete)
+- [x] `cd unit && npm run brand-lint` exits 0 (already green at code-complete)
+- [x] `cd unit && npm test` exits 0 (already green: 65/65 jest)
+- [x] `cd unit && maestro test maestro/flows/qa-04-full-sweep.yaml` (covered above)
+- [x] Spot-check on iOS simulator:
   - `(tabs)/home.tsx` — Home feed renders ≥1 activity card; "My Property" / "Nearby" toggle responsive
   - `(tabs)/directory.tsx` — unchanged from main, no visual regression
   - `(tabs)/promotions.tsx` — unchanged from main, no visual regression
@@ -55,4 +55,4 @@
 
 ## Sign-off
 
-Once all checkboxes above are ticked, merge `ralph/engagement-ui-enhancement` → `main` and close the engagement-UI-enhancement initiative.
+All required checkboxes above are ticked. Merge `ralph/engagement-ui-enhancement` → `main` and close the engagement-UI-enhancement initiative.
