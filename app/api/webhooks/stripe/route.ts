@@ -40,11 +40,32 @@ export async function POST(req: Request) {
 
   if (event.type === 'payment_intent.payment_failed') {
     const intent = event.data.object as Stripe.PaymentIntent;
-    await supabase
+    // Stripe Session metadata does not auto-propagate to PI metadata, so the
+    // mobile Edge Function explicitly sets payment_intent_data.metadata with
+    // the same promotionId. Older portal-advertiser flows do not set PI
+    // metadata at all — fall through (received) so we don't poison those.
+    const promotionId = intent.metadata?.promotionId;
+    if (!promotionId) return NextResponse.json({ received: true });
+
+    // Only the most recent 'created' attempt matches a single PI failure event.
+    // If a user has retried, older 'created' attempts belong to abandoned
+    // sessions and will be cleaned up by checkout.session.expired (24h timeout).
+    const { data: attempt } = await supabase
       .from('promotion_payment_attempts')
-      .update({ status: 'failed' })
-      .eq('stripe_payment_intent_id', intent.id)
-      .in('status', ['created']);
+      .select('id')
+      .eq('promotion_id', promotionId)
+      .eq('status', 'created')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (attempt) {
+      await supabase
+        .from('promotion_payment_attempts')
+        .update({ status: 'failed', stripe_payment_intent_id: intent.id })
+        .eq('id', attempt.id);
+    }
+
     return NextResponse.json({ received: true });
   }
 
