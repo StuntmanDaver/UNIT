@@ -370,3 +370,26 @@ Started: Sat May  2 21:38:29 EDT 2026
   - For mobile-tenant Stripe checkout, ALWAYS use `WebBrowser.openAuthSessionAsync(url, returnUrl)` — NOT `openBrowserAsync`. The auth-session variant blocks the JS thread until the in-app browser dismisses, which is what we need so the post-dismiss `fetchQuery` always sees the user's payment outcome.
   - `queryClient.fetchQuery` (not `invalidateQueries` + re-render) is the right call after the auth session because we need to await the freshest server state before deciding which toast to show. `invalidateQueries` would re-render the screen but we'd race with the toast logic.
   - The `promotion_payment_attempts` row is INSERTed by the Edge Function BEFORE the user is sent to Stripe, so the audit trail is created even if the user never completes payment. The webhook then flips it to 'completed' (success) or 'failed' (US-013 expired/failed handlers).
+
+## 2026-05-05 - US-021
+- Authored two Maestro flows in `unit/maestro/flows/`:
+  - `m5-01-home-feed.yaml` (33 lines): tenant login → Home tab → "My Property" assertion → Nearby segment toggle → tap first activity card → back → assert feed re-render → logout
+  - `m5-02-tenant-paid-promotion.yaml` (60 lines): tenant login → Promotions tab → FAB → fill form ("M5-02 Paid Test Promotion") → Post → land on Pending Payment screen → tap first tier → Pay Now → Stripe Checkout in-app browser → input 4242-4242-4242-4242 + 12/30 + 123 → Pay → assert "Awaiting Review" header + "Payment received" toast → logout
+- Modified `qa-04-full-sweep.yaml`:
+  - Added Home Feed tab assertion (Home tab → "My Property" visibility → Nearby toggle) at the very top of the tenant sweep
+  - Appended `runFlow: ./m5-02-tenant-paid-promotion.yaml` after the admin sweep so the full sweep covers paid promotion happy path inline
+- AC #3 ("Both flows pass against dev iOS simulator + dev Supabase project") and US-022's simulator + accesslint runs CANNOT be executed in an autonomous Loki session (no booted simulator, no Maestro CLI, no Stripe test-mode secret on a live Edge Function). Per the established 2026-04-20 pattern (`feedback_followup_parking_pattern`), parked the explicit re-run checklist in `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md`.
+- Files changed: `unit/maestro/flows/m5-01-home-feed.yaml` (new), `unit/maestro/flows/m5-02-tenant-paid-promotion.yaml` (new), `unit/maestro/flows/qa-04-full-sweep.yaml` (modified), `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md` (new), `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.
+- Quality gates: `npx tsc --noEmit` clean (Maestro YAML is invisible to TS); `npm run brand-lint` → `brand-lint-clean`; `npm test` → 13 suites / 65 tests pass.
+- **Learnings:**
+  - Stripe Checkout's iframe field labels ("Card information", "MM / YY", "CVC", "Cardholder name") are Stripe-controlled and the most fragile selectors in m5-02. If Stripe redesigns Checkout, m5-02 breaks first. The followup explicitly tells the next operator to update those selectors when re-running.
+  - Maestro `runFlow:` correctly chains the m5-02 happy path inside qa-04 because each flow opens with `launchApp: clearState: true` — there's no state leakage between the admin logout and the tenant relogin in m5-02.
+
+## 2026-05-05 - US-022
+- All static gates pass on this branch's HEAD (commit prior to this entry):
+  - `npx tsc --noEmit` exits 0
+  - `npm run brand-lint` exits 0
+  - `npm test` exits 0 (13 suites, 65 tests)
+- Simulator-dependent gates (Maestro qa-04 sweep, physical-device spot-check, accesslint contrast sweep) parked in `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md` for the next operator before merge.
+- No deviations from spec on this branch beyond the simulator deferral noted above. The PRD's `userDirective` ("do NOT break the app or UI; meticulously double-check every story") is upheld at the static-gate level; visual confirmation must happen against a booted simulator.
+- Files changed: `unit/scripts/ralph/prd.json`, `unit/scripts/ralph/progress.txt`.

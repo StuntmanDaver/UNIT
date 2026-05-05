@@ -1,0 +1,85 @@
+appId: com.unitapp.mobile
+---
+# M5-02: Tenant-paid promotion happy path
+# Tenant logs in → submits a promotion → picks a tier → pays via Stripe
+# test card → returns to "Awaiting Review" state.
+#
+# Requires: Stripe test mode, dev Supabase project with at least one
+# active price tier, dev Edge Function `create-promotion-checkout-session`
+# deployed with STRIPE_SECRET_KEY (test) set.
+
+- launchApp:
+    clearState: true
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Navigate to Promotions tab and start a new promotion
+- tapOn: "Promotions"
+- assertVisible: "Promotions"
+
+- tapOn:
+    text: "+"
+- extendedWaitUntil:
+    visible:
+      text: "Create"
+    timeout: 8000
+
+# Fill the form with deterministic content
+- tapOn:
+    label: "Title"
+- inputText: "M5-02 Paid Test Promotion"
+- tapOn:
+    label: "Description"
+- inputText: "Maestro tenant-paid promotion happy-path verification."
+- hideKeyboard
+
+- tapOn: "Post"
+
+# Tenant lands on the pending-payment screen
+- extendedWaitUntil:
+    visible:
+      text: "Pending Payment"
+    timeout: 10000
+
+# Pick the first available tier
+- tapOn: "Choose a tier"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+    point: "50%,50%"
+
+- tapOn: "Pay Now"
+
+# Stripe Checkout opens in the in-app browser. Card field labels are
+# Stripe-controlled so this section is the most fragile — adjust
+# selectors if Stripe updates their Checkout UI.
+- extendedWaitUntil:
+    visible:
+      text: "Card information"
+    timeout: 20000
+- tapOn:
+    text: "Card information"
+- inputText: "4242424242424242"
+- tapOn:
+    text: "MM / YY"
+- inputText: "1230"
+- tapOn:
+    text: "CVC"
+- inputText: "123"
+- tapOn:
+    text: "Cardholder name"
+- inputText: "Maestro Test"
+- hideKeyboard
+- tapOn: "Pay"
+
+# Stripe redirects to unit://promotions; the in-app browser dismisses
+# and the screen polls payment_status. On success the screen header
+# becomes "Awaiting Review".
+- extendedWaitUntil:
+    visible:
+      text: "Awaiting Review"
+    timeout: 20000
+
+# Sanity assertion: success toast appeared
+- assertVisible: "Payment received"
+
+- runFlow: ../subflows/logout.yaml

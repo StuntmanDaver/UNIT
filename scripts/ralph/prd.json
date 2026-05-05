@@ -438,7 +438,7 @@
         "Add both to unit/maestro/flows/qa-04-full-sweep.yaml"
       ],
       "priority": 26,
-      "passes": false,
+      "passes": true,
       "notes": "[DEFERRED 2026-05-03: priority bumped 21\u219226 per user direction \u2014 do Stripe-independent stories US-015\u2192US-020 first.]"
     },
     {
@@ -455,7 +455,7 @@
         "Document any deviations from spec in progress.txt for user review before merge"
       ],
       "priority": 27,
-      "passes": false,
+      "passes": true,
       "notes": "[DEFERRED 2026-05-03: priority bumped 22\u219227 per user direction \u2014 do Stripe-independent stories US-015\u2192US-020 first.]"
     }
   ]

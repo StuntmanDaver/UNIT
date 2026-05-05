@@ -7,6 +7,16 @@ appId: com.unitapp.mobile
     clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
+# Home Feed sweep (US-021 / m5-01)
+- tapOn: "Home"
+- extendedWaitUntil:
+    visible:
+      text: "My Property"
+    timeout: 8000
+- tapOn:
+    text: "Nearby"
+- waitForAnimationToEnd
+
 # Tab sweep
 - tapOn: "Directory"
 - assertVisible: "Directory"
@@ -67,3 +77,8 @@ appId: com.unitapp.mobile
     visible:
       text: "Log In"
     timeout: 8000
+
+# Tenant-paid promotion happy path (US-021 / m5-02). Requires Stripe
+# test-mode credentials on the dev Edge Function. Skip with
+# `maestro test --exclude-tags=stripe` if Stripe is not configured.
+- runFlow: ./m5-02-tenant-paid-promotion.yaml
