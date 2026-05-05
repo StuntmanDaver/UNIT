@@ -26,6 +26,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   }
 
+  // Audit-only failure handlers (US-013): never mutate promotions.payment_status
+  // (the enum has no 'failed' value), only flip the matching attempt row to 'failed'.
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object as Stripe.Checkout.Session;
+    await supabase
+      .from('promotion_payment_attempts')
+      .update({ status: 'failed' })
+      .eq('stripe_checkout_session_id', session.id)
+      .in('status', ['created']);
+    return NextResponse.json({ received: true });
+  }
+
+  if (event.type === 'payment_intent.payment_failed') {
+    const intent = event.data.object as Stripe.PaymentIntent;
+    await supabase
+      .from('promotion_payment_attempts')
+      .update({ status: 'failed' })
+      .eq('stripe_payment_intent_id', intent.id)
+      .in('status', ['created']);
+    return NextResponse.json({ received: true });
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
     const promotionId = session.metadata?.promotionId;
