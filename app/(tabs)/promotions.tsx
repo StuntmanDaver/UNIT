@@ -115,7 +115,7 @@ export default function PromotionsScreen() {
           />
         }
       />
-      <FAB onPress={() => router.push('/promotions/create')} />
+      <FAB onPress={() => router.push('/promotions/create')} testID="fab-create-promotion" />
     </View>
   );
 }

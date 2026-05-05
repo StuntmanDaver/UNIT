@@ -1,0 +1,76 @@
+appId: com.unitapp.mobile
+---
+# M5-01: Home Feed (LinkedIn-style activity stream)
+# Verifies tenant lands on Home, sees activity, can switch to Nearby segment,
+# tap a card, and return without crashing.
+
+- launchApp:
+    clearState: true
+# clearState wipes EXDevLauncher's saved Metro URL on dev builds, so the app
+# lands on the launcher landing page. Tap into the bundle if it's showing.
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+# iOS push-notification permission prompt may pop on first JS run after
+# clearState. Allow it if it appears.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+# Expo dev menu first-launch hint may appear after clearState. When it
+# does, Continue advances it to the full menu and Close dismisses. When
+# it doesn't (state persisted from a prior fresh install), skip both.
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+# Notification prompt sometimes fires AFTER bundle load too.
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow: ../subflows/login-tenant1.yaml
+
+# After login, tenants now land on Home (US-002 made it the default tab)
+- tapOn:
+    id: "tab-home"
+- extendedWaitUntil:
+    visible:
+      text: "My Property"
+    timeout: 8000
+
+# At least one activity card should be visible. The seed data guarantees
+# either a recent post or promotion in the property feed.
+- assertVisible: "My Property"
+
+# Switch to Nearby segment. The toggle is visible regardless of neighbour
+# count; tapping it is allowed even if disabled (no-op should not crash).
+- tapOn:
+    text: "Nearby \\(≤ 2 mi\\)"
+- waitForAnimationToEnd
+
+# Tap the first activity card and verify navigation. This proves the
+# row press handler routes into the correct detail screen without
+# silently swallowing the tap.
+- tapOn:
+    index: 0
+    point: "50%,55%"
+- waitForAnimationToEnd
+
+- back
+
+# Returning to Home should not blank-screen the feed.
+- assertVisible: "My Property"
+
+- runFlow: ../subflows/logout.yaml

@@ -36,13 +36,74 @@ export type Promotion = {
   created_at: string;
   // Legacy column — retained but not written to after M4
   approval_status: 'pending' | 'approved' | 'rejected' | null;
+  // Two-Path Promotions (migration 20260501000003_external_promotions.sql).
+  // When advertiser_id IS NULL the row is admin-authored on behalf of an
+  // external local business; created_by_admin_id is set in that case.
+  created_by_admin_id: string | null;
+  external_contact_name: string | null;
+  external_contact_email: string | null;
+  external_contact_phone: string | null;
 };
+
+/**
+ * Discriminator for the two promotion authoring paths added by the
+ * 2026-05-01 external-promotions migration. `advertiser_id IS NULL`
+ * means an admin authored the promotion for an external (non-tenant)
+ * business; otherwise the tenant business owns it.
+ */
+export type PromotionKind = 'tenant' | 'external';
+
+export function getPromotionKind(
+  promotion: Pick<Promotion, 'advertiser_id'>
+): PromotionKind {
+  return promotion.advertiser_id === null ? 'external' : 'tenant';
+}
 
 export type AdminPromotionReviewAction =
   | { action: 'approve' }
   | { action: 'allow_revision'; note: string }
   | { action: 'require_repayment'; note: string }
   | { action: 'reject'; note: string };
+
+/**
+ * Input for tenant-authored promotion (advertiser_id = user.id path).
+ * review_status starts as 'draft'; payment_status starts as 'unpaid'.
+ * Portal webhook flips payment_status to 'paid' and review_status to
+ * 'pending' when Stripe checkout.session.completed fires.
+ */
+export type TenantPromotionInput = {
+  property_id: string;
+  advertiser_id: string;
+  business_name: string;
+  headline: string;
+  description: string | null;
+  image_url: string | null;
+  cta_text: string | null;
+  cta_link: string | null;
+  start_date: string;
+  end_date: string;
+};
+
+/**
+ * Input for admin-authored external promotion (advertiser_id IS NULL path).
+ * Mirrors the CHECK constraint promotions_attribution_required: business_name
+ * must be non-empty when advertiser_id is null.
+ */
+export type ExternalPromotionInput = {
+  property_id: string;
+  created_by_admin_id: string;
+  business_name: string;
+  headline: string;
+  description: string | null;
+  image_url: string | null;
+  cta_text: string | null;
+  cta_link: string | null;
+  external_contact_name: string | null;
+  external_contact_email: string | null;
+  external_contact_phone: string | null;
+  start_date: string;
+  end_date: string;
+};
 
 export const promotionsService = {
   /** Admin: list promotions for a property filtered by review_status values */
@@ -201,5 +262,89 @@ export const promotionsService = {
       .limit(1);
     if (error) return false;
     return (data?.length ?? 0) > 0;
+  },
+
+  /** Admin: list ALL promotions for a property regardless of review_status */
+  async getAdminAllList(propertyId: string): Promise<Promotion[]> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .select('*')
+      .eq('property_id', propertyId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Tenant: create a promotion for their own business.
+   * review_status='draft', payment_status='unpaid' until the Stripe checkout
+   * completes (portal webhook flips to 'pending'). Also inserts the required
+   * promotion_status_events audit row per the two-path promotions schema.
+   */
+  async createTenant(input: TenantPromotionInput, actorUserId: string): Promise<Promotion> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .insert({
+        property_id: input.property_id,
+        advertiser_id: input.advertiser_id,
+        business_name: input.business_name,
+        headline: input.headline,
+        description: input.description,
+        image_url: input.image_url,
+        cta_text: input.cta_text,
+        cta_link: input.cta_link,
+        start_date: input.start_date,
+        end_date: input.end_date,
+        review_status: 'draft',
+        payment_status: 'unpaid',
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+
+    const { error: eventError } = await supabase
+      .from('promotion_status_events')
+      .insert({
+        promotion_id: data.id,
+        from_review_status: null,
+        to_review_status: 'draft',
+        actor_user_id: actorUserId,
+        actor_type: 'advertiser',
+        note: null,
+      });
+    if (eventError) throw eventError;
+
+    return data;
+  },
+
+  /**
+   * Admin: create a promotion on behalf of an external (non-tenant) business.
+   * advertiser_id is always NULL; review_status pre-approved by admin.
+   */
+  async createExternal(input: ExternalPromotionInput): Promise<Promotion> {
+    const { data, error } = await supabase
+      .from('promotions')
+      .insert({
+        property_id: input.property_id,
+        advertiser_id: null,
+        created_by_admin_id: input.created_by_admin_id,
+        business_name: input.business_name,
+        headline: input.headline,
+        description: input.description,
+        image_url: input.image_url,
+        cta_text: input.cta_text,
+        cta_link: input.cta_link,
+        external_contact_name: input.external_contact_name,
+        external_contact_email: input.external_contact_email,
+        external_contact_phone: input.external_contact_phone,
+        start_date: input.start_date,
+        end_date: input.end_date,
+        review_status: 'approved',
+        payment_status: null,
+      })
+      .select('*')
+      .single();
+    if (error) throw error;
+    return data;
   },
 };

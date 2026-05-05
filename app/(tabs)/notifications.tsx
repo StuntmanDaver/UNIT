@@ -74,10 +74,10 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
         >
           {item.title}
         </Text>
-        <Text className="text-sm font-nunito text-brand-steel leading-normal" numberOfLines={1}>
+        <Text className="text-sm font-nunito text-brand-gray leading-normal" numberOfLines={1}>
           {item.message}
         </Text>
-        <Text className="text-sm font-nunito text-brand-steel leading-normal">
+        <Text className="text-sm font-nunito text-brand-gray leading-normal">
           {formatDistanceToNow(new Date(item.created_date), { addSuffix: true })}
         </Text>
       </View>

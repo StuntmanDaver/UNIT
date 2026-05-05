@@ -9,10 +9,16 @@ export type Property = {
   type: string;
   total_units: number;
   image_url: string | null;
+  // Geolocation — added by migration 20260501000002_property_clusters.sql.
+  // Nullable because existing rows are backfilled lazily by the geocoding
+  // helper (US-003) and admin-create flows. Range-checked at the DB layer.
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
 };
 
-const PROPERTY_COLUMNS = 'id, name, address, city, state, type, total_units, image_url, created_at';
+const PROPERTY_COLUMNS =
+  'id, name, address, city, state, type, total_units, image_url, latitude, longitude, created_at';
 
 export const propertiesService = {
   async list(): Promise<Property[]> {
@@ -73,4 +79,23 @@ export const propertiesService = {
     if (error) throw error;
     return data;
   },
+
+  async updateCoordinates(id: string, lat: number, lon: number): Promise<Property> {
+    const { data, error } = await supabase
+      .from('properties')
+      .update({ latitude: lat, longitude: lon })
+      .eq('id', id)
+      .select(PROPERTY_COLUMNS)
+      .single();
+    if (error) throw error;
+    return data;
+  },
 };
+
+export async function updatePropertyCoordinates(
+  propertyId: string,
+  lat: number,
+  lon: number
+): Promise<Property> {
+  return propertiesService.updateCoordinates(propertyId, lat, lon);
+}

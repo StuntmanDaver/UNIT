@@ -21,6 +21,14 @@ module.exports = {
           blue: '#465A75',
           steel: '#7C8DA7',
           gray: '#E0E1DE',
+          // Light-surface tokens (Delta-inspired). Permitted only on Home Feed
+          // and explicitly migrated screens; header surfaces and tab bar
+          // background stay brand-navy. See unit/CLAUDE.md Brand Theming.
+          cloud: '#F4F5F7',
+          mist: '#FFFFFF',
+          paper: '#E5E7EB',
+          ink: '#101B29',
+          'ink-muted': '#465A75',
         },
       },
     },

@@ -1,0 +1,59 @@
+appId: com.unitapp.mobile
+---
+# QA-05: Light-surface visual regression sweep
+# Opens the Home Feed, scrolls through cards, and captures screenshots for
+# visual regression comparison against the Delta-inspired design reference.
+
+- launchApp:
+    clearState: true
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Home tab should be the default landing for tenants
+- assertVisible: "Home"
+- waitForAnimationToEnd
+- takeScreenshot: home-feed-initial
+
+# Scroll down to reveal additional cards
+- scroll:
+    direction: DOWN
+    duration: 800
+- waitForAnimationToEnd
+- takeScreenshot: home-feed-scroll-1
+
+- scroll:
+    direction: DOWN
+    duration: 800
+- waitForAnimationToEnd
+- takeScreenshot: home-feed-scroll-2
+
+# Tap the Nearby segment (if neighbours exist the feed refreshes)
+- tapOn: "Nearby"
+- waitForAnimationToEnd
+- takeScreenshot: home-feed-nearby-segment
+
+# Tap back to My Property
+- tapOn: "My Property"
+- waitForAnimationToEnd
+
+# Verify existing tabs still navigate correctly
+- tapOn: "Directory"
+- assertVisible: "Directory"
+- waitForAnimationToEnd
+
+- tapOn: "Promotions"
+- assertVisible: "Promotions"
+- waitForAnimationToEnd
+
+- tapOn: "Community"
+- assertVisible: "Community"
+- waitForAnimationToEnd
+
+- tapOn: "Alerts"
+- waitForAnimationToEnd
+
+- tapOn: "Home"
+- assertVisible: "Home"
+- waitForAnimationToEnd
+- takeScreenshot: home-feed-return
+
+- runFlow: ../subflows/logout.yaml

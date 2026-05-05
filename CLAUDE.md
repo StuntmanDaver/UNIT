@@ -194,6 +194,28 @@ assets/                 # App icons, splash screen images
 - `red-500` (#EF4444) — Destructive actions only (only non-brand color permitted)
 - Additional constants in `constants/colors.ts`
 
+### Light-surface tokens (Delta-inspired, scoped use only)
+Added 2026-05-02 to support the new Home Feed and incrementally migrated screens. **Do NOT introduce these into existing screens without an explicit story** — the milestone direction is targeted, not a full re-theme.
+
+- `brand-cloud` (#F4F5F7) — Light screen background (Home Feed root only). Always paired with a `GradientHeader` so the navy brand still anchors the top of the screen.
+- `brand-mist` (#FFFFFF) — White card surface on top of `brand-cloud`. Always pair with `text-brand-ink` / `text-brand-ink-muted` for AA contrast.
+- `brand-paper` (#E5E7EB) — Card hairline border on `brand-mist` (`border border-brand-paper`).
+- `brand-ink` (#101B29) — Primary text on `brand-mist` (same hex as `brand-navy`; semantic-only alias for light surfaces).
+- `brand-ink-muted` (#465A75) — Secondary text on `brand-mist` (same hex as `brand-blue`; semantic-only alias).
+
+**Light-surface usage rules:**
+- Permitted ONLY on the Home Feed (`app/(tabs)/home.tsx`) and screens explicitly migrated in a future story.
+- Header surfaces and the bottom tab bar background MUST stay `brand-navy`.
+- `text-brand-gray` is BANNED on `bg-brand-mist` (white) — fails AA contrast. Use `text-brand-ink` / `text-brand-ink-muted` instead.
+- Any `.tsx` file that uses `bg-brand-mist` AND `text-brand-gray` together will FAIL brand-lint (AA violation rule, live since US-016).
+- Any `.tsx` file that uses `bg-brand-cloud` MUST also import `@/components/ui/GradientHeader` — brand-lint enforces this (navy header anchor rule, live since US-016).
+
+**Delta app design references** (for future re-design or light-surface expansion work):
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.21 PM.png` — Find My Trip (light gray bg, white card, navy header)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.40 PM.png` — Travel Information list (white card + chevron rows, navy header, light bottom nav)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.51 PM.png` — Book screen (white card with form, red CTA)
+- `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.05.10 PM.png` — Home/Explore (promotional cards on light surface)
+
 ### Fonts
 The app uses **Lora** (serif, headings/display) and **Nunito** (sans-serif, body/UI). Both are loaded via `@expo-google-fonts/lora` and `@expo-google-fonts/nunito` in `app/_layout.tsx` via `useFonts()`. The Tailwind classes live in `tailwind.config.js`.
 
@@ -257,3 +279,5 @@ Do not make direct repo edits outside a GSD workflow unless the user explicitly 
 **Every time Claude gets something wrong about this project -- a wrong file path, incorrect assumption, outdated pattern, misunderstood convention -- add the correction directly to CLAUDE.md.** Do not just re-prompt or fix inline. Update this file so the correction persists across every future session, every subagent, and every teammate.
 
 Over time, CLAUDE.md becomes a precision-tuned instruction set that makes Claude increasingly effective. This applies to all contributors: when you spot Claude making a recurring mistake, codify the fix here.
+
+**Design references**: The Delta app screenshots in `/Users/davidk/Downloads/` (4 files starting with "Screenshot 2026-05-02 at 8.04") are the canonical visual reference for the light-surface direction (white cards on light-gray screen, navy headers). Consult these before making any further light-surface UI decisions.

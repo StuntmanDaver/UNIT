@@ -9,6 +9,7 @@ type ButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   className?: string;
+  testID?: string;
 };
 
 const variantStyles: Record<ButtonVariant, { container: string; text: string }> = {
@@ -37,6 +38,7 @@ export function Button({
   disabled = false,
   loading = false,
   className = '',
+  testID,
 }: ButtonProps) {
   const styles = variantStyles[variant];
 
@@ -44,6 +46,7 @@ export function Button({
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
+      testID={testID}
       className={`rounded-xl px-4 py-3 min-h-[44px] items-center justify-center ${styles.container} ${
         disabled ? 'opacity-50' : ''
       } ${className}`}

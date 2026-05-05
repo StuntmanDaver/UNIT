@@ -32,7 +32,7 @@ This document covers everything needed to develop, build, and ship the UNIT app 
    Open `.env.local` and set:
    - `EXPO_PUBLIC_SUPABASE_URL` — your Supabase project URL
    - `EXPO_PUBLIC_SUPABASE_ANON_KEY` — your Supabase anon/public key
-   - `EXPO_PUBLIC_APP_URL` — app deep link base URL (e.g. `unitapp://`)
+   - `EXPO_PUBLIC_APP_URL` — app deep link base URL (e.g. `unit://`). The runtime scheme registered in `Info.plist` `CFBundleURLSchemes` is `unit`, not `unitapp` — keep this consistent or the in-app browser will not redirect back after Stripe Checkout.
 
 3. Start the development server:
 
@@ -126,6 +126,63 @@ create policy "Authenticated users can upload" on storage.objects for insert to 
 ```
 
 This bucket stores property images, business logos, and other publicly accessible media.
+
+---
+
+## Stripe Payments (Mobile-Tenant Checkout)
+
+The mobile app's tenant-paid promotion flow (US-012/US-014) uses the Edge Function `create-promotion-checkout-session` to create a Stripe Checkout session, then **reuses the existing portal webhook** at `portal/app/api/webhooks/stripe/route.ts` to confirm payment. There is **no separate Stripe webhook endpoint for the mobile app** and none is required.
+
+### Why one webhook is enough
+
+The portal webhook is source-agnostic: it reads only `session.metadata.promotionId` from the Stripe event and flips the corresponding `promotions` row to `payment_status='paid' / review_status='pending'`. The mobile Edge Function inserts the same `metadata.promotionId` key, so the existing handler covers both flows.
+
+The webhook also handles failure paths (`checkout.session.expired`, `payment_intent.payment_failed`) by marking the matching `promotion_payment_attempts` row as `status='failed'` for audit; it never mutates `promotions.payment_status` on failure (the enum has no `'failed'` value).
+
+> **PaymentIntent metadata caveat:** Stripe Session metadata does **not** auto-propagate to the underlying PaymentIntent's metadata. The mobile Edge Function explicitly sets `payment_intent_data.metadata` so the failure handler can match by `intent.metadata.promotionId`. The legacy portal-advertiser checkout flow (`portal/app/api/checkout/route.ts`) does NOT set PI metadata; PI failure events from that flow fall through without touching the audit row, which is the intended safe-default.
+
+### Required migrations
+
+The mobile-tenant checkout depends on the Stripe / pricing schema added on May 2:
+
+- `unit/supabase/migrations/20260502000002_promotion_price_tiers.sql` — pricing tier table read by the tier picker
+- `unit/supabase/migrations/20260502000003_promotion_payment_attempts_price_tier.sql` — adds `price_tier_id` to the audit table
+- `unit/supabase/migrations/20260505000001_stripe_webhook_events_completed_at.sql` — adds `completed_at` to `stripe_webhook_events` so the webhook can use a process-then-mark idempotency pattern (replays from Stripe re-run failed handlers instead of being silently dedup'd as "processed but never executed")
+
+Apply with `cd unit && npx supabase db push`.
+
+### Required Edge Function secrets
+
+```bash
+npx supabase secrets set \
+  STRIPE_SECRET_KEY=<your-stripe-secret-key>
+```
+
+`STRIPE_WEBHOOK_SECRET` lives on the **portal** environment (Vercel), not on Supabase, because the webhook handler is in the Next.js portal.
+
+### Stripe dashboard endpoint
+
+Register exactly one endpoint in the Stripe dashboard pointing at the portal:
+
+```
+https://<portal-host>/api/webhooks/stripe
+```
+
+Subscribe to these events:
+
+- `checkout.session.completed`
+- `checkout.session.expired`
+- `payment_intent.payment_failed`
+
+The portal's `STRIPE_WEBHOOK_SECRET` must match the signing secret Stripe shows for that endpoint.
+
+### Deploy command
+
+```bash
+npx supabase functions deploy create-promotion-checkout-session
+```
+
+> **Do not** create `unit/supabase/functions/stripe-promotion-webhook/`. The mobile app does not own a webhook endpoint.
 
 ---
 
