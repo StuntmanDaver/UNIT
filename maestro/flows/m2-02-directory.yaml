@@ -28,19 +28,21 @@ appId: com.unitapp.mobile
 - eraseText: 100
 - hideKeyboard
 
-# Category filter: swipe horizontal chip list LEFT to reveal "Healthcare",
-# then tap. Anchored to the FlatList testID so Maestro scrolls the right
-# container. scrollUntilVisible does not reliably scroll RN horizontal lists.
-- swipe:
-    from:
-      id: "category-chips-list"
-    direction: LEFT
-    duration: 600
-- swipe:
-    from:
-      id: "category-chips-list"
-    direction: LEFT
-    duration: 600
+# Category filter: bounded repeat swipes the horizontal FlatList LEFT
+# (anchored to testID) until "Healthcare" is visible, then taps. Each
+# swipe advances ~2-3 chips; Healthcare is at position 13.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Healthcare"
+          commands:
+            - swipe:
+                from:
+                  id: "category-chips-list"
+                direction: LEFT
+                duration: 600
 - tapOn: "Healthcare"
 - waitForAnimationToEnd
 

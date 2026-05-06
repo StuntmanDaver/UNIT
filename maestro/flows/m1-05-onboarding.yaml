@@ -84,19 +84,20 @@ appId: com.unitapp.mobile
 - inputText: "E2E Test Business"
 - hideKeyboard
 # Select a category chip. Onboarding chips live in a horizontal ScrollView
-# (testID: "onboarding-category-scroll"). Swipe LEFT twice to reveal
-# "Healthcare", then tap. (scrollUntilVisible does not reliably scroll RN
-# horizontal containers — explicit swipes do.)
-- swipe:
-    from:
-      id: "onboarding-category-scroll"
-    direction: LEFT
-    duration: 600
-- swipe:
-    from:
-      id: "onboarding-category-scroll"
-    direction: LEFT
-    duration: 600
+# (testID: "onboarding-category-scroll"). Bounded repeat swipes LEFT until
+# "Healthcare" (position 13 in BUSINESS_CATEGORIES) is visible, then taps.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Healthcare"
+          commands:
+            - swipe:
+                from:
+                  id: "onboarding-category-scroll"
+                direction: LEFT
+                duration: 600
 - tapOn: "Healthcare"
 - tapOn: "Create Profile"
 

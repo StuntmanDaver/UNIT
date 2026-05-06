@@ -77,18 +77,24 @@ appId: com.unitapp.mobile
 # Test horizontal scroll on CategoryChips by swiping LEFT (reveals chips
 # further right) anchored to the FlatList testID. scrollUntilVisible does
 # not reliably scroll RN horizontal FlatLists — explicit swipes do.
-# Two swipes get us past the visible chips (All, Restaurant, Accounting,
-# Legal, Hvac, Medical) to reach "Healthcare".
-- swipe:
-    from:
-      id: "category-chips-list"
-    direction: LEFT
-    duration: 600
-- swipe:
-    from:
-      id: "category-chips-list"
-    direction: LEFT
-    duration: 600
+#
+# "Healthcare" is at position 13 in BUSINESS_CATEGORIES (after All,
+# Restaurant, Accounting, Legal, Hvac, Medical, Retail, Technology,
+# Construction, Manufacturing, Logistics, Food Service, Professional
+# Services). Each swipe advances ~2-3 chips, so we use a bounded repeat
+# that stops as soon as Healthcare becomes visible.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Healthcare"
+          commands:
+            - swipe:
+                from:
+                  id: "category-chips-list"
+                direction: LEFT
+                duration: 600
 - tapOn: "Healthcare"
 - waitForAnimationToEnd
 # Filtered list or empty state
