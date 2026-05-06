@@ -74,12 +74,22 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # ── CASE 4: Category chip filter ─────────────────────────────────────────────
-# Use "Legal" — 4th chip in BUSINESS_CATEGORIES (after All, Restaurant,
-# Accounting, Legal). Always visible without horizontal scroll.
-# (scrollUntilVisible RIGHT does not reliably scroll the horizontal FlatList
-# in CategoryChips — Maestro targets the page-level container instead and
-# never reveals chips beyond the initial viewport.)
-- tapOn: "Legal"
+# Test horizontal scroll on CategoryChips by swiping LEFT (reveals chips
+# further right) anchored to the FlatList testID. scrollUntilVisible does
+# not reliably scroll RN horizontal FlatLists — explicit swipes do.
+# Two swipes get us past the visible chips (All, Restaurant, Accounting,
+# Legal, Hvac, Medical) to reach "Healthcare".
+- swipe:
+    from:
+      id: "category-chips-list"
+    direction: LEFT
+    duration: 600
+- swipe:
+    from:
+      id: "category-chips-list"
+    direction: LEFT
+    duration: 600
+- tapOn: "Healthcare"
 - waitForAnimationToEnd
 # Filtered list or empty state
 

@@ -83,11 +83,21 @@ appId: com.unitapp.mobile
     label: "Business Name"
 - inputText: "E2E Test Business"
 - hideKeyboard
-# Select a category chip — "Legal" is the 4th chip (after All, Restaurant,
-# Accounting) and is always visible without horizontal scroll. The
-# onboarding screen renders chips in a horizontal ScrollView, but
-# scrollUntilVisible RIGHT does not reliably advance it.
-- tapOn: "Legal"
+# Select a category chip. Onboarding chips live in a horizontal ScrollView
+# (testID: "onboarding-category-scroll"). Swipe LEFT twice to reveal
+# "Healthcare", then tap. (scrollUntilVisible does not reliably scroll RN
+# horizontal containers — explicit swipes do.)
+- swipe:
+    from:
+      id: "onboarding-category-scroll"
+    direction: LEFT
+    duration: 600
+- swipe:
+    from:
+      id: "onboarding-category-scroll"
+    direction: LEFT
+    duration: 600
+- tapOn: "Healthcare"
 - tapOn: "Create Profile"
 
 # Success: redirected to directory

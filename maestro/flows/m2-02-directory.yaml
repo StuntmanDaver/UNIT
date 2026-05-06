@@ -28,11 +28,20 @@ appId: com.unitapp.mobile
 - eraseText: 100
 - hideKeyboard
 
-# Category filter: tap a category chip
-# "Legal" is the 4th chip (after All, Restaurant, Accounting) and is always
-# visible without horizontal scroll. scrollUntilVisible RIGHT does not
-# reliably scroll the horizontal FlatList in CategoryChips.
-- tapOn: "Legal"
+# Category filter: swipe horizontal chip list LEFT to reveal "Healthcare",
+# then tap. Anchored to the FlatList testID so Maestro scrolls the right
+# container. scrollUntilVisible does not reliably scroll RN horizontal lists.
+- swipe:
+    from:
+      id: "category-chips-list"
+    direction: LEFT
+    duration: 600
+- swipe:
+    from:
+      id: "category-chips-list"
+    direction: LEFT
+    duration: 600
+- tapOn: "Healthcare"
 - waitForAnimationToEnd
 
 # Tap "All" to clear filter — CategoryChips shows "All" chip
