@@ -10,9 +10,10 @@ type CardProps = {
   onPress?: () => void;
   className?: string;
   variant?: CardVariant;
+  testID?: string;
 };
 
-export function Card({ children, onPress, className = '', variant = 'dark' }: CardProps) {
+export function Card({ children, onPress, className = '', variant = 'dark', testID }: CardProps) {
   const variantClass =
     variant === 'light'
       ? 'bg-brand-mist border border-brand-paper rounded-xl shadow-sm'
@@ -23,6 +24,7 @@ export function Card({ children, onPress, className = '', variant = 'dark' }: Ca
   if (onPress) {
     return (
       <Pressable
+        testID={testID}
         onPress={onPress}
         className={baseClass}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
@@ -32,5 +34,5 @@ export function Card({ children, onPress, className = '', variant = 'dark' }: Ca
     );
   }
 
-  return <View className={baseClass}>{children}</View>;
+  return <View testID={testID} className={baseClass}>{children}</View>;
 }

@@ -9,11 +9,12 @@ appId: com.unitapp.mobile
 - assertVisible: "Directory"
 - waitForAnimationToEnd
 
-# Tap first business card (scrolled to top)
+# Tap first business card. Use the BusinessCard testID — `text: "Directory"`
+# was the screen heading, not the parent of the card list, so childOf would
+# silently match the wrong element.
 - tapOn:
+    id: "business-card"
     index: 0
-    childOf:
-      text: "Directory"
 
 # Detail page should open (has business name + contact icons)
 # Assert we navigated away from the list

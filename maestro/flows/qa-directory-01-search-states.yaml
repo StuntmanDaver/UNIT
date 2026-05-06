@@ -111,10 +111,13 @@ appId: com.unitapp.mobile
 - assertVisible: "Directory"
 
 # ── CASE 7: Tap first business card → detail view ────────────────────────────
+# `text: "Directory"` was the screen heading, not the parent of the card
+# list — childOf would silently match nothing useful, and the tap would
+# land on the heading itself. Use the BusinessCard testID with index: 0
+# to deterministically tap the first card in the list.
 - tapOn:
+    id: "business-card"
     index: 0
-    childOf:
-      text: "Directory"
 - waitForAnimationToEnd
 - assertNotVisible: "Directory"
 
