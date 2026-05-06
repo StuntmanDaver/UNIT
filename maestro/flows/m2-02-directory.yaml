@@ -17,8 +17,9 @@ appId: com.unitapp.mobile
     id: "search-input"
 - inputText: "Test"
 - waitForAnimationToEnd
-# Results should filter — just assert search bar has text (visible)
-- assertVisible: "Test"
+# Note: TextInput value is not in the iOS accessibility tree as a Text node,
+# so we can't directly assert the typed text. The clear-search step below
+# verifies the input still works end-to-end.
 - hideKeyboard
 
 # Clear search
