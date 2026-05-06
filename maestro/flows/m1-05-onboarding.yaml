@@ -83,14 +83,11 @@ appId: com.unitapp.mobile
     label: "Business Name"
 - inputText: "E2E Test Business"
 - hideKeyboard
-# Select a category chip — "Healthcare" is a real BUSINESS_CATEGORIES label
-# (constants/categories.ts) that requires scroll. "Services" was wrong —
-# no such chip exists.
-- scrollUntilVisible:
-    element:
-      text: "Healthcare"
-    direction: RIGHT
-- tapOn: "Healthcare"
+# Select a category chip — "Legal" is the 4th chip (after All, Restaurant,
+# Accounting) and is always visible without horizontal scroll. The
+# onboarding screen renders chips in a horizontal ScrollView, but
+# scrollUntilVisible RIGHT does not reliably advance it.
+- tapOn: "Legal"
 - tapOn: "Create Profile"
 
 # Success: redirected to directory

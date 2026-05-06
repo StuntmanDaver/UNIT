@@ -29,13 +29,10 @@ appId: com.unitapp.mobile
 - hideKeyboard
 
 # Category filter: tap a category chip
-# "Healthcare" is a real BUSINESS_CATEGORIES label (constants/categories.ts)
-# that requires scroll. "Services" was wrong — no such chip exists.
-- scrollUntilVisible:
-    element:
-      text: "Healthcare"
-    direction: RIGHT
-- tapOn: "Healthcare"
+# "Legal" is the 4th chip (after All, Restaurant, Accounting) and is always
+# visible without horizontal scroll. scrollUntilVisible RIGHT does not
+# reliably scroll the horizontal FlatList in CategoryChips.
+- tapOn: "Legal"
 - waitForAnimationToEnd
 
 # Tap "All" to clear filter — CategoryChips shows "All" chip

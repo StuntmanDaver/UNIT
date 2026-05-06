@@ -74,14 +74,12 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # ── CASE 4: Category chip filter ─────────────────────────────────────────────
-# Use "Healthcare" — real BUSINESS_CATEGORIES label that requires horizontal
-# scroll (constants/categories.ts: All, Restaurant, …, Healthcare, Automotive,
-# Other). "Services" was wrong — no such chip exists.
-- scrollUntilVisible:
-    element:
-      text: "Healthcare"
-    direction: RIGHT
-- tapOn: "Healthcare"
+# Use "Legal" — 4th chip in BUSINESS_CATEGORIES (after All, Restaurant,
+# Accounting, Legal). Always visible without horizontal scroll.
+# (scrollUntilVisible RIGHT does not reliably scroll the horizontal FlatList
+# in CategoryChips — Maestro targets the page-level container instead and
+# never reveals chips beyond the initial viewport.)
+- tapOn: "Legal"
 - waitForAnimationToEnd
 # Filtered list or empty state
 
