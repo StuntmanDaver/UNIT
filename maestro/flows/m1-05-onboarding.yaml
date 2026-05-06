@@ -83,12 +83,14 @@ appId: com.unitapp.mobile
     label: "Business Name"
 - inputText: "E2E Test Business"
 - hideKeyboard
-# Select first category chip
+# Select a category chip — "Healthcare" is a real BUSINESS_CATEGORIES label
+# (constants/categories.ts) that requires scroll. "Services" was wrong —
+# no such chip exists.
 - scrollUntilVisible:
     element:
-      text: "Services"
+      text: "Healthcare"
     direction: RIGHT
-- tapOn: "Services"
+- tapOn: "Healthcare"
 - tapOn: "Create Profile"
 
 # Success: redirected to directory

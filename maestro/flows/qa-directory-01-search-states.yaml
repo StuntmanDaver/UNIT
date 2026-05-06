@@ -74,11 +74,14 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # ── CASE 4: Category chip filter ─────────────────────────────────────────────
+# Use "Healthcare" — real BUSINESS_CATEGORIES label that requires horizontal
+# scroll (constants/categories.ts: All, Restaurant, …, Healthcare, Automotive,
+# Other). "Services" was wrong — no such chip exists.
 - scrollUntilVisible:
     element:
-      text: "Services"
+      text: "Healthcare"
     direction: RIGHT
-- tapOn: "Services"
+- tapOn: "Healthcare"
 - waitForAnimationToEnd
 # Filtered list or empty state
 

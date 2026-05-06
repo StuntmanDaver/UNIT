@@ -29,11 +29,13 @@ appId: com.unitapp.mobile
 - hideKeyboard
 
 # Category filter: tap a category chip
+# "Healthcare" is a real BUSINESS_CATEGORIES label (constants/categories.ts)
+# that requires scroll. "Services" was wrong — no such chip exists.
 - scrollUntilVisible:
     element:
-      text: "Services"
+      text: "Healthcare"
     direction: RIGHT
-- tapOn: "Services"
+- tapOn: "Healthcare"
 - waitForAnimationToEnd
 
 # Tap "All" to clear filter — CategoryChips shows "All" chip
