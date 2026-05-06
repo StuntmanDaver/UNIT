@@ -268,6 +268,7 @@ All `testID` props available for Maestro `id:` selectors:
 | `category-chips-list` | `components/ui/CategoryChips.tsx` | qa-directory-01, m2-02 (horizontal swipe anchor) |
 | `onboarding-category-scroll` | `app/(auth)/onboarding.tsx` | m1-05 (horizontal swipe anchor) |
 | `business-card` | `components/tenant/BusinessCard.tsx` | qa-directory-01, m2-03 (business card tap) |
+| `back-btn` | `app/(tabs)/directory/[id].tsx` | qa-directory-01, m2-03 (replaces unreliable `back` action) |
 | `tab-home` | `app/(tabs)/_layout.tsx` | all tenant flows |
 | `tab-directory` | `app/(tabs)/_layout.tsx` | qa-directory-01 |
 | `tab-promotions` | `app/(tabs)/_layout.tsx` | qa-promotions-* |

@@ -61,6 +61,7 @@ export default function BusinessDetailScreen() {
       {/* Dark header */}
       <View className="bg-brand-navy px-4 pt-14 pb-8">
         <Pressable
+          testID="back-btn"
           onPress={() => router.back()}
           className="mb-4 flex-row items-center gap-1.5"
           hitSlop={8}
@@ -115,6 +116,7 @@ export default function BusinessDetailScreen() {
             <View className="gap-3">
               {business.contact_phone && (
                 <Pressable
+                  testID="business-contact-phone"
                   onPress={() => Linking.openURL(`tel:${business.contact_phone}`)}
                   className="flex-row items-center gap-4 p-4"
                 >
@@ -129,6 +131,7 @@ export default function BusinessDetailScreen() {
 
               {business.contact_email && (
                 <Pressable
+                  testID="business-contact-email"
                   onPress={() => Linking.openURL(`mailto:${business.contact_email}`)}
                   className="flex-row items-center gap-4 p-4"
                 >
@@ -143,6 +146,7 @@ export default function BusinessDetailScreen() {
 
               {business.website && (
                 <Pressable
+                  testID="business-contact-website"
                   onPress={() => Linking.openURL(business.website!)}
                   className="flex-row items-center gap-4 p-4"
                 >
@@ -167,6 +171,7 @@ export default function BusinessDetailScreen() {
             getRef={(ref) => { svgRef.current = ref; }}
           />
           <Pressable
+            testID="business-share-qr"
             onPress={handleShare}
             className="mt-4 flex-row items-center gap-2 bg-brand-blue rounded-xl px-5 py-3"
           >

@@ -119,10 +119,19 @@ appId: com.unitapp.mobile
     id: "business-card"
     index: 0
 - waitForAnimationToEnd
-- assertNotVisible: "Directory"
+# Detail screen renders the screen title (business name) — directory heading
+# is no longer visible. Use the in-page Back button (testID: back-btn) to
+# return; Maestro's `back` action uses iOS edge-swipe which is unreliable
+# in the simulator and silently no-ops.
+- assertVisible:
+    id: "back-btn"
 
 # ── Back returns to directory ─────────────────────────────────────────────────
-- back
-- assertVisible: "Directory"
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
+    timeout: 8000
 
 - runFlow: ../subflows/logout.yaml
