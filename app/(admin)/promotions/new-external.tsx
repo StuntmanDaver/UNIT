@@ -26,6 +26,7 @@ import { PropertySelector } from '@/components/admin/PropertySelector';
 import { useAuth } from '@/lib/AuthContext';
 import { storageService } from '@/services/storage';
 import { promotionsService } from '@/services/promotions';
+import { firstParam } from '@/lib/routeParams';
 
 const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -46,11 +47,10 @@ export default function NewExternalPromotionScreen() {
   const { propertyIds, user } = useAuth();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0
-      ? params.propertyId
-      : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -166,6 +166,7 @@ export default function NewExternalPromotionScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
+          testID="back-btn"
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>

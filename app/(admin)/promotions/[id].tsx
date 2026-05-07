@@ -14,6 +14,7 @@ import { useAdminPromotion } from '@/hooks/useAdminPromotions';
 import { promotionsService, type AdminPromotionReviewAction } from '@/services/promotions';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/services/supabase';
+import { firstParam } from '@/lib/routeParams';
 
 /** Render a small inline status pill for any status string */
 function StatusPill({ label }: { label: string }) {
@@ -29,14 +30,15 @@ function StatusPill({ label }: { label: string }) {
 }
 
 export default function AdminPromotionDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = firstParam(params.id) ?? '';
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [actionLoading, setActionLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
   const [anomaly, setAnomaly] = useState<boolean | null>(null);
 
-  const { data: promotion, isLoading } = useAdminPromotion(id);
+  const { data: promotion, isLoading, isError, error, refetch } = useAdminPromotion(id);
 
   useEffect(() => {
     if (promotion?.payment_status === 'paid') {
@@ -44,7 +46,36 @@ export default function AdminPromotionDetailScreen() {
     }
   }, [id, promotion?.payment_status]);
 
-  if (isLoading || !promotion) return <LoadingScreen message="Loading promotion..." />;
+  if (!id) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-400 text-center mb-3">Missing promotion ID</Text>
+        <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
+      </View>
+    );
+  }
+
+  if (isLoading) return <LoadingScreen message="Loading promotion..." />;
+
+  if (isError) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-400 text-center mb-3">
+          {error?.message ?? 'Failed to load promotion'}
+        </Text>
+        <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+      </View>
+    );
+  }
+
+  if (!promotion) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-brand-steel text-center mb-3">Promotion not found</Text>
+        <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
+      </View>
+    );
+  }
 
   const canReview = promotion.review_status === 'pending';
   const canSuspendReinstate =
@@ -127,6 +158,7 @@ export default function AdminPromotionDetailScreen() {
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
+          testID="back-btn"
           onPress={() => router.back()}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}

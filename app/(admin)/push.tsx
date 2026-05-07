@@ -15,6 +15,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { adminService } from '@/services/admin';
 import { useNotifications } from '@/hooks/useNotifications';
 import { BRAND } from '@/constants/colors';
+import { firstParam } from '@/lib/routeParams';
 
 const AUDIENCE_SEGMENTS = ['All Tenants', 'Active Only'] as const;
 type AudienceSegment = (typeof AUDIENCE_SEGMENTS)[number];
@@ -26,8 +27,9 @@ const HISTORY_LIMIT = 20;
 export default function AdminPushScreen() {
   const { user, propertyIds } = useAuth();
   const params = useLocalSearchParams<{ propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
 
   const [title, setTitle] = useState('');
@@ -100,6 +102,7 @@ export default function AdminPushScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
+          testID="back-btn"
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
@@ -131,6 +134,7 @@ export default function AdminPushScreen() {
               </Text>
             </View>
             <Input
+              testID="push-title-input"
               label=""
               value={title}
               onChangeText={handleTitleChange}
@@ -149,6 +153,7 @@ export default function AdminPushScreen() {
               </Text>
             </View>
             <Input
+              testID="push-message-input"
               label=""
               value={message}
               onChangeText={handleMessageChange}

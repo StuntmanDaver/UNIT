@@ -79,12 +79,14 @@ export default function AdminDashboard() {
             <View className="flex-row gap-3">
               <StatCard
                 label="Total Tenants"
+                testID="stat-total-tenants"
                 value={stats?.totalTenants ?? 0}
                 icon={Users}
                 onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'all', propertyId: activePropertyId } })}
               />
               <StatCard
                 label="Active"
+                testID="stat-active"
                 value={stats?.activeAccounts ?? 0}
                 icon={UserCheck}
                 onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'active', propertyId: activePropertyId } })}
@@ -93,12 +95,14 @@ export default function AdminDashboard() {
             <View className="flex-row gap-3">
               <StatCard
                 label="Pending Invites"
+                testID="stat-pending-invites"
                 value={stats?.pendingInvites ?? 0}
                 icon={Clock}
                 onPress={() => router.push({ pathname: '/(admin)/tenants', params: { filter: 'invited', propertyId: activePropertyId } })}
               />
               <StatCard
                 label="Promotions 30d"
+                testID="stat-promotions-30d"
                 value={stats?.activePromotions ?? 0}
                 icon={Megaphone}
                 onPress={() => router.push({ pathname: '/(admin)/advertisers', params: { filter: 'Approved', window: 'recent', propertyId: activePropertyId } })}
@@ -109,7 +113,7 @@ export default function AdminDashboard() {
           {/* Action Buttons */}
           <View className="px-4 mt-4 gap-3">
             <Card
-              onPress={() => router.push({ pathname: '/(admin)/promotions/index', params: { propertyId: activePropertyId } } as Parameters<typeof router.push>[0])}
+              onPress={() => router.push({ pathname: '/(admin)/promotions', params: { propertyId: activePropertyId } } as Parameters<typeof router.push>[0])}
               className="flex-row items-center px-4 py-3.5"
             >
               <Megaphone size={20} color={BRAND.blue} />
@@ -174,6 +178,13 @@ export default function AdminDashboard() {
                 Account & Settings
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card onPress={handleLogout} className="flex-row items-center px-4 py-3.5">
+              <LogOut size={20} color="#EF4444" />
+              <Text className="flex-1 text-base font-nunito-semibold text-red-400 ml-3">
+                Log Out
+              </Text>
             </Card>
           </View>
 

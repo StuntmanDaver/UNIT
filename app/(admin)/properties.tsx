@@ -33,7 +33,7 @@ export default function PropertiesScreen() {
   const [type, setType] = useState('');
   const [totalUnits, setTotalUnits] = useState('');
 
-  const { data: properties, isLoading } = useProperties(propertyIds);
+  const { data: properties, isLoading, isError, error, refetch } = useProperties(propertyIds);
 
   const resetForm = () => {
     setName('');
@@ -121,6 +121,7 @@ export default function PropertiesScreen() {
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
+          testID="back-btn"
           onPress={() => router.back()}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
@@ -137,6 +138,13 @@ export default function PropertiesScreen() {
 
       {isLoading ? (
         <LoadingScreen message="Loading properties..." />
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-base font-nunito text-red-400 text-center mb-3">
+            {error?.message ?? 'Failed to load properties'}
+          </Text>
+          <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+        </View>
       ) : (
         <FlatList
           data={properties ?? []}

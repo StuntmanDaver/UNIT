@@ -8,11 +8,12 @@ type StatCardProps = {
   value: number;
   icon?: LucideIcon;
   onPress?: () => void;
+  testID?: string;
 };
 
-export function StatCard({ label, value, icon: Icon, onPress }: StatCardProps) {
+export function StatCard({ label, value, icon: Icon, onPress, testID }: StatCardProps) {
   return (
-    <Card onPress={onPress} className="p-4 flex-1">
+    <Card onPress={onPress} testID={testID} className="p-4 flex-1">
       <View className="flex-row items-start justify-between">
         <View className="flex-1">
           <Text className="text-2xl font-lora-semibold text-brand-gray">{value}</Text>
