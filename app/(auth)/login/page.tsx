@@ -25,9 +25,26 @@ export default function LoginPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email: data.email, password: data.password });
+    if (error) {
+      setLoading(false);
+      toast.error(error.message);
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    let isAdmin = false;
+    if (user) {
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .eq('role', 'landlord')
+        .maybeSingle();
+      isAdmin = adminProfile?.role === 'landlord';
+    }
+
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    router.push('/dashboard');
+    router.push(isAdmin ? '/admin' : '/dashboard');
     router.refresh();
   };
 

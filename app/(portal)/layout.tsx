@@ -14,6 +14,12 @@ export default async function PortalLayout({ children }: { children: React.React
     .select('*')
     .eq('id', user.id)
     .single() as { data: AdvertiserProfile | null };
+  const { data: adminProfile } = await service
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single() as { data: { role: string } | null };
+  const isAdmin = adminProfile?.role === 'landlord';
 
   return (
     <div className="unit-page">
@@ -24,6 +30,7 @@ export default async function PortalLayout({ children }: { children: React.React
         </Link>
         <div className="flex min-w-0 items-center gap-3 text-sm sm:gap-6">
           <Link href="/dashboard" className="unit-link">Dashboard</Link>
+          {isAdmin && <Link href="/admin" className="unit-link">Admin</Link>}
           <Link href="/settings" className="unit-link">Settings</Link>
           <span className="hidden truncate text-[#5F708A] sm:inline">{profile?.business_name}</span>
         </div>
