@@ -19,6 +19,7 @@ type Props = {
   promotions: AdminPromotion[];
   selectedPropertyId?: string | null;
   selectedSegment?: string | null;
+  recentWindow?: boolean;
   segmentMode?: AdminPromotionSegmentMode;
   detailHref?: (promotion: AdminPromotion) => string;
   newExternalHref?: string | ((propertyId: string) => string);
@@ -81,6 +82,7 @@ export function AdminPromotionsClient({
   promotions,
   selectedPropertyId,
   selectedSegment,
+  recentWindow = false,
   segmentMode = 'overview',
   detailHref = defaultDetailHref,
   newExternalHref,
@@ -104,13 +106,18 @@ export function AdminPromotionsClient({
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set(key, value);
     if (key === 'propertyId') nextParams.set('filter', segments[0]);
+    if (key === 'filter' && value !== 'Approved') nextParams.delete('window');
     router.push(`${pathname}?${nextParams.toString()}`);
   };
 
   const propertyPromotions = activePropertyId
     ? promotions.filter((promotion) => promotion.property_id === activePropertyId)
     : [];
-  const visiblePromotions = filterPromotions(propertyPromotions, activeSegment);
+  const segmentedPromotions = filterPromotions(propertyPromotions, activeSegment);
+  const recentCutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const visiblePromotions = recentWindow && activeSegment === 'Approved'
+    ? segmentedPromotions.filter((promotion) => new Date(promotion.created_at).getTime() >= recentCutoff)
+    : segmentedPromotions;
 
   return (
     <section className="space-y-4">
@@ -160,6 +167,10 @@ export function AdminPromotionsClient({
         ))}
       </div>
 
+      {recentWindow && activeSegment === 'Approved' && (
+        <p className="text-sm font-semibold text-[#465A75]">Showing approved promotions from the last 30 days.</p>
+      )}
+
       {isLoading && <div className="unit-loading">Loading promotions...</div>}
 
       {error && (
@@ -179,6 +190,7 @@ export function AdminPromotionsClient({
           <h2 className="text-base font-bold text-[#101B29]">No promotions</h2>
           <p className="mt-1 text-sm text-[#465A75]">
             No {activeSegment.toLowerCase()} promotions for this property.
+            {recentWindow && activeSegment === 'Approved' ? ' in the last 30 days' : ''}
           </p>
         </div>
       )}

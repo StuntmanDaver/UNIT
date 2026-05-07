@@ -17,7 +17,7 @@ export default async function AdminPromotionsPage({ searchParams }: Props) {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-black">Promotions</h1>
+        <h1 className="text-2xl font-black">All Promotions</h1>
         <p className="mt-1 text-sm text-[#465A75]">Manage all paid, external, and historical promotion records.</p>
       </header>
       <AdminPromotionsClient

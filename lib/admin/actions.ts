@@ -297,14 +297,33 @@ export async function reactivateTenantAction(profileId: string): Promise<void> {
   return setTenantStatusAction(profileId, 'active');
 }
 
-export async function getAdvertiserAccounts(status?: AdvertiserAccount['status'] | 'all'): Promise<AdvertiserAccount[]> {
+export async function getAdvertiserAccounts(status?: AdvertiserAccount['status'] | 'all'): Promise<Array<AdvertiserAccount & { promotion_count: number }>> {
   await requireAdminAction();
   const supabase = createServiceRoleClient();
   let query = supabase.from('advertiser_profiles').select('*').order('created_at', { ascending: false });
   if (status && status !== 'all') query = query.eq('status', status);
   const { data, error } = await query;
   throwIfError(error);
-  return (data ?? []) as AdvertiserAccount[];
+  const accounts = (data ?? []) as AdvertiserAccount[];
+  if (accounts.length === 0) return [];
+
+  const { data: promotions, error: promotionError } = await supabase
+    .from('promotions')
+    .select('advertiser_id')
+    .in('advertiser_id', accounts.map((account) => account.id));
+  throwIfError(promotionError);
+
+  const promotionCounts = new Map<string, number>();
+  for (const promotion of promotions ?? []) {
+    const advertiserId = promotion.advertiser_id as string | null;
+    if (!advertiserId) continue;
+    promotionCounts.set(advertiserId, (promotionCounts.get(advertiserId) ?? 0) + 1);
+  }
+
+  return accounts.map((account) => ({
+    ...account,
+    promotion_count: promotionCounts.get(account.id) ?? 0,
+  }));
 }
 
 export async function setAdvertiserStatusAction(

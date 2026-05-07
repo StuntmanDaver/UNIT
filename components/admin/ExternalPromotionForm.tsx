@@ -112,7 +112,7 @@ export function ExternalPromotionForm({
       if (typeof promotionId === 'string' && promotionId.length > 0) {
         router.push(`/admin/promotions/${promotionId}`);
       } else {
-        router.push('/admin/promotions');
+        router.push(`/admin/promotions?propertyId=${encodeURIComponent(propertyId)}&filter=External`);
       }
       router.refresh();
     } catch (error) {

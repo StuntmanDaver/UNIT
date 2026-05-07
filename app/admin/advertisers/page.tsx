@@ -12,6 +12,7 @@ export default async function AdminAdvertisersPage({ searchParams }: Props) {
   const params = await readAdminSearchParams(searchParams);
   const propertyId = firstSearchParam(params, 'propertyId');
   const filter = firstSearchParam(params, 'filter') ?? 'Pending';
+  const recentWindow = firstSearchParam(params, 'window') === 'recent';
   const data = await getAdminPromotions({ propertyId, segment: filter });
 
   return (
@@ -25,6 +26,7 @@ export default async function AdminAdvertisersPage({ searchParams }: Props) {
         promotions={data.promotions}
         selectedPropertyId={data.selectedPropertyId}
         selectedSegment={filter as never}
+        recentWindow={recentWindow}
         segmentMode="review-status"
         showNewExternalAction={false}
       />

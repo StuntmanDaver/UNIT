@@ -6,6 +6,19 @@ import {
   type AdminPromotion,
 } from '@/components/admin/PromotionReviewPanel'
 
+const refresh = vi.fn()
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ refresh }),
+}))
+
+vi.mock('sonner', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
 function buildPromotion(overrides: Partial<AdminPromotion> = {}): AdminPromotion {
   return {
     id: 'promo-1',

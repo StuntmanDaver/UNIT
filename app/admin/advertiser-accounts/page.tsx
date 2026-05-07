@@ -24,7 +24,7 @@ export default async function AdminAdvertiserAccountsPage({ searchParams }: Prop
 
   return (
     <AdvertiserAccountsClient
-      accounts={accounts.map((account) => ({ ...account, promotion_count: 0 }))}
+      accounts={accounts}
       initialStatus={status}
       actions={{
         approveAdvertiserAccount: approveAdvertiserAccountAction,

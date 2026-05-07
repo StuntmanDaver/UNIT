@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getAdminDashboardData } from '@/lib/admin/actions';
 import { firstSearchParam, readAdminSearchParams, type AdminSearchParams } from '@/lib/admin/search-params';
 
@@ -12,13 +13,16 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
   const params = await readAdminSearchParams(searchParams);
   const propertyId = firstSearchParam(params, 'propertyId');
   const data = await getAdminDashboardData(propertyId);
+  if (!propertyId && data.selectedPropertyId) {
+    redirect(`/admin?propertyId=${encodeURIComponent(data.selectedPropertyId)}`);
+  }
   const selectedProperty = data.properties.find((property) => property.id === data.selectedPropertyId);
 
   const stats = [
     { label: 'Total Tenants', value: data.stats?.totalTenants ?? 0, href: `/admin/tenants?propertyId=${data.selectedPropertyId}` },
     { label: 'Active Accounts', value: data.stats?.activeAccounts ?? 0, href: `/admin/tenants?propertyId=${data.selectedPropertyId}&status=active` },
     { label: 'Pending Invites', value: data.stats?.pendingInvites ?? 0, href: `/admin/tenants?propertyId=${data.selectedPropertyId}&status=invited` },
-    { label: 'Promotions 30d', value: data.stats?.activePromotions ?? 0, href: `/admin/promotions?propertyId=${data.selectedPropertyId}&filter=Approved` },
+    { label: 'Promotions 30d', value: data.stats?.activePromotions ?? 0, href: `/admin/advertisers?propertyId=${data.selectedPropertyId}&filter=Approved&window=recent` },
   ];
 
   return (
@@ -58,6 +62,10 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/advertisers?propertyId=${data.selectedPropertyId}&filter=Pending`}>
           <h2 className="font-black">Promotion Review</h2>
           <p className="mt-1 text-sm text-[#465A75]">Approve, request revisions, require repayment, reject, or refund.</p>
+        </Link>
+        <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/promotions?propertyId=${data.selectedPropertyId}&filter=All`}>
+          <h2 className="font-black">All Promotions</h2>
+          <p className="mt-1 text-sm text-[#465A75]">Browse paid, external, approved, and historical promotion records.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href="/admin/advertiser-accounts?status=pending">
           <h2 className="font-black">Advertiser Accounts</h2>

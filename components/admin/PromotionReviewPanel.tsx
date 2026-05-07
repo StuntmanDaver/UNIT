@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { PaymentStatusBadge, ReviewStatusBadge } from '@/components/StatusBadges';
 import { PromotionPreview } from '@/components/PromotionPreview';
 import type { PaymentStatus, ReviewStatus } from '@/lib/supabase/types';
@@ -78,6 +80,7 @@ export function PromotionReviewPanel({
   onIssueRefund,
   disabled = false,
 }: Props) {
+  const router = useRouter();
   const [noteAction, setNoteAction] = useState<NoteAction | null>(null);
   const [note, setNote] = useState('');
   const [noteError, setNoteError] = useState('');
@@ -115,6 +118,10 @@ export function PromotionReviewPanel({
     setBusy(true);
     try {
       await onReviewAction({ promotionId: promotion.id, action: 'approve' });
+      toast.success('Promotion approved');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not approve promotion');
     } finally {
       setBusy(false);
     }
@@ -132,6 +139,10 @@ export function PromotionReviewPanel({
     try {
       await onReviewAction({ promotionId: promotion.id, action: noteAction, note: trimmedNote });
       closeNoteDialog();
+      toast.success('Promotion updated');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not update promotion');
     } finally {
       setBusy(false);
     }
@@ -145,6 +156,10 @@ export function PromotionReviewPanel({
         promotionId: promotion.id,
         nextStatus: promotion.review_status === 'approved' ? 'suspended' : 'approved',
       });
+      toast.success(promotion.review_status === 'approved' ? 'Promotion suspended' : 'Promotion reinstated');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not update promotion status');
     } finally {
       setBusy(false);
     }
@@ -168,6 +183,10 @@ export function PromotionReviewPanel({
     try {
       await onIssueRefund({ promotionId: promotion.id, reason: trimmedReason });
       closeRefundDialog();
+      toast.success('Refund issued');
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not issue refund');
     } finally {
       setBusy(false);
     }

@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:full": "RUN_FULL_E2E=1 playwright test e2e/admin-full.spec.ts --project=chromium --workers=1",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
