@@ -2,7 +2,8 @@ appId: com.unitapp.mobile
 name: Create Offer Flow
 ---
 - launchApp
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 - tapOn:
     id: "fab-button"

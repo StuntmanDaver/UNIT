@@ -7,7 +7,8 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Navigate to Promotions tab
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 
 # Tap FAB (+) to create

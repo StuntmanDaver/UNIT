@@ -6,6 +6,29 @@ appId: com.unitapp.mobile
 
 - launchApp:
     clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Home tab should be the default landing for tenants
@@ -14,20 +37,21 @@ appId: com.unitapp.mobile
 - takeScreenshot: home-feed-initial
 
 # Scroll down to reveal additional cards
-- scroll:
+- swipe:
     direction: DOWN
     duration: 800
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-scroll-1
 
-- scroll:
+- swipe:
     direction: DOWN
     duration: 800
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-scroll-2
 
-# Tap the Nearby segment (if neighbours exist the feed refreshes)
-- tapOn: "Nearby"
+# Tap the Nearby segment (label is "Nearby (≤ 2 mi)"; use regex to avoid Unicode issues)
+- tapOn:
+    text: "Nearby.*"
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-nearby-segment
 
@@ -36,22 +60,27 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # Verify existing tabs still navigate correctly
-- tapOn: "Directory"
+- tapOn:
+    id: "tab-directory"
 - assertVisible: "Directory"
 - waitForAnimationToEnd
 
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 - waitForAnimationToEnd
 
-- tapOn: "Community"
+- tapOn:
+    id: "tab-community"
 - assertVisible: "Community"
 - waitForAnimationToEnd
 
-- tapOn: "Alerts"
+- tapOn:
+    id: "tab-alerts"
 - waitForAnimationToEnd
 
-- tapOn: "Home"
+- tapOn:
+    id: "tab-home"
 - assertVisible: "Home"
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-return

@@ -7,7 +7,8 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Navigate to Profile tab
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 
 # Spinner fix check: profile should load (not spin indefinitely)
 # The useCurrentUser hook now has a 10s timeout — if it hits, "No business profile yet" appears
@@ -41,7 +42,8 @@ appId: com.unitapp.mobile
     timeout: 8000
 
 # Values persist on re-open
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 - assertVisible: "Updated Business Name"
 
 # Cleanup: log out
