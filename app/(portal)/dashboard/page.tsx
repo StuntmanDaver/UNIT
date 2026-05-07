@@ -5,6 +5,7 @@ import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supab
 import { redirect } from 'next/navigation';
 import { ReviewStatusBadge, PaymentStatusBadge } from '@/components/StatusBadges';
 import type { Promotion, AdvertiserProfile } from '@/lib/supabase/types';
+import { getReviewHref } from '@/lib/promotion-display';
 
 async function getAdvertiserData(userId: string) {
   const supabase = createServiceRoleClient();
@@ -105,7 +106,7 @@ export default async function DashboardPage() {
           {promotions.map((promo) => {
             const needsPayment = promo.review_status === 'draft' && promo.payment_status === 'unpaid';
             const href = needsPayment
-              ? `/promotions/new/review?id=${promo.id}`
+              ? getReviewHref(promo.id)
               : `/promotions/${promo.id}`;
             return (
               <Link
@@ -114,13 +115,27 @@ export default async function DashboardPage() {
                 className="block bg-white rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-semibold text-gray-900">{promo.headline}</p>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {promo.start_date} → {promo.end_date}
-                    </p>
+                  <div className="flex min-w-0 gap-3">
+                    {promo.image_url && (
+                      <div
+                        aria-label="Promotion thumbnail"
+                        className="h-14 w-20 shrink-0 rounded-lg border border-gray-200 bg-gray-100 bg-cover bg-center"
+                        style={{ backgroundImage: `url(${promo.image_url})` }}
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-gray-900">{promo.headline}</p>
+                      <p className="text-sm text-gray-500 mt-0.5">
+                        {promo.start_date} → {promo.end_date}
+                      </p>
+                      {(promo.cta_text || promo.cta_link) && (
+                        <p className="mt-1 truncate text-xs text-blue-700">
+                          CTA: {promo.cta_text || promo.cta_link}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex shrink-0 gap-2">
                     <ReviewStatusBadge status={promo.review_status} />
                     <PaymentStatusBadge status={promo.payment_status} />
                   </div>

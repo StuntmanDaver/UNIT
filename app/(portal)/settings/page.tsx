@@ -27,7 +27,7 @@ export default function SettingsPage() {
       setProfile(p as AdvertiserProfile);
       reset({ businessName: p.business_name, contactEmail: p.contact_email });
     });
-  }, []);
+  }, [reset]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
@@ -48,14 +48,14 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm p-6 space-y-5 max-w-lg">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Business name</label>
-          <input {...register('businessName')}
+          <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">Business name</label>
+          <input id="businessName" {...register('businessName')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           {errors.businessName && <p className="text-xs text-red-500 mt-1">{errors.businessName.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Contact email</label>
-          <input {...register('contactEmail')} type="email"
+          <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-1">Contact email</label>
+          <input id="contactEmail" {...register('contactEmail')} type="email"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           {errors.contactEmail && <p className="text-xs text-red-500 mt-1">{errors.contactEmail.message}</p>}
         </div>

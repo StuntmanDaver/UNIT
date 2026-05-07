@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { PromotionMediaField } from '@/components/PromotionMediaField';
+import { normalizeOptionalFormValue, validateCtaPair } from '@/components/promotionForm';
 import type { Promotion } from '@/lib/supabase/types';
 import { getPromotion, updatePromotion } from '@/app/(portal)/promotions/actions';
 
@@ -13,6 +15,25 @@ const schema = z.object({
   description: z.string().optional(),
   startDate: z.string().min(1),
   endDate: z.string().min(1),
+  ctaText: z.string().optional(),
+  ctaLink: z.string().optional(),
+}).superRefine((d, ctx) => {
+  if (d.endDate <= d.startDate) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'End date must be after start date',
+      path: ['endDate'],
+    });
+  }
+
+  const ctaError = validateCtaPair(d);
+  if (ctaError) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: ctaError.message,
+      path: [ctaError.field],
+    });
+  }
 });
 type FormData = z.infer<typeof schema>;
 
@@ -21,9 +42,15 @@ export default function EditPromotionPage() {
   const router = useRouter();
   const [promotion, setPromotion] = useState<Promotion | null>(null);
   const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      ctaText: '',
+      ctaLink: '',
+    },
   });
 
   useEffect(() => {
@@ -34,25 +61,37 @@ export default function EditPromotionPage() {
         router.replace(`/promotions/${id}`);
         return;
       }
+      setImageUrl(p.image_url ?? null);
       reset({
         headline: p.headline,
         description: p.description ?? '',
         startDate: p.start_date ?? '',
         endDate: p.end_date ?? '',
+        ctaText: p.cta_text ?? '',
+        ctaLink: p.cta_link ?? '',
       });
     });
-  }, [id]);
+  }, [id, reset, router]);
 
   const onSubmit = async (data: FormData) => {
     if (!promotion) return;
+    if (imageUploading) {
+      toast.error('Wait for the image upload to finish before saving.');
+      return;
+    }
+
     setLoading(true);
     try {
-      await updatePromotion(id, {
+      const promotionUpdates = {
         headline: data.headline,
-        description: data.description,
+        description: normalizeOptionalFormValue(data.description) ?? undefined,
         startDate: data.startDate,
         endDate: data.endDate,
-      });
+        imageUrl,
+        ctaText: normalizeOptionalFormValue(data.ctaText),
+        ctaLink: normalizeOptionalFormValue(data.ctaLink),
+      };
+      await updatePromotion(id, promotionUpdates);
     } catch {
       toast.error('Failed to save changes');
       setLoading(false);
@@ -98,25 +137,47 @@ export default function EditPromotionPage() {
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
-          <input {...register('headline')}
+          <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
+          <input id="headline" {...register('headline')}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline.message}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-          <textarea {...register('description')} rows={3}
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea id="description" {...register('description')} rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        </div>
+        <PromotionMediaField
+          imageUrl={imageUrl}
+          onChange={setImageUrl}
+          disabled={loading}
+          onUploadingChange={setImageUploading}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="ctaText" className="block text-sm font-medium text-gray-700 mb-1">CTA text</label>
+            <input id="ctaText" {...register('ctaText')}
+              placeholder="Book now"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            {errors.ctaText && <p className="text-xs text-red-500 mt-1">{errors.ctaText.message}</p>}
+          </div>
+          <div>
+            <label htmlFor="ctaLink" className="block text-sm font-medium text-gray-700 mb-1">CTA URL</label>
+            <input id="ctaLink" {...register('ctaLink')}
+              placeholder="https://example.com"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            {errors.ctaLink && <p className="text-xs text-red-500 mt-1">{errors.ctaLink.message}</p>}
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
-            <input {...register('startDate')} type="date"
+            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+            <input id="startDate" {...register('startDate')} type="date"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">End date</label>
-            <input {...register('endDate')} type="date"
+            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+            <input id="endDate" {...register('endDate')} type="date"
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           </div>
         </div>
@@ -125,9 +186,9 @@ export default function EditPromotionPage() {
             className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm font-semibold hover:bg-gray-50">
             Cancel
           </button>
-          <button type="submit" disabled={loading}
+          <button type="submit" disabled={loading || imageUploading}
             className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-            {loading ? 'Saving...' : needsRepayment ? 'Save & Continue to Payment' : 'Save & Resubmit for Review'}
+            {loading ? 'Saving...' : imageUploading ? 'Uploading image...' : needsRepayment ? 'Save & Continue to Payment' : 'Save & Resubmit for Review'}
           </button>
         </div>
       </form>

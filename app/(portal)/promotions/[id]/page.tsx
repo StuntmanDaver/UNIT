@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { ReviewStatusBadge, PaymentStatusBadge } from '@/components/StatusBadges';
 import { PromotionCTA } from '@/components/PromotionCTA';
+import { PromotionPreview } from '@/components/PromotionPreview';
 import { AnalyticsChart } from '@/components/AnalyticsChartWrapper';
 import type { Promotion, AdAnalyticsRow } from '@/lib/supabase/types';
 
@@ -94,8 +95,9 @@ export default async function PromotionDetailPage({
 
       {/* Details */}
       <div className="bg-white rounded-2xl shadow-sm p-5 mb-5">
+        <PromotionPreview promotion={promotion} />
         {promotion.description && (
-          <p className="text-sm text-gray-700 mb-3">{promotion.description}</p>
+          <p className="mt-4 text-sm text-gray-700 mb-3">{promotion.description}</p>
         )}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>

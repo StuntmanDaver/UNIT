@@ -1,4 +1,8 @@
 'use server';
+import {
+  normalizeAdvertiserPromotionFields,
+  type AdvertiserPromotionFieldsInput,
+} from '@/lib/promotions/fields';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 
 export async function getProperties() {
@@ -7,18 +11,15 @@ export async function getProperties() {
   return (data ?? []) as { id: string; name: string }[];
 }
 
-export async function createPromotion(data: {
+export async function createPromotion(data: AdvertiserPromotionFieldsInput & {
   propertyId: string;
-  headline: string;
-  description?: string;
-  startDate: string;
-  endDate: string;
 }) {
   const auth = await createServerSupabaseClient();
   const { data: { user } } = await auth.auth.getUser();
   if (!user) throw new Error('Not authenticated');
 
   const supabase = createServiceRoleClient();
+  const fields = normalizeAdvertiserPromotionFields(data);
 
   const { data: profile } = await supabase
     .from('advertiser_profiles')
@@ -33,11 +34,8 @@ export async function createPromotion(data: {
     .insert({
       advertiser_id: user.id,
       business_name: profile.business_name,
-      property_id: data.propertyId,
-      headline: data.headline,
-      description: data.description ?? null,
-      start_date: data.startDate,
-      end_date: data.endDate,
+      property_id: data.propertyId.trim(),
+      ...fields,
       review_status: 'draft',
       payment_status: 'unpaid',
     })

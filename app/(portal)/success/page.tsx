@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import Stripe from 'stripe';
-import { createServiceRoleClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-03-25.dahlia' });
 
@@ -30,6 +30,12 @@ export default async function SuccessPage({
   let confirmed = false;
   let promotionId: string | null = null;
 
+  const authClient = await createServerSupabaseClient();
+  const { data: { user } } = await authClient.auth.getUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   try {
     const session = await stripe.checkout.sessions.retrieve(session_id, {
       expand: ['payment_intent'],
@@ -45,6 +51,7 @@ export default async function SuccessPage({
           .from('promotions')
           .select('review_status, payment_status')
           .eq('id', promotionId)
+          .eq('advertiser_id', user.id)
           .single();
 
         if (currentPromo && currentPromo.payment_status !== 'paid') {
@@ -60,7 +67,8 @@ export default async function SuccessPage({
               review_status: 'pending',
               current_payment_intent_id: paymentIntentId,
             })
-            .eq('id', promotionId);
+            .eq('id', promotionId)
+            .eq('advertiser_id', user.id);
 
           await supabase
             .from('promotion_payment_attempts')
@@ -80,17 +88,9 @@ export default async function SuccessPage({
             actor_user_id: null,
             note: 'Reconciled by success page fallback',
           });
-
-          console.log(
-            `[success] reconciled promotion ${promotionId} via Stripe session ${session.id}`
-          );
-        } else if (currentPromo) {
-          console.log(
-            `[success] promotion ${promotionId} already paid — webhook beat the success page for Stripe session ${session.id}`
-          );
         }
 
-        confirmed = true;
+        confirmed = Boolean(currentPromo);
       }
     }
   } catch (err) {

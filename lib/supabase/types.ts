@@ -13,6 +13,18 @@ export type ReviewStatus =
 
 export type PaymentStatus = 'unpaid' | 'paid' | 'repayment_required' | 'refunded' | null;
 
+export type PromotionPaymentAttemptType = 'initial' | 'repayment';
+
+export type PromotionPriceTier = {
+  id: string;
+  name: string;
+  duration_days: number;
+  is_featured: boolean;
+  price_cents: number;
+  currency: string;
+  is_active: boolean;
+};
+
 export type Promotion = {
   id: string;
   property_id: string;

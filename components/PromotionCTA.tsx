@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import type { Promotion } from '@/lib/supabase/types';
+import { getReviewHref } from '@/lib/promotion-display';
 
 type Props = { promotion: Promotion };
 
@@ -35,22 +36,6 @@ export function PromotionCTA({ promotion }: Props) {
     }
   };
 
-  const handleRepaymentCheckout = async () => {
-    setLoading(true);
-    const res = await fetch('/api/checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ promotionId: id, attemptType: 'repayment' }),
-    });
-    if (res.ok) {
-      const { url } = await res.json();
-      window.location.href = url;
-    } else {
-      toast.error('Unable to start checkout');
-      setLoading(false);
-    }
-  };
-
   if (review_status === 'pending') {
     return <p className="text-sm text-gray-500 italic">Awaiting admin review</p>;
   }
@@ -76,15 +61,15 @@ export function PromotionCTA({ promotion }: Props) {
   }
   if (review_status === 'revision_requested' && payment_status === 'repayment_required') {
     return (
-      <button onClick={handleRepaymentCheckout} disabled={loading}
+      <button onClick={() => router.push(getReviewHref(id, { repayment: true }))} disabled={loading}
         className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 disabled:opacity-50">
-        {loading ? 'Loading...' : 'Edit & Pay $49.99 to Resubmit'}
+        Choose a plan to resubmit
       </button>
     );
   }
   if (review_status === 'draft' && payment_status === 'unpaid') {
     return (
-      <button onClick={() => router.push(`/promotions/new/review?id=${id}`)} disabled={loading}
+      <button onClick={() => router.push(getReviewHref(id))} disabled={loading}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
         Pay & Submit →
       </button>
