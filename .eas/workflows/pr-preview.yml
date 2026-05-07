@@ -11,7 +11,7 @@ jobs:
     type: build
     params:
       platform: ios
-      profile: preview
+      profile: preview-simulator
 
   build_preview_android:
     name: Internal Preview Build (Android)
