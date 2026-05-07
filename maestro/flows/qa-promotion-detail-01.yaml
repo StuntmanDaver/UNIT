@@ -84,7 +84,7 @@ appId: com.unitapp.mobile
     id: "back-btn"
 - extendedWaitUntil:
     visible:
-      text: "My Property"
+      text: "Promotions"
     timeout: 8000
 
 - runFlow: ../subflows/logout.yaml
