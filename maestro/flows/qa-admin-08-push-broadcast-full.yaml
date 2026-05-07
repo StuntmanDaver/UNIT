@@ -76,7 +76,8 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "push-message-input"
 - inputText: "This is a test broadcast from Maestro E2E."
-- hideKeyboard
+- tapOn: "done"
+- waitForAnimationToEnd
 
 # ── CASE 5: Audience segment ─────────────────────────────────────────────────
 - tapOn: "All Tenants"
@@ -114,8 +115,10 @@ appId: com.unitapp.mobile
     visible:
       text: "Notification Sent"
     timeout: 10000
-# Form clears after send
-- assertNotVisible: "QA Test Notification"
+# Form clears after send. The broadcast title can also appear in Sent History, so
+# assert the compose placeholders instead of global title absence.
+- assertVisible: "e.g. Building Update"
+- assertVisible: "Write your message here..."
 
 # ── CASE 9: Sent History now shows the broadcast ─────────────────────────────
 - scrollUntilVisible:
@@ -133,7 +136,10 @@ appId: com.unitapp.mobile
     timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

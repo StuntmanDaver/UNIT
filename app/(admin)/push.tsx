@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Bell, Send, ChevronLeft } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { formatDistanceToNow } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -26,6 +27,7 @@ const HISTORY_LIMIT = 20;
 
 export default function AdminPushScreen() {
   const { user, propertyIds } = useAuth();
+  const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ propertyId?: string }>();
   const initialPropertyId = firstParam(params.propertyId);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
@@ -38,10 +40,10 @@ export default function AdminPushScreen() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const userEmail = user?.email ?? '';
+  const userId = user?.id ?? '';
   const activePropertyId = selectedPropertyId ?? '';
 
-  const { data: notifications } = useNotifications(userEmail, activePropertyId);
+  const { data: notifications } = useNotifications(userId, activePropertyId);
 
   const broadcastHistory = (notifications ?? [])
     .filter((n) => n.type === 'broadcast')
@@ -75,6 +77,7 @@ export default function AdminPushScreen() {
         audience: audience === 'All Tenants' ? 'all' : 'active',
         data: { type: 'broadcast' },
       });
+      await queryClient.invalidateQueries({ queryKey: ['notifications', userId, activePropertyId] });
       Toast.show({
         type: 'success',
         text1: 'Notification Sent',
@@ -161,6 +164,8 @@ export default function AdminPushScreen() {
               multiline
               numberOfLines={4}
               maxLength={MESSAGE_MAX}
+              returnKeyType="done"
+              blurOnSubmit
               style={{ minHeight: 96, textAlignVertical: 'top' }}
             />
           </View>
