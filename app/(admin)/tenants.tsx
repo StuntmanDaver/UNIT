@@ -272,6 +272,7 @@ export default function TenantsScreen() {
       >
         <View className="gap-1 pb-2">
           <Input
+            testID="tenant-invite-email"
             label="Email *"
             value={email}
             onChangeText={setEmail}
@@ -280,12 +281,14 @@ export default function TenantsScreen() {
             autoCapitalize="none"
           />
           <Input
+            testID="tenant-invite-business-name"
             label="Business Name *"
             value={businessName}
             onChangeText={setBusinessName}
             placeholder="Acme Corp"
           />
           <Input
+            testID="tenant-invite-category"
             label="Category"
             value={category}
             onChangeText={setCategory}

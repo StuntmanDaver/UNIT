@@ -44,6 +44,7 @@ export default function PromotionDetailScreen() {
     >
       <GradientHeader>
         <Pressable
+          testID="back-btn"
           onPress={() => router.back()}
           className="flex-row items-center gap-1.5 mb-3"
           hitSlop={8}

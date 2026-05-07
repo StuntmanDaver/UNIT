@@ -60,10 +60,12 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "btn-add-price-tier"
 - waitForAnimationToEnd
-- assertVisible: "Add Tier"
+- assertVisible:
+    id: "modal-title"
 - assertVisible:
     id: "pricing-tier-name"
-- tapOn: "Cancel"
+- tapOn:
+    id: "modal-action-cancel"
 
 # Logout
 - tapOn:

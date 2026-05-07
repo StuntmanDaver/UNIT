@@ -63,19 +63,21 @@ appId: com.unitapp.mobile
       text: "My Property"
     timeout: 8000
 
-# Tap first feed card at center
+# Tap the first promotion feed card with a route-capable stable ID. The feed can
+# contain non-pressable announcements above promotions.
+- scrollUntilVisible:
+    element:
+      id: "activity-feed-card-promotion"
+    direction: DOWN
 - tapOn:
+    id: "activity-feed-card-promotion"
     index: 0
-    point: "50%,55%"
 - waitForAnimationToEnd
 
 # ── CASE 2: Detail screen renders ─────────────────────────────────────────────
-# Check for back button availability (promotion detail has a back Pressable)
-- runFlow:
-    when:
-      visible: "Promotions"
-    commands:
-      - assertVisible: "Promotions"
+# Check for back button availability (promotion detail has a back Pressable).
+- assertVisible:
+    id: "back-btn"
 
 # ── CASE 3: Back navigation ───────────────────────────────────────────────────
 - tapOn:

@@ -178,24 +178,28 @@ export default function PropertiesScreen() {
       >
         <View className="gap-1 pb-2">
           <Input
+            testID="property-name"
             label="Property Name *"
             value={name}
             onChangeText={setName}
             placeholder="Riverfront Plaza"
           />
           <Input
+            testID="property-address"
             label="Address *"
             value={address}
             onChangeText={setAddress}
             placeholder="123 Main St"
           />
           <Input
+            testID="property-city"
             label="City *"
             value={city}
             onChangeText={setCity}
             placeholder="San Francisco"
           />
           <Input
+            testID="property-state"
             label="State *"
             value={state}
             onChangeText={setState}
@@ -204,6 +208,7 @@ export default function PropertiesScreen() {
             maxLength={2}
           />
           <Input
+            testID="property-type"
             label="Type"
             value={type}
             onChangeText={setType}
@@ -211,6 +216,7 @@ export default function PropertiesScreen() {
             autoCapitalize="none"
           />
           <Input
+            testID="property-total-units"
             label="Total Units"
             value={totalUnits}
             onChangeText={setTotalUnits}

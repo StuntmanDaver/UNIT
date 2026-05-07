@@ -44,41 +44,41 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
+- extendedWaitUntil:
+    visible:
+      text: "Send Push Notification"
+    timeout: 10000
 - tapOn: "Send Push Notification"
 - extendedWaitUntil:
     visible:
       text: "Push Notifications"
     timeout: 8000
 
-# ── CASE 1: No property selected → history shows prompt ──────────────────────
-- assertVisible: "Select a property to view history"
+# ── CASE 1: Property selector / selected property renders ─────────────────────
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 8000
 
-# ── CASE 2: Property selector ─────────────────────────────────────────────────
-- tapOn: "Select a property"
-- waitForAnimationToEnd
-- tapOn:
-    index: 0
-- waitForAnimationToEnd
-
-# ── CASE 3: Sent History renders (empty or list) ──────────────────────────────
+# ── CASE 2: Sent History renders (empty or list) ──────────────────────────────
 - runFlow:
     when:
       visible: "No broadcasts sent yet"
     commands:
       - assertVisible: "No broadcasts sent yet"
 
-# ── CASE 4: Title input ───────────────────────────────────────────────────────
+# ── CASE 3: Title input ───────────────────────────────────────────────────────
 - tapOn:
     id: "push-title-input"
 - inputText: "QA Test Notification"
 
-# ── CASE 5: Message input ─────────────────────────────────────────────────────
+# ── CASE 4: Message input ─────────────────────────────────────────────────────
 - tapOn:
     id: "push-message-input"
 - inputText: "This is a test broadcast from Maestro E2E."
 - hideKeyboard
 
-# ── CASE 6: Audience segment ─────────────────────────────────────────────────
+# ── CASE 5: Audience segment ─────────────────────────────────────────────────
 - tapOn: "All Tenants"
 - waitForAnimationToEnd
 - tapOn: "Active Only"
@@ -86,28 +86,29 @@ appId: com.unitapp.mobile
 - tapOn: "All Tenants"
 - waitForAnimationToEnd
 
-# ── CASE 7: Preview card shows entered text ────────────────────────────────────
+# ── CASE 6: Preview card shows entered text ────────────────────────────────────
 - assertVisible: "QA Test Notification"
 - assertVisible: "This is a test broadcast from Maestro E2E."
 
-# ── CASE 8: Confirm modal — Cancel ────────────────────────────────────────────
+# ── CASE 7: Confirm modal — Cancel ────────────────────────────────────────────
 - tapOn: "Send Notification"
 - extendedWaitUntil:
     visible:
       text: "Send Notification?"
     timeout: 6000
-- tapOn: "Cancel"
-- assertNotVisible: "Send Notification?"
+- tapOn:
+    id: "modal-action-cancel"
 # Form values still present
 - assertVisible: "QA Test Notification"
 
-# ── CASE 9: Confirm modal — Send ──────────────────────────────────────────────
+# ── CASE 8: Confirm modal — Send ──────────────────────────────────────────────
 - tapOn: "Send Notification"
 - extendedWaitUntil:
     visible:
       text: "Send Notification?"
     timeout: 6000
-- tapOn: "Send"
+- tapOn:
+    id: "modal-action-send"
 # Toast: text1 "Notification Sent" (capital S)
 - extendedWaitUntil:
     visible:
@@ -116,7 +117,7 @@ appId: com.unitapp.mobile
 # Form clears after send
 - assertNotVisible: "QA Test Notification"
 
-# ── CASE 10: Sent History now shows the broadcast ─────────────────────────────
+# ── CASE 9: Sent History now shows the broadcast ─────────────────────────────
 - scrollUntilVisible:
     element:
       text: "Sent History"

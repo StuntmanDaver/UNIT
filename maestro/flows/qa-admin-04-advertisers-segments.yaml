@@ -40,10 +40,18 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
-# Select property first
-- tapOn: "Select a property"
+# Select property first. The selector auto-selects the first property after
+# loading; for multi-property admins, use the stable selector IDs instead of
+# stale placeholder copy.
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 10000
+- tapOn:
+    id: "property-selector"
 - waitForAnimationToEnd
 - tapOn:
+    id: "property-selector-option"
     index: 0
 - waitForAnimationToEnd
 
@@ -98,7 +106,8 @@ appId: com.unitapp.mobile
     timeout: 8000
 
 # Verify "30-day" hint path via stat card "Promotions 30d" (actual label in source)
-- tapOn: "Promotions 30d"
+- tapOn:
+    id: "stat-promotions-30d"
 - extendedWaitUntil:
     visible:
       text: "Approved"
@@ -120,7 +129,9 @@ appId: com.unitapp.mobile
 # Log out
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

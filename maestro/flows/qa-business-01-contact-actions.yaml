@@ -40,7 +40,10 @@ appId: com.unitapp.mobile
 
 - tapOn:
     id: "tab-directory"
-- assertVisible: "Directory"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
+    timeout: 8000
 - extendedWaitUntil:
     notVisible:
       text: "Loading directory..."
@@ -49,11 +52,11 @@ appId: com.unitapp.mobile
 
 # Open first business detail
 - tapOn:
+    id: "business-card"
     index: 0
-    childOf:
-      text: "Directory"
 - waitForAnimationToEnd
-- assertNotVisible: "Directory"
+- assertVisible:
+    id: "back-btn"
 
 # ── CASE 1: Business info renders ────────────────────────────────────────────
 # Name and at least one contact detail should be visible

@@ -11,9 +11,9 @@ appId: com.unitapp.mobile
 #   - Reinstate (after suspension) → toast "Status updated"
 #
 # Status pill renders DB values title-cased:
-#   approved → "Approved", allow_revision → "Allow Revision",
-#   require_repayment → "Require Repayment", rejected → "Rejected",
-#   suspended → "Suspended"
+#   approved → "Approved", allow_revision → "Revision Requested",
+#   require_repayment → "Revision Requested" + "Repayment Required",
+#   rejected → "Rejected", suspended → "Suspended"
 #
 # PREREQUISITE (critical):
 #   - At least 4 promotions in PENDING status for the test property before running.
@@ -96,11 +96,15 @@ appId: com.unitapp.mobile
       text: "Allow Revision"
     timeout: 8000
 - tapOn: "Allow Revision"
-- assertVisible: "Allow Revision"
+- assertVisible:
+    id: "modal-title"
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please revise the image and resubmit."
-- tapOn: "Confirm"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn:
+    id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
@@ -108,7 +112,7 @@ appId: com.unitapp.mobile
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
-      text: "Allow Revision"
+      text: "Revision Requested"
     timeout: 10000
 - tapOn:
     id: "back-btn"
@@ -123,11 +127,15 @@ appId: com.unitapp.mobile
       text: "Require Repayment"
     timeout: 8000
 - tapOn: "Require Repayment"
-- assertVisible: "Require Repayment"
+- assertVisible:
+    id: "modal-title"
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please repay after the placement update."
-- tapOn: "Confirm"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn:
+    id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
@@ -135,7 +143,11 @@ appId: com.unitapp.mobile
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
-      text: "Require Repayment"
+      text: "Revision Requested"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      text: "Repayment Required"
     timeout: 10000
 - tapOn:
     id: "back-btn"
@@ -150,11 +162,15 @@ appId: com.unitapp.mobile
       text: "Reject"
     timeout: 8000
 - tapOn: "Reject"
-- assertVisible: "Reject Promotion"
+- assertVisible:
+    id: "modal-title"
 - tapOn:
     id: "promotion-review-note"
 - inputText: "This promotion does not meet property guidelines."
-- tapOn: "Confirm"
+- hideKeyboard
+- waitForAnimationToEnd
+- tapOn:
+    id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"

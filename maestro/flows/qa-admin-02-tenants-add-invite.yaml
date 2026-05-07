@@ -42,18 +42,21 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
+- extendedWaitUntil:
+    visible:
+      text: "Manage Tenants"
+    timeout: 10000
 - tapOn: "Manage Tenants"
 - extendedWaitUntil:
     visible:
       text: "Tenants"
     timeout: 8000
 
-# ── CASE 1: Property selector ─────────────────────────────────────────────────
-- tapOn: "Select a property"
-- waitForAnimationToEnd
-- tapOn:
-    index: 0
-- waitForAnimationToEnd
+# ── CASE 1: Property selector / selected property renders ─────────────────────
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 8000
 - extendedWaitUntil:
     notVisible:
       text: "Loading tenants..."
@@ -94,19 +97,19 @@ appId: com.unitapp.mobile
       text: "Send Invite"
     timeout: 6000
 - tapOn:
-    label: "Email *"
+    id: "tenant-invite-email"
 - inputText: "qa-invite-test@mailinator.com"
 - tapOn:
-    label: "Business Name *"
+    id: "tenant-invite-business-name"
 - inputText: "QA Test Business"
 - tapOn:
-    label: "Category"
+    id: "tenant-invite-category"
 - inputText: "technology"
 - hideKeyboard
 - tapOn: "Send Invite"
 - extendedWaitUntil:
     visible:
-      text: "Tenant invited successfully"
+      text: "QA Test Business"
     timeout: 10000
 
 # ── CASE 6: Status toggle — tap active tenant to disable ──────────────────────
@@ -118,6 +121,7 @@ appId: com.unitapp.mobile
       notVisible: "No tenants found"
     commands:
       - tapOn:
+          id: "tenant-row"
           index: 0
       - waitForAnimationToEnd
       # Toast or confirmation may appear

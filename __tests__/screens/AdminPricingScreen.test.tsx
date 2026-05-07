@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AdminPricingScreen from '@/app/(admin)/pricing';
 
@@ -65,5 +65,24 @@ describe('AdminPricingScreen', () => {
     expect(screen.getByTestId('pricing-tier-card-7-day-standard')).toBeTruthy();
     expect(screen.getByTestId('pricing-tier-edit-7-day-standard')).toBeTruthy();
     expect(screen.getByTestId('pricing-tier-deactivate-7-day-standard')).toBeTruthy();
+  });
+
+  it('opens add-tier overlay with stable modal selectors', () => {
+    render(
+      <SafeAreaProvider
+        initialMetrics={{
+          frame: { x: 0, y: 0, width: 390, height: 844 },
+          insets: { top: 44, right: 0, bottom: 34, left: 0 },
+        }}
+      >
+        <AdminPricingScreen />
+      </SafeAreaProvider>
+    );
+
+    fireEvent.press(screen.getByTestId('btn-add-price-tier'));
+
+    expect(screen.getByTestId('modal-title')).toHaveTextContent('Add Tier');
+    expect(screen.getByTestId('pricing-tier-name')).toBeTruthy();
+    expect(screen.getByTestId('modal-action-cancel')).toBeTruthy();
   });
 });

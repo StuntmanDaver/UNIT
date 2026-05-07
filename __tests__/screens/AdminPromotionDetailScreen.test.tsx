@@ -88,4 +88,22 @@ describe('AdminPromotionDetailScreen', () => {
       expect(screen.getByTestId('review-action-feedback')).toHaveTextContent('Action applied');
     });
   });
+
+  it('submits note-based review actions from the modal footer', async () => {
+    renderScreen();
+
+    fireEvent.press(screen.getByText('Allow Revision'));
+    fireEvent.changeText(screen.getByTestId('promotion-review-note'), 'Please revise and resubmit.');
+    fireEvent.press(screen.getByTestId('promotion-review-confirm'));
+
+    await waitFor(() => {
+      expect(promotionsService.applyReviewAction).toHaveBeenCalledWith(
+        'promo-1',
+        'admin-1',
+        expect.objectContaining({ headline: 'Lobby Lunch Special' }),
+        { action: 'allow_revision', note: 'Please revise and resubmit.' }
+      );
+      expect(screen.getByTestId('review-action-feedback')).toHaveTextContent('Action applied');
+    });
+  });
 });

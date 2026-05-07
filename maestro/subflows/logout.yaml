@@ -5,7 +5,19 @@ appId: com.unitapp.mobile
 # Postcondition: app is on login screen
 - tapOn:
     id: "tab-profile"
-- assertVisible: "Log Out"
+- runFlow:
+    when:
+      notVisible: "Profile"
+    commands:
+      - tapOn: "Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Profile"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "Log Out"
+    timeout: 8000
 - tapOn: "Log Out"
 # Confirm the alert. Use index: 1 — the profile-page 'Log Out' button occupies
 # index 0 in the accessibility tree even behind the modal, so index: 1 targets

@@ -43,12 +43,22 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
-- tapOn: "Select a property"
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 10000
+- tapOn:
+    id: "property-selector"
 - waitForAnimationToEnd
 - tapOn:
+    id: "property-selector-option"
     index: 0
 - waitForAnimationToEnd
 
+- extendedWaitUntil:
+    visible:
+      text: "Manage Promotions"
+    timeout: 10000
 - tapOn: "Manage Promotions"
 - extendedWaitUntil:
     visible:
@@ -57,17 +67,18 @@ appId: com.unitapp.mobile
 
 # ── CASE 1: Cancel new external promo ────────────────────────────────────────
 - tapOn:
-    label: "New External Promotion"
+    id: "new-external-promotion-btn"
 - extendedWaitUntil:
     visible:
       text: "New External Promotion"
     timeout: 8000
-- tapOn: "Cancel"
+- tapOn:
+    id: "back-btn"
 - assertVisible: "All"
 
 # ── CASE 2: Full form submit ──────────────────────────────────────────────────
 - tapOn:
-    label: "New External Promotion"
+    id: "new-external-promotion-btn"
 - extendedWaitUntil:
     visible:
       text: "New External Promotion"
@@ -76,36 +87,40 @@ appId: com.unitapp.mobile
 # Property selector (pre-selected from param or select first)
 - runFlow:
     when:
-      visible: "Select a property"
+      visible:
+        text: "Select property"
     commands:
-      - tapOn: "Select a property"
+      - tapOn:
+          id: "property-selector"
       - waitForAnimationToEnd
       - tapOn:
+          id: "property-selector-option"
           index: 0
       - waitForAnimationToEnd
 
 # Required fields (Input components with accessibilityLabel matching label)
 - tapOn:
-    label: "Business Name *"
+    id: "external-promo-business-name"
 - inputText: "QA External Advertiser"
 - tapOn:
-    label: "Headline *"
+    id: "external-promo-headline"
 - inputText: "QA External Promotion Headline"
 - tapOn:
-    label: "Description *"
+    id: "external-promo-description"
 - inputText: "This external promotion was created by Maestro E2E test."
 
 # CTA fields (labels are "CTA Label *" and "CTA URL *")
 - tapOn:
-    label: "CTA Label *"
+    id: "external-promo-cta-label"
 - inputText: "Visit Now"
 - tapOn:
-    label: "CTA URL *"
+    id: "external-promo-cta-url"
 - inputText: "https://qa.unit.app"
 - hideKeyboard
 
 # Start date — tap "Select" (first occurrence = start date Pressable)
-- tapOn: "Select"
+- tapOn:
+    id: "external-promo-start-date"
 - waitForAnimationToEnd
 # Swipe start date wheel
 - swipe:
@@ -138,7 +153,8 @@ appId: com.unitapp.mobile
     when:
       visible: "Select"
     commands:
-      - tapOn: "Select"
+      - tapOn:
+          id: "external-promo-end-date"
       - waitForAnimationToEnd
       - swipe:
           start: "50%, 85%"
@@ -162,7 +178,8 @@ appId: com.unitapp.mobile
     end: "50%, 15%"
 - waitForAnimationToEnd
 
-- tapOn: "Create Promotion"
+- tapOn:
+    id: "external-promo-create"
 - extendedWaitUntil:
     visible:
       text: "External promotion created"

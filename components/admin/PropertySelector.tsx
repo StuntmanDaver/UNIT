@@ -92,7 +92,10 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   // Single property — no need for a dropdown
   if (properties.length === 1) {
     return (
-      <View className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3">
+      <View
+        testID="property-selector"
+        className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
+      >
         <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
           {properties[0].name}
         </Text>
@@ -105,6 +108,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   return (
     <View className="relative z-10">
       <Pressable
+        testID="property-selector"
         onPress={() => setOpen((prev) => !prev)}
         className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
         style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
@@ -122,6 +126,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
             return (
               <Pressable
                 key={property.id}
+                testID="property-selector-option"
                 onPress={() => {
                   onSelect(property.id);
                   setOpen(false);

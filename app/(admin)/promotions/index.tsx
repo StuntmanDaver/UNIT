@@ -125,6 +125,7 @@ export default function AdminPromotionsScreen() {
             <ChevronLeft size={24} color={BRAND.gray} />
           </Pressable>
           <Pressable
+            testID="new-external-promotion-btn"
             onPress={() =>
               router.push({
                 pathname: '/(admin)/promotions/new-external',

@@ -195,6 +195,7 @@ export default function NewExternalPromotionScreen() {
           name="business_name"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-business-name"
               label="Business Name *"
               value={value}
               onChangeText={onChange}
@@ -210,6 +211,7 @@ export default function NewExternalPromotionScreen() {
           name="headline"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-headline"
               label="Headline *"
               value={value}
               onChangeText={onChange}
@@ -225,6 +227,7 @@ export default function NewExternalPromotionScreen() {
           name="description"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-description"
               label="Description *"
               value={value}
               onChangeText={onChange}
@@ -244,6 +247,7 @@ export default function NewExternalPromotionScreen() {
           name="cta_text"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-cta-label"
               label="CTA Label *"
               value={value}
               onChangeText={onChange}
@@ -257,6 +261,7 @@ export default function NewExternalPromotionScreen() {
           name="cta_link"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-cta-url"
               label="CTA URL *"
               value={value}
               onChangeText={onChange}
@@ -273,6 +278,7 @@ export default function NewExternalPromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito text-brand-gray mb-2">Start Date *</Text>
             <Pressable
+              testID="external-promo-start-date"
               onPress={() => setActivePicker('start')}
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
             >
@@ -291,6 +297,7 @@ export default function NewExternalPromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito text-brand-gray mb-2">End Date *</Text>
             <Pressable
+              testID="external-promo-end-date"
               onPress={() => setActivePicker('end')}
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
             >
@@ -442,10 +449,20 @@ export default function NewExternalPromotionScreen() {
 
         {/* Actions */}
         <View className="gap-3 mt-4">
-          <Button onPress={handleSubmit(onSubmit)} loading={submitting} disabled={submitting}>
+          <Button
+            testID="external-promo-create"
+            onPress={handleSubmit(onSubmit)}
+            loading={submitting}
+            disabled={submitting}
+          >
             Create Promotion
           </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={submitting}>
+          <Button
+            testID="external-promo-cancel"
+            onPress={() => router.back()}
+            variant="ghost"
+            disabled={submitting}
+          >
             Cancel
           </Button>
         </View>

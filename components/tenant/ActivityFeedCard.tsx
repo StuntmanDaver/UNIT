@@ -7,6 +7,7 @@ import type { ActivityFeedItem } from '@/services/activityFeed';
 type Props = {
   item: ActivityFeedItem;
   onPress?: () => void;
+  testID?: string;
 };
 
 const CTA_LABELS: Record<ActivityFeedItem['kind'], string> = {
@@ -73,7 +74,7 @@ function RelativeTime({ isoDate }: { isoDate: string }) {
  * Uses brand-mist / brand-paper / brand-ink tokens — permitted only here
  * and on screens explicitly migrated to the light-surface design per CLAUDE.md.
  */
-export function ActivityFeedCard({ item, onPress }: Props) {
+export function ActivityFeedCard({ item, onPress, testID = 'activity-feed-card' }: Props) {
   const hasHeroImage = item.kind === 'promotion' && !!item.imageUrl;
   const ctaLabel = CTA_LABELS[item.kind];
   const showCta = !!onPress && !!ctaLabel;
@@ -120,6 +121,7 @@ export function ActivityFeedCard({ item, onPress }: Props) {
   if (onPress) {
     return (
       <Pressable
+        testID={testID}
         onPress={onPress}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1, minHeight: 88 })}
         className={baseClass}
@@ -130,7 +132,7 @@ export function ActivityFeedCard({ item, onPress }: Props) {
   }
 
   return (
-    <View style={{ minHeight: 88 }} className={baseClass}>
+    <View testID={testID} style={{ minHeight: 88 }} className={baseClass}>
       {body}
     </View>
   );

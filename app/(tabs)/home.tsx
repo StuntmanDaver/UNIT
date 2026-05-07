@@ -97,6 +97,7 @@ export default function HomeScreen() {
         <ActivityFeedCard
           item={item}
           onPress={item.ctaRoute ? () => handlePress(item) : undefined}
+          testID={`activity-feed-card-${item.kind}`}
         />
       </View>
     ),

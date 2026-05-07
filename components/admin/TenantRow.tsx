@@ -17,6 +17,7 @@ export function TenantRow({ profile, business, onPress }: TenantRowProps) {
 
   return (
     <Pressable
+      testID="tenant-row"
       onPress={onPress}
       className="flex-row items-center px-4 py-3 bg-brand-navy-light border-b border-brand-blue/40"
       style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}

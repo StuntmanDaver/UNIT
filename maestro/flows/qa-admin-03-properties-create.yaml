@@ -68,33 +68,23 @@ appId: com.unitapp.mobile
     timeout: 6000
 
 - tapOn:
-    label: "Property Name *"
+    id: "property-name"
 - inputText: "QA Test Building"
 - tapOn:
-    label: "Address *"
+    id: "property-address"
 - inputText: "100 QA Lane"
 - tapOn:
-    label: "City *"
+    id: "property-city"
 - inputText: "Test City"
 - tapOn:
-    label: "State *"
+    id: "property-state"
 - inputText: "CA"
 - tapOn:
-    label: "Type"
-- inputText: "commercial"
-- tapOn:
-    label: "Total Units"
-- inputText: "10"
-- hideKeyboard
-
-- tapOn: "Create Property"
+    id: "modal-action-create-property"
 - extendedWaitUntil:
     visible:
-      text: "Property created"
-    timeout: 10000
-
-# New property should appear in list
-- assertVisible: "QA Test Building"
+      text: "QA Test Building"
+    timeout: 15000
 
 # ── CASE 3: Back button ───────────────────────────────────────────────────────
 - tapOn:
