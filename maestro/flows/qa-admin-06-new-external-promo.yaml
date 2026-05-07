@@ -174,7 +174,12 @@ appId: com.unitapp.mobile
 - assertVisible: "QA External Advertiser"
 
 # Log out
-- back
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
 - tapOn: "Log Out"

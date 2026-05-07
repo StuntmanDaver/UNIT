@@ -111,7 +111,11 @@ appId: com.unitapp.mobile
       - waitForAnimationToEnd
 
 # ── CASE 6: Back button → directory ──────────────────────────────────────────
-- back
-- assertVisible: "Directory"
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
+    timeout: 8000
 
 - runFlow: ../subflows/logout.yaml

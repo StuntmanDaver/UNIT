@@ -78,7 +78,8 @@ appId: com.unitapp.mobile
           childOf:
             text: "Pending"
       - waitForAnimationToEnd
-      - back
+      - tapOn:
+          id: "back-btn"
       - waitForAnimationToEnd
 
 # ── CASE 5: Empty state check (if no pending) ─────────────────────────────────
@@ -89,7 +90,12 @@ appId: com.unitapp.mobile
       - assertVisible: "No promotions"
 
 # Back to dashboard
-- back
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 
 # Verify "30-day" hint path via stat card "Promotions 30d" (actual label in source)
 - tapOn: "Promotions 30d"
@@ -104,7 +110,12 @@ appId: com.unitapp.mobile
     commands:
       - assertVisible: "Last 30 days"
 
-- back
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 
 # Log out
 - tapOn:

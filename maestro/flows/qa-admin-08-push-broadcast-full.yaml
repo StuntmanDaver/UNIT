@@ -124,7 +124,12 @@ appId: com.unitapp.mobile
 - assertVisible: "QA Test Notification"
 
 # Log out
-- back
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
 - tapOn: "Log Out"

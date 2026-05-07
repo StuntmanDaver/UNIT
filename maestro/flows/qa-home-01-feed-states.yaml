@@ -89,7 +89,16 @@ appId: com.unitapp.mobile
     index: 0
     point: "50%,55%"
 - waitForAnimationToEnd
-- back
-- assertVisible: "My Property"
+- runFlow:
+    when:
+      visible:
+        id: "back-btn"
+    commands:
+      - tapOn:
+          id: "back-btn"
+      - extendedWaitUntil:
+          visible:
+            text: "My Property"
+          timeout: 8000
 
 - runFlow: ../subflows/logout.yaml

@@ -97,8 +97,12 @@ appId: com.unitapp.mobile
 - assertVisible: "QA Test Building"
 
 # ── CASE 3: Back button ───────────────────────────────────────────────────────
-- back
-- assertVisible: "Admin Dashboard"
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 
 # Log out
 - tapOn:

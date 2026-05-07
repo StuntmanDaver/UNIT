@@ -127,7 +127,12 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 
 # ── CASE 7: Back button ───────────────────────────────────────────────────────
-- back
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
 
 # Log out
 - tapOn:

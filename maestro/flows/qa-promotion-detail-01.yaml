@@ -78,7 +78,11 @@ appId: com.unitapp.mobile
       - assertVisible: "Promotions"
 
 # ── CASE 3: Back navigation ───────────────────────────────────────────────────
-- back
-- assertVisible: "My Property"
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "My Property"
+    timeout: 8000
 
 - runFlow: ../subflows/logout.yaml
