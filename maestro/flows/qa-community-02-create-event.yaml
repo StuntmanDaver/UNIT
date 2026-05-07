@@ -1,0 +1,86 @@
+appId: com.unitapp.mobile
+---
+# QA-COMMUNITY-02: Community create — event type with date field
+# Covers items 85-86 from the exhaustive inventory:
+#   - Switch to "event" type segment → reveals event_date input
+#   - event_date required, event_time optional
+#   - Submit event → success toast
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-community"
+- assertVisible: "Community"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading community..."
+    timeout: 10000
+
+# Open create
+- tapOn:
+    text: "+"
+- extendedWaitUntil:
+    visible:
+      text: "New Post"
+    timeout: 8000
+
+# Switch to event type
+- tapOn: "event"
+- waitForAnimationToEnd
+
+# Event date field should appear
+- assertVisible: "Event Date *"
+
+# Title (required) — Input label is "Title *"
+- tapOn:
+    label: "Title *"
+- inputText: "QA Event Post"
+
+# Content (required) — Input label is "Content *"
+- tapOn:
+    label: "Content *"
+- inputText: "This is an automated E2E event post created by Maestro."
+
+# Event date (required, YYYY-MM-DD) — Input label is "Event Date *"
+- tapOn:
+    label: "Event Date *"
+- inputText: "2026-12-31"
+
+# Event time (optional — skip)
+- hideKeyboard
+
+# Submit
+- tapOn:
+    id: "btn-post-submit"
+- extendedWaitUntil:
+    visible:
+      text: "Post published"
+    timeout: 10000
+- assertVisible: "Community"
+
+- runFlow: ../subflows/logout.yaml

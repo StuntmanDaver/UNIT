@@ -216,6 +216,7 @@ export default function OnboardingScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <Pressable
+              testID="property-list-item"
               onPress={() => handleSelectProperty(item)}
               className="bg-brand-navy-light rounded-xl p-4 mb-3"
             >
@@ -262,6 +263,7 @@ export default function OnboardingScreen() {
             const isClaimed = occupiedUnits?.has(item.unit_number) ?? false;
             return (
               <Pressable
+                testID="unit-list-item"
                 onPress={() => {
                   if (isClaimed) {
                     Alert.alert(
@@ -350,7 +352,12 @@ export default function OnboardingScreen() {
           <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">
             Category
           </Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+          <ScrollView
+            testID="onboarding-category-scroll"
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="mb-4"
+          >
             <Controller
               control={control}
               name="category"
@@ -461,7 +468,7 @@ export default function OnboardingScreen() {
             )}
           />
 
-          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4">
+          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4" testID="btn-create-profile">
             Create Profile
           </Button>
 

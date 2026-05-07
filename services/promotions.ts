@@ -75,6 +75,7 @@ export type TenantPromotionInput = {
   property_id: string;
   advertiser_id: string;
   business_name: string;
+  contact_email: string;
   headline: string;
   description: string | null;
   image_url: string | null;
@@ -282,6 +283,21 @@ export const promotionsService = {
    * promotion_status_events audit row per the two-path promotions schema.
    */
   async createTenant(input: TenantPromotionInput, actorUserId: string): Promise<Promotion> {
+    // Ensure an advertiser_profiles row exists for this user before inserting
+    // into promotions (which has a FK → advertiser_profiles.id). First-time
+    // tenants won't have a row; upsert is idempotent on repeat attempts.
+    const { error: profileError } = await supabase
+      .from('advertiser_profiles')
+      .upsert(
+        {
+          id: input.advertiser_id,
+          business_name: input.business_name,
+          contact_email: input.contact_email,
+        },
+        { onConflict: 'id' }
+      );
+    if (profileError) throw profileError;
+
     const { data, error } = await supabase
       .from('promotions')
       .insert({

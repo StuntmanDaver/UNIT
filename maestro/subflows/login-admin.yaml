@@ -7,12 +7,7 @@ appId: com.unitapp.mobile
     visible:
       text: "Log In"
     timeout: 60000
-- tapOn:
-    id: "login-email"
-- inputText: "david@cultrhealth.com"
-- tapOn:
-    id: "login-password"
-- inputText: "admin123"
+- tapOn: "Admin"
 - tapOn: "Log In"
 - extendedWaitUntil:
     visible:

@@ -71,6 +71,7 @@ export default function CommunityScreen() {
       </GradientHeader>
 
       <FlatList
+        testID="community-list"
         data={posts ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
@@ -87,7 +88,7 @@ export default function CommunityScreen() {
         }
       />
 
-      <FAB onPress={() => router.push('/community/create')} />
+      <FAB onPress={() => router.push('/community/create')} testID="fab-create-post" />
     </View>
   );
 }

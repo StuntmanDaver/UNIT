@@ -1,5 +1,38 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-06 — Maestro E2E stabilization (qa-directory-01 green end-to-end)
+
+`qa-directory-01-search-states.yaml` now passes from launch through logout. Twelve commits land on `ralph/engagement-ui-enhancement`. The session uncovered a real product routing bug (directory back navigation) and codified three reusable Maestro patterns for the remaining qa-* flows.
+
+### Fixed (real product bugs)
+- **Directory back-button escaped the tab** (`44fd9c0`) — `app/(tabs)/directory/[id].tsx`. The detail screen lives outside the directory tab's stack (no `_layout.tsx` under `app/(tabs)/directory/`), so `router.back()` popped the global navigation history and dumped the user on the **Home tab** instead of the directory list. A real user pressing Back hit the same broken UX. Now `router.replace('/directory')` always returns to the list within its own tab. Long-term fix is a directory stack layout — deferred.
+- **Logout alert confirm tap was coordinate-based** (`da0378c`) — `maestro/subflows/logout.yaml` and `maestro/flows/qa-04-full-sweep.yaml` previously tapped `point: "65%,56%"` to confirm the iOS Alert. Replaced with `tapOn: text: "Log Out", index: 1` (the profile-page Log Out button occupies index 0 even behind the modal). Unblocks every flow that ends in logout (~8 flows).
+
+### Added (testIDs for stable Maestro selectors)
+- `category-chips-list` (`6810dda`) on `<FlatList>` in `components/ui/CategoryChips.tsx` — anchors horizontal swipe gestures.
+- `onboarding-category-scroll` (`6810dda`) on `<ScrollView>` in `app/(auth)/onboarding.tsx` — same role for the onboarding form.
+- `business-card` (`bc23545`) on `BusinessCard` (via new `testID` prop on `Card`) — replaces fragile `childOf: text: "Directory"` that was actually matching the screen heading, not the FlatList.
+- `back-btn` (`0e15d23`) on the directory detail back button — replaces unreliable Maestro `back` action.
+- 4 pending advertiser promotion rows in `unit/scripts/seed-e2e-test-data.sql` (`8efaa69`) — required by `qa-admin-05-promo-review-all-actions.yaml`. Also fixed verification queries that referenced a non-existent `kind` column.
+
+### Maestro patterns established (for the remaining qa-* flows)
+- **Horizontal scroll on RN FlatList** — `scrollUntilVisible` does not reliably target horizontal lists; it picks the page-level container. Use bounded `repeat times: N` containing `runFlow when: notVisible` + `swipe from: id: <testID> direction: LEFT duration: 600`. Pattern in `qa-directory-01`, `m2-02-directory`, `m1-05-onboarding`.
+- **Stack back navigation** — Maestro's `back` action on iOS simulator silently no-ops (no hardware back button; edge-swipe gestures unreliable). Use explicit `tapOn: id: "back-btn"` on the in-page back affordance.
+- **Don't `assertNotVisible` on tab-bar text** — bottom tab labels (Home, Directory, Promotions, Community, Alerts, Profile) are always rendered. Asserting their text is invisible after navigation races the tab bar against the assertion. Use a screen-specific testID instead.
+
+### Removed
+- `tapOn: point: "65%,56%"` coordinate taps in two locations.
+- `scrollUntilVisible direction: RIGHT` for category chips in three flows.
+- Redundant `assertVisible: "Test"` after `inputText: "Test"` in two flows (`f9aced7`) — iOS TextInput values are not exposed as Text nodes in the accessibility tree.
+- The non-existent `"Services"` category chip target (`fae3bf5`) — `BUSINESS_CATEGORIES` has no such entry.
+
+### Infrastructure
+- `STRIPE_SECRET_KEY` confirmed present in Supabase Edge Function secrets for project `ouvneoaqoilnigynlvbp` (digest `5c1103…c3ca7`). No change needed.
+
+### Notes
+- ~9 other qa-* flows still need the same dev-build handler + testID/swipe/back-btn pattern applied (`qa-community-01`, `qa-promotions-01`, `qa-profile-01`, `qa-alerts-01`, `qa-admin-01..05..07`). qa-04-full-sweep already passes end-to-end (the inline logout was fixed in `da0378c`).
+- The single ⚪️ skipped step in passing runs is a conditional `runFlow when: visible: "Would Like to Send You Notifications"` — iOS only shows the prompt once per simulator install. Skipping is correct behavior.
+
 ## 2026-04-20 — Phases 02→05 marathon (milestone code-complete)
 
 All five milestone phases shipped code-complete in a single session. Five commits land on `main`; full Jest suite passes 52/52; brand-lint clean; tsc clean; production iOS bundle exports cleanly with zero warnings.

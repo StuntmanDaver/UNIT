@@ -1,0 +1,146 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-08: Admin Push Notifications — compose, audience select, confirm send
+# Covers items 247-257 from the exhaustive inventory:
+#   - Property selector required
+#   - Title input (max 50 chars, counter) — Input has label="" so tap by placeholder
+#   - Message input (max 200) — same
+#   - Audience segment "All Tenants" / "Active Only"
+#   - Live preview card shows entered text
+#   - "Send Notification" → confirm modal → Cancel
+#   - "Send Notification" → confirm modal → Send → toast "Notification Sent"
+#   - Form clears after send
+#   - Sent History: no property / empty / list
+#
+# Push inputs use stable testIDs:
+#   push-title-input, push-message-input
+# Success toast: text1 "Notification Sent" (capital S)
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- extendedWaitUntil:
+    visible:
+      text: "Send Push Notification"
+    timeout: 10000
+- tapOn: "Send Push Notification"
+- extendedWaitUntil:
+    visible:
+      text: "Push Notifications"
+    timeout: 8000
+
+# ── CASE 1: Property selector / selected property renders ─────────────────────
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 8000
+
+# ── CASE 2: Sent History renders (empty or list) ──────────────────────────────
+- runFlow:
+    when:
+      visible: "No broadcasts sent yet"
+    commands:
+      - assertVisible: "No broadcasts sent yet"
+
+# ── CASE 3: Title input ───────────────────────────────────────────────────────
+- tapOn:
+    id: "push-title-input"
+- inputText: "QA Test Notification"
+
+# ── CASE 4: Message input ─────────────────────────────────────────────────────
+- tapOn:
+    id: "push-message-input"
+- inputText: "This is a test broadcast from Maestro E2E."
+- tapOn: "done"
+- waitForAnimationToEnd
+
+# ── CASE 5: Audience segment ─────────────────────────────────────────────────
+- tapOn: "All Tenants"
+- waitForAnimationToEnd
+- tapOn: "Active Only"
+- waitForAnimationToEnd
+- tapOn: "All Tenants"
+- waitForAnimationToEnd
+
+# ── CASE 6: Preview card shows entered text ────────────────────────────────────
+- assertVisible: "QA Test Notification"
+- assertVisible: "This is a test broadcast from Maestro E2E."
+
+# ── CASE 7: Confirm modal — Cancel ────────────────────────────────────────────
+- tapOn: "Send Notification"
+- extendedWaitUntil:
+    visible:
+      text: "Send Notification?"
+    timeout: 6000
+- tapOn:
+    id: "modal-action-cancel"
+# Form values still present
+- assertVisible: "QA Test Notification"
+
+# ── CASE 8: Confirm modal — Send ──────────────────────────────────────────────
+- tapOn: "Send Notification"
+- extendedWaitUntil:
+    visible:
+      text: "Send Notification?"
+    timeout: 6000
+- tapOn:
+    id: "modal-action-send"
+# Toast: text1 "Notification Sent" (capital S)
+- extendedWaitUntil:
+    visible:
+      text: "Notification Sent"
+    timeout: 10000
+# Form clears after send. The broadcast title can also appear in Sent History, so
+# assert the compose placeholders instead of global title absence.
+- assertVisible: "e.g. Building Update"
+- assertVisible: "Write your message here..."
+
+# ── CASE 9: Sent History now shows the broadcast ─────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "Sent History"
+    direction: DOWN
+- assertVisible: "QA Test Notification"
+
+# Log out
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+- tapOn:
+    id: "admin-logout-btn"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn:
+    text: "Log Out"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

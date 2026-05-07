@@ -34,6 +34,7 @@ export default function TabLayout() {
 
   return (
     <Tabs
+      initialRouteName="home"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#FFFFFF',
@@ -103,13 +104,6 @@ export default function TabLayout() {
           tabBarButtonTestID: 'tab-profile',
         }}
       />
-      {/* Hide sub-screens from tab bar */}
-      <Tabs.Screen name="directory/[id]" options={{ href: null }} />
-      <Tabs.Screen name="promotions/create" options={{ href: null }} />
-      <Tabs.Screen name="promotions/[id]" options={{ href: null }} />
-      <Tabs.Screen name="promotions/pending-payment" options={{ href: null }} />
-      <Tabs.Screen name="profile/edit" options={{ href: null }} />
-      <Tabs.Screen name="community/create" options={{ href: null }} />
     </Tabs>
   );
 }

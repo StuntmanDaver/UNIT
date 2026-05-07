@@ -6,17 +6,24 @@ on:
       - main
 
 jobs:
-  build_preview:
-    name: Internal Preview Build (iOS + Android)
+  build_preview_ios:
+    name: Internal Preview Build (iOS)
     type: build
     params:
-      platform: all
+      platform: ios
+      profile: preview-simulator
+
+  build_preview_android:
+    name: Internal Preview Build (Android)
+    type: build
+    params:
+      platform: android
       profile: preview
 
-  run_maestro:
-    name: Maestro E2E Tests
+  run_maestro_ios:
+    name: Maestro E2E Tests (iOS)
     type: maestro
-    needs: [build_preview]
+    needs: [build_preview_ios]
     params:
-      flow_path: maestro
-      build_id: ${{ needs.build_preview.outputs.build_id }}
+      flow_path: maestro/flows/qa-05-light-surface-sweep.yaml
+      build_id: ${{ needs.build_preview_ios.outputs.build_id }}

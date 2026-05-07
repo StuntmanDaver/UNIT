@@ -21,7 +21,10 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.unitapp.mobile"
+      "bundleIdentifier": "com.unitapp.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -43,8 +46,8 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#101B29",
-          "image": "./assets/logo-transparent-light.png",
-          "imageWidth": 200,
+          "image": "./assets/unit-logo-dark.png",
+          "imageWidth": 280,
           "resizeMode": "contain"
         }
       ],

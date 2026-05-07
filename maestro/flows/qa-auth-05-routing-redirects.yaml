@@ -1,0 +1,102 @@
+appId: com.unitapp.mobile
+---
+# QA-AUTH-05: AuthGuard routing — cold start session restore and role redirects
+# Covers items 37-43 from the exhaustive inventory:
+#   - Cold start with valid tenant session → Home
+#   - Cold start with valid admin session → Admin Dashboard
+#   - Cold start with no session → login
+#   - Splash screen resolves (no infinite spinner)
+#
+# NOTE: "clearState: false" (no state wipe) is used for session-restore cases.
+#       These must be run after a successful login in the same simulator to have a session.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+# ── CASE 1: No session → login screen ────────────────────────────────────────
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 30000
+- assertNotVisible: "My Property"
+- assertNotVisible: "Admin Dashboard"
+
+# ── CASE 2: Log in as tenant → Home ──────────────────────────────────────────
+- runFlow: ../subflows/login-tenant1.yaml
+- assertVisible: "My Property"
+
+# ── CASE 3: Kill & restart app (no clearState) → tenant session restored.
+# The persisted tab may resolve to Directory (Expo Router's initial-route
+# behavior with multiple Stack-wrapped tabs); the contract under test is that
+# the user is authenticated and does NOT see the login screen.
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    notVisible:
+      text: "Log In"
+    timeout: 20000
+- assertVisible:
+    id: "tab-home"
+- assertNotVisible: "Log In"
+
+# ── CASE 4: Log out → then restart cold → shows login ────────────────────────
+- runFlow: ../subflows/logout.yaml
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 20000
+
+# ── CASE 5: Log in as admin → Admin Dashboard ────────────────────────────────
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+# ── CASE 6: Kill & restart as admin → session restored → Admin Dashboard.
+# Admin route lives outside the tabs group, so the Admin Dashboard is the only
+# valid landing for an admin restore.
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 20000
+
+# Cleanup — header logout uses Alert.alert; tap the destructive button at index 1
+- tapOn:
+    id: "admin-logout-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn:
+    text: "Log Out"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

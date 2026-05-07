@@ -59,8 +59,12 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+function tierTestKey(tier: PromotionPriceTier): string {
+  return tier.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export default function AdminPricingScreen() {
-  const { data: tiers, isLoading } = usePromotionPriceTiers();
+  const { data: tiers, isLoading, isError, error, refetch } = usePromotionPriceTiers();
   const { mutateAsync: upsertTier } = useUpsertPriceTier();
   const { mutateAsync: deactivateTier } = useDeactivatePriceTier();
 
@@ -139,12 +143,11 @@ export default function AdminPricingScreen() {
     );
   }
 
-  const renderItem = ({ item }: { item: PromotionPriceTier }) => (
-    <Pressable
-      onPress={() => openEdit(item)}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-    >
-      <Card className="mx-4 mb-3 p-4">
+  const renderItem = ({ item }: { item: PromotionPriceTier }) => {
+    const testKey = tierTestKey(item);
+
+    return (
+      <Card testID={`pricing-tier-card-${testKey}`} className="mx-4 mb-3 p-4">
         <View className="flex-row items-start justify-between">
           <View className="flex-1 mr-3">
             <View className="flex-row items-center gap-2 flex-wrap">
@@ -167,27 +170,36 @@ export default function AdminPricingScreen() {
 
         <View className="flex-row gap-3 mt-3">
           <View className="flex-1">
-            <Button onPress={() => openEdit(item)} variant="secondary">
+            <Button
+              testID={`pricing-tier-edit-${testKey}`}
+              onPress={() => openEdit(item)}
+              variant="secondary"
+            >
               Edit
             </Button>
           </View>
           {item.is_active && (
             <View className="flex-1">
-              <Button onPress={() => confirmDeactivate(item)} variant="destructive">
+              <Button
+                testID={`pricing-tier-deactivate-${testKey}`}
+                onPress={() => confirmDeactivate(item)}
+                variant="destructive"
+              >
                 Deactivate
               </Button>
             </View>
           )}
         </View>
       </Card>
-    </Pressable>
-  );
+    );
+  };
 
   return (
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <View className="flex-row items-center justify-between mb-2">
           <Pressable
+            testID="back-btn"
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
@@ -196,6 +208,7 @@ export default function AdminPricingScreen() {
             <ChevronLeft size={24} color={BRAND.gray} />
           </Pressable>
           <Pressable
+            testID="btn-add-price-tier"
             onPress={openAdd}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
@@ -215,6 +228,13 @@ export default function AdminPricingScreen() {
 
       {isLoading ? (
         <LoadingScreen message="Loading tiers..." />
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-base font-nunito text-red-400 text-center mb-3">
+            {error?.message ?? 'Failed to load pricing tiers'}
+          </Text>
+          <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+        </View>
       ) : (
         <FlatList
           data={tiers ?? []}
@@ -245,6 +265,7 @@ export default function AdminPricingScreen() {
         <View className="mb-4">
           <Text className="text-sm font-nunito text-brand-gray mb-2">Name</Text>
           <TextInput
+            testID="pricing-tier-name"
             value={editState.name}
             onChangeText={(v) => setEditState((s) => ({ ...s, name: v }))}
             placeholder="e.g. 7-day Standard"
@@ -256,6 +277,7 @@ export default function AdminPricingScreen() {
         <View className="mb-4">
           <Text className="text-sm font-nunito text-brand-gray mb-2">Duration (days)</Text>
           <TextInput
+            testID="pricing-tier-duration"
             value={editState.duration_days}
             onChangeText={(v) => setEditState((s) => ({ ...s, duration_days: v.replace(/[^0-9]/g, '') }))}
             placeholder="7"
@@ -268,6 +290,7 @@ export default function AdminPricingScreen() {
         <View className="mb-4">
           <Text className="text-sm font-nunito text-brand-gray mb-2">Price (USD)</Text>
           <TextInput
+            testID="pricing-tier-price"
             value={editState.price_dollars}
             onChangeText={(v) => setEditState((s) => ({ ...s, price_dollars: v }))}
             placeholder="25.00"
@@ -283,6 +306,7 @@ export default function AdminPricingScreen() {
             <Text className="text-sm font-nunito text-brand-gray">Featured placement</Text>
           </View>
           <Switch
+            testID="pricing-tier-featured"
             value={editState.is_featured}
             onValueChange={(v) => setEditState((s) => ({ ...s, is_featured: v }))}
             trackColor={{ false: BRAND.navyLight, true: BRAND.blue }}
@@ -293,6 +317,7 @@ export default function AdminPricingScreen() {
         <View className="flex-row items-center justify-between mb-4">
           <Text className="text-sm font-nunito text-brand-gray">Active (visible to tenants)</Text>
           <Switch
+            testID="pricing-tier-active"
             value={editState.is_active}
             onValueChange={(v) => setEditState((s) => ({ ...s, is_active: v }))}
             trackColor={{ false: BRAND.navyLight, true: BRAND.blue }}

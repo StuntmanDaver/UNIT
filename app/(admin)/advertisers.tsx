@@ -8,10 +8,12 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { useAuth } from '@/lib/AuthContext';
 import { useAdminPromotionList } from '@/hooks/useAdminPromotions';
 import { type Promotion } from '@/services/promotions';
+import { firstParam } from '@/lib/routeParams';
 
 const STATUS_SEGMENTS = ['Pending', 'Approved', 'Rejected'];
 
@@ -25,8 +27,9 @@ export default function AdvertisersScreen() {
   const { propertyIds } = useAuth();
 
   const params = useLocalSearchParams<{ filter?: string; window?: string; propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
   const [statusFilter, setStatusFilter] = useState<typeof STATUS_SEGMENTS[number]>(() =>
     params.filter && STATUS_SEGMENTS.includes(params.filter as typeof STATUS_SEGMENTS[number])
@@ -37,7 +40,7 @@ export default function AdvertisersScreen() {
 
   const activePropertyId = selectedPropertyId ?? '';
 
-  const { data: promotions, isLoading } = useAdminPromotionList(
+  const { data: promotions, isLoading, isError, error, refetch } = useAdminPromotionList(
     activePropertyId,
     statusMap[statusFilter] ?? ['pending']
   );
@@ -58,7 +61,7 @@ export default function AdvertisersScreen() {
   }, [promotions, recentWindowActive]);
 
   const renderPromotion = ({ item }: { item: Promotion }) => (
-    <Pressable onPress={() => router.push(`/(admin)/promotions/${item.id}`)}>
+    <Pressable testID="promo-card" onPress={() => router.push(`/(admin)/promotions/${item.id}`)}>
       <Card className="mx-4 mb-3 p-4">
         <View className="flex-row items-start justify-between mb-2">
           <View className="flex-1 mr-3">
@@ -89,6 +92,7 @@ export default function AdvertisersScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
+          testID="back-btn"
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
@@ -123,6 +127,13 @@ export default function AdvertisersScreen() {
 
           {isLoading ? (
             <LoadingScreen message="Loading promotions..." />
+          ) : isError ? (
+            <View className="flex-1 items-center justify-center px-6">
+              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+                {error?.message ?? 'Failed to load promotions'}
+              </Text>
+              <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+            </View>
           ) : (
             <FlatList
               data={visiblePromotions}

@@ -18,6 +18,7 @@ const CHIPS: ChipItem[] = [
 export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
   return (
     <FlatList
+      testID="category-chips-list"
       data={CHIPS}
       horizontal
       showsHorizontalScrollIndicator={false}

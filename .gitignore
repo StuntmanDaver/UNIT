@@ -42,3 +42,9 @@ yarn-error.*
 
 # EAS local build artifacts
 build-*.tar.gz
+
+# Local dev-build app bundle copied to repo root by `expo run:ios`
+/UNIT.app/
+
+# Ad-hoc debug screenshots dropped at repo root
+/home-feed-*.png

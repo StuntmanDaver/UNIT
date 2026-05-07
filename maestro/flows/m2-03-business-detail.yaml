@@ -9,19 +9,28 @@ appId: com.unitapp.mobile
 - assertVisible: "Directory"
 - waitForAnimationToEnd
 
-# Tap first business card (scrolled to top)
+# Tap first business card. Use the BusinessCard testID — `text: "Directory"`
+# was the screen heading, not the parent of the card list, so childOf would
+# silently match the wrong element.
 - tapOn:
+    id: "business-card"
     index: 0
-    childOf:
-      text: "Directory"
 
-# Detail page should open (has business name + contact icons)
-# Assert we navigated away from the list
-- assertNotVisible: "Directory"
+# Detail page should open (has business name + contact icons + back button)
+# back-btn testID confirms we're on a stack screen, not the directory list.
+# (`assertNotVisible: "Directory"` is unreliable — the bottom tab bar still
+# renders the "Directory" tab label even when the detail page is showing.)
+- assertVisible:
+    id: "back-btn"
 - waitForAnimationToEnd
 
-# Back to directory
-- back
-- assertVisible: "Directory"
+# Back to directory — tap the in-page Back button. Maestro's `back` action
+# uses iOS edge-swipe which is unreliable in the simulator.
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
+    timeout: 8000
 
 - runFlow: ../subflows/logout.yaml

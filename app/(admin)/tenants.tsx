@@ -21,6 +21,7 @@ import { useTenants, type TenantWithBusiness } from '@/hooks/useTenants';
 import { useDebounce } from '@/hooks/useDebounce';
 import { adminService } from '@/services/admin';
 import { profilesService } from '@/services/profiles';
+import { firstParam } from '@/lib/routeParams';
 
 const STATUS_SEGMENTS = ['All', 'Invited', 'Active', 'Inactive'];
 
@@ -28,9 +29,10 @@ export default function TenantsScreen() {
   const { propertyIds } = useAuth();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ filter?: string; propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
   const [searchText, setSearchText] = useState('');
 
@@ -55,7 +57,7 @@ export default function TenantsScreen() {
   const activePropertyId = selectedPropertyId ?? '';
   const statusParam = statusFilter === 'All' ? undefined : statusFilter.toLowerCase();
 
-  const { data: tenants, isLoading } = useTenants(activePropertyId, statusParam, debouncedSearch);
+  const { data: tenants, isLoading, isError, error, refetch } = useTenants(activePropertyId, statusParam, debouncedSearch);
 
   const resetForm = () => {
     setEmail('');
@@ -159,7 +161,8 @@ export default function TenantsScreen() {
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
-          onPress={() => router.back()}
+          testID="back-btn"
+          onPress={() => router.push('/(admin)/')}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
@@ -213,6 +216,13 @@ export default function TenantsScreen() {
           {/* List */}
           {isLoading ? (
             <LoadingScreen message="Loading tenants..." />
+          ) : isError ? (
+            <View className="flex-1 items-center justify-center px-6">
+              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+                {error?.message ?? 'Failed to load tenants'}
+              </Text>
+              <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+            </View>
           ) : (
             <FlatList
               data={tenants ?? []}
@@ -262,6 +272,7 @@ export default function TenantsScreen() {
       >
         <View className="gap-1 pb-2">
           <Input
+            testID="tenant-invite-email"
             label="Email *"
             value={email}
             onChangeText={setEmail}
@@ -270,12 +281,14 @@ export default function TenantsScreen() {
             autoCapitalize="none"
           />
           <Input
+            testID="tenant-invite-business-name"
             label="Business Name *"
             value={businessName}
             onChangeText={setBusinessName}
             placeholder="Acme Corp"
           />
           <Input
+            testID="tenant-invite-category"
             label="Category"
             value={category}
             onChangeText={setCategory}

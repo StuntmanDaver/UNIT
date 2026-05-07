@@ -26,6 +26,7 @@ import { PropertySelector } from '@/components/admin/PropertySelector';
 import { useAuth } from '@/lib/AuthContext';
 import { storageService } from '@/services/storage';
 import { promotionsService } from '@/services/promotions';
+import { firstParam } from '@/lib/routeParams';
 
 const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -46,11 +47,10 @@ export default function NewExternalPromotionScreen() {
   const { propertyIds, user } = useAuth();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0
-      ? params.propertyId
-      : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
@@ -166,6 +166,7 @@ export default function NewExternalPromotionScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
+          testID="back-btn"
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
@@ -194,6 +195,7 @@ export default function NewExternalPromotionScreen() {
           name="business_name"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-business-name"
               label="Business Name *"
               value={value}
               onChangeText={onChange}
@@ -209,6 +211,7 @@ export default function NewExternalPromotionScreen() {
           name="headline"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-headline"
               label="Headline *"
               value={value}
               onChangeText={onChange}
@@ -224,6 +227,7 @@ export default function NewExternalPromotionScreen() {
           name="description"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-description"
               label="Description *"
               value={value}
               onChangeText={onChange}
@@ -243,6 +247,7 @@ export default function NewExternalPromotionScreen() {
           name="cta_text"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-cta-label"
               label="CTA Label *"
               value={value}
               onChangeText={onChange}
@@ -256,6 +261,7 @@ export default function NewExternalPromotionScreen() {
           name="cta_link"
           render={({ field: { onChange, value } }) => (
             <Input
+              testID="external-promo-cta-url"
               label="CTA URL *"
               value={value}
               onChangeText={onChange}
@@ -272,6 +278,7 @@ export default function NewExternalPromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito text-brand-gray mb-2">Start Date *</Text>
             <Pressable
+              testID="external-promo-start-date"
               onPress={() => setActivePicker('start')}
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
             >
@@ -290,6 +297,7 @@ export default function NewExternalPromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito text-brand-gray mb-2">End Date *</Text>
             <Pressable
+              testID="external-promo-end-date"
               onPress={() => setActivePicker('end')}
               className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
             >
@@ -441,10 +449,20 @@ export default function NewExternalPromotionScreen() {
 
         {/* Actions */}
         <View className="gap-3 mt-4">
-          <Button onPress={handleSubmit(onSubmit)} loading={submitting} disabled={submitting}>
+          <Button
+            testID="external-promo-create"
+            onPress={handleSubmit(onSubmit)}
+            loading={submitting}
+            disabled={submitting}
+          >
             Create Promotion
           </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={submitting}>
+          <Button
+            testID="external-promo-cancel"
+            onPress={() => router.back()}
+            variant="ghost"
+            disabled={submitting}
+          >
             Cancel
           </Button>
         </View>

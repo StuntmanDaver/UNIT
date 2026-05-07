@@ -75,11 +75,29 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
         </Button>
       </View>
 
-      <Modal visible={!!pendingAction} onClose={handleClose} title={modalTitle}>
+      <Modal
+        visible={!!pendingAction}
+        onClose={handleClose}
+        title={modalTitle}
+        actions={[
+          {
+            label: 'Confirm',
+            onPress: handleNoteConfirm,
+            testID: 'promotion-review-confirm',
+          },
+          {
+            label: 'Cancel',
+            onPress: handleClose,
+            variant: 'secondary',
+            testID: 'promotion-review-cancel',
+          },
+        ]}
+      >
         <Text className="text-sm font-nunito text-brand-gray mb-3">
           Provide a note for the advertiser explaining what needs to change.
         </Text>
         <Input
+          testID="promotion-review-note"
           label="Note"
           value={note}
           onChangeText={(t) => { setNote(t); setNoteError(''); }}
@@ -88,19 +106,6 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           numberOfLines={3}
           error={noteError || undefined}
         />
-        <View className="flex-row gap-3 mt-4 mb-2">
-          <View className="flex-1">
-            <Button onPress={handleClose} variant="secondary">Cancel</Button>
-          </View>
-          <View className="flex-1">
-            <Button
-              onPress={handleNoteConfirm}
-              disabled={loading}
-            >
-              Confirm
-            </Button>
-          </View>
-        </View>
       </Modal>
     </>
   );

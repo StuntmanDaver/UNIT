@@ -37,6 +37,7 @@ export default function AdminProfileScreen() {
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <Pressable
+            testID="back-btn"
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
@@ -56,7 +57,7 @@ export default function AdminProfileScreen() {
         </View>
       </GradientHeader>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         <View className="px-4 pt-6">
           <Card className="overflow-hidden mb-6">
             <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
@@ -113,12 +114,14 @@ export default function AdminProfileScreen() {
               />
             </View>
           </Card>
-
-          <Button onPress={handleLogout} variant="destructive">
-            Log Out
-          </Button>
         </View>
       </ScrollView>
+
+      <View className="px-4 pb-8">
+        <Button onPress={handleLogout} variant="destructive">
+          Log Out
+        </Button>
+      </View>
     </View>
   );
 }

@@ -2,7 +2,8 @@ appId: com.unitapp.mobile
 name: Profile Edit Flow
 ---
 - launchApp
-- tapOn: "Profile"
+- tapOn:
+    id: "tab-profile"
 - assertVisible: "Profile"
 - tapOn: "Edit Profile"
 - assertVisible: "Edit Profile"

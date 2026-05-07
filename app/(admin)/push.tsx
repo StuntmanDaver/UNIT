@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Bell, Send, ChevronLeft } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { formatDistanceToNow } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
@@ -15,6 +16,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { adminService } from '@/services/admin';
 import { useNotifications } from '@/hooks/useNotifications';
 import { BRAND } from '@/constants/colors';
+import { firstParam } from '@/lib/routeParams';
 
 const AUDIENCE_SEGMENTS = ['All Tenants', 'Active Only'] as const;
 type AudienceSegment = (typeof AUDIENCE_SEGMENTS)[number];
@@ -25,9 +27,11 @@ const HISTORY_LIMIT = 20;
 
 export default function AdminPushScreen() {
   const { user, propertyIds } = useAuth();
+  const queryClient = useQueryClient();
   const params = useLocalSearchParams<{ propertyId?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0 ? params.propertyId : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
 
   const [title, setTitle] = useState('');
@@ -36,10 +40,10 @@ export default function AdminPushScreen() {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [sending, setSending] = useState(false);
 
-  const userEmail = user?.email ?? '';
+  const userId = user?.id ?? '';
   const activePropertyId = selectedPropertyId ?? '';
 
-  const { data: notifications } = useNotifications(userEmail, activePropertyId);
+  const { data: notifications } = useNotifications(userId, activePropertyId);
 
   const broadcastHistory = (notifications ?? [])
     .filter((n) => n.type === 'broadcast')
@@ -73,6 +77,7 @@ export default function AdminPushScreen() {
         audience: audience === 'All Tenants' ? 'all' : 'active',
         data: { type: 'broadcast' },
       });
+      await queryClient.invalidateQueries({ queryKey: ['notifications', userId, activePropertyId] });
       Toast.show({
         type: 'success',
         text1: 'Notification Sent',
@@ -100,6 +105,7 @@ export default function AdminPushScreen() {
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
+          testID="back-btn"
         >
           <ChevronLeft size={24} color={BRAND.gray} />
         </Pressable>
@@ -131,6 +137,7 @@ export default function AdminPushScreen() {
               </Text>
             </View>
             <Input
+              testID="push-title-input"
               label=""
               value={title}
               onChangeText={handleTitleChange}
@@ -149,6 +156,7 @@ export default function AdminPushScreen() {
               </Text>
             </View>
             <Input
+              testID="push-message-input"
               label=""
               value={message}
               onChangeText={handleMessageChange}
@@ -156,6 +164,8 @@ export default function AdminPushScreen() {
               multiline
               numberOfLines={4}
               maxLength={MESSAGE_MAX}
+              returnKeyType="done"
+              blurOnSubmit
               style={{ minHeight: 96, textAlignVertical: 'top' }}
             />
           </View>

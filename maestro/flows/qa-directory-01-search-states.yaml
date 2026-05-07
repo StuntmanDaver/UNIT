@@ -1,0 +1,137 @@
+appId: com.unitapp.mobile
+---
+# QA-DIRECTORY-01: Directory — search, category filter, empty states, pull-to-refresh
+# Covers items 56-64 from the exhaustive inventory:
+#   - Cards render
+#   - Search (debounced) filters list
+#   - Clear search via X button
+#   - Category chip filter
+#   - "All" chip clears filter
+#   - Empty state when search yields no results
+#   - Pull-to-refresh
+#   - Tap card → business detail
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+# Directory is default tab
+- tapOn:
+    id: "tab-directory"
+- assertVisible: "Directory"
+- waitForAnimationToEnd
+
+# ── CASE 1: Business cards render ────────────────────────────────────────────
+# Wait for the list to load
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading directory..."
+    timeout: 10000
+
+# ── CASE 2: Search filters list ──────────────────────────────────────────────
+- tapOn:
+    id: "search-input"
+- inputText: "Test"
+- waitForAnimationToEnd
+# Note: TextInput value is not exposed as a Text node in the iOS accessibility
+# tree, so `assertVisible: "Test"` would fail even though the input echoed the
+# text correctly. CASE 3 below validates filter behavior end-to-end.
+
+# ── CASE 3: Search with no results → empty state ─────────────────────────────
+- tapOn:
+    id: "search-input"
+- eraseText: 100
+- inputText: "xyzzy_no_match_9876"
+- waitForAnimationToEnd
+- assertVisible: "No businesses found"
+- tapOn:
+    id: "search-input"
+- eraseText: 100
+- hideKeyboard
+- waitForAnimationToEnd
+
+# ── CASE 4: Category chip filter ─────────────────────────────────────────────
+# Test horizontal scroll on CategoryChips by swiping LEFT (reveals chips
+# further right) anchored to the FlatList testID. scrollUntilVisible does
+# not reliably scroll RN horizontal FlatLists — explicit swipes do.
+#
+# "Healthcare" is at position 13 in BUSINESS_CATEGORIES (after All,
+# Restaurant, Accounting, Legal, Hvac, Medical, Retail, Technology,
+# Construction, Manufacturing, Logistics, Food Service, Professional
+# Services). Each swipe advances ~2-3 chips, so we use a bounded repeat
+# that stops as soon as Healthcare becomes visible.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Healthcare"
+          commands:
+            - swipe:
+                from:
+                  id: "category-chips-list"
+                direction: LEFT
+                duration: 600
+- tapOn: "Healthcare"
+- waitForAnimationToEnd
+# Filtered list or empty state
+
+# ── CASE 5: "All" chip clears filter ─────────────────────────────────────────
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# ── CASE 6: Pull-to-refresh ───────────────────────────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+- waitForAnimationToEnd
+- assertVisible: "Directory"
+
+# ── CASE 7: Tap first business card → detail view ────────────────────────────
+# `text: "Directory"` was the screen heading, not the parent of the card
+# list — childOf would silently match nothing useful, and the tap would
+# land on the heading itself. Use the BusinessCard testID with index: 0
+# to deterministically tap the first card in the list.
+- tapOn:
+    id: "business-card"
+    index: 0
+- waitForAnimationToEnd
+# Detail screen renders the screen title (business name) — directory heading
+# is no longer visible. Use the in-page Back button (testID: back-btn) to
+# return; Maestro's `back` action uses iOS edge-swipe which is unreliable
+# in the simulator and silently no-ops.
+- assertVisible:
+    id: "back-btn"
+
+# ── Back returns to directory ─────────────────────────────────────────────────
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Directory"
+    timeout: 8000
+
+- runFlow: ../subflows/logout.yaml

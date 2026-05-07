@@ -33,7 +33,7 @@ export default function PropertiesScreen() {
   const [type, setType] = useState('');
   const [totalUnits, setTotalUnits] = useState('');
 
-  const { data: properties, isLoading } = useProperties(propertyIds);
+  const { data: properties, isLoading, isError, error, refetch } = useProperties(propertyIds);
 
   const resetForm = () => {
     setName('');
@@ -121,7 +121,8 @@ export default function PropertiesScreen() {
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
-          onPress={() => router.back()}
+          testID="back-btn"
+          onPress={() => router.push('/(admin)/')}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
@@ -137,6 +138,13 @@ export default function PropertiesScreen() {
 
       {isLoading ? (
         <LoadingScreen message="Loading properties..." />
+      ) : isError ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-base font-nunito text-red-400 text-center mb-3">
+            {error?.message ?? 'Failed to load properties'}
+          </Text>
+          <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+        </View>
       ) : (
         <FlatList
           data={properties ?? []}
@@ -170,24 +178,28 @@ export default function PropertiesScreen() {
       >
         <View className="gap-1 pb-2">
           <Input
+            testID="property-name"
             label="Property Name *"
             value={name}
             onChangeText={setName}
             placeholder="Riverfront Plaza"
           />
           <Input
+            testID="property-address"
             label="Address *"
             value={address}
             onChangeText={setAddress}
             placeholder="123 Main St"
           />
           <Input
+            testID="property-city"
             label="City *"
             value={city}
             onChangeText={setCity}
             placeholder="San Francisco"
           />
           <Input
+            testID="property-state"
             label="State *"
             value={state}
             onChangeText={setState}
@@ -196,6 +208,7 @@ export default function PropertiesScreen() {
             maxLength={2}
           />
           <Input
+            testID="property-type"
             label="Type"
             value={type}
             onChangeText={setType}
@@ -203,6 +216,7 @@ export default function PropertiesScreen() {
             autoCapitalize="none"
           />
           <Input
+            testID="property-total-units"
             label="Total Units"
             value={totalUnits}
             onChangeText={setTotalUnits}

@@ -21,6 +21,12 @@
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
+    "preview-simulator": {
+      "extends": "preview",
+      "ios": {
+        "simulator": true
+      }
+    },
     "production": {
       "autoIncrement": true,
       "channel": "production",
@@ -32,9 +38,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "YOUR_APPLE_ID@example.com",
-        "ascAppId": "YOUR_APP_STORE_CONNECT_ID",
-        "appleTeamId": "YOUR_APPLE_TEAM_ID"
+        "appleId": "ketchel.david@gmail.com",
+        "ascAppId": "6767079612", 
+        "appleTeamId": "KLJ7P6JXK7"
       },
       "android": {
         "serviceAccountKeyPath": "./google-play-key.json",

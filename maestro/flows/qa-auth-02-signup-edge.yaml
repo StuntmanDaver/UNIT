@@ -1,0 +1,102 @@
+appId: com.unitapp.mobile
+---
+# QA-AUTH-02: Signup screen validation edge cases
+# Covers items 12-16 from the exhaustive inventory:
+#   - Mismatched passwords → Zod error
+#   - Existing email → error toast
+#   - Log In link navigates back
+#
+# NOTE: Happy-path signup (item 12) is covered by m1-05-onboarding.yaml.
+# We avoid full signup here because it creates Supabase auth users on each run.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 30000
+
+- tapOn: "Sign Up"
+- extendedWaitUntil:
+    visible:
+      text: "Create Account"
+    timeout: 8000
+
+# ── CASE 1: Mismatched passwords → Zod field error ───────────────────────────
+- tapOn:
+    label: "Email"
+- inputText: "qa-test-new@mailinator.com"
+- tapOn:
+    label: "Password"
+- inputText: "TestPass123!"
+- tapOn:
+    label: "Confirm Password"
+- inputText: "DifferentPass456!"
+- hideKeyboard
+- tapOn:
+    id: "btn-signup-submit"
+# Zod "Passwords do not match" error appears; stays on signup
+- assertVisible: "Create Account"
+
+# Clear passwords
+- tapOn:
+    label: "Password"
+- eraseText: 100
+- tapOn:
+    label: "Confirm Password"
+- eraseText: 100
+- hideKeyboard
+
+# ── CASE 2: Existing email → stays on Create Account ─────────────────────────
+# Supabase returns either "User already registered" (no email confirmation)
+# or "Check your email" (anti-enumeration with email confirmation enabled).
+# Either way the user must remain on Create Account; auto-login MUST NOT occur.
+- tapOn:
+    label: "Email"
+- eraseText: 100
+- inputText: "tenant1@unit-test.com"
+- tapOn:
+    label: "Password"
+- inputText: "TestPass123!"
+- tapOn:
+    label: "Confirm Password"
+- inputText: "TestPass123!"
+- hideKeyboard
+- tapOn:
+    id: "btn-signup-submit"
+- extendedWaitUntil:
+    notVisible:
+      text: "Creating..."
+    timeout: 10000
+- assertVisible: "Create Account"
+- assertNotVisible: "My Property"
+
+# ── CASE 3: Log In link navigates back to login ───────────────────────────────
+- tapOn: "Log In"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000
+- assertNotVisible: "Create Account"

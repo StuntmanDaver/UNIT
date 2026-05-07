@@ -125,7 +125,7 @@ export default function SignupScreen() {
             )}
           />
 
-          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-2">
+          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-2" testID="btn-signup-submit">
             Sign Up
           </Button>
 

@@ -6,7 +6,8 @@ appId: com.unitapp.mobile
     clearState: true
 - runFlow: ../subflows/login-tenant1.yaml
 
-- tapOn: "Promotions"
+- tapOn:
+    id: "tab-promotions"
 - assertVisible: "Promotions"
 
 # Tap "Local Deals" segment

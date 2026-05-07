@@ -17,8 +17,9 @@ appId: com.unitapp.mobile
     id: "search-input"
 - inputText: "Test"
 - waitForAnimationToEnd
-# Results should filter — just assert search bar has text (visible)
-- assertVisible: "Test"
+# Note: TextInput value is not in the iOS accessibility tree as a Text node,
+# so we can't directly assert the typed text. The clear-search step below
+# verifies the input still works end-to-end.
 - hideKeyboard
 
 # Clear search
@@ -27,12 +28,22 @@ appId: com.unitapp.mobile
 - eraseText: 100
 - hideKeyboard
 
-# Category filter: tap a category chip
-- scrollUntilVisible:
-    element:
-      text: "Services"
-    direction: RIGHT
-- tapOn: "Services"
+# Category filter: bounded repeat swipes the horizontal FlatList LEFT
+# (anchored to testID) until "Healthcare" is visible, then taps. Each
+# swipe advances ~2-3 chips; Healthcare is at position 13.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Healthcare"
+          commands:
+            - swipe:
+                from:
+                  id: "category-chips-list"
+                direction: LEFT
+                duration: 600
+- tapOn: "Healthcare"
 - waitForAnimationToEnd
 
 # Tap "All" to clear filter — CategoryChips shows "All" chip

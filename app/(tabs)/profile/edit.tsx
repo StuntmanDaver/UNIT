@@ -161,7 +161,7 @@ export default function EditProfileScreen() {
       >
         {/* Logo picker */}
         <View className="items-center mb-6">
-          <Pressable onPress={handlePickLogo} className="items-center gap-2">
+          <Pressable testID="profile-logo-picker" onPress={handlePickLogo} className="items-center gap-2">
             <View className="relative">
               <Avatar imageUrl={displayLogoUri} name={displayName} size={80} />
               <View className="absolute bottom-0 right-0 w-6 h-6 bg-brand-blue rounded-full items-center justify-center border-2 border-brand-navy">
@@ -309,10 +309,10 @@ export default function EditProfileScreen() {
 
         {/* Actions */}
         <View className="gap-3 mt-2">
-          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving}>
+          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="btn-profile-save">
             Save Changes
           </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>
+          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="btn-profile-cancel">
             Cancel
           </Button>
         </View>

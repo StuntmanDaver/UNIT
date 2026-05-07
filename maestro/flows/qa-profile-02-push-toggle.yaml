@@ -1,0 +1,82 @@
+appId: com.unitapp.mobile
+---
+# QA-PROFILE-02: Profile — push notification toggle (enable / disable)
+# Covers items 145-146 from the exhaustive inventory:
+#   - Push Notifications switch ON → enablePush (registers token, may prompt OS permission)
+#   - Push Notifications switch OFF → disablePush (unregisters)
+#
+# NOTE: OS permission prompt can appear when enabling for the first time.
+#       The simulator may pre-grant permission if qa-auth-01 ran with "Allow" earlier.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 15000
+
+# Scroll to Push Notifications switch
+- scrollUntilVisible:
+    element:
+      text: "Push Notifications"
+    direction: DOWN
+
+# ── CASE 1: Toggle push switch OFF if currently ON ───────────────────────────
+- runFlow:
+    when:
+      visible:
+        id: "profile-push-switch"
+    commands:
+      - tapOn:
+          id: "profile-push-switch"
+      - waitForAnimationToEnd
+
+# ── CASE 2: Toggle push switch back ON ───────────────────────────────────────
+# Handle OS permission prompt if it appears
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+
+- tapOn:
+    id: "profile-push-switch"
+- waitForAnimationToEnd
+
+# Permission prompt again if first time
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/logout.yaml

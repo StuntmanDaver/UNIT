@@ -1,0 +1,89 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-07: Admin Pricing — render + modal smoke
+# Covers items 237-246 PARTIALLY.
+#
+# What this flow verifies:
+#   - Admin can navigate to Promotion Pricing from the dashboard.
+#   - Seeded tiers render in the list.
+#   - Row actions are individually hit-testable.
+#   - Add-tier inline overlay is queryable.
+#   - Logout from the screen works.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- tapOn: "Promotion Pricing"
+- extendedWaitUntil:
+    visible:
+      text: "Set prices tenants pay for promotions"
+    timeout: 8000
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "7-day Standard"
+    timeout: 8000
+- assertVisible:
+    id: "pricing-tier-card-7-day-standard"
+- assertVisible:
+    id: "pricing-tier-edit-7-day-standard"
+- assertVisible:
+    id: "pricing-tier-deactivate-7-day-standard"
+
+- tapOn:
+    id: "btn-add-price-tier"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "modal-title"
+- assertVisible:
+    id: "pricing-tier-name"
+- tapOn:
+    id: "modal-action-cancel"
+
+# Logout
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+- tapOn:
+    id: "admin-logout-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn:
+    text: "Log Out"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

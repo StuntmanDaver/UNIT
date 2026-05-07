@@ -1,0 +1,87 @@
+appId: com.unitapp.mobile
+---
+# QA-PROFILE-01: Profile — QR code display and share sheet
+# Covers items 136-144 from the exhaustive inventory:
+#   - Business card displays (non-tappable)
+#   - "Edit Profile" navigates to edit screen
+#   - QR code renders
+#   - Share QR → system share sheet opens
+#   - Property row (read-only)
+#   - App Version displayed
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 15000
+
+# ── CASE 1: Profile renders ───────────────────────────────────────────────────
+- waitForAnimationToEnd
+
+# ── CASE 2: Edit Profile button ───────────────────────────────────────────────
+- tapOn: "Edit Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Save Changes"
+    timeout: 8000
+- tapOn:
+    id: "btn-profile-cancel"
+- waitForAnimationToEnd
+# Defensive: tap profile tab to ensure we're back on the profile root.
+# router.back() from /profile/edit should pop within the profile Stack;
+# tapping the tab is idempotent if we're already there.
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Save Changes"
+    timeout: 8000
+
+# ── CASE 3: QR Share button ───────────────────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "Share"
+    direction: DOWN
+- tapOn: "Share"
+- waitForAnimationToEnd
+# Dismiss iOS share sheet via the Close (X) button at top-right.
+- tapOn: "Close"
+- waitForAnimationToEnd
+
+# ── CASE 4: App Version row visible ─────────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "App Version"
+    direction: DOWN
+- assertVisible: "App Version"
+
+# ── CASE 5: Logout flow (header icon) ────────────────────────────────────────
+- runFlow: ../subflows/logout.yaml

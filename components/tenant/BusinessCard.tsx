@@ -10,14 +10,20 @@ type BusinessCardProps = {
   business: Business;
   onPress?: () => void;
   compact?: boolean;
+  testID?: string;
 };
 
-export function BusinessCard({ business, onPress, compact = false }: BusinessCardProps) {
+export function BusinessCard({
+  business,
+  onPress,
+  compact = false,
+  testID = 'business-card',
+}: BusinessCardProps) {
   const categoryColor = CATEGORY_COLORS[business.category] ?? '#6B7280';
   const badgeColor = { bg: categoryColor + '20', text: categoryColor };
 
   return (
-    <Card onPress={onPress} className="p-4">
+    <Card onPress={onPress} className="p-4" testID={testID}>
       <View className="flex-row items-start gap-3">
         <Avatar
           imageUrl={business.logo_url}

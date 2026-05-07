@@ -14,6 +14,7 @@ import { useAdminPromotion } from '@/hooks/useAdminPromotions';
 import { promotionsService, type AdminPromotionReviewAction } from '@/services/promotions';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/services/supabase';
+import { firstParam } from '@/lib/routeParams';
 
 /** Render a small inline status pill for any status string */
 function StatusPill({ label }: { label: string }) {
@@ -29,14 +30,16 @@ function StatusPill({ label }: { label: string }) {
 }
 
 export default function AdminPromotionDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id: string }>();
+  const id = firstParam(params.id) ?? '';
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [actionLoading, setActionLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
   const [anomaly, setAnomaly] = useState<boolean | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
-  const { data: promotion, isLoading } = useAdminPromotion(id);
+  const { data: promotion, isLoading, isError, error, refetch } = useAdminPromotion(id);
 
   useEffect(() => {
     if (promotion?.payment_status === 'paid') {
@@ -44,7 +47,36 @@ export default function AdminPromotionDetailScreen() {
     }
   }, [id, promotion?.payment_status]);
 
-  if (isLoading || !promotion) return <LoadingScreen message="Loading promotion..." />;
+  if (!id) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-400 text-center mb-3">Missing promotion ID</Text>
+        <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
+      </View>
+    );
+  }
+
+  if (isLoading) return <LoadingScreen message="Loading promotion..." />;
+
+  if (isError) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-400 text-center mb-3">
+          {error?.message ?? 'Failed to load promotion'}
+        </Text>
+        <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+      </View>
+    );
+  }
+
+  if (!promotion) {
+    return (
+      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
+        <Text className="text-base font-nunito text-brand-steel text-center mb-3">Promotion not found</Text>
+        <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
+      </View>
+    );
+  }
 
   const canReview = promotion.review_status === 'pending';
   const canSuspendReinstate =
@@ -60,8 +92,11 @@ export default function AdminPromotionDetailScreen() {
       await promotionsService.applyReviewAction(id, user.id, promotion, action);
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
       await queryClient.invalidateQueries({ queryKey: ['admin-promotions'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions-all', promotion.property_id] });
+      setFeedbackMessage('Action applied');
       Toast.show({ type: 'success', text1: 'Action applied' });
     } catch {
+      setFeedbackMessage('Failed to apply action');
       Toast.show({ type: 'error', text1: 'Failed to apply action' });
     } finally {
       setActionLoading(false);
@@ -78,8 +113,12 @@ export default function AdminPromotionDetailScreen() {
         promotion.review_status as 'approved' | 'suspended'
       );
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions-all', promotion.property_id] });
+      setFeedbackMessage('Status updated');
       Toast.show({ type: 'success', text1: 'Status updated' });
     } catch {
+      setFeedbackMessage('Failed to update status');
       Toast.show({ type: 'error', text1: 'Failed to update status' });
     } finally {
       setActionLoading(false);
@@ -127,6 +166,7 @@ export default function AdminPromotionDetailScreen() {
     <View className="flex-1 bg-brand-navy">
       <GradientHeader>
         <Pressable
+          testID="back-btn"
           onPress={() => router.back()}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
@@ -144,6 +184,16 @@ export default function AdminPromotionDetailScreen() {
       </GradientHeader>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+        {feedbackMessage && (
+          <View
+            testID="review-action-feedback"
+            accessibilityLiveRegion="polite"
+            className="bg-brand-blue/40 border border-brand-blue rounded-xl p-3 mb-4"
+          >
+            <Text className="text-sm font-nunito-semibold text-white">{feedbackMessage}</Text>
+          </View>
+        )}
+
         {anomaly === true && (
           <View className="bg-yellow-500/20 border border-yellow-500/60 rounded-xl p-4 mb-4">
             <Text className="text-sm font-nunito-semibold text-yellow-300">

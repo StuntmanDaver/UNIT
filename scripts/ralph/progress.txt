@@ -763,3 +763,39 @@ Final rerun completed on booted iPhone 16 Pro Max simulator (iOS 18.6) using
 ### Rollup doc
 - Required checkboxes ticked in
   `unit/scripts/ralph/followups/US-021-022-simulator-uat-rollup.md`.
+
+## 2026-05-05 - Expanded Maestro Suite (27 flows) Production-Readiness Run
+- Ran new master suite qa-00-full-suite.yaml in 5 batches (C1-C5) on iPhone 16 Pro Max iOS 18.6
+- Result: 1 PASS / 27 FAIL (qa-home-01-feed-states only flow that passed)
+- Stripe m5-02 deferred (test key on Edge Function not confirmed this session)
+- Full triage: scripts/ralph/followups/US-021-022-simulator-uat-rollup.md (2026-05-05 section)
+
+Per-batch:
+- C1 (auth, 5): 0/5 - all single-assertion fails after most steps passed
+- C2 (tenant, 10): 1/10 - qa-home-01 green; rest fail in shared logout subflow
+- C3 (profile, 3): 0/3 - all fail in shared logout subflow
+- C4 (admin, 8): 0/8 - all stuck on Expo dev-client launcher (timing flake from rapid reinstalls)
+- C5 (cross-cutting, 2): 0/2 - Stripe text expected, permissions died at 6s
+
+Root causes (no CODE bugs surfaced):
+- FLOW: subflows/logout.yaml line 16 coordinate tap "65%,56%" misses iOS alert confirm button
+- FLOW: qa-auth-01 keyboard occlusion on Forgot password tap
+- ENV: 4 seed gaps (tenant-reset acct, unread notif, 4+ pending promos, approved CTA promo)
+- ENV: Metro auto-fell-back to :8082 (11 flows hardcode :8081); restarted on canonical port
+- ENV: rapid uninstall/reinstall during C4 left dev client unable to load bundle for 60s
+
+**Learnings for future iterations:**
+- Maestro 2.4.0 does NOT support --continue-after-failure flag; passing multiple flow
+  files automatically continues across files (flow-level; assertion failures still
+  stop the current flow)
+- xcrun simctl uninstall com.unitapp.mobile DELETES the .app bundle. Recovery: install
+  from ~/Library/Developer/Xcode/DerivedData/UNIT-*/Build/Products/Debug-iphonesimulator/UNIT.app
+- launchApp clearState:true does NOT reliably wipe Supabase auth session on iOS
+  simulator; full uninstall+install is needed between flows that assume logged-out start
+- Dev-client launcher tap pattern is fragile: after the tap, the React Native bundle
+  may not load for 5-30s; flows need an explicit settle step before assertVisible
+- 11 flows hardcode http://localhost:8081; if Metro auto-falls-back to 8082, all 11
+  break on the very first step. Always start Metro with --port 8081 or kill stragglers.
+- The new suite was authored AFTER the original UAT rollup signed off; 1/27 pass rate
+  is mostly flow-maintenance debt, not regressions in app code
+---

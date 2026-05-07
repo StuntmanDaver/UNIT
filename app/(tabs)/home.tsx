@@ -97,6 +97,7 @@ export default function HomeScreen() {
         <ActivityFeedCard
           item={item}
           onPress={item.ctaRoute ? () => handlePress(item) : undefined}
+          testID={`activity-feed-card-${item.kind}`}
         />
       </View>
     ),
@@ -153,6 +154,7 @@ export default function HomeScreen() {
         )}
       </View>
       <FlatList
+        testID="home-feed-list"
         data={items ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

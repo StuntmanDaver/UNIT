@@ -9,10 +9,12 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
 import { PropertySelector } from '@/components/admin/PropertySelector';
 import { useAuth } from '@/lib/AuthContext';
 import { useAdminAllPromotionList } from '@/hooks/useAdminPromotions';
 import { type Promotion, getPromotionKind } from '@/services/promotions';
+import { firstParam } from '@/lib/routeParams';
 
 const SEGMENTS = ['All', 'Pending', 'Approved', 'External'];
 
@@ -34,11 +36,10 @@ function filterPromotions(promotions: Promotion[], segment: string): Promotion[]
 export default function AdminPromotionsScreen() {
   const { propertyIds } = useAuth();
   const params = useLocalSearchParams<{ propertyId?: string; filter?: string }>();
+  const initialPropertyId = firstParam(params.propertyId);
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    typeof params.propertyId === 'string' && params.propertyId.length > 0
-      ? params.propertyId
-      : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
   );
   const [segment, setSegment] = useState<string>(() =>
     params.filter && SEGMENTS.includes(params.filter as string)
@@ -48,7 +49,7 @@ export default function AdminPromotionsScreen() {
 
   const activePropertyId = selectedPropertyId ?? '';
 
-  const { data: allPromotions, isLoading } = useAdminAllPromotionList(activePropertyId);
+  const { data: allPromotions, isLoading, isError, error, refetch } = useAdminAllPromotionList(activePropertyId);
 
   const visiblePromotions = useMemo(
     () => filterPromotions(allPromotions ?? [], segment),
@@ -64,6 +65,8 @@ export default function AdminPromotionsScreen() {
 
     return (
       <Pressable
+        testID="promo-card"
+        accessibilityLabel={`Promotion ${item.headline}`}
         onPress={() => router.push(`/(admin)/promotions/${item.id}` as Parameters<typeof router.push>[0])}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
@@ -115,6 +118,7 @@ export default function AdminPromotionsScreen() {
       <GradientHeader>
         <View className="flex-row items-center justify-between mb-2">
           <Pressable
+            testID="back-btn"
             onPress={() => router.back()}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
@@ -123,6 +127,7 @@ export default function AdminPromotionsScreen() {
             <ChevronLeft size={24} color={BRAND.gray} />
           </Pressable>
           <Pressable
+            testID="new-external-promotion-btn"
             onPress={() =>
               router.push({
                 pathname: '/(admin)/promotions/new-external',
@@ -163,6 +168,13 @@ export default function AdminPromotionsScreen() {
 
           {isLoading ? (
             <LoadingScreen message="Loading promotions..." />
+          ) : isError ? (
+            <View className="flex-1 items-center justify-center px-6">
+              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+                {error?.message ?? 'Failed to load promotions'}
+              </Text>
+              <Button onPress={() => refetch()} variant="secondary">Retry</Button>
+            </View>
           ) : (
             <FlatList
               data={visiblePromotions}

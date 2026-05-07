@@ -117,15 +117,12 @@ export default function PendingPaymentScreen() {
         });
       }
 
-      if (refreshed.payment_status === 'paid' || userReachedSuccessUrl) {
-        if (refreshed.payment_status !== 'paid') {
-          queryClient.setQueryData(['promotion', id], {
-            ...refreshed,
-            payment_status: 'paid',
-            review_status: 'pending',
-          });
-        }
+      if (refreshed.payment_status === 'paid') {
         Toast.show({ type: 'success', text1: 'Payment received', text2: 'Submitted for admin review.' });
+      } else if (userReachedSuccessUrl) {
+        // Stripe redirected successfully but webhook hasn't landed within the poll window.
+        // Do NOT write optimistic state — the webhook will update the DB.
+        Toast.show({ type: 'info', text1: 'Payment processing…', text2: 'Check back in a moment — your submission will appear shortly.' });
       } else {
         Toast.show({ type: 'error', text1: 'Payment was not completed.' });
       }

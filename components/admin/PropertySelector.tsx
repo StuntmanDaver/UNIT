@@ -13,24 +13,46 @@ type PropertySelectorProps = {
 export function PropertySelector({ propertyIds, selected, onSelect }: PropertySelectorProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  const fetchProperties = () => {
+    setLoading(true);
+    setLoadError(null);
+
+    propertiesService.getByIds(propertyIds)
+      .then((results) => {
+        setProperties(results);
+        if (!selected && results.length > 0) {
+          onSelect(results[0].id);
+        }
+      })
+      .catch((err) => {
+        setLoadError(err instanceof Error ? err.message : 'Failed to load properties');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setLoadError(null);
 
     propertiesService.getByIds(propertyIds)
       .then((results) => {
         if (!cancelled) {
           setProperties(results);
-          // Auto-select first if nothing selected
           if (!selected && results.length > 0) {
             onSelect(results[0].id);
           }
         }
       })
-      .catch(() => {
-        // silently handle fetch errors
+      .catch((err) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : 'Failed to load properties');
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -39,7 +61,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds, onSelect]); // `selected` removed — re-fetching on every selection is unnecessary
+  }, [propertyIds, onSelect]);
 
   if (loading) {
     return (
@@ -50,6 +72,19 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     );
   }
 
+  if (loadError) {
+    return (
+      <Pressable
+        onPress={fetchProperties}
+        className="flex-row items-center gap-2 bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3"
+      >
+        <Text className="text-sm font-nunito text-red-400 flex-1" numberOfLines={2}>
+          {loadError} — tap to retry
+        </Text>
+      </Pressable>
+    );
+  }
+
   if (properties.length === 0) {
     return null;
   }
@@ -57,7 +92,10 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   // Single property — no need for a dropdown
   if (properties.length === 1) {
     return (
-      <View className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3">
+      <View
+        testID="property-selector"
+        className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
+      >
         <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
           {properties[0].name}
         </Text>
@@ -70,6 +108,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   return (
     <View className="relative z-10">
       <Pressable
+        testID="property-selector"
         onPress={() => setOpen((prev) => !prev)}
         className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
         style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
@@ -87,6 +126,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
             return (
               <Pressable
                 key={property.id}
+                testID="property-selector-option"
                 onPress={() => {
                   onSelect(property.id);
                   setOpen(false);
