@@ -25,5 +25,5 @@ jobs:
     type: maestro
     needs: [build_preview_ios]
     params:
-      flow_path: maestro/flows
+      flow_path: maestro/flows/qa-05-light-surface-sweep.yaml
       build_id: ${{ needs.build_preview_ios.outputs.build_id }}
