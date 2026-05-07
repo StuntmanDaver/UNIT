@@ -9,7 +9,9 @@ appId: com.unitapp.mobile
     when:
       notVisible: "Profile"
     commands:
-      - tapOn: "Profile"
+      - tapOn:
+          point: "92%,93%"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Profile"
