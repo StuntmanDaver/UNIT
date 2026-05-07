@@ -63,12 +63,13 @@ export default function BusinessDetailScreen() {
         <Pressable
           testID="back-btn"
           onPress={() => {
-            // The directory tab has no stack _layout.tsx, so `router.back()`
-            // pops the global history — which routes the user to whatever
-            // tab they came from (often Home), not the directory list.
-            // `router.replace('/directory')` deterministically returns to
-            // the list within the directory tab.
-            router.replace('/directory');
+            // Detail lives in `directory/_layout` Stack; pop stays inside Directory.
+            // Deeplink / missing stack entry: fall back to list route.
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace('/directory');
+            }
           }}
           className="mb-4 flex-row items-center gap-1.5"
           hitSlop={8}
