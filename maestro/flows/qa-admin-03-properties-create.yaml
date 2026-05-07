@@ -89,6 +89,14 @@ appId: com.unitapp.mobile
 # ── CASE 3: Back button ───────────────────────────────────────────────────────
 - tapOn:
     id: "back-btn"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Admin Dashboard"
+    commands:
+      - tapOn:
+          point: "6%,10%"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Admin Dashboard"
@@ -97,7 +105,10 @@ appId: com.unitapp.mobile
 # Log out
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

@@ -108,15 +108,24 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "external-promo-description"
 - inputText: "This external promotion was created by Maestro E2E test."
+- waitForAnimationToEnd
 
-# CTA fields (labels are "CTA Label *" and "CTA URL *")
+# CTA fields. Dismiss between fields so iOS does not keep appending into the
+# previously focused TextInput while Maestro is scrolling the form.
+- scrollUntilVisible:
+    element:
+      id: "external-promo-cta-label"
+    direction: DOWN
 - tapOn:
     id: "external-promo-cta-label"
 - inputText: "Visit Now"
+- tapOn: "return"
+- waitForAnimationToEnd
 - tapOn:
     id: "external-promo-cta-url"
-- inputText: "https://qa.unit.app"
-- hideKeyboard
+- inputText: "unitapp"
+- tapOn: "return"
+- waitForAnimationToEnd
 
 # Start date — tap "Select" (first occurrence = start date Pressable)
 - tapOn:
@@ -127,46 +136,21 @@ appId: com.unitapp.mobile
     start: "50%, 85%"
     end: "50%, 80%"
 - waitForAnimationToEnd
-# Auto-advances to end picker on iOS; swipe end date wheel
+- tapOn:
+    point: "93%,73%"
+- waitForAnimationToEnd
+
+# End date — after start is picked, only the end "Select" remains
+- tapOn:
+    id: "external-promo-end-date"
+- waitForAnimationToEnd
 - swipe:
     start: "50%, 85%"
     end: "50%, 65%"
 - waitForAnimationToEnd
-# Dismiss modal if still open
-- runFlow:
-    when:
-      visible: "Cancel, Start Date, Done"
-    commands:
-      - tapOn:
-          point: "92%, 71%"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Cancel, End Date, Done"
-    commands:
-      - tapOn:
-          point: "92%, 71%"
-      - waitForAnimationToEnd
-
-# End date — after start is picked, only the end "Select" remains
-- runFlow:
-    when:
-      visible: "Select"
-    commands:
-      - tapOn:
-          id: "external-promo-end-date"
-      - waitForAnimationToEnd
-      - swipe:
-          start: "50%, 85%"
-          end: "50%, 65%"
-      - waitForAnimationToEnd
-      - runFlow:
-          when:
-            visible: "Cancel, End Date, Done"
-          commands:
-            - tapOn:
-                point: "92%, 71%"
-            - waitForAnimationToEnd
+- tapOn:
+    point: "93%,73%"
+- waitForAnimationToEnd
 
 # Scroll to submit button
 - swipe:
@@ -199,7 +183,10 @@ appId: com.unitapp.mobile
     timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

@@ -162,7 +162,7 @@ export default function TenantsScreen() {
       <GradientHeader>
         <Pressable
           testID="back-btn"
-          onPress={() => router.back()}
+          onPress={() => router.push('/(admin)/')}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
