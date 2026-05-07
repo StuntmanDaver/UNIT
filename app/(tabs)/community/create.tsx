@@ -173,6 +173,7 @@ export default function CreateCommunityPostScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Title *"
+              testID="post-title"
               value={value}
               onChangeText={onChange}
               placeholder={
@@ -190,6 +191,7 @@ export default function CreateCommunityPostScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Content *"
+              testID="post-content"
               value={value}
               onChangeText={onChange}
               placeholder="Write your post here..."
@@ -265,7 +267,7 @@ export default function CreateCommunityPostScreen() {
 
         {/* Actions */}
         <View className="gap-3 mt-2">
-          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving}>
+          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="btn-post-submit">
             Post update
           </Button>
           <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>

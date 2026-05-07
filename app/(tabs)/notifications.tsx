@@ -60,6 +60,7 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
 
   return (
     <TouchableOpacity
+      testID="notification-row"
       style={[styles.row, { backgroundColor: isUnread ? UNREAD_BG : BRAND.navyLight }]}
       onPress={() => onPress(item)}
       activeOpacity={0.7}
