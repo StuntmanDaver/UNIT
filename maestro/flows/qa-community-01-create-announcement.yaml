@@ -64,6 +64,8 @@ appId: com.unitapp.mobile
 
 # ── CASE 5: Pull-to-refresh ───────────────────────────────────────────────────
 - swipe:
+    from:
+      id: "community-list"
     direction: DOWN
     duration: 500
 - waitForAnimationToEnd

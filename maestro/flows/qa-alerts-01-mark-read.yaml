@@ -51,6 +51,8 @@ appId: com.unitapp.mobile
 
 # ── CASE 2: Pull-to-refresh ───────────────────────────────────────────────────
 - swipe:
+    from:
+      id: "notifications-list"
     direction: DOWN
     duration: 500
 - waitForAnimationToEnd
@@ -79,7 +81,8 @@ appId: com.unitapp.mobile
           id: "notification-row"
           index: 0
       - waitForAnimationToEnd
-      - back
+      - tapOn:
+          id: "tab-alerts"
       - waitForAnimationToEnd
 
 # ── CASE 5: Empty state ───────────────────────────────────────────────────────

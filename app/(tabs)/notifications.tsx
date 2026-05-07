@@ -151,6 +151,7 @@ export default function NotificationsScreen() {
       </GradientHeader>
 
       <FlatList
+        testID="notifications-list"
         data={notifications ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

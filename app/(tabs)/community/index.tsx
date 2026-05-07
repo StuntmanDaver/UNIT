@@ -71,6 +71,7 @@ export default function CommunityScreen() {
       </GradientHeader>
 
       <FlatList
+        testID="community-list"
         data={posts ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

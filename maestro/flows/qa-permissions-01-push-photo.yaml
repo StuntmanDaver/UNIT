@@ -97,8 +97,8 @@ appId: com.unitapp.mobile
       - waitForAnimationToEnd
 
 # Photo picker UI should be visible (iOS Photos sheet)
-# Dismiss by pressing Cancel / Back
-- back
+# Dismiss by pressing the system sheet Cancel button.
+- tapOn: "Cancel"
 - waitForAnimationToEnd
 
 # Back to profile without saving

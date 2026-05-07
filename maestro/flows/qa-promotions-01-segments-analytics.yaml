@@ -74,10 +74,14 @@ appId: com.unitapp.mobile
 
 # ── CASE 6: Scroll list — triggers viewability analytics for advertiser items ──
 - swipe:
+    from:
+      id: "promotions-list"
     direction: DOWN
     duration: 800
 - waitForAnimationToEnd
 - swipe:
+    from:
+      id: "promotions-list"
     direction: UP
     duration: 800
 - waitForAnimationToEnd

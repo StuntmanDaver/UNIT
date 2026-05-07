@@ -38,12 +38,16 @@ appId: com.unitapp.mobile
 
 # Scroll down to reveal additional cards
 - swipe:
+    from:
+      id: "home-feed-list"
     direction: DOWN
     duration: 800
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-scroll-1
 
 - swipe:
+    from:
+      id: "home-feed-list"
     direction: DOWN
     duration: 800
 - waitForAnimationToEnd

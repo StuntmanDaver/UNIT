@@ -78,6 +78,8 @@ appId: com.unitapp.mobile
 # ── CASE 6: Tap first activity card (if tappable) → navigates and can return ──
 # Scroll back to top
 - swipe:
+    from:
+      id: "home-feed-list"
     direction: UP
     duration: 600
 - waitForAnimationToEnd

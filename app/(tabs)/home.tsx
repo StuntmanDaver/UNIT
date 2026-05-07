@@ -154,6 +154,7 @@ export default function HomeScreen() {
         )}
       </View>
       <FlatList
+        testID="home-feed-list"
         data={items ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

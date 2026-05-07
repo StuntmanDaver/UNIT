@@ -115,7 +115,7 @@ appId: com.unitapp.mobile
     timeout: 20000
 
 # ── CASE: Dismiss SVC without paying → app stays on pending-payment ───────────
-- back
+- tapOn: "Done"
 - waitForAnimationToEnd
 # Should return to pending-payment screen gracefully (no crash)
 - extendedWaitUntil:

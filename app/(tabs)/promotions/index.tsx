@@ -98,6 +98,7 @@ export default function PromotionsScreen() {
         />
       </GradientHeader>
       <FlatList
+        testID="promotions-list"
         data={promotions ?? []}
         keyExtractor={keyExtractor}
         renderItem={renderItem}

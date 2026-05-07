@@ -89,31 +89,30 @@ appId: com.unitapp.mobile
 - tapOn: "Manage Tenants"
 - assertVisible: "Tenants"
 - tapOn:
-    point: "6%,9%"
+    id: "back-btn"
 - waitForAnimationToEnd
 
 - tapOn: "Manage Properties"
 - assertVisible: "Properties"
 - tapOn:
-    point: "6%,9%"
+    id: "back-btn"
 - waitForAnimationToEnd
 
 - tapOn: "View Pending Approvals"
 - assertVisible: "Pending"
 - tapOn:
-    point: "6%,9%"
+    id: "back-btn"
 - waitForAnimationToEnd
 
 - tapOn: "Account & Settings"
 - assertVisible: "Account"
 - tapOn:
-    point: "6%,9%"
+    id: "back-btn"
 - waitForAnimationToEnd
 
 # Log out
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
 - assertVisible: "Are you sure you want to log out?"
 - tapOn:
     text: "Log Out"
