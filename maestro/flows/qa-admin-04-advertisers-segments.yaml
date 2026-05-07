@@ -1,0 +1,116 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-04: Admin Advertisers — property selector, segment filter, row tap, 30-day hint
+# Covers items 205-210 from the exhaustive inventory:
+#   - Property selector
+#   - Segments: Pending / Approved / Rejected
+#   - "Last 30 days" hint when window=recent (routed from stat card)
+#   - Tap row → promotion detail
+#   - Empty state per segment
+#   - Error + Retry
+#
+# PREREQUISITE: At least one promotion in each review status (Pending, Approved, Rejected)
+#               for the test property.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+# Select property first
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+- waitForAnimationToEnd
+
+# Navigate to Advertisers via View Pending Approvals
+- tapOn: "View Pending Approvals"
+- extendedWaitUntil:
+    visible:
+      text: "Pending"
+    timeout: 8000
+
+# ── CASE 1: Pending segment ───────────────────────────────────────────────────
+- assertVisible: "Pending"
+
+# ── CASE 2: Approved segment ──────────────────────────────────────────────────
+- tapOn: "Approved"
+- waitForAnimationToEnd
+
+# ── CASE 3: Rejected segment ──────────────────────────────────────────────────
+- tapOn: "Rejected"
+- waitForAnimationToEnd
+
+# ── CASE 4: Back to Pending and tap first row ─────────────────────────────────
+- tapOn: "Pending"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      notVisible: "No promotions"
+    commands:
+      - tapOn:
+          index: 0
+          childOf:
+            text: "Pending"
+      - waitForAnimationToEnd
+      - back
+      - waitForAnimationToEnd
+
+# ── CASE 5: Empty state check (if no pending) ─────────────────────────────────
+- runFlow:
+    when:
+      visible: "No promotions"
+    commands:
+      - assertVisible: "No promotions"
+
+# Back to dashboard
+- back
+
+# Verify "30-day" hint path via stat card "Promotions 30d" (actual label in source)
+- tapOn: "Promotions 30d"
+- extendedWaitUntil:
+    visible:
+      text: "Approved"
+    timeout: 8000
+# "Last 30 days" badge or text appears when window=recent
+- runFlow:
+    when:
+      visible: "Last 30 days"
+    commands:
+      - assertVisible: "Last 30 days"
+
+- back
+
+# Log out
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

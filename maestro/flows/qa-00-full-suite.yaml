@@ -1,0 +1,113 @@
+appId: com.unitapp.mobile
+---
+# QA-00: Full E2E Suite — runs every qa-* flow in dependency order
+#
+# Run from unit/ with:
+#   JAVA_HOME=/opt/homebrew/opt/openjdk@21 \
+#   MAESTRO_CLI_NO_ANALYTICS=1 \
+#   ~/.maestro/bin/maestro test maestro/flows/qa-00-full-suite.yaml
+#
+# Tag exclusions:
+#   --exclude-tags=stripe   Skip Stripe checkout flows (needs Stripe test-mode keys)
+#   --exclude-tags=manual   Skip flows that require manual prerequisites
+#
+# TOTAL COVERAGE: ~250 user actions across auth, tenant, admin, and cross-cutting
+#
+# PREREQUISITE CHECKLIST (see maestro/README.md for setup instructions):
+#   [ ] iPhone 16 Pro Max simulator booted
+#   [ ] Metro bundler running: npx expo start --ios
+#   [ ] Dev build installed on simulator
+#   [ ] Test accounts seeded (tenant1@unit-test.com, david@cultrhealth.com)
+#   [ ] At least 1 pending advertiser promotion in test property
+#   [ ] At least 1 approved advertiser promotion with CTA in test property
+#   [ ] At least 1 active pricing tier
+#   [ ] Test property has latitude/longitude set + neighbor within 2 mi (for Nearby)
+#   [ ] At least 1 unread notification for tenant1 (for qa-alerts-01)
+#   [ ] At least 4 pending promotions for admin review flow (qa-admin-05)
+#   [ ] Stripe test mode keys on create-promotion-checkout-session Edge Function (for m5-02)
+
+# ── AUTH & ONBOARDING ─────────────────────────────────────────────────────────
+
+- runFlow: ./qa-auth-01-login-validation.yaml
+
+- runFlow: ./qa-auth-02-signup-edge.yaml
+
+# NOTE: qa-auth-03 requires a tenant-reset@unit-test.com account with needs_password_change=true
+# Skip if account not set up: comment out the line below
+- runFlow: ./qa-auth-03-reset-password.yaml
+
+# NOTE: qa-auth-04 creates a temporary signup account (Mailinator) each run
+- runFlow: ./qa-auth-04-onboarding-edge.yaml
+
+- runFlow: ./qa-auth-05-routing-redirects.yaml
+
+# ── TENANT — HOME ─────────────────────────────────────────────────────────────
+
+- runFlow: ./qa-home-01-feed-states.yaml
+
+# ── TENANT — DIRECTORY ───────────────────────────────────────────────────────
+
+- runFlow: ./qa-directory-01-search-states.yaml
+
+- runFlow: ./qa-business-01-contact-actions.yaml
+
+# ── TENANT — COMMUNITY ────────────────────────────────────────────────────────
+
+- runFlow: ./qa-community-01-create-announcement.yaml
+
+- runFlow: ./qa-community-02-create-event.yaml
+
+# ── TENANT — PROMOTIONS ───────────────────────────────────────────────────────
+
+- runFlow: ./qa-promotions-01-segments-analytics.yaml
+
+- runFlow: ./qa-promotions-02-create-cancel-paths.yaml
+
+- runFlow: ./qa-promotions-03-pending-payment-edges.yaml
+
+- runFlow: ./qa-promotion-detail-01.yaml
+
+# Stripe happy path — tagged 'stripe', skip with --exclude-tags=stripe if keys not set
+- runFlow: ./m5-02-tenant-paid-promotion.yaml
+
+# ── TENANT — NOTIFICATIONS ────────────────────────────────────────────────────
+
+- runFlow: ./qa-alerts-01-mark-read.yaml
+
+# ── TENANT — PROFILE ──────────────────────────────────────────────────────────
+
+- runFlow: ./qa-profile-01-qr-share.yaml
+
+- runFlow: ./qa-profile-02-push-toggle.yaml
+
+- runFlow: ./qa-profile-03-edit-full.yaml
+
+# ── ADMIN ─────────────────────────────────────────────────────────────────────
+
+- runFlow: ./qa-admin-01-dashboard-nav.yaml
+
+- runFlow: ./qa-admin-02-tenants-add-invite.yaml
+
+# NOTE: qa-admin-03 creates a property in the DB. Clean up after CI run.
+- runFlow: ./qa-admin-03-properties-create.yaml
+
+- runFlow: ./qa-admin-04-advertisers-segments.yaml
+
+# NOTE: qa-admin-05 requires 4+ pending promotions. Run after seeding.
+- runFlow: ./qa-admin-05-promo-review-all-actions.yaml
+
+# NOTE: qa-admin-06 creates an external promotion in the DB.
+- runFlow: ./qa-admin-06-new-external-promo.yaml
+
+# NOTE: qa-admin-07 creates and deactivates a pricing tier.
+- runFlow: ./qa-admin-07-pricing-tier-crud.yaml
+
+- runFlow: ./qa-admin-08-push-broadcast-full.yaml
+
+# ── CROSS-CUTTING ─────────────────────────────────────────────────────────────
+
+# NOTE: qa-deeplink-01 requires Stripe test mode keys (opens SVC but backs out immediately)
+- runFlow: ./qa-deeplink-01-stripe-return.yaml
+
+# NOTE: qa-permissions-01 requires simulator photo/push permissions to be reset first
+- runFlow: ./qa-permissions-01-push-photo.yaml

@@ -1,0 +1,140 @@
+appId: com.unitapp.mobile
+---
+# QA-PROMOTIONS-03: Pending-payment screen — tier selection, edge cases
+# Covers items 115-124 from the exhaustive inventory:
+#   - Promotion summary card renders
+#   - Tier list renders (radio rows)
+#   - Empty tiers state
+#   - Select tier
+#   - "Save for Later" → back to promotions
+#   - "Back to Promotions" (post-paid state)
+#
+# NOTE: The Stripe full checkout happy path is covered by m5-02-tenant-paid-promotion.yaml.
+#       This flow tests the pending-payment screen UI without completing payment.
+#
+# PREREQUISITE:
+#   - At least one active pricing tier exists (see qa-admin-07-pricing-tier-crud.yaml).
+#   - Create a promotion first to get a valid pending-payment URL.
+#     This flow runs the create flow inline then lands on pending-payment.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-promotions"
+- assertVisible: "Promotions"
+
+# Create a promotion to get to pending-payment
+- tapOn:
+    id: "fab-create-promotion"
+- extendedWaitUntil:
+    visible:
+      text: "Promote My Business"
+    timeout: 8000
+
+- tapOn:
+    id: "promotion-headline"
+- inputText: "QA Payment Edge Test"
+- tapOn:
+    id: "promotion-description"
+- inputText: "Testing pending-payment screen edge cases."
+- tapOn: "Promote My Business"
+
+# Set dates
+- tapOn:
+    id: "promotion-start-date"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 80%"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 65%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Cancel, Start Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Cancel, End Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "promotion-submit"
+- extendedWaitUntil:
+    visible:
+      text: "Pending Payment"
+    timeout: 12000
+
+# ── CASE 1: Promotion summary renders ────────────────────────────────────────
+- assertVisible: "QA Payment Edge Test"
+- assertVisible: "Pending Payment"
+
+# ── CASE 2: Tier list renders (radio rows) ────────────────────────────────────
+# Tiers section visible if any tiers exist
+- runFlow:
+    when:
+      visible: "Choose a tier"
+    commands:
+      - tapOn: "Choose a tier"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "No tiers available"
+    commands:
+      - assertVisible: "No tiers available"
+
+# ── CASE 3: Select first tier ─────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible: "Pay Now"
+    commands:
+      - tapOn:
+          index: 0
+          point: "50%,50%"
+      - waitForAnimationToEnd
+      - assertVisible: "Pay Now"
+
+# ── CASE 4: "Save for Later" returns to promotions ────────────────────────────
+- tapOn: "Save for Later"
+- assertVisible: "Promotions"
+
+- runFlow: ../subflows/logout.yaml

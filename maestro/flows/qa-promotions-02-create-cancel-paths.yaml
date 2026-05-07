@@ -1,0 +1,133 @@
+appId: com.unitapp.mobile
+---
+# QA-PROMOTIONS-02: Promotion create — full form + cancel path
+# Covers items 103-114 from the exhaustive inventory:
+#   - Headline / description required fields
+#   - Date picker (iOS modal) — start and end
+#   - Optional CTA label + link
+#   - Submit → lands on pending-payment screen
+#   - Cancel → back to promotions list
+#
+# This flow creates a real promotion in the DB. The resulting pending-payment
+# screen is covered separately in qa-promotions-03.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-promotions"
+- assertVisible: "Promotions"
+
+# ── CASE 1: Cancel immediately → back to promotions ──────────────────────────
+- tapOn:
+    id: "fab-create-promotion"
+- extendedWaitUntil:
+    visible:
+      text: "Promote My Business"
+    timeout: 8000
+- tapOn: "Cancel"
+- assertVisible: "Promotions"
+
+# ── CASE 2: Full form submit → pending-payment screen ────────────────────────
+- tapOn:
+    id: "fab-create-promotion"
+- extendedWaitUntil:
+    visible:
+      text: "Promote My Business"
+    timeout: 8000
+
+# Headline (required)
+- tapOn:
+    id: "promotion-headline"
+- inputText: "QA Test Promotion"
+
+# Description (required)
+- tapOn:
+    id: "promotion-description"
+- inputText: "Automated Maestro promotion for end-to-end testing."
+
+# Dismiss keyboard by tapping header
+- tapOn: "Promote My Business"
+
+# Start date — open picker and swipe one day forward
+- tapOn:
+    id: "promotion-start-date"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 80%"
+- waitForAnimationToEnd
+# Auto-advances to end picker on iOS; swipe end date wheel
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 65%"
+- waitForAnimationToEnd
+# Dismiss modal if still open
+- runFlow:
+    when:
+      visible: "Cancel, Start Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Cancel, End Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+
+# Optional CTA — labels from source: "Button Label (optional)" and "Button Link (optional)"
+- tapOn:
+    label: "Button Label (optional)"
+- inputText: "Visit Us"
+- tapOn:
+    label: "Button Link (optional)"
+- inputText: "https://unit.app"
+- hideKeyboard
+
+# Scroll down to submit button
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "promotion-submit"
+
+# Land on pending-payment
+- extendedWaitUntil:
+    visible:
+      text: "Pending Payment"
+    timeout: 12000
+
+# Navigate back to promotions list
+- tapOn: "Save for Later"
+- assertVisible: "Promotions"
+
+- runFlow: ../subflows/logout.yaml

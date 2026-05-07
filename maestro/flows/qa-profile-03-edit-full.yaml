@@ -1,0 +1,131 @@
+appId: com.unitapp.mobile
+---
+# QA-PROFILE-03: Profile edit — full field coverage
+# Covers items 151-159 from the exhaustive inventory:
+#   - Change business name (required)
+#   - Change category chip
+#   - Change description
+#   - Change contact name / phone / email / website
+#   - Zod validation (empty required field)
+#   - Save → success toast + back
+#   - Cancel → back without saving
+#
+# PREREQUISITE: tenant1 has an existing business profile (created during onboarding).
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 15000
+
+- tapOn: "Edit Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Edit Profile"
+    timeout: 8000
+
+# ── CASE 1: Clear business name → validation error on save ────────────────────
+# Input label is "Business Name *"
+- tapOn:
+    label: "Business Name *"
+- eraseText: 100
+- hideKeyboard
+- tapOn:
+    id: "btn-profile-save"
+# Zod error for required field; stays on edit screen
+- assertVisible: "Edit Profile"
+
+# Restore business name
+- tapOn:
+    label: "Business Name *"
+- inputText: "Updated Test Business"
+- hideKeyboard
+
+# ── CASE 2: Change category chip ─────────────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "Technology"
+    direction: RIGHT
+- tapOn: "Technology"
+- waitForAnimationToEnd
+
+# ── CASE 3: Change description ───────────────────────────────────────────────
+- tapOn:
+    label: "Description"
+- eraseText: 200
+- inputText: "Updated description from Maestro E2E test."
+- hideKeyboard
+
+# ── CASE 4: Change contact fields ─────────────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      label: "Contact Name"
+    direction: DOWN
+- tapOn:
+    label: "Contact Name"
+- eraseText: 100
+- inputText: "QA Contact"
+- tapOn:
+    label: "Phone"
+- eraseText: 100
+- inputText: "5551234567"
+- tapOn:
+    label: "Email"
+- eraseText: 100
+- inputText: "qa@unit-test.com"
+- tapOn:
+    label: "Website"
+- eraseText: 100
+- inputText: "https://unit.app"
+- hideKeyboard
+
+# ── CASE 5: Save → success toast → back ──────────────────────────────────────
+- tapOn:
+    id: "btn-profile-save"
+- extendedWaitUntil:
+    visible:
+      text: "Profile updated"
+    timeout: 8000
+- assertVisible: "Updated Test Business"
+
+# ── CASE 6: Cancel path ───────────────────────────────────────────────────────
+- tapOn: "Edit Profile"
+- extendedWaitUntil:
+    visible:
+      text: "Edit Profile"
+    timeout: 8000
+- tapOn: "Cancel"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 8000
+
+- runFlow: ../subflows/logout.yaml

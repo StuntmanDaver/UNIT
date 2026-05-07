@@ -1,0 +1,184 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-06: Admin New External Promotion — full form submit and cancel
+# Covers items 228-236 from the exhaustive inventory:
+#   - Property selector "Target Property *"
+#   - Business Name *, Headline *, Description * (required)
+#   - CTA Label *, CTA URL * (required)
+#   - Start Date / End Date pickers (iOS modal)
+#   - Create → toast "External promotion created" + back
+#   - Cancel → back
+#
+# Field labels verified from source (new-external.tsx):
+#   "Business Name *", "Headline *", "Description *", "CTA Label *", "CTA URL *"
+# Date pickers: Pressables show "Select" initially → tap by visible text
+# Submit button: "Create Promotion"
+# Success toast: text1 "External promotion created"
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+- waitForAnimationToEnd
+
+- tapOn: "Manage Promotions"
+- extendedWaitUntil:
+    visible:
+      text: "All"
+    timeout: 8000
+
+# ── CASE 1: Cancel new external promo ────────────────────────────────────────
+- tapOn:
+    label: "New External Promotion"
+- extendedWaitUntil:
+    visible:
+      text: "New External Promotion"
+    timeout: 8000
+- tapOn: "Cancel"
+- assertVisible: "All"
+
+# ── CASE 2: Full form submit ──────────────────────────────────────────────────
+- tapOn:
+    label: "New External Promotion"
+- extendedWaitUntil:
+    visible:
+      text: "New External Promotion"
+    timeout: 8000
+
+# Property selector (pre-selected from param or select first)
+- runFlow:
+    when:
+      visible: "Select a property"
+    commands:
+      - tapOn: "Select a property"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+
+# Required fields (Input components with accessibilityLabel matching label)
+- tapOn:
+    label: "Business Name *"
+- inputText: "QA External Advertiser"
+- tapOn:
+    label: "Headline *"
+- inputText: "QA External Promotion Headline"
+- tapOn:
+    label: "Description *"
+- inputText: "This external promotion was created by Maestro E2E test."
+
+# CTA fields (labels are "CTA Label *" and "CTA URL *")
+- tapOn:
+    label: "CTA Label *"
+- inputText: "Visit Now"
+- tapOn:
+    label: "CTA URL *"
+- inputText: "https://qa.unit.app"
+- hideKeyboard
+
+# Start date — tap "Select" (first occurrence = start date Pressable)
+- tapOn: "Select"
+- waitForAnimationToEnd
+# Swipe start date wheel
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 80%"
+- waitForAnimationToEnd
+# Auto-advances to end picker on iOS; swipe end date wheel
+- swipe:
+    start: "50%, 85%"
+    end: "50%, 65%"
+- waitForAnimationToEnd
+# Dismiss modal if still open
+- runFlow:
+    when:
+      visible: "Cancel, Start Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Cancel, End Date, Done"
+    commands:
+      - tapOn:
+          point: "92%, 71%"
+      - waitForAnimationToEnd
+
+# End date — after start is picked, only the end "Select" remains
+- runFlow:
+    when:
+      visible: "Select"
+    commands:
+      - tapOn: "Select"
+      - waitForAnimationToEnd
+      - swipe:
+          start: "50%, 85%"
+          end: "50%, 65%"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Cancel, End Date, Done"
+          commands:
+            - tapOn:
+                point: "92%, 71%"
+            - waitForAnimationToEnd
+
+# Scroll to submit button
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+- swipe:
+    start: "50%, 60%"
+    end: "50%, 15%"
+- waitForAnimationToEnd
+
+- tapOn: "Create Promotion"
+- extendedWaitUntil:
+    visible:
+      text: "External promotion created"
+    timeout: 10000
+
+# Back on promo list — new external appears in "External" segment
+- tapOn: "External"
+- waitForAnimationToEnd
+- assertVisible: "QA External Advertiser"
+
+# Log out
+- back
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

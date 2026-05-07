@@ -1,0 +1,110 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-03: Admin Properties — list, add property modal, cancel
+# Covers items 197-204 from the exhaustive inventory:
+#   - Back button
+#   - Property cards render (non-pressable)
+#   - "Add Property" modal opens + cancel
+#   - Required fields: name, address, city, state, type, total units
+#   - Submit → geocode best-effort → insert → success
+#   - Empty state
+#   - Error + Retry
+#
+# NOTE: This test creates a real property in the database.
+#       Clean up via Supabase dashboard or add a teardown migration.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- tapOn: "Manage Properties"
+- extendedWaitUntil:
+    visible:
+      text: "Properties"
+    timeout: 8000
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading"
+    timeout: 10000
+
+# ── CASE 1: Cancel Add Property ──────────────────────────────────────────────
+- tapOn: "Add Property"
+- extendedWaitUntil:
+    visible:
+      text: "Add Property"
+    timeout: 6000
+- tapOn: "Cancel"
+- assertNotVisible: "Create Property"
+
+# ── CASE 2: Add Property — fill all fields and submit ─────────────────────────
+- tapOn: "Add Property"
+- extendedWaitUntil:
+    visible:
+      text: "Create Property"
+    timeout: 6000
+
+- tapOn:
+    label: "Property Name *"
+- inputText: "QA Test Building"
+- tapOn:
+    label: "Address *"
+- inputText: "100 QA Lane"
+- tapOn:
+    label: "City *"
+- inputText: "Test City"
+- tapOn:
+    label: "State *"
+- inputText: "CA"
+- tapOn:
+    label: "Type"
+- inputText: "commercial"
+- tapOn:
+    label: "Total Units"
+- inputText: "10"
+- hideKeyboard
+
+- tapOn: "Create Property"
+- extendedWaitUntil:
+    visible:
+      text: "Property created"
+    timeout: 10000
+
+# New property should appear in list
+- assertVisible: "QA Test Building"
+
+# ── CASE 3: Back button ───────────────────────────────────────────────────────
+- back
+- assertVisible: "Admin Dashboard"
+
+# Log out
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

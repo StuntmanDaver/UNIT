@@ -1,0 +1,117 @@
+appId: com.unitapp.mobile
+---
+# QA-BUSINESS-01: Business detail — contact actions, QR share, back navigation
+# Covers items 65-74 from the exhaustive inventory:
+#   - Logo, name, description, contact info render
+#   - Back button → directory
+#   - Phone / email / website tap (opens system handler — asserted visually)
+#   - QR code displays
+#   - Share QR sheet (asserted sheet opens; content is system-controlled)
+#   - "Business not found" state (via invalid URL — hard to trigger via UI; noted)
+#
+# PREREQUISITE: tenant1's property has at least one business with phone, email, and website set.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-directory"
+- assertVisible: "Directory"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading directory..."
+    timeout: 10000
+- waitForAnimationToEnd
+
+# Open first business detail
+- tapOn:
+    index: 0
+    childOf:
+      text: "Directory"
+- waitForAnimationToEnd
+- assertNotVisible: "Directory"
+
+# ── CASE 1: Business info renders ────────────────────────────────────────────
+# Name and at least one contact detail should be visible
+- waitForAnimationToEnd
+
+# ── CASE 2: Phone tap (Linking.openURL tel:) ──────────────────────────────────
+# Contact rows use stable testIDs because the UI renders the raw phone/email/URL,
+# not labels like "Call" or "Email".
+- runFlow:
+    when:
+      visible:
+        id: "business-contact-phone"
+    commands:
+      - tapOn:
+          id: "business-contact-phone"
+      - waitForAnimationToEnd
+      - back
+      - waitForAnimationToEnd
+
+# ── CASE 3: Email tap ─────────────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible:
+        id: "business-contact-email"
+    commands:
+      - tapOn:
+          id: "business-contact-email"
+      - waitForAnimationToEnd
+      - back
+      - waitForAnimationToEnd
+
+# ── CASE 4: Website tap ───────────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible:
+        id: "business-contact-website"
+    commands:
+      - tapOn:
+          id: "business-contact-website"
+      - waitForAnimationToEnd
+      - back
+      - waitForAnimationToEnd
+
+# ── CASE 5: QR Share button ───────────────────────────────────────────────────
+- runFlow:
+    when:
+      visible:
+        id: "business-share-qr"
+    commands:
+      - tapOn:
+          id: "business-share-qr"
+      - waitForAnimationToEnd
+      # Dismiss share sheet
+      - back
+      - waitForAnimationToEnd
+
+# ── CASE 6: Back button → directory ──────────────────────────────────────────
+- back
+- assertVisible: "Directory"
+
+- runFlow: ../subflows/logout.yaml

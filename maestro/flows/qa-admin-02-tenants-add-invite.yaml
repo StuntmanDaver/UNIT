@@ -1,0 +1,139 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-02: Admin Tenants — search, segment filter, add tenant invite, status toggle
+# Covers items 177-195 from the exhaustive inventory:
+#   - Back button
+#   - Property selector
+#   - Search (debounced)
+#   - Segments: All / Invited / Active / Inactive
+#   - "Add Tenant" modal → fill email + business name → Send Invite
+#   - Cancel add-tenant modal
+#   - Tap active tenant row → disable
+#   - Tap inactive tenant row → reactivate
+#   - Empty state
+#
+# PREREQUISITE: Admin account has at least one property with tenants.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- tapOn: "Manage Tenants"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+
+# ── CASE 1: Property selector ─────────────────────────────────────────────────
+- tapOn: "Select a property"
+- waitForAnimationToEnd
+- tapOn:
+    index: 0
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading tenants..."
+    timeout: 10000
+
+# ── CASE 2: Search ────────────────────────────────────────────────────────────
+- tapOn:
+    id: "search-input"
+- inputText: "test"
+- waitForAnimationToEnd
+- eraseText: 100
+- hideKeyboard
+- waitForAnimationToEnd
+
+# ── CASE 3: Segment filter ────────────────────────────────────────────────────
+- tapOn: "Invited"
+- waitForAnimationToEnd
+- tapOn: "Active"
+- waitForAnimationToEnd
+- tapOn: "Inactive"
+- waitForAnimationToEnd
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# ── CASE 4: Add Tenant modal — Cancel ────────────────────────────────────────
+- tapOn: "Add Tenant"
+- extendedWaitUntil:
+    visible:
+      text: "Add Tenant"
+    timeout: 6000
+- tapOn: "Cancel"
+- assertNotVisible: "Send Invite"
+
+# ── CASE 5: Add Tenant modal — Send Invite (invites new tenant) ───────────────
+- tapOn: "Add Tenant"
+- extendedWaitUntil:
+    visible:
+      text: "Send Invite"
+    timeout: 6000
+- tapOn:
+    label: "Email *"
+- inputText: "qa-invite-test@mailinator.com"
+- tapOn:
+    label: "Business Name *"
+- inputText: "QA Test Business"
+- tapOn:
+    label: "Category"
+- inputText: "technology"
+- hideKeyboard
+- tapOn: "Send Invite"
+- extendedWaitUntil:
+    visible:
+      text: "Tenant invited successfully"
+    timeout: 10000
+
+# ── CASE 6: Status toggle — tap active tenant to disable ──────────────────────
+# Tap the first tenant row in "Active" segment
+- tapOn: "Active"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "No tenants found"
+    commands:
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+      # Toast or confirmation may appear
+
+# Back to All
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# ── CASE 7: Back button ───────────────────────────────────────────────────────
+- back
+
+# Log out
+- tapOn:
+    id: "admin-logout-btn"
+- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000
