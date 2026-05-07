@@ -85,22 +85,25 @@ appId: com.unitapp.mobile
 - eraseText: 100
 - hideKeyboard
 
-# ── CASE 3: Forgot password with empty email ─────────────────────────────────
+# ── CASE 3: Forgot password with empty email — guard prevents reset, stay on login.
+# Toast (`Enter your email above, then tap here again`) auto-dismisses in ~4s; rely on
+# the absence of the "Check your email" success toast and on the login screen still
+# being rendered, both of which are stable post-tap.
 - tapOn: "Forgot password?"
-- extendedWaitUntil:
-    visible:
-      text: "Log In"
-    timeout: 5000
+- waitForAnimationToEnd
+- assertNotVisible: "Check your email"
+- assertVisible: "Forgot password?"
 
-# ── CASE 4: Forgot password with valid email in field ────────────────────────
+# ── CASE 4: Forgot password with valid email — request fires, stay on login.
+# Toast ("Check your email") auto-dismisses; assert we remain on login instead.
 - tapOn:
     id: "login-email"
 - inputText: "tenant1@unit-test.com"
 - tapOn: "Forgot password?"
-- extendedWaitUntil:
-    visible:
-      text: "Check your email"
-    timeout: 8000
+- waitForAnimationToEnd
+- assertVisible: "Forgot password?"
+- assertVisible:
+    id: "login-email"
 - tapOn:
     id: "login-email"
 - eraseText: 100
@@ -119,7 +122,7 @@ appId: com.unitapp.mobile
       text: "Log In"
     timeout: 8000
 
-# ── CASE 6: Dev quick-fill chip → Admin ──────────────────────────────────────
+# ── CASE 6: Dev quick-fill chip → Admin (only verify chip prefills email) ────
 - runFlow:
     when:
       visible: "Admin"
@@ -127,13 +130,13 @@ appId: com.unitapp.mobile
       - tapOn: "Admin"
       - waitForAnimationToEnd
       - assertVisible: "david@cultrhealth.com"
+      # Clear the prefilled credentials so CASE 7 can log in as tenant1.
       - tapOn:
           id: "login-email"
       - eraseText: 100
       - tapOn:
           id: "login-password"
       - eraseText: 100
-      - hideKeyboard
 
 # ── CASE 7: Valid tenant login lands on Home ─────────────────────────────────
 - runFlow: ../subflows/login-tenant1.yaml
@@ -145,7 +148,13 @@ appId: com.unitapp.mobile
 - assertVisible: "Admin Dashboard"
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

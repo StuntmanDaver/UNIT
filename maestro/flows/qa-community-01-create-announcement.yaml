@@ -1,0 +1,122 @@
+appId: com.unitapp.mobile
+---
+# QA-COMMUNITY-01: Community — browse, segment filter, create announcement post
+# Covers items 75-92 from the exhaustive inventory:
+#   - Posts render
+#   - Segment All / Announcements / Events
+#   - Pull-to-refresh
+#   - FAB → create screen
+#   - Fill announcement form + submit → success toast
+#   - Cancel → back
+#
+# PREREQUISITE: At least one post exists in tenant1's property Community feed.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-community"
+- assertVisible: "Community"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading community..."
+    timeout: 10000
+
+# ── CASE 1: Segment All ───────────────────────────────────────────────────────
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# ── CASE 2: Segment Announcements ────────────────────────────────────────────
+- tapOn: "Announcements"
+- waitForAnimationToEnd
+
+# ── CASE 3: Segment Events ────────────────────────────────────────────────────
+- tapOn: "Events"
+- waitForAnimationToEnd
+
+# ── CASE 4: Back to All ───────────────────────────────────────────────────────
+- tapOn: "All"
+- waitForAnimationToEnd
+
+# ── CASE 5: Pull-to-refresh ───────────────────────────────────────────────────
+- swipe:
+    direction: DOWN
+    duration: 500
+- waitForAnimationToEnd
+- assertVisible: "Community"
+
+# ── CASE 6: FAB → create screen ──────────────────────────────────────────────
+- tapOn:
+    id: "fab-create-post"
+- extendedWaitUntil:
+    visible:
+      text: "New Post"
+    timeout: 8000
+
+# ── CASE 7: Cancel → back ────────────────────────────────────────────────────
+- tapOn: "Cancel"
+- extendedWaitUntil:
+    visible:
+      text: "Community"
+    timeout: 8000
+
+# ── CASE 8: Create announcement ──────────────────────────────────────────────
+- tapOn:
+    id: "fab-create-post"
+- extendedWaitUntil:
+    visible:
+      text: "New Post"
+    timeout: 8000
+
+# Type segment is default "announcement"
+- tapOn: "announcement"
+- waitForAnimationToEnd
+
+# Title (required) — input testID is post-title
+- tapOn:
+    id: "post-title"
+- inputText: "QA Announcement Post"
+
+# Content (required) — input testID is post-content
+- tapOn:
+    id: "post-content"
+- inputText: "This is an automated E2E announcement created by Maestro."
+- hideKeyboard
+
+# Submit
+- tapOn:
+    id: "btn-post-submit"
+- extendedWaitUntil:
+    visible:
+      text: "Post published"
+    timeout: 10000
+
+# Returned to Community list with new post visible
+- assertVisible: "Community"
+- assertVisible: "QA Announcement Post"
+
+- runFlow: ../subflows/logout.yaml

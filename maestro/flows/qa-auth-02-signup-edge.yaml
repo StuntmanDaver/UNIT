@@ -69,7 +69,10 @@ appId: com.unitapp.mobile
 - eraseText: 100
 - hideKeyboard
 
-# ── CASE 2: Existing email → error toast ─────────────────────────────────────
+# ── CASE 2: Existing email → stays on Create Account ─────────────────────────
+# Supabase returns either "User already registered" (no email confirmation)
+# or "Check your email" (anti-enumeration with email confirmation enabled).
+# Either way the user must remain on Create Account; auto-login MUST NOT occur.
 - tapOn:
     label: "Email"
 - eraseText: 100
@@ -84,10 +87,11 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "btn-signup-submit"
 - extendedWaitUntil:
-    visible:
-      text: "already"
+    notVisible:
+      text: "Creating..."
     timeout: 10000
 - assertVisible: "Create Account"
+- assertNotVisible: "My Property"
 
 # ── CASE 3: Log In link navigates back to login ───────────────────────────────
 - tapOn: "Log In"

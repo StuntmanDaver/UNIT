@@ -70,11 +70,17 @@ appId: com.unitapp.mobile
 # Switch visible and functional (no error toast = token registered)
 
 # ── CASE 3: Photo library picker opens ────────────────────────────────────────
-# Navigate to profile edit and tap logo
+# CASE 2 scrolled past "Push Notifications" near the bottom of the Profile
+# scroll container, so the Edit Profile button at the top is now off-screen
+# above the viewport. Scroll back UP until it is hit-testable, then tap.
+- scrollUntilVisible:
+    element:
+      text: "Edit Profile"
+    direction: UP
 - tapOn: "Edit Profile"
 - extendedWaitUntil:
     visible:
-      text: "Edit Profile"
+      text: "Save Changes"
     timeout: 8000
 
 # Tap the avatar / logo area to trigger ImagePicker

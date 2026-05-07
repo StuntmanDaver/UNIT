@@ -1,0 +1,144 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-05: Admin Promotion Detail — all review actions
+# Covers items 216-227 from the exhaustive inventory:
+#   - Approve (no note required) → toast "Action applied"
+#   - Allow Revision → modal + note → Confirm → toast "Action applied"
+#   - Require Repayment → modal + note → Confirm → toast "Action applied"
+#   - Reject → modal + note → Confirm → toast "Action applied"
+#   - Cancel note modal
+#   - Suspend (after approval) → toast "Status updated"
+#   - Reinstate (after suspension) → toast "Status updated"
+#
+# Status pill renders DB values title-cased:
+#   approved → "Approved", allow_revision → "Allow Revision",
+#   require_repayment → "Require Repayment", rejected → "Rejected",
+#   suspended → "Suspended"
+#
+# PREREQUISITE (critical):
+#   - At least 4 promotions in PENDING status for the test property before running.
+#   - At least 1 APPROVED promotion for suspend/reinstate test.
+#   Run qa-promotions-02-create-cancel-paths.yaml 4x as tenant1 to create pending promos.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+- runFlow:
+    when:
+      visible: "Select a property"
+    commands:
+      - tapOn: "Select a property"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+
+- tapOn: "View Pending Approvals"
+- extendedWaitUntil:
+    visible:
+      text: "Pending"
+    timeout: 8000
+
+# ── CASE 1: Approve first pending promotion ────────────────────────────────────
+# Use childOf: text: "Pending" to scope to the promotions list (same as m2-06)
+- tapOn:
+    id: "promo-card"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Approve"
+    timeout: 8000
+- tapOn: "Approve"
+# Toast `Action applied` auto-fades in ~3s — wait on the status-pill change instead.
+- extendedWaitUntil:
+    visible:
+      text: "Approved"
+    timeout: 10000
+- tapOn:
+    id: "back-btn"
+- waitForAnimationToEnd
+
+# ── CASES 2-4: Note modal actions (Allow Revision / Require Repayment / Reject)
+# SKIPPED — these open the shared `components/ui/Modal.tsx` component, which
+# uses React Native's `Modal` and renders into a separate iOS UIWindow that
+# Maestro / XCUITest cannot enumerate. Tapping the action button visibly opens
+# the modal, but Maestro can't see the modal title, the Note input, or the
+# Confirm button to drive the path. We tried in-tree overlay rewrites and
+# `presentationStyle="overFullScreen"`; the modal still falls outside Maestro's
+# accessibility tree. Tracking issue: replace Modal with a non-RN-Modal
+# component (e.g. portal-style overlay rendered into the host screen tree).
+# Until that work lands, exercise these review actions in a manual UAT.
+
+# ── CASE 5: Suspend the approved promotion (from CASE 1) ──────────────────────
+# Switch to Approved segment to find the promotion we approved in CASE 1.
+- tapOn: "Approved"
+- waitForAnimationToEnd
+- tapOn:
+    id: "promo-card"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Suspend"
+    timeout: 8000
+- tapOn: "Suspend"
+- extendedWaitUntil:
+    visible:
+      text: "Suspended"
+    timeout: 10000
+
+# ── CASE 6: Reinstate suspended promotion ─────────────────────────────────────
+- assertVisible: "Reinstate"
+- tapOn: "Reinstate"
+- extendedWaitUntil:
+    visible:
+      text: "Approved"
+    timeout: 10000
+- tapOn:
+    id: "back-btn"
+- waitForAnimationToEnd
+
+# Log out — pop back to dashboard then confirm
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+- tapOn:
+    id: "admin-logout-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn:
+    text: "Log Out"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000

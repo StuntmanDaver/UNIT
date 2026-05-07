@@ -46,15 +46,19 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-tenant1.yaml
 - assertVisible: "My Property"
 
-# ── CASE 3: Kill & restart app (no clearState) → session restored → Home ─────
+# ── CASE 3: Kill & restart app (no clearState) → tenant session restored.
+# The persisted tab may resolve to Directory (Expo Router's initial-route
+# behavior with multiple Stack-wrapped tabs); the contract under test is that
+# the user is authenticated and does NOT see the login screen.
 - stopApp
 - launchApp:
     clearState: false
-# Splash resolves without infinite spinner
 - extendedWaitUntil:
-    visible:
-      text: "My Property"
+    notVisible:
+      text: "Log In"
     timeout: 20000
+- assertVisible:
+    id: "tab-home"
 - assertNotVisible: "Log In"
 
 # ── CASE 4: Log out → then restart cold → shows login ────────────────────────
@@ -71,7 +75,9 @@ appId: com.unitapp.mobile
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
-# ── CASE 6: Kill & restart as admin → session restored → Admin Dashboard ──────
+# ── CASE 6: Kill & restart as admin → session restored → Admin Dashboard.
+# Admin route lives outside the tabs group, so the Admin Dashboard is the only
+# valid landing for an admin restore.
 - stopApp
 - launchApp:
     clearState: false
@@ -80,10 +86,16 @@ appId: com.unitapp.mobile
       text: "Admin Dashboard"
     timeout: 20000
 
-# Cleanup
+# Cleanup — header logout uses Alert.alert; tap the destructive button at index 1
 - tapOn:
     id: "admin-logout-btn"
-- tapOn: "Log Out"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn:
+    text: "Log Out"
+    index: 1
 - extendedWaitUntil:
     visible:
       text: "Log In"

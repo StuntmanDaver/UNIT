@@ -1,0 +1,237 @@
+appId: com.unitapp.mobile
+---
+# QA-ADMIN-01: Admin Dashboard — property selector, stat cards, action cards, logout
+# Covers items 160-176 from the exhaustive inventory:
+#   - Property selector (auto-select / dropdown)
+#   - "Select a property to view stats" empty state
+#   - Stat cards navigate correctly:
+#       "Total Tenants" → tenants filter=all
+#       "Active"        → tenants filter=active
+#       "Pending Invites" → tenants filter=invited
+#       "Promotions 30d"  → advertisers filter=Approved&window=recent
+#   - All action cards navigate:
+#       "Manage Promotions", "View Pending Approvals", "Manage Tenants",
+#       "Manage Properties", "Send Push Notification", "Promotion Pricing",
+#       "Account & Settings", "Log Out" (card)
+#   - Header logout testID admin-logout-btn: cancel + confirm flows
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+
+# ── CASE 1+2: Property selector — admins with one property auto-select; admins
+# with multiple see the "Select a property" placeholder. Handle both states.
+- runFlow:
+    when:
+      visible: "Select a property"
+    commands:
+      - tapOn: "Select a property"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+- assertVisible: "Admin Dashboard"
+
+# ── CASE 3: Stats load ────────────────────────────────────────────────────────
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading dashboard"
+    timeout: 10000
+
+# ── CASE 4: Stat card "Total Tenants" → tenants list ─────────────────────────
+- tapOn:
+    id: "stat-total-tenants"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 5: Stat card "Active" → active tenants list ─────────────────────────
+- tapOn:
+    id: "stat-active"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 6: Stat card "Pending Invites" → invited tenants list ───────────────
+- tapOn:
+    id: "stat-pending-invites"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 7: Stat card "Promotions 30d" → advertisers approved (recent) ───────
+- tapOn:
+    id: "stat-promotions-30d"
+- extendedWaitUntil:
+    visible:
+      text: "Approved"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 8: Action card "Manage Promotions" ───────────────────────────────────
+- tapOn: "Manage Promotions"
+- extendedWaitUntil:
+    visible:
+      text: "All"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 9: Action card "View Pending Approvals" ──────────────────────────────
+- tapOn: "View Pending Approvals"
+- extendedWaitUntil:
+    visible:
+      text: "Pending"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 10: Action card "Manage Tenants" ────────────────────────────────────
+- tapOn: "Manage Tenants"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 11: Action card "Manage Properties" ─────────────────────────────────
+- tapOn: "Manage Properties"
+- extendedWaitUntil:
+    visible:
+      text: "Properties"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 12: Action card "Send Push Notification" ────────────────────────────
+- tapOn: "Send Push Notification"
+- extendedWaitUntil:
+    visible:
+      text: "Push Notifications"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 13: Action card "Promotion Pricing" ─────────────────────────────────
+- tapOn: "Promotion Pricing"
+- extendedWaitUntil:
+    visible:
+      text: "Set prices tenants pay for promotions"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 14: Action card "Account & Settings" ────────────────────────────────
+- tapOn: "Account & Settings"
+- extendedWaitUntil:
+    visible:
+      text: "Account"
+    timeout: 8000
+- tapOn:
+    id: "back-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Admin Dashboard"
+    timeout: 8000
+
+# ── CASE 15: Header logout cancel ─────────────────────────────────────────────
+- tapOn:
+    id: "admin-logout-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+- tapOn: "Cancel"
+- assertVisible: "Admin Dashboard"
+
+# ── CASE 16: Header logout confirm ────────────────────────────────────────────
+- tapOn:
+    id: "admin-logout-btn"
+- extendedWaitUntil:
+    visible:
+      text: "Are you sure you want to log out?"
+    timeout: 8000
+# Two "Log Out" elements after the alert: the action card behind the alert
+# (index 0) and the destructive alert button (index 1). Tap the alert one.
+- tapOn:
+    text: "Log Out"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 8000
