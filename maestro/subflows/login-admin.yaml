@@ -7,14 +7,7 @@ appId: com.unitapp.mobile
     visible:
       text: "Log In"
     timeout: 60000
-- tapOn:
-    id: "login-email"
-- setClipboard: "david@cultrhealth.com"
-- pasteText
-- tapOn:
-    id: "login-password"
-- setClipboard: "admin123"
-- pasteText
+- tapOn: "Admin"
 - tapOn: "Log In"
 - extendedWaitUntil:
     visible:
