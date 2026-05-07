@@ -78,7 +78,7 @@ export function PushAdminClient({ properties, selectedPropertyId, notifications,
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-black">Push Broadcast</h1>
+        <h1 className="text-2xl font-black">Broadcasts</h1>
         <p className="mt-1 text-sm text-[#465A75]">
           Compose property-scoped announcements and review recent broadcast history.
         </p>

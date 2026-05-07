@@ -21,7 +21,7 @@ export default async function NewExternalPromotionPage({ searchParams }: Props) 
     <div className="space-y-5">
       <div className="flex flex-col gap-2">
         <Link href={backHref} className="unit-link">Back to external promotions</Link>
-        <h1 className="text-2xl font-black">New External Promotion</h1>
+        <h1 className="text-2xl font-black">External Promotion</h1>
         <p className="text-sm text-[#465A75]">Create an admin-authored promotion that is approved immediately.</p>
       </div>
       <div className="unit-card p-5">

@@ -18,7 +18,7 @@ export default async function AdminAdvertisersPage({ searchParams }: Props) {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-black">Promotion Review</h1>
+        <h1 className="text-2xl font-black">Review Queue</h1>
         <p className="mt-1 text-sm text-[#465A75]">Review advertiser and tenant promotion submissions.</p>
       </header>
       <AdminPromotionsClient

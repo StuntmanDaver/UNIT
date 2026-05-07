@@ -75,7 +75,7 @@ export function AdvertiserAccountsClient({
   return (
     <div className="space-y-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-black">Advertiser Accounts</h1>
+        <h1 className="text-2xl font-black">Advertiser Approval</h1>
         <p className="text-sm text-[#465A75]">Approve and manage advertiser access to promotion submission.</p>
       </header>
 

@@ -95,7 +95,7 @@ export function PricingAdminClient({ tiers, onUpsertTier, onDeactivateTier }: Pr
     <div className="space-y-6">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black">Pricing</h1>
+          <h1 className="text-2xl font-black">Pricing Tiers</h1>
           <p className="mt-1 text-sm text-[#465A75]">Set promotion tiers used by future checkout sessions.</p>
         </div>
         <button type="button" className="unit-btn unit-btn-primary" onClick={() => setForm(EMPTY_TIER)}>

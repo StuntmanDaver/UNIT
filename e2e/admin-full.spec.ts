@@ -19,14 +19,14 @@ test.describe('QA-seeded admin portal flow', () => {
 
     await login(page, seed.admin.email, seed.admin.password);
     await expect(page).toHaveURL(/\/admin/);
-    await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Admin Overview' })).toBeVisible({ timeout: 20_000 });
 
     const nav = page.locator('nav');
-    await expect(nav.getByRole('link', { name: 'Promotion Review' })).toHaveAttribute(
+    await expect(nav.getByRole('link', { name: 'Review Queue' })).toHaveAttribute(
       'href',
       `/admin/advertisers?propertyId=${seed.propertyId}`
     );
-    await expect(nav.getByRole('link', { name: 'All Promotions' })).toHaveAttribute(
+    await expect(nav.getByRole('link', { name: 'Promotion Library' })).toHaveAttribute(
       'href',
       `/admin/promotions?propertyId=${seed.propertyId}`
     );
@@ -40,12 +40,14 @@ test.describe('QA-seeded admin portal flow', () => {
     await page.getByText(`QA Pending Review ${seed.qaRunId}`).click();
     await expect(page.getByRole('button', { name: 'Approve' })).toBeVisible();
     await page.getByRole('button', { name: 'Approve' }).click();
-    await expect(page.getByText('approved')).toBeVisible();
+    await expect(page.locator('span.unit-status', { hasText: 'approved' })).toBeVisible();
 
     await page.goto('/admin/advertiser-accounts?status=pending');
     await expect(page.getByText(`QA Advertiser ${seed.qaRunId}`)).toBeVisible();
     await page.getByRole('button', { name: `Approve QA Advertiser ${seed.qaRunId}` }).click();
-    await expect(page.getByText(`QA Advertiser ${seed.qaRunId}`)).toHaveCount(0);
+    await expect(page.getByRole('button', { name: `Approve QA Advertiser ${seed.qaRunId}` })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Active' }).click();
+    await expect(page.getByText(`QA Advertiser ${seed.qaRunId}`)).toBeVisible();
   });
 });
 

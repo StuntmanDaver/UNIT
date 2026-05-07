@@ -29,7 +29,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     <div className="space-y-6">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h1 className="text-2xl font-black">Admin Dashboard</h1>
+          <h1 className="text-2xl font-black">Admin Overview</h1>
           <p className="mt-1 text-sm text-[#465A75]">
             {selectedProperty ? `Operating ${selectedProperty.name}` : 'Select a property to begin.'}
           </p>
@@ -56,19 +56,19 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
       <section className="grid gap-3 lg:grid-cols-3">
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/tenants?propertyId=${data.selectedPropertyId}`}>
-          <h2 className="font-black">Tenant Management</h2>
+          <h2 className="font-black">Tenant Directory</h2>
           <p className="mt-1 text-sm text-[#465A75]">Invite, import, export, disable, and reactivate tenants.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/advertisers?propertyId=${data.selectedPropertyId}&filter=Pending`}>
-          <h2 className="font-black">Promotion Review</h2>
+          <h2 className="font-black">Review Queue</h2>
           <p className="mt-1 text-sm text-[#465A75]">Approve, request revisions, require repayment, reject, or refund.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/promotions?propertyId=${data.selectedPropertyId}&filter=All`}>
-          <h2 className="font-black">All Promotions</h2>
+          <h2 className="font-black">Promotion Library</h2>
           <p className="mt-1 text-sm text-[#465A75]">Browse paid, external, approved, and historical promotion records.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href="/admin/advertiser-accounts?status=pending">
-          <h2 className="font-black">Advertiser Accounts</h2>
+          <h2 className="font-black">Advertiser Approval</h2>
           <p className="mt-1 text-sm text-[#465A75]">Approve pending advertisers so they can submit promotions.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href="/admin/properties">
@@ -76,11 +76,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           <p className="mt-1 text-sm text-[#465A75]">Create and review assigned properties.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href="/admin/pricing">
-          <h2 className="font-black">Pricing</h2>
+          <h2 className="font-black">Pricing Tiers</h2>
           <p className="mt-1 text-sm text-[#465A75]">Manage active promotion checkout tiers.</p>
         </Link>
         <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/push?propertyId=${data.selectedPropertyId}`}>
-          <h2 className="font-black">Push Broadcast</h2>
+          <h2 className="font-black">Broadcasts</h2>
           <p className="mt-1 text-sm text-[#465A75]">Send property-scoped announcements to tenants.</p>
         </Link>
       </section>
