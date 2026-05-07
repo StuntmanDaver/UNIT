@@ -87,7 +87,7 @@ export default function CommunityScreen() {
         }
       />
 
-      <FAB onPress={() => router.push('/community/create')} />
+      <FAB onPress={() => router.push('/community/create')} testID="fab-create-post" />
     </View>
   );
 }

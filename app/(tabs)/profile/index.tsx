@@ -162,6 +162,7 @@ export default function ProfileScreen() {
             <View className="flex-row justify-between items-center px-4 py-3">
               <Text className="text-base font-nunito text-brand-gray leading-relaxed">Push Notifications</Text>
               <Switch
+                testID="profile-push-switch"
                 value={permissionGranted}
                 onValueChange={(enabled) => {
                   if (enabled) enablePush();
