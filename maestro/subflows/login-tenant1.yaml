@@ -9,10 +9,12 @@ appId: com.unitapp.mobile
     timeout: 60000
 - tapOn:
     id: "login-email"
-- inputText: "tenant1@unit-test.com"
+- setClipboard: "tenant1@unit-test.com"
+- pasteText
 - tapOn:
     id: "login-password"
-- inputText: "admin123"
+- setClipboard: "admin123"
+- pasteText
 - tapOn: "Log In"
 # US-002 made Home the default tab for tenants. "My Property" is the home
 # segment toggle — unique to that screen and always rendered post-login.
