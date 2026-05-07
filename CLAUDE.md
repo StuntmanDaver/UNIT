@@ -237,7 +237,7 @@ Banned sizes: `text-xs`, `text-lg`, `text-xl`, `text-4xl+`.
 
 ### Splash & app icon
 - Splash background: `#101B29` (brand-navy)
-- Splash image: `./assets/logo-transparent-light.png` via the `expo-splash-screen` config plugin in `app.json` (do NOT use the legacy top-level `splash` block)
+- Splash image: `./assets/unit-logo-dark.png` via the `expo-splash-screen` config plugin in `app.json` (do NOT use the legacy top-level `splash` block). This variant has the brand-navy background baked in so it blends seamlessly with the splash `backgroundColor` and avoids the white-on-navy contrast bug from `logo-transparent-light.png`.
 - `userInterfaceStyle` in `app.json` must be `"dark"` — this app is dark-theme only
 
 ### Enforcement
