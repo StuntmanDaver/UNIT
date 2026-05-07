@@ -92,6 +92,7 @@ export default function AdminPromotionDetailScreen() {
       await promotionsService.applyReviewAction(id, user.id, promotion, action);
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
       await queryClient.invalidateQueries({ queryKey: ['admin-promotions'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions-all', promotion.property_id] });
       setFeedbackMessage('Action applied');
       Toast.show({ type: 'success', text1: 'Action applied' });
     } catch {
@@ -112,6 +113,8 @@ export default function AdminPromotionDetailScreen() {
         promotion.review_status as 'approved' | 'suspended'
       );
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions'] });
+      await queryClient.invalidateQueries({ queryKey: ['admin-promotions-all', promotion.property_id] });
       setFeedbackMessage('Status updated');
       Toast.show({ type: 'success', text1: 'Status updated' });
     } catch {

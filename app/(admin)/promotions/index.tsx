@@ -65,6 +65,8 @@ export default function AdminPromotionsScreen() {
 
     return (
       <Pressable
+        testID="promo-card"
+        accessibilityLabel={`Promotion ${item.headline}`}
         onPress={() => router.push(`/(admin)/promotions/${item.id}` as Parameters<typeof router.push>[0])}
         style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
       >
