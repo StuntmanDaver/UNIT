@@ -37,6 +37,7 @@ export default function AdminPromotionDetailScreen() {
   const [actionLoading, setActionLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
   const [anomaly, setAnomaly] = useState<boolean | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   const { data: promotion, isLoading, isError, error, refetch } = useAdminPromotion(id);
 
@@ -91,8 +92,10 @@ export default function AdminPromotionDetailScreen() {
       await promotionsService.applyReviewAction(id, user.id, promotion, action);
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
       await queryClient.invalidateQueries({ queryKey: ['admin-promotions'] });
+      setFeedbackMessage('Action applied');
       Toast.show({ type: 'success', text1: 'Action applied' });
     } catch {
+      setFeedbackMessage('Failed to apply action');
       Toast.show({ type: 'error', text1: 'Failed to apply action' });
     } finally {
       setActionLoading(false);
@@ -109,8 +112,10 @@ export default function AdminPromotionDetailScreen() {
         promotion.review_status as 'approved' | 'suspended'
       );
       await queryClient.invalidateQueries({ queryKey: ['admin-promotion', id] });
+      setFeedbackMessage('Status updated');
       Toast.show({ type: 'success', text1: 'Status updated' });
     } catch {
+      setFeedbackMessage('Failed to update status');
       Toast.show({ type: 'error', text1: 'Failed to update status' });
     } finally {
       setActionLoading(false);
@@ -176,6 +181,16 @@ export default function AdminPromotionDetailScreen() {
       </GradientHeader>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
+        {feedbackMessage && (
+          <View
+            testID="review-action-feedback"
+            accessibilityLiveRegion="polite"
+            className="bg-brand-blue/40 border border-brand-blue rounded-xl p-3 mb-4"
+          >
+            <Text className="text-sm font-nunito-semibold text-white">{feedbackMessage}</Text>
+          </View>
+        )}
+
         {anomaly === true && (
           <View className="bg-yellow-500/20 border border-yellow-500/60 rounded-xl p-4 mb-4">
             <Text className="text-sm font-nunito-semibold text-yellow-300">

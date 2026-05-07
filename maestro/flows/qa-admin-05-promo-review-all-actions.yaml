@@ -74,7 +74,11 @@ appId: com.unitapp.mobile
       text: "Approve"
     timeout: 8000
 - tapOn: "Approve"
-# Toast `Action applied` auto-fades in ~3s — wait on the status-pill change instead.
+- extendedWaitUntil:
+    visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
       text: "Approved"
@@ -83,16 +87,86 @@ appId: com.unitapp.mobile
     id: "back-btn"
 - waitForAnimationToEnd
 
-# ── CASES 2-4: Note modal actions (Allow Revision / Require Repayment / Reject)
-# SKIPPED — these open the shared `components/ui/Modal.tsx` component, which
-# uses React Native's `Modal` and renders into a separate iOS UIWindow that
-# Maestro / XCUITest cannot enumerate. Tapping the action button visibly opens
-# the modal, but Maestro can't see the modal title, the Note input, or the
-# Confirm button to drive the path. We tried in-tree overlay rewrites and
-# `presentationStyle="overFullScreen"`; the modal still falls outside Maestro's
-# accessibility tree. Tracking issue: replace Modal with a non-RN-Modal
-# component (e.g. portal-style overlay rendered into the host screen tree).
-# Until that work lands, exercise these review actions in a manual UAT.
+# ── CASE 2: Allow revision with note ──────────────────────────────────────────
+- tapOn:
+    id: "promo-card"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Allow Revision"
+    timeout: 8000
+- tapOn: "Allow Revision"
+- assertVisible: "Allow Revision"
+- tapOn:
+    id: "promotion-review-note"
+- inputText: "Please revise the image and resubmit."
+- tapOn: "Confirm"
+- extendedWaitUntil:
+    visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Action applied"
+- extendedWaitUntil:
+    visible:
+      text: "Allow Revision"
+    timeout: 10000
+- tapOn:
+    id: "back-btn"
+- waitForAnimationToEnd
+
+# ── CASE 3: Require repayment with note ──────────────────────────────────────
+- tapOn:
+    id: "promo-card"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Require Repayment"
+    timeout: 8000
+- tapOn: "Require Repayment"
+- assertVisible: "Require Repayment"
+- tapOn:
+    id: "promotion-review-note"
+- inputText: "Please repay after the placement update."
+- tapOn: "Confirm"
+- extendedWaitUntil:
+    visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Action applied"
+- extendedWaitUntil:
+    visible:
+      text: "Require Repayment"
+    timeout: 10000
+- tapOn:
+    id: "back-btn"
+- waitForAnimationToEnd
+
+# ── CASE 4: Reject with note ─────────────────────────────────────────────────
+- tapOn:
+    id: "promo-card"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      text: "Reject"
+    timeout: 8000
+- tapOn: "Reject"
+- assertVisible: "Reject Promotion"
+- tapOn:
+    id: "promotion-review-note"
+- inputText: "This promotion does not meet property guidelines."
+- tapOn: "Confirm"
+- extendedWaitUntil:
+    visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Action applied"
+- extendedWaitUntil:
+    visible:
+      text: "Rejected"
+    timeout: 10000
+- tapOn:
+    id: "back-btn"
+- waitForAnimationToEnd
 
 # ── CASE 5: Suspend the approved promotion (from CASE 1) ──────────────────────
 # Switch to Approved segment to find the promotion we approved in CASE 1.
@@ -108,12 +182,22 @@ appId: com.unitapp.mobile
 - tapOn: "Suspend"
 - extendedWaitUntil:
     visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Status updated"
+- extendedWaitUntil:
+    visible:
       text: "Suspended"
     timeout: 10000
 
 # ── CASE 6: Reinstate suspended promotion ─────────────────────────────────────
 - assertVisible: "Reinstate"
 - tapOn: "Reinstate"
+- extendedWaitUntil:
+    visible:
+      id: "review-action-feedback"
+    timeout: 8000
+- assertVisible: "Status updated"
 - extendedWaitUntil:
     visible:
       text: "Approved"

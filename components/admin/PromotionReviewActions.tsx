@@ -80,6 +80,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           Provide a note for the advertiser explaining what needs to change.
         </Text>
         <Input
+          testID="promotion-review-note"
           label="Note"
           value={note}
           onChangeText={(t) => { setNote(t); setNoteError(''); }}

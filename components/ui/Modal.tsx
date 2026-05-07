@@ -1,4 +1,4 @@
-import { View, Text, Modal as RNModal, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { X } from 'lucide-react-native';
 import { BRAND } from '@/constants/colors';
 import { Button } from './Button';
@@ -18,13 +18,10 @@ type ModalProps = {
 };
 
 export function Modal({ visible, onClose, title, children, actions }: ModalProps) {
+  if (!visible) return null;
+
   return (
-    <RNModal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <View className="absolute inset-0 z-50">
       <Pressable
         className="flex-1 bg-black/50 items-center justify-center px-4"
         onPress={onClose}
@@ -66,6 +63,6 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
           )}
         </Pressable>
       </Pressable>
-    </RNModal>
+    </View>
   );
 }

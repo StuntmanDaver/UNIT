@@ -59,6 +59,10 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+function tierTestKey(tier: PromotionPriceTier): string {
+  return tier.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export default function AdminPricingScreen() {
   const { data: tiers, isLoading, isError, error, refetch } = usePromotionPriceTiers();
   const { mutateAsync: upsertTier } = useUpsertPriceTier();
@@ -139,12 +143,11 @@ export default function AdminPricingScreen() {
     );
   }
 
-  const renderItem = ({ item }: { item: PromotionPriceTier }) => (
-    <Pressable
-      onPress={() => openEdit(item)}
-      style={({ pressed }) => ({ opacity: pressed ? 0.85 : 1 })}
-    >
-      <Card className="mx-4 mb-3 p-4">
+  const renderItem = ({ item }: { item: PromotionPriceTier }) => {
+    const testKey = tierTestKey(item);
+
+    return (
+      <Card testID={`pricing-tier-card-${testKey}`} className="mx-4 mb-3 p-4">
         <View className="flex-row items-start justify-between">
           <View className="flex-1 mr-3">
             <View className="flex-row items-center gap-2 flex-wrap">
@@ -167,21 +170,29 @@ export default function AdminPricingScreen() {
 
         <View className="flex-row gap-3 mt-3">
           <View className="flex-1">
-            <Button onPress={() => openEdit(item)} variant="secondary">
+            <Button
+              testID={`pricing-tier-edit-${testKey}`}
+              onPress={() => openEdit(item)}
+              variant="secondary"
+            >
               Edit
             </Button>
           </View>
           {item.is_active && (
             <View className="flex-1">
-              <Button onPress={() => confirmDeactivate(item)} variant="destructive">
+              <Button
+                testID={`pricing-tier-deactivate-${testKey}`}
+                onPress={() => confirmDeactivate(item)}
+                variant="destructive"
+              >
                 Deactivate
               </Button>
             </View>
           )}
         </View>
       </Card>
-    </Pressable>
-  );
+    );
+  };
 
   return (
     <View className="flex-1 bg-brand-navy">
