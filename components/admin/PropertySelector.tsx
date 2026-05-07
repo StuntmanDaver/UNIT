@@ -13,24 +13,46 @@ type PropertySelectorProps = {
 export function PropertySelector({ propertyIds, selected, onSelect }: PropertySelectorProps) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+
+  const fetchProperties = () => {
+    setLoading(true);
+    setLoadError(null);
+
+    propertiesService.getByIds(propertyIds)
+      .then((results) => {
+        setProperties(results);
+        if (!selected && results.length > 0) {
+          onSelect(results[0].id);
+        }
+      })
+      .catch((err) => {
+        setLoadError(err instanceof Error ? err.message : 'Failed to load properties');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    setLoadError(null);
 
     propertiesService.getByIds(propertyIds)
       .then((results) => {
         if (!cancelled) {
           setProperties(results);
-          // Auto-select first if nothing selected
           if (!selected && results.length > 0) {
             onSelect(results[0].id);
           }
         }
       })
-      .catch(() => {
-        // silently handle fetch errors
+      .catch((err) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : 'Failed to load properties');
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -39,7 +61,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds, onSelect]); // `selected` removed — re-fetching on every selection is unnecessary
+  }, [propertyIds, onSelect]);
 
   if (loading) {
     return (
@@ -47,6 +69,19 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
         <ActivityIndicator size="small" color={BRAND.steel} />
         <Text className="text-sm font-nunito text-brand-steel">Loading properties...</Text>
       </View>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <Pressable
+        onPress={fetchProperties}
+        className="flex-row items-center gap-2 bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3"
+      >
+        <Text className="text-sm font-nunito text-red-400 flex-1" numberOfLines={2}>
+          {loadError} — tap to retry
+        </Text>
+      </Pressable>
     );
   }
 
