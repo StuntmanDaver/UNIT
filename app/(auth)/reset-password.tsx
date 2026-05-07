@@ -128,7 +128,7 @@ export default function ResetPasswordScreen() {
             )}
           />
 
-          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-2">
+          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-2" testID="btn-update-password">
             Update Password
           </Button>
         </View>
