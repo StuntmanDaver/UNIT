@@ -8,8 +8,8 @@ export function LoadingScreen({ message }: LoadingScreenProps) {
   return (
     <View className="flex-1 items-center justify-center bg-brand-navy">
       <Image
-        source={require('../../assets/logo-transparent-light.png')}
-        style={{ width: 120, height: 120, marginBottom: 24 }}
+        source={require('../../assets/unit-logo-dark.png')}
+        style={{ width: 200, height: 200, marginBottom: 24 }}
         resizeMode="contain"
       />
       <ActivityIndicator size="large" color="#7C8DA7" />
