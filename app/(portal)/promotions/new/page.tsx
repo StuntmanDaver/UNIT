@@ -85,22 +85,22 @@ export default function NewPromotionPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">New Promotion</h1>
-        <p className="text-sm text-gray-500 mt-1">Step 1 of 2 — Promotion details</p>
+        <h1 className="text-2xl font-black">New Promotion</h1>
+        <p className="mt-1 text-sm text-[#465A75]">Step 1 of 2 - promotion details</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="unit-card space-y-5 p-6">
         <div>
-          <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">Headline *</label>
+          <label htmlFor="headline" className="unit-label">Headline *</label>
           <input id="headline" {...register('headline')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            className="unit-input" />
           {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline.message}</p>}
         </div>
 
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description (optional)</label>
+          <label htmlFor="description" className="unit-label">Description (optional)</label>
           <textarea id="description" {...register('description')} rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            className="unit-input min-h-24" />
         </div>
 
         <PromotionMediaField
@@ -112,25 +112,29 @@ export default function NewPromotionPage() {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="ctaText" className="block text-sm font-medium text-gray-700 mb-1">CTA text (optional)</label>
+            <label htmlFor="ctaText" className="unit-label">CTA Text (optional)</label>
             <input id="ctaText" {...register('ctaText')}
-              placeholder="Book now"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              placeholder="Book now…"
+              autoComplete="off"
+              className="unit-input" />
             {errors.ctaText && <p className="text-xs text-red-500 mt-1">{errors.ctaText.message}</p>}
           </div>
           <div>
-            <label htmlFor="ctaLink" className="block text-sm font-medium text-gray-700 mb-1">CTA URL (optional)</label>
+            <label htmlFor="ctaLink" className="unit-label">CTA URL (optional)</label>
             <input id="ctaLink" {...register('ctaLink')}
-              placeholder="https://example.com"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              placeholder="https://example.com…"
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              className="unit-input" />
             {errors.ctaLink && <p className="text-xs text-red-500 mt-1">{errors.ctaLink.message}</p>}
           </div>
         </div>
 
         <div>
-          <label htmlFor="propertyId" className="block text-sm font-medium text-gray-700 mb-1">Property *</label>
+          <label htmlFor="propertyId" className="unit-label">Property *</label>
           <select id="propertyId" {...register('propertyId')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            className="unit-input">
             <option value="">Select a property</option>
             {properties.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -139,33 +143,33 @@ export default function NewPromotionPage() {
           {errors.propertyId && <p className="text-xs text-red-500 mt-1">{errors.propertyId.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">Start date *</label>
+            <label htmlFor="startDate" className="unit-label">Start Date *</label>
             <input id="startDate" {...register('startDate')} type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="unit-input" />
             {errors.startDate && <p className="text-xs text-red-500 mt-1">{errors.startDate.message}</p>}
           </div>
           <div>
-            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">End date *</label>
+            <label htmlFor="endDate" className="unit-label">End Date *</label>
             <input id="endDate" {...register('endDate')} type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="unit-input" />
             {errors.endDate && <p className="text-xs text-red-500 mt-1">{errors.endDate.message}</p>}
           </div>
         </div>
 
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-[#465A75]">
           Placement plan and pricing are selected on the review step.
         </p>
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
           <button type="button" onClick={() => router.push('/dashboard')}
-            className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm font-semibold hover:bg-gray-50">
+            className="unit-btn unit-btn-secondary flex-1">
             Cancel
           </button>
           <button type="submit" disabled={loading || imageUploading}
-            className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-            {loading ? 'Saving...' : imageUploading ? 'Uploading image...' : 'Continue to Review & Pay →'}
+            className="unit-btn unit-btn-primary flex-1">
+            {loading ? 'Saving…' : imageUploading ? 'Uploading Image…' : 'Continue To Review & Pay'}
           </button>
         </div>
       </form>

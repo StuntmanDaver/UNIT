@@ -41,27 +41,35 @@ export default function SettingsPage() {
     }
   };
 
-  if (!profile) return <div className="py-20 text-center text-gray-400">Loading...</div>;
+  if (!profile) return <div className="unit-loading">Loading…</div>;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm p-6 space-y-5 max-w-lg">
+      <div className="mb-6">
+        <h1 className="text-2xl font-black">Settings</h1>
+        <p className="mt-1 text-sm text-[#465A75]">Keep your advertiser profile in sync with UNIT.</p>
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="unit-card max-w-lg space-y-5 p-6">
         <div>
-          <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 mb-1">Business name</label>
+          <label htmlFor="businessName" className="unit-label">Business Name</label>
           <input id="businessName" {...register('businessName')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            name="businessName"
+            autoComplete="organization"
+            className="unit-input" />
           {errors.businessName && <p className="text-xs text-red-500 mt-1">{errors.businessName.message}</p>}
         </div>
         <div>
-          <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-1">Contact email</label>
+          <label htmlFor="contactEmail" className="unit-label">Contact Email</label>
           <input id="contactEmail" {...register('contactEmail')} type="email"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            name="contactEmail"
+            autoComplete="email"
+            spellCheck={false}
+            className="unit-input" />
           {errors.contactEmail && <p className="text-xs text-red-500 mt-1">{errors.contactEmail.message}</p>}
         </div>
         <button type="submit" disabled={loading}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-          {loading ? 'Saving...' : 'Save changes'}
+          className="unit-btn unit-btn-primary">
+          {loading ? 'Saving…' : 'Save Changes'}
         </button>
       </form>
     </div>

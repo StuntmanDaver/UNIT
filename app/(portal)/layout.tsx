@@ -16,30 +16,32 @@ export default async function PortalLayout({ children }: { children: React.React
     .single() as { data: AdvertiserProfile | null };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="text-lg font-bold text-gray-900">
+    <div className="unit-page">
+      <nav className="border-b border-[#465A75]/30 bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
+        <Link href="/dashboard" className="text-lg font-black text-[#101B29] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#465A75]/30">
           UNIT Ads
         </Link>
-        <div className="flex items-center gap-6 text-sm">
-          <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">Dashboard</Link>
-          <Link href="/settings" className="text-gray-600 hover:text-gray-900">Settings</Link>
-          <span className="text-gray-400">{profile?.business_name}</span>
+        <div className="flex min-w-0 items-center gap-3 text-sm sm:gap-6">
+          <Link href="/dashboard" className="unit-link">Dashboard</Link>
+          <Link href="/settings" className="unit-link">Settings</Link>
+          <span className="hidden truncate text-[#5F708A] sm:inline">{profile?.business_name}</span>
+        </div>
         </div>
       </nav>
 
       {profile?.status === 'pending' && (
-        <div className="bg-yellow-50 border-b border-yellow-200 px-6 py-2 text-sm text-yellow-800 text-center">
+        <div className="border-b border-amber-200 bg-amber-50 px-6 py-2 text-center text-sm font-medium text-amber-800">
           Your account is pending admin approval. You can view your dashboard but cannot submit new promotions yet.
         </div>
       )}
       {profile?.status === 'suspended' && (
-        <div className="bg-red-50 border-b border-red-200 px-6 py-2 text-sm text-red-800 text-center">
+        <div className="border-b border-red-200 bg-red-50 px-6 py-2 text-center text-sm font-medium text-red-800">
           Your account has been suspended. Contact support for more information.
         </div>
       )}
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="unit-shell">
         {children}
       </main>
     </div>

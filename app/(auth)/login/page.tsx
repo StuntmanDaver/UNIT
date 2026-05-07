@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,26 +32,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">Sign in to your account</h1>
+    <div className="unit-page flex items-center justify-center px-4 py-10">
+      <div className="unit-card w-full max-w-md p-6 sm:p-8">
+        <p className="mb-2 text-sm font-black uppercase tracking-wide text-[#465A75]">UNIT Ads</p>
+        <h1 className="mb-6 text-2xl font-black">Sign In To Your Account</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input id="email" {...register('email')} type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label htmlFor="email" className="unit-label">Email</label>
+            <input id="email" {...register('email')} name="email" type="email" autoComplete="email" spellCheck={false} className="unit-input" />
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input id="password" {...register('password')} type="password" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <label htmlFor="password" className="unit-label">Password</label>
+            <input id="password" {...register('password')} name="password" type="password" autoComplete="current-password" className="unit-input" />
             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
           </div>
-          <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-            {loading ? 'Signing in...' : 'Sign in'}
+          <button type="submit" disabled={loading} className="unit-btn unit-btn-primary w-full">
+            {loading ? 'Signing In…' : 'Sign In'}
           </button>
         </form>
-        <p className="text-sm text-gray-500 mt-4 text-center">
-          No account? <a href="/signup" className="text-blue-600 hover:underline">Create one</a>
+        <p className="mt-4 text-center text-sm text-[#465A75]">
+          No account? <Link href="/signup" className="unit-link">Create One</Link>
         </p>
       </div>
     </div>

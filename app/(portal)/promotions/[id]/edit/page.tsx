@@ -122,30 +122,30 @@ export default function EditPromotionPage() {
     }
   };
 
-  if (!promotion) return <div className="py-20 text-center text-gray-400">Loading...</div>;
+  if (!promotion) return <div className="unit-loading">Loading…</div>;
 
   const needsRepayment = promotion.payment_status === 'repayment_required';
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">Edit Promotion</h1>
+      <h1 className="mb-2 text-2xl font-black">Edit Promotion</h1>
       {promotion.review_note && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <p className="text-xs font-semibold text-amber-700 mb-1">Admin note</p>
           <p className="text-sm text-amber-800">{promotion.review_note}</p>
         </div>
       )}
-      <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} className="unit-card space-y-5 p-6">
         <div>
-          <label htmlFor="headline" className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
+          <label htmlFor="headline" className="unit-label">Headline</label>
           <input id="headline" {...register('headline')}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            className="unit-input" />
           {errors.headline && <p className="text-xs text-red-500 mt-1">{errors.headline.message}</p>}
         </div>
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label htmlFor="description" className="unit-label">Description</label>
           <textarea id="description" {...register('description')} rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            className="unit-input min-h-24" />
         </div>
         <PromotionMediaField
           imageUrl={imageUrl}
@@ -155,40 +155,44 @@ export default function EditPromotionPage() {
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="ctaText" className="block text-sm font-medium text-gray-700 mb-1">CTA text</label>
+            <label htmlFor="ctaText" className="unit-label">CTA Text</label>
             <input id="ctaText" {...register('ctaText')}
-              placeholder="Book now"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              placeholder="Book now…"
+              autoComplete="off"
+              className="unit-input" />
             {errors.ctaText && <p className="text-xs text-red-500 mt-1">{errors.ctaText.message}</p>}
           </div>
           <div>
-            <label htmlFor="ctaLink" className="block text-sm font-medium text-gray-700 mb-1">CTA URL</label>
+            <label htmlFor="ctaLink" className="unit-label">CTA URL</label>
             <input id="ctaLink" {...register('ctaLink')}
-              placeholder="https://example.com"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              placeholder="https://example.com…"
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              className="unit-input" />
             {errors.ctaLink && <p className="text-xs text-red-500 mt-1">{errors.ctaLink.message}</p>}
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">Start date</label>
+            <label htmlFor="startDate" className="unit-label">Start Date</label>
             <input id="startDate" {...register('startDate')} type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="unit-input" />
           </div>
           <div>
-            <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">End date</label>
+            <label htmlFor="endDate" className="unit-label">End Date</label>
             <input id="endDate" {...register('endDate')} type="date"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+              className="unit-input" />
           </div>
         </div>
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
           <button type="button" onClick={() => router.push(`/promotions/${id}`)}
-            className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm font-semibold hover:bg-gray-50">
+            className="unit-btn unit-btn-secondary flex-1">
             Cancel
           </button>
           <button type="submit" disabled={loading || imageUploading}
-            className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-            {loading ? 'Saving...' : imageUploading ? 'Uploading image...' : needsRepayment ? 'Save & Continue to Payment' : 'Save & Resubmit for Review'}
+            className="unit-btn unit-btn-primary flex-1">
+            {loading ? 'Saving…' : imageUploading ? 'Uploading Image…' : needsRepayment ? 'Save & Continue To Payment' : 'Save & Resubmit For Review'}
           </button>
         </div>
       </form>

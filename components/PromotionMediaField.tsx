@@ -78,7 +78,7 @@ export function PromotionMediaField({
 
   return (
     <div>
-      <label htmlFor="promotionImage" className="block text-sm font-medium text-gray-700 mb-1">Image (optional)</label>
+      <label htmlFor="promotionImage" className="unit-label">Image (optional)</label>
       <input
         id="promotionImage"
         ref={inputRef}
@@ -90,26 +90,26 @@ export function PromotionMediaField({
       />
 
       {imageUrl ? (
-        <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
-          <div className="relative aspect-[16/9] w-full bg-gray-100">
+        <div className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-[#F4F5F7]">
+          <div className="relative aspect-[16/9] w-full bg-[#F4F5F7]">
             <Image src={imageUrl} alt="Promotion image preview" fill className="object-cover" unoptimized />
           </div>
-          <div className="flex flex-col gap-2 border-t border-gray-200 bg-white p-3 sm:flex-row">
+          <div className="flex flex-col gap-2 border-t border-[#E5E7EB] bg-white p-3 sm:flex-row">
             <button
               type="button"
               onClick={triggerPicker}
               disabled={disabled || isUploading}
-              className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              className="unit-btn unit-btn-secondary flex-1"
             >
-              {isUploading ? 'Uploading...' : 'Replace image'}
+              {isUploading ? 'Uploading…' : 'Replace Image'}
             </button>
             <button
               type="button"
               onClick={() => onChange(null)}
               disabled={disabled || isUploading}
-              className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="unit-btn unit-btn-danger flex-1"
             >
-              Remove image
+              Remove Image
             </button>
           </div>
         </div>
@@ -118,12 +118,12 @@ export function PromotionMediaField({
           type="button"
           onClick={triggerPicker}
           disabled={disabled || isUploading}
-          className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center hover:bg-gray-100 disabled:opacity-50"
+          className="flex w-full flex-col items-center justify-center rounded-xl border border-dashed border-[#465A75]/40 bg-[#F4F5F7] px-4 py-8 text-center transition-colors hover:border-[#465A75]/70 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#465A75]/30 disabled:opacity-50"
         >
-          <span className="text-sm font-semibold text-gray-800">
-            {isUploading ? 'Uploading...' : 'Upload image'}
+          <span className="text-sm font-bold text-[#101B29]">
+            {isUploading ? 'Uploading…' : 'Upload Image'}
           </span>
-          <span className="mt-1 text-xs text-gray-500">JPEG, PNG, or WebP. Max 5 MB.</span>
+          <span className="mt-1 text-xs text-[#465A75]">JPEG, PNG, or WebP. Max 5 MB.</span>
         </button>
       )}
     </div>

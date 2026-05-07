@@ -5,17 +5,6 @@ import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supab
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-03-25.dahlia' });
 
-// Brand tokens (from unit/CLAUDE.md — portal has no tailwind brand config yet,
-// so we inline hex via Tailwind arbitrary values to keep the success page on-brand
-// without requiring a portal-wide tailwind refactor).
-const BG_NAVY = 'bg-[#101B29]';
-const CARD_SURFACE = 'bg-[#1D263A]';
-const BORDER_BLUE_40 = 'border-[#465A75]/40';
-const TEXT_GRAY = 'text-[#E0E1DE]';
-const TEXT_STEEL = 'text-[#7C8DA7]';
-const BTN_BLUE = 'bg-[#465A75]';
-const BTN_BLUE_HOVER = 'hover:bg-[#56688A]';
-
 export default async function SuccessPage({
   searchParams,
 }: {
@@ -100,22 +89,18 @@ export default async function SuccessPage({
 
   if (confirmed) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${BG_NAVY} p-6`}>
-        <div
-          className={`w-full max-w-md ${CARD_SURFACE} border ${BORDER_BLUE_40} rounded-2xl p-8 text-center`}
-        >
-          <div
-            className={`w-16 h-16 ${BTN_BLUE} rounded-full flex items-center justify-center mx-auto mb-6`}
-          >
+      <div className="unit-page flex items-center justify-center p-6">
+        <div className="unit-card w-full max-w-md p-8 text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#465A75]">
             <span className="text-white text-3xl leading-none">&#10003;</span>
           </div>
-          <h1 className={`text-2xl ${TEXT_GRAY} mb-4`}>Submitted for review</h1>
-          <p className={`text-base ${TEXT_STEEL} mb-8`}>
+          <h1 className="mb-4 text-2xl font-black">Submitted For Review</h1>
+          <p className="mb-8 text-base text-[#465A75]">
             Payment confirmed. Admin typically responds within 1–2 business days.
           </p>
           <Link
             href="/dashboard"
-            className={`inline-block ${BTN_BLUE} ${BTN_BLUE_HOVER} text-white px-6 py-3 rounded-lg text-base transition-colors`}
+            className="unit-btn unit-btn-primary"
           >
             Back to Dashboard
           </Link>
@@ -125,22 +110,18 @@ export default async function SuccessPage({
   }
 
   return (
-    <div className={`min-h-screen flex items-center justify-center ${BG_NAVY} p-6`}>
-      <div
-        className={`w-full max-w-md ${CARD_SURFACE} border ${BORDER_BLUE_40} rounded-2xl p-8 text-center`}
-      >
-        <div
-          className={`w-16 h-16 ${BTN_BLUE} rounded-full flex items-center justify-center mx-auto mb-6`}
-        >
+    <div className="unit-page flex items-center justify-center p-6">
+      <div className="unit-card w-full max-w-md p-8 text-center">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[#465A75]">
           <span className="text-white text-3xl leading-none">&#8226;</span>
         </div>
-        <h1 className={`text-2xl ${TEXT_GRAY} mb-4`}>Payment received</h1>
-        <p className={`text-base ${TEXT_STEEL} mb-8`}>
+        <h1 className="mb-4 text-2xl font-black">Payment Received</h1>
+        <p className="mb-8 text-base text-[#465A75]">
           Your promotion is being processed. Check your dashboard for status updates.
         </p>
         <Link
           href="/dashboard"
-          className={`inline-block ${BTN_BLUE} ${BTN_BLUE_HOVER} text-white px-6 py-3 rounded-lg text-base transition-colors`}
+          className="unit-btn unit-btn-primary"
         >
           Back to Dashboard
         </Link>

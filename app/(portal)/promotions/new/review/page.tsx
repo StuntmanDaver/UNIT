@@ -76,17 +76,17 @@ export default function ReviewAndPayPage() {
   );
 
   if (loadingPage) {
-    return <div className="py-20 text-center text-gray-400">Loading...</div>;
+    return <div className="unit-loading">Loading…</div>;
   }
 
   if (!promotion) {
     return (
-      <div className="py-20 text-center">
-        <p className="text-sm text-gray-500">{loadError ?? 'Unable to load review details'}</p>
+      <div className="unit-card py-16 text-center">
+        <p className="text-sm text-[#465A75]">{loadError ?? 'Unable to load review details'}</p>
         <button
           type="button"
           onClick={() => router.push('/dashboard')}
-          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+          className="unit-btn unit-btn-primary mt-4"
         >
           Back to Dashboard
         </button>
@@ -122,45 +122,45 @@ export default function ReviewAndPayPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Review & Pay</h1>
-        <p className="text-sm text-gray-500 mt-1">
+        <h1 className="text-2xl font-black">Review & Pay</h1>
+        <p className="mt-1 text-sm text-[#465A75]">
           {isRepayment ? 'Choose a placement plan to resubmit' : 'Step 2 of 2'}
         </p>
       </div>
 
       {wasCanceled && (
-        <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-sm text-yellow-800">
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm font-medium text-amber-800">
           Payment not completed. Your draft was saved. No charge was made.
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+      <div className="unit-card space-y-4 p-6">
         <div>
-          <p className="text-xs text-gray-500 mb-0.5">Headline</p>
-          <p className="font-semibold text-gray-900">{promotion.headline}</p>
+          <p className="mb-0.5 text-xs font-bold uppercase tracking-wide text-[#465A75]">Headline</p>
+          <p className="break-words font-bold text-[#101B29]">{promotion.headline}</p>
         </div>
         {promotion.description && (
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">Description</p>
-            <p className="text-sm text-gray-700">{promotion.description}</p>
+            <p className="mb-0.5 text-xs font-bold uppercase tracking-wide text-[#465A75]">Description</p>
+            <p className="break-words text-sm text-[#101B29]">{promotion.description}</p>
           </div>
         )}
         <PromotionPreview promotion={promotion} />
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">Start date</p>
-            <p className="text-sm font-medium text-gray-900">{promotion.start_date}</p>
+            <p className="mb-0.5 text-xs font-bold uppercase tracking-wide text-[#465A75]">Start Date</p>
+            <p className="text-sm font-bold text-[#101B29]">{promotion.start_date}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500 mb-0.5">End date</p>
-            <p className="text-sm font-medium text-gray-900">{promotion.end_date}</p>
+            <p className="mb-0.5 text-xs font-bold uppercase tracking-wide text-[#465A75]">End Date</p>
+            <p className="text-sm font-bold text-[#101B29]">{promotion.end_date}</p>
           </div>
         </div>
 
-        <div className="border-t border-gray-100 pt-4">
+        <div className="border-t border-[#E5E7EB] pt-4">
           <div className="mb-3">
-            <p className="text-base font-semibold text-gray-800">Placement plan</p>
-            <p className="text-sm text-gray-500">Select an active plan before continuing to Stripe.</p>
+            <p className="text-base font-black text-[#101B29]">Placement Plan</p>
+            <p className="text-sm text-[#465A75]">Select an active plan before continuing to Stripe.</p>
           </div>
 
           {priceTiers.length === 0 ? (
@@ -177,27 +177,27 @@ export default function ReviewAndPayPage() {
                     key={tier.id}
                     type="button"
                     onClick={() => setSelectedTierId(tier.id)}
-                    className={`w-full rounded-xl border p-4 text-left transition-colors ${
+                    className={`w-full rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#465A75]/30 ${
                       isSelected
-                        ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-200 bg-white hover:border-blue-200'
+                        ? 'border-[#465A75] bg-[#F4F5F7]'
+                        : 'border-[#E5E7EB] bg-white hover:border-[#465A75]/50'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-semibold text-gray-900">{tier.name}</span>
+                          <span className="font-bold text-[#101B29]">{tier.name}</span>
                           {tier.is_featured && (
                             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
                               Featured
                             </span>
                           )}
                         </div>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mt-1 text-sm text-[#465A75]">
                           Runs for {formatDuration(tier.duration_days)}
                         </p>
                       </div>
-                      <span className="text-lg font-bold text-blue-700">
+                      <span className="text-lg font-black text-[#101B29]">
                         {formatPrice(tier)}
                       </span>
                     </div>
@@ -208,18 +208,18 @@ export default function ReviewAndPayPage() {
           )}
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <button onClick={() => router.back()}
-            className="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2 text-sm font-semibold hover:bg-gray-50">
-            ← Back
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+          <button type="button" onClick={() => router.back()}
+            className="unit-btn unit-btn-secondary flex-1">
+            Back
           </button>
-          <button onClick={handlePay} disabled={submitting || !selectedTier || priceTiers.length === 0}
-            className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
+          <button type="button" onClick={handlePay} disabled={submitting || !selectedTier || priceTiers.length === 0}
+            className="unit-btn unit-btn-primary flex-1">
             {submitting
-              ? 'Redirecting to Stripe...'
+              ? 'Redirecting To Stripe…'
               : selectedTier
                 ? `Pay ${formatPrice(selectedTier)} with Stripe`
-                : 'Choose a plan'}
+                : 'Choose A Plan'}
           </button>
         </div>
       </div>

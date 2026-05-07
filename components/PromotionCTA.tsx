@@ -37,7 +37,7 @@ export function PromotionCTA({ promotion }: Props) {
   };
 
   if (review_status === 'pending') {
-    return <p className="text-sm text-gray-500 italic">Awaiting admin review</p>;
+    return <p className="text-sm italic text-[#465A75]">Awaiting admin review</p>;
   }
   if (isScheduled) {
     return <p className="text-sm text-green-600 font-medium">Scheduled — goes live {promotion.start_date}</p>;
@@ -53,25 +53,25 @@ export function PromotionCTA({ promotion }: Props) {
   }
   if (review_status === 'revision_requested' && payment_status === 'paid') {
     return (
-      <button onClick={handleResubmit} disabled={loading}
-        className="bg-amber-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-600 disabled:opacity-50">
-        {loading ? 'Submitting...' : 'Edit & Resubmit'}
+      <button type="button" onClick={handleResubmit} disabled={loading}
+        className="unit-btn unit-btn-primary">
+        {loading ? 'Submitting…' : 'Edit & Resubmit'}
       </button>
     );
   }
   if (review_status === 'revision_requested' && payment_status === 'repayment_required') {
     return (
-      <button onClick={() => router.push(getReviewHref(id, { repayment: true }))} disabled={loading}
-        className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 disabled:opacity-50">
-        Choose a plan to resubmit
+      <button type="button" onClick={() => router.push(getReviewHref(id, { repayment: true }))} disabled={loading}
+        className="unit-btn unit-btn-primary">
+        Choose A Plan To Resubmit
       </button>
     );
   }
   if (review_status === 'draft' && payment_status === 'unpaid') {
     return (
-      <button onClick={() => router.push(getReviewHref(id))} disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">
-        Pay & Submit →
+      <button type="button" onClick={() => router.push(getReviewHref(id))} disabled={loading}
+        className="unit-btn unit-btn-primary">
+        Pay & Submit
       </button>
     );
   }

@@ -19,29 +19,29 @@ export function PromotionPreview({ promotion }: Props) {
       {hasImage && (
         <div
           aria-label="Promotion image preview"
-          className="h-48 w-full rounded-xl border border-gray-200 bg-gray-100 bg-cover bg-center"
+          className="h-48 w-full rounded-xl border border-[#E5E7EB] bg-[#F4F5F7] bg-cover bg-center"
           style={{ backgroundImage: `url(${promotion.image_url})` }}
         />
       )}
       {hasCta && (
-        <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Call to action</p>
+        <div className="rounded-xl border border-[#465A75]/30 bg-[#F4F5F7] p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-[#465A75]">Call To Action</p>
           {promotion.cta_link ? (
             <a
               href={promotion.cta_link}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              className="unit-btn unit-btn-primary mt-2"
             >
               {ctaText}
             </a>
           ) : (
-            <span className="mt-2 inline-flex rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white">
+            <span className="unit-btn unit-btn-primary mt-2">
               {ctaText}
             </span>
           )}
           {promotion.cta_link && (
-            <p className="mt-2 break-all text-xs text-blue-700">{promotion.cta_link}</p>
+            <p className="mt-2 break-all text-xs font-medium text-[#465A75]">{promotion.cta_link}</p>
           )}
         </div>
       )}

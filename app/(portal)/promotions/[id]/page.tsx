@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 import { ReviewStatusBadge, PaymentStatusBadge } from '@/components/StatusBadges';
 import { PromotionCTA } from '@/components/PromotionCTA';
@@ -62,27 +63,27 @@ export default async function PromotionDetailPage({
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{promotion.headline}</h1>
-          <div className="flex gap-2 mt-2">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="break-words text-2xl font-black">{promotion.headline}</h1>
+          <div className="mt-2 flex flex-wrap gap-2">
             <ReviewStatusBadge status={promotion.review_status} />
             <PaymentStatusBadge status={promotion.payment_status} />
           </div>
         </div>
         <div className="flex gap-2">
           {canEdit && (
-            <a href={`/promotions/${id}/edit`}
-              className="border border-gray-300 text-gray-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-50">
+            <Link href={`/promotions/${id}/edit`}
+              className="unit-btn unit-btn-secondary">
               Edit
-            </a>
+            </Link>
           )}
         </div>
       </div>
 
       {/* Admin note */}
       {promotion.review_note && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5">
+        <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <p className="text-xs font-semibold text-amber-700 mb-1">Admin note</p>
           <p className="text-sm text-amber-800">{promotion.review_note}</p>
         </div>
@@ -94,40 +95,40 @@ export default async function PromotionDetailPage({
       </div>
 
       {/* Details */}
-      <div className="bg-white rounded-2xl shadow-sm p-5 mb-5">
+      <div className="unit-card mb-5 p-5">
         <PromotionPreview promotion={promotion} />
         {promotion.description && (
-          <p className="mt-4 text-sm text-gray-700 mb-3">{promotion.description}</p>
+          <p className="mb-3 mt-4 break-words text-sm text-[#101B29]">{promotion.description}</p>
         )}
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="text-gray-500">Start</span>
-            <p className="font-medium text-gray-900">{promotion.start_date ?? '—'}</p>
+            <span className="text-[#465A75]">Start</span>
+            <p className="font-bold text-[#101B29]">{promotion.start_date ?? '-'}</p>
           </div>
           <div>
-            <span className="text-gray-500">End</span>
-            <p className="font-medium text-gray-900">{promotion.end_date ?? '—'}</p>
+            <span className="text-[#465A75]">End</span>
+            <p className="font-bold text-[#101B29]">{promotion.end_date ?? '-'}</p>
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div className="mb-5 grid grid-cols-3 gap-3">
         {[
           { label: 'Views', value: totalViews.toLocaleString() },
           { label: 'Taps', value: totalTaps.toLocaleString() },
           { label: 'Tap rate', value: tapRate },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-white rounded-xl p-4 shadow-sm text-center">
-            <p className="text-xl font-bold text-gray-900">{value}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+          <div key={label} className="unit-stat">
+            <p className="text-xl font-black text-[#101B29]">{value}</p>
+            <p className="mt-0.5 text-xs font-bold uppercase tracking-wide text-[#465A75]">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Chart */}
-      <div className="bg-white rounded-2xl shadow-sm p-5">
-        <p className="text-sm font-semibold text-gray-700 mb-3">Daily performance</p>
+      <div className="unit-card p-5">
+        <p className="mb-3 text-sm font-bold text-[#465A75]">Daily Performance</p>
         <AnalyticsChart data={chartData} />
       </div>
     </div>

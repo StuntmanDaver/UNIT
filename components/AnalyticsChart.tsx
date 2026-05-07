@@ -9,7 +9,7 @@ type DayData = { date: string; views: number; taps: number };
 export function AnalyticsChart({ data }: { data: DayData[] }) {
   if (data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-gray-400 text-sm">
+      <div className="flex h-48 items-center justify-center text-sm text-[#465A75]">
         No analytics data yet
       </div>
     );
@@ -23,13 +23,13 @@ export function AnalyticsChart({ data }: { data: DayData[] }) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <BarChart data={formatted} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-        <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-        <YAxis tick={{ fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#465A75' }} />
+        <YAxis tick={{ fontSize: 11, fill: '#465A75' }} />
         <Tooltip />
         <Legend wrapperStyle={{ fontSize: 12 }} />
-        <Bar dataKey="views" fill="#3B82F6" name="Views" radius={[2, 2, 0, 0]} />
-        <Bar dataKey="taps" fill="#10B981" name="Taps" radius={[2, 2, 0, 0]} />
+        <Bar dataKey="views" fill="#465A75" name="Views" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="taps" fill="#101B29" name="Taps" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

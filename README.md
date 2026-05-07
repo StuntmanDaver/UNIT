@@ -72,10 +72,13 @@ npm run lint
 npm run test
 npm run test:coverage
 npm run build
+npm run release:check
 npm run test:e2e
 ```
 
 `npm run test:e2e` writes Playwright output to `playwright-report/` and `test-results/`, which are generated artifacts.
+
+`npm run release:check` validates required portal environment variables without printing secret values, then runs lint, unit tests, and the production build. Stripe test-mode keys are allowed for TestFlight QA, but live production must use live Stripe keys and the matching live webhook signing secret.
 
 ## Deploy Notes
 
@@ -84,6 +87,7 @@ npm run test:e2e
 - In Stripe Dashboard, add a production webhook endpoint for `https://<portal-domain>/api/webhooks/stripe` and store its signing secret as `STRIPE_WEBHOOK_SECRET`.
 - Keep Stripe keys, Supabase service role keys, and Sentry auth tokens out of source control.
 - Run `npm run build` with production env vars before promoting the release.
+- Run `npm run release:check` before connecting the mobile TestFlight build to a production portal.
 
 ## Manual Launch Checklist
 
@@ -92,5 +96,5 @@ npm run test:e2e
 - Stripe Checkout succeeds in test mode and webhook payment confirmation updates promotion state.
 - Advertiser signup/login works with Supabase auth cookies.
 - Promotion creation, payment, resubmission, and analytics pages load.
-- `npm run lint`, `npm run test`, and `npm run build` pass.
+- `npm run release:check` passes.
 - Production Stripe webhook endpoint is enabled before going live.
