@@ -1,5 +1,16 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-08 — Navigation responsiveness and loader polish
+
+### Changed
+- **Reduced route-loading flicker** — `LoadingScreen` now shows the UNIT logo only during real app startup/auth bootstrap. Route-level loading states use a quiet spinner so tab navigation no longer feels like the app is relaunching.
+- **Warmed tenant tab data** — The tenant tab layout now prefetches the first-pass Home, Directory, Community, Promotions, Alerts, nearby-property, and Profile data after login to make first visits feel more responsive.
+
+### Verification
+- `npm run typecheck`
+- `npm test -- --runInBand`
+- iPhone 16 Pro Max simulator tenant tab sweep confirmed Home, Directory, Promotions, Community, Alerts, and Profile open without the full-screen UNIT-logo loader during navigation.
+
 ## 2026-05-08 — Login and launch logo visibility
 
 ### Fixed
