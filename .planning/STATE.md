@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: Ready to plan
 stopped_at: context exhaustion at 75% (2026-05-03)
-last_updated: "2026-05-03T17:47:22.278Z"
+last_updated: "2026-05-08T12:35:00.000Z"
 progress:
   total_phases: 4
   completed_phases: 3
@@ -125,3 +125,18 @@ Source: live Claude Code sessions + terminal transcripts for this date.
 - Added migration `20260508000001_account_deletion_support.sql` so reviewed/refunded promotion references and ad analytics rows do not block Auth user deletion.
 - Verification passed: `npm run typecheck`, `npm test` (16 suites / 72 tests), `npm run brand-lint`, and touched-file `git diff --check`.
 - Local caveat: no `deno` binary was available, so Edge Function Deno typechecking still needs CI/Supabase deploy validation.
+- Production cherry-pick commit: `6d226db`.
+
+### App Review login and splash polish (2026-05-08)
+
+- Restored the visible UNIT login lockup with `assets/unit-logo-light.png` and updated generated iOS splash resources to avoid the dark logo treatment on launch.
+- Removed the `Admin`, `Tenant 1`, and `Tenant 2` login quick-fill shortcuts that were only for internal testing.
+- Verification passed: `npm run typecheck`, iPhone 16 Pro Max simulator login check for visible logo, and iPhone 16 Pro Max simulator login check confirming the test shortcuts are gone.
+- Production cherry-pick commits: `9142770`, `18bf359`.
+
+### Navigation loading and first-run responsiveness (2026-05-08)
+
+- Limited the full UNIT logo loading screen to real app startup/auth bootstrap; route-level loading now uses a quiet spinner to prevent screen-to-screen logo flicker.
+- Warmed tenant tab data after login so Home, Directory, Promotions, Community, Alerts, nearby-property, and Profile queries are prefetched before first navigation.
+- Verification passed: `npm run typecheck`, `npm test -- --runInBand`, and iPhone 16 Pro Max simulator tenant tab sweep without full-screen logo loader flicker.
+- Production cherry-pick commit: `3b25625`.
