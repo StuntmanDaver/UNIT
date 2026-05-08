@@ -117,3 +117,11 @@ Source: live Claude Code sessions + terminal transcripts for this date.
 - **Dev Supabase:** Four pending migrations from the PRD track were applied on the dev project; `scripts/backfill-property-coordinates.ts` was run after `properties.latitude/longitude` existed — 5/7 properties geocoded (two rows failed geocoding until addresses are corrected).
 - **Mobile tooling:** Expo Metro with `--clear`; dev client opens on LAN URL; if the app shows a blank screen, verify Metro “Bundling complete” and simulator network to the host IP.
 - **Portal:** No code changes in this workspace pass; Stripe webhook verification for mobile metadata remains US-013 work.
+
+### App Review account deletion fix (2026-05-08)
+
+- Apple rejected iOS build `1.0.0 (3)` under Guideline 5.1.1(v) because account creation existed without an in-app deletion option.
+- Implemented a self-service deletion flow in tenant Profile and admin Account, backed by the new `delete-account` Supabase Edge Function and `accountService.deleteCurrentAccount()`.
+- Added migration `20260508000001_account_deletion_support.sql` so reviewed/refunded promotion references and ad analytics rows do not block Auth user deletion.
+- Verification passed: `npm run typecheck`, `npm test` (16 suites / 72 tests), `npm run brand-lint`, and touched-file `git diff --check`.
+- Local caveat: no `deno` binary was available, so Edge Function Deno typechecking still needs CI/Supabase deploy validation.

@@ -1,5 +1,20 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-08 — Apple App Review account deletion compliance
+
+### Added
+- **In-app account deletion flow** — Tenant Profile and Admin Account now expose a `Delete Account` action with an in-app destructive confirmation modal. The flow invokes a trusted Supabase Edge Function, signs the local session out, and returns the user to login after deletion.
+- **`services/account.ts`** — New account service wraps the `delete-account` Edge Function and surfaces invocation/function errors to the UI.
+- **`supabase/functions/delete-account`** — New Edge Function verifies the caller via JWT, uses the service role only server-side, cleans account-owned rows/assets where discoverable, clears admin reference fields that would block auth deletion, and deletes the Supabase Auth user.
+- **Account deletion migration** — `20260508000001_account_deletion_support.sql` updates blocking foreign keys so admin review/refund references and analytics rows do not prevent account deletion.
+- **Account service tests** — Focused Jest coverage for successful invocation and error propagation.
+
+### Verification
+- `npm run typecheck`
+- `npm test` — 16 suites, 72 tests
+- `npm run brand-lint`
+- `git diff --check` on touched files
+
 ## 2026-05-06 — Maestro E2E stabilization (qa-directory-01 green end-to-end)
 
 `qa-directory-01-search-states.yaml` now passes from launch through logout. Twelve commits land on `ralph/engagement-ui-enhancement`. The session uncovered a real product routing bug (directory back navigation) and codified three reusable Maestro patterns for the remaining qa-* flows.
