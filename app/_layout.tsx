@@ -100,7 +100,7 @@ function AuthGuard() {
   }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin, segments]);
 
   if (isLoading) {
-    return <LoadingScreen message="Loading..." />;
+    return <LoadingScreen message="Loading..." showLogo />;
   }
 
   return <Slot />;
@@ -117,7 +117,7 @@ export default function RootLayout() {
   });
 
   if (!fontsLoaded) {
-    return <LoadingScreen message="Starting..." />;
+    return <LoadingScreen message="Starting..." showLogo />;
   }
 
   return (
