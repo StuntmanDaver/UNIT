@@ -1,5 +1,15 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-08 — Login and launch logo visibility
+
+### Fixed
+- **Login logo visibility** — Replaced the oversized transparent login artwork with a tightened light UNIT lockup asset and exposed a stable `login-logo` test ID for simulator checks.
+- **Loading/splash logo treatment** — Swapped the dark launch logo treatment for the light UNIT lockup on a light brand background in both Expo config and generated iOS splash resources.
+
+### Verification
+- `npm run typecheck`
+- iPhone 16 Pro Max simulator login screenshot confirms the UNIT lockup is visible on the login screen.
+
 ## 2026-05-08 — Apple App Review account deletion compliance
 
 ### Added

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, KeyboardAvoidingView, Platform, ScrollView, Pressable, Image } from 'react-native';
 import { Link } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -82,17 +83,20 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-brand-navy"
+      className="flex-1 bg-brand-cloud"
     >
+      <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-10 w-full max-w-md mx-auto">
-          <View className="items-center mb-8">
+          <View className="items-center mb-6" testID="login-logo">
             <Image
-              source={require('../../assets/unit-logo-dark.png')}
-              style={{ width: 240, height: 240 }}
+              accessibilityIgnoresInvertColors
+              accessibilityLabel="UNIT logo"
+              source={require('../../assets/unit-logo-light.png')}
+              style={{ width: 220, height: 220 }}
               resizeMode="contain"
             />
           </View>
@@ -103,14 +107,14 @@ export default function LoginScreen() {
               <Pressable
                 key={acct.email}
                 onPress={() => { setValue('email', acct.email); setValue('password', acct.password); }}
-                className="flex-1 bg-brand-navy-light border border-brand-blue rounded-xl py-2 items-center"
+                className="flex-1 bg-brand-mist border border-brand-blue rounded-xl py-2 items-center"
               >
-                <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal">{acct.label}</Text>
+                <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal">{acct.label}</Text>
               </Pressable>
             ))}
           </View>
 
-          <View className="bg-brand-navy-light p-6 rounded-3xl border border-brand-blue shadow-xl">
+          <View className="bg-brand-mist p-6 rounded-3xl border border-brand-blue shadow-xl">
             <Controller
               control={control}
               name="email"
@@ -154,16 +158,16 @@ export default function LoginScreen() {
           </View>
 
           <Pressable onPress={handleForgotPassword} className="mt-8 items-center">
-            <Text className="text-brand-steel text-sm font-nunito">Forgot password?</Text>
+            <Text className="text-brand-ink-muted text-sm font-nunito">Forgot password?</Text>
           </Pressable>
 
           <View className="mt-6 flex-row justify-center items-center gap-2">
-            <Text className="text-brand-steel font-nunito">
+            <Text className="text-brand-ink-muted font-nunito">
               Don't have an account?
             </Text>
             <Link href="/(auth)/signup" asChild>
               <Pressable className="p-2 -m-2">
-                <Text className="text-base font-nunito-semibold text-white">Sign Up</Text>
+                <Text className="text-base font-nunito-semibold text-brand-blue">Sign Up</Text>
               </Pressable>
             </Link>
           </View>

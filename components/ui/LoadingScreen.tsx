@@ -6,14 +6,16 @@ type LoadingScreenProps = {
 
 export function LoadingScreen({ message }: LoadingScreenProps) {
   return (
-    <View className="flex-1 items-center justify-center bg-brand-navy">
+    <View className="flex-1 items-center justify-center bg-brand-cloud">
       <Image
-        source={require('../../assets/unit-logo-dark.png')}
-        style={{ width: 200, height: 200, marginBottom: 24 }}
+        accessibilityIgnoresInvertColors
+        accessibilityLabel="UNIT logo"
+        source={require('../../assets/unit-logo-light.png')}
+        style={{ width: 180, height: 180, marginBottom: 24 }}
         resizeMode="contain"
       />
-      <ActivityIndicator size="large" color="#7C8DA7" />
-      {message && <Text className="text-brand-steel mt-4 text-base font-nunito">{message}</Text>}
+      <ActivityIndicator size="large" color="#5F708A" />
+      {message && <Text className="text-brand-ink-muted mt-4 text-base font-nunito">{message}</Text>}
     </View>
   );
 }
