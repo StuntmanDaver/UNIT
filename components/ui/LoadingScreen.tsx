@@ -7,7 +7,7 @@ type LoadingScreenProps = {
 
 export function LoadingScreen({ message, showLogo = false }: LoadingScreenProps) {
   return (
-    <View className="flex-1 items-center justify-center bg-brand-cloud px-8">
+    <View className="flex-1 items-center justify-center bg-brand-paper px-8">
       {showLogo && (
         <Image
           accessibilityIgnoresInvertColors
