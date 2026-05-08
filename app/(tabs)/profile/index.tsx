@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -16,15 +16,19 @@ import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { Modal } from '@/components/ui/Modal';
 import { BusinessCard } from '@/components/tenant/BusinessCard';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useProperties } from '@/hooks/useProperties';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuth } from '@/lib/AuthContext';
+import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
 
 export default function ProfileScreen() {
   const { user, propertyIds, logout, isAdmin } = useAuth();
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   // Defense-in-depth: admins should never reach the tenant profile screen
   if (isAdmin) return <Redirect href="/(admin)/" />;
@@ -56,6 +60,27 @@ export default function ProfileScreen() {
         { text: 'Log Out', style: 'destructive', onPress: logout },
       ]);
     });
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (isDeletingAccount) return;
+
+    try {
+      setIsDeletingAccount(true);
+      await accountService.deleteCurrentAccount();
+      setDeleteModalVisible(false);
+      await logout();
+      Alert.alert('Account Deleted', 'Your UNIT account has been deleted.');
+      router.replace('/(auth)/login');
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Please try again or contact your property admin.';
+      Alert.alert('Could Not Delete Account', message);
+    } finally {
+      setIsDeletingAccount(false);
+    }
   };
 
   return (
@@ -172,6 +197,18 @@ export default function ProfileScreen() {
                 thumbColor={permissionGranted ? '#E0E1DE' : '#7C8DA7'}
               />
             </View>
+
+            <View className="px-4 py-4">
+              <Button
+                onPress={() => setDeleteModalVisible(true)}
+                variant="destructive"
+                loading={isDeletingAccount}
+                disabled={isDeletingAccount}
+                testID="profile-delete-account"
+              >
+                Delete Account
+              </Button>
+            </View>
           </Card>
         </View>
       </ScrollView>
@@ -183,6 +220,35 @@ export default function ProfileScreen() {
           Log Out
         </Button>
       </View>
+
+      <Modal
+        visible={deleteModalVisible}
+        onClose={() => {
+          if (!isDeletingAccount) setDeleteModalVisible(false);
+        }}
+        title="Delete Account"
+        actions={[
+          {
+            label: 'Cancel',
+            variant: 'secondary',
+            onPress: () => {
+              if (!isDeletingAccount) setDeleteModalVisible(false);
+            },
+            testID: 'delete-account-cancel',
+          },
+          {
+            label: 'Delete Account',
+            variant: 'destructive',
+            onPress: confirmDeleteAccount,
+            testID: 'delete-account-confirm',
+          },
+        ]}
+      >
+        <Text className="text-base font-nunito text-brand-ink leading-relaxed">
+          This permanently deletes your UNIT account, profile, business listing, posts,
+          promotions, notifications, and related account data. This cannot be undone.
+        </Text>
+      </Modal>
     </View>
   );
 }
