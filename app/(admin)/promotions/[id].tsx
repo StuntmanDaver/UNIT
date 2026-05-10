@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { PromotionReviewActions } from '@/components/admin/PromotionReviewActions';
 import { useAdminPromotion } from '@/hooks/useAdminPromotions';
 import { promotionsService, type AdminPromotionReviewAction } from '@/services/promotions';
+import { canRefundPromotion, canReviewPromotion, canSuspendPromotion } from '@/lib/promotions/workflow';
 import { useAuth } from '@/lib/AuthContext';
 import { supabase } from '@/services/supabase';
 import { firstParam } from '@/lib/routeParams';
@@ -78,12 +79,9 @@ export default function AdminPromotionDetailScreen() {
     );
   }
 
-  const canReview = promotion.review_status === 'pending';
-  const canSuspendReinstate =
-    promotion.review_status === 'approved' || promotion.review_status === 'suspended';
-  const canRefund =
-    promotion.review_status === 'rejected' &&
-    (promotion.payment_status === 'paid' || promotion.payment_status === 'repayment_required');
+  const canReview = canReviewPromotion(promotion);
+  const canSuspendReinstate = canSuspendPromotion(promotion);
+  const canRefund = canRefundPromotion(promotion);
 
   const handleReviewAction = async (action: AdminPromotionReviewAction) => {
     if (!user) return;

@@ -1,5 +1,9 @@
 // services/promotions.ts
 import { supabase } from './supabase';
+import {
+  deriveReviewDecision,
+  deriveSuspensionDecision,
+} from '@/lib/promotions/workflow';
 
 export type Promotion = {
   id: string;
@@ -141,55 +145,19 @@ export const promotionsService = {
     action: AdminPromotionReviewAction
   ): Promise<void> {
     const now = new Date().toISOString();
-
-    let newReviewStatus: Promotion['review_status'];
-    let newPaymentStatus: Promotion['payment_status'] = currentPromotion.payment_status;
-    let note: string | null = null;
-
-    switch (action.action) {
-      case 'approve':
-        newReviewStatus = 'approved';
-        break;
-      case 'allow_revision':
-        newReviewStatus = 'revision_requested';
-        note = action.note;
-        break;
-      case 'require_repayment':
-        newReviewStatus = 'revision_requested';
-        newPaymentStatus = 'repayment_required';
-        note = action.note;
-        break;
-      case 'reject':
-        newReviewStatus = 'rejected';
-        note = action.note;
-        break;
-    }
-
-    const updatePayload: Partial<Promotion> = {
-      review_status: newReviewStatus,
-      payment_status: newPaymentStatus,
-      reviewed_by: adminUserId,
-      reviewed_at: now,
-      review_note: action.action === 'approve' ? null : note,
-    };
+    const decision = deriveReviewDecision(currentPromotion, action, adminUserId, now);
 
     const { error: updateError } = await supabase
       .from('promotions')
-      .update(updatePayload)
+      .update(decision.update)
       .eq('id', promotionId);
     if (updateError) throw updateError;
 
     const { error: eventError } = await supabase
       .from('promotion_status_events')
       .insert({
+        ...decision.event,
         promotion_id: promotionId,
-        from_review_status: currentPromotion.review_status,
-        to_review_status: newReviewStatus,
-        from_payment_status: currentPromotion.payment_status,
-        to_payment_status: newPaymentStatus,
-        actor_user_id: adminUserId,
-        actor_type: 'admin',
-        note,
       });
     if (eventError) throw eventError;
   },
@@ -200,24 +168,20 @@ export const promotionsService = {
     adminUserId: string,
     currentStatus: 'approved' | 'suspended'
   ): Promise<void> {
-    const newStatus = currentStatus === 'approved' ? 'suspended' : 'approved';
     const now = new Date().toISOString();
+    const decision = deriveSuspensionDecision({ review_status: currentStatus }, adminUserId, now);
 
     const { error: updateError } = await supabase
       .from('promotions')
-      .update({ review_status: newStatus, reviewed_by: adminUserId, reviewed_at: now })
+      .update(decision.update)
       .eq('id', promotionId);
     if (updateError) throw updateError;
 
     const { error: eventError } = await supabase
       .from('promotion_status_events')
       .insert({
+        ...decision.event,
         promotion_id: promotionId,
-        from_review_status: currentStatus,
-        to_review_status: newStatus,
-        actor_user_id: adminUserId,
-        actor_type: 'admin',
-        note: null,
       });
     if (eventError) throw eventError;
   },

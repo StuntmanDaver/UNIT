@@ -17,6 +17,8 @@ jobs:
       - uses: supabase/setup-cli@v1
         with:
           version: latest
+      - name: Lint
+        run: npm run lint
       - name: TypeScript check
         run: npx tsc --noEmit
       - name: Edge Function type check

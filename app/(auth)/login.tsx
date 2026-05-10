@@ -143,7 +143,7 @@ export default function LoginScreen() {
 
           <View className="mt-6 flex-row justify-center items-center gap-2">
             <Text className="text-brand-ink-muted font-nunito">
-              Don't have an account?
+              {"Don't have an account?"}
             </Text>
             <Link href="/(auth)/signup" asChild>
               <Pressable className="p-2 -m-2">

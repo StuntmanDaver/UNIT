@@ -11,7 +11,7 @@ import {
 import { router, Redirect } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
-import { Edit2, Share2, LogOut, Megaphone } from 'lucide-react-native';
+import { Share2, LogOut, Megaphone } from 'lucide-react-native';
 import { GradientHeader } from '@/components/ui/GradientHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -25,13 +25,10 @@ import { useAuth } from '@/lib/AuthContext';
 import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
 
-export default function ProfileScreen() {
-  const { user, propertyIds, logout, isAdmin } = useAuth();
+function TenantProfileContent() {
+  const { user, propertyIds, logout } = useAuth();
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
-  // Defense-in-depth: admins should never reach the tenant profile screen
-  if (isAdmin) return <Redirect href="/(admin)/" />;
   const { data: business, isLoading } = useCurrentUser();
   const { data: properties } = useProperties(propertyIds);
   const { permissionGranted, enablePush, disablePush } = usePushNotifications();
@@ -48,7 +45,7 @@ export default function ProfileScreen() {
         message: `Connect with my business on UNIT! ${qrValue}`,
         url: qrValue,
       });
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Could not share this profile.');
     }
   };
@@ -251,4 +248,13 @@ export default function ProfileScreen() {
       </Modal>
     </View>
   );
+}
+
+export default function ProfileScreen() {
+  const { isAdmin } = useAuth();
+
+  // Defense-in-depth: admins should never reach the tenant profile screen
+  if (isAdmin) return <Redirect href="/(admin)/" />;
+
+  return <TenantProfileContent />;
 }

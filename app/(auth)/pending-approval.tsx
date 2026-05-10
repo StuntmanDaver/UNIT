@@ -32,7 +32,7 @@ export default function PendingApprovalScreen() {
         </Pressable>
 
         {profile?.email ? (
-          <Text className="font-nunito text-xs text-brand-ink-muted text-center mt-8">{profile.email}</Text>
+          <Text className="font-nunito text-sm text-brand-ink-muted text-center mt-8">{profile.email}</Text>
         ) : null}
       </View>
     </View>

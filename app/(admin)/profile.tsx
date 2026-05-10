@@ -19,13 +19,10 @@ import { useAuth } from '@/lib/AuthContext';
 import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
 
-export default function AdminProfileScreen() {
-  const { user, logout, isAdmin } = useAuth();
+function AdminProfileContent() {
+  const { user, logout } = useAuth();
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
-  // Defense-in-depth: only landlords should reach this screen
-  if (!isAdmin) return <Redirect href="/(tabs)/directory" />;
   const { permissionGranted, enablePush, disablePush } = usePushNotifications();
 
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
@@ -197,4 +194,13 @@ export default function AdminProfileScreen() {
       </Modal>
     </View>
   );
+}
+
+export default function AdminProfileScreen() {
+  const { isAdmin } = useAuth();
+
+  // Defense-in-depth: only landlords should reach this screen
+  if (!isAdmin) return <Redirect href="/(tabs)/directory" />;
+
+  return <AdminProfileContent />;
 }

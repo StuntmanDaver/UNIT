@@ -5,7 +5,14 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 import { initSentry } from '@/lib/sentry';
+import { queryClient } from '@/lib/query-client';
+import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
+import { getAuthRedirectTarget } from '@/lib/authRedirectPolicy';
 
 initSentry();
 
@@ -15,12 +22,6 @@ initSentry();
 LogBox.ignoreLogs(['Invalid Refresh Token', 'AuthApiError']);
 
 SplashScreen.preventAutoHideAsync();
-import { QueryClientProvider } from '@tanstack/react-query';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
-import { queryClient } from '@/lib/query-client';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 // LoadingScreen is also used below while fonts are loading
 
@@ -38,72 +39,20 @@ function AuthGuard() {
       SplashScreen.hideAsync();
     }
 
-    const inAuthGroup = segments[0] === '(auth)';
-    const inTabsGroup = segments[0] === '(tabs)';
-    const onResetPassword = segments.includes('reset-password');
-    const onOnboarding = segments.includes('onboarding');
-    const onPendingApproval = segments.includes('pending-approval');
+    const redirectTarget = getAuthRedirectTarget({
+      segments,
+      isAuthenticated,
+      needsPasswordChange,
+      needsOnboarding,
+      needsApproval,
+      isInactive,
+      isAdmin,
+    });
 
-    // Unauthenticated: redirect to login from anywhere except login/signup
-    // themselves. Previously this only fired when !inAuthGroup, which stranded
-    // users who tapped "Sign out" while on /(auth)/onboarding or
-    // /(auth)/reset-password — logout() cleared the session but the guard
-    // refused to navigate because we were already inside the auth group.
-    if (!isAuthenticated) {
-      const onLogin = segments.includes('login');
-      const onSignup = segments.includes('signup');
-      if (!onLogin && !onSignup) {
-        router.replace('/(auth)/login');
-      }
-      return;
+    if (redirectTarget) {
+      router.replace(redirectTarget as Parameters<typeof router.replace>[0]);
     }
-
-    // Authenticated from here down.
-
-    // Password change branch — highest priority. No longer gated on inAuthGroup
-    // so a mid-session flag flip from inside (tabs) still forces the redirect.
-    if (needsPasswordChange && !onResetPassword) {
-      router.replace('/(auth)/reset-password');
-      return;
-    }
-
-    // Onboarding branch (BUG-03 fix) — the previous guard required !inAuthGroup,
-    // which stranded fresh signups on /signup with needsOnboarding=true. The
-    // check now fires as long as we're not already ON the onboarding screen.
-    if (!needsPasswordChange && needsOnboarding && !onOnboarding) {
-      router.replace('/(auth)/onboarding');
-      return;
-    }
-
-    if (!needsPasswordChange && !needsOnboarding && (needsApproval || isInactive) && !onPendingApproval) {
-      router.replace('/(auth)/pending-approval');
-      return;
-    }
-
-    // Stranded-in-auth-group branch: authed user with nothing to do is sitting
-    // on login/signup/reset-password/onboarding — push them to the right home.
-    if (!needsPasswordChange && !needsOnboarding && !needsApproval && !isInactive && inAuthGroup) {
-      // BUG-04 decision: post-reset landing stays at /(tabs)/profile/edit.
-      // Invited tenants have a business profile stub-created by the invite-tenant
-      // Edge Function with no logo / unit_number / contact fields — sending them
-      // to profile/edit lets them complete those fields immediately. Fresh
-      // signups that went through onboarding hit the onboarding branch above
-      // and land on /(tabs)/directory (or /(admin)/ for landlords) via the
-      // else branches below.
-      if (onResetPassword) {
-        router.replace('/(tabs)/profile/edit');
-      } else if (isAdmin) {
-        router.replace('/(admin)/');
-      } else {
-        // US-005: tenants land on the new Home tab (6th tab, first position).
-        router.replace('/(tabs)/home');
-      }
-    }
-
-    if (!needsPasswordChange && !needsOnboarding && !needsApproval && !isInactive && isAdmin && inTabsGroup) {
-      router.replace('/(admin)/');
-    }
-  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, needsApproval, isInactive, isAdmin, segments]);
+  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, needsApproval, isInactive, isAdmin, router, segments]);
 
   if (isLoading) {
     return <LoadingScreen message="Loading..." showLogo />;
