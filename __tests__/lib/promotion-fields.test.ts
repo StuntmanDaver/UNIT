@@ -9,7 +9,7 @@ describe('normalizeAdvertiserPromotionFields', () => {
       startDate: ' 2026-06-01 ',
       endDate: ' 2026-06-30 ',
       imageUrl: ' https://example.com/banner.png ',
-      ctaText: '',
+      ctaText: ' Menu ',
       ctaLink: ' https://example.com/menu ',
     })).toEqual({
       headline: 'Lunch special',
@@ -17,9 +17,29 @@ describe('normalizeAdvertiserPromotionFields', () => {
       start_date: '2026-06-01',
       end_date: '2026-06-30',
       image_url: 'https://example.com/banner.png',
-      cta_text: null,
+      cta_text: 'Menu',
       cta_link: 'https://example.com/menu',
     });
+  });
+
+  it('requires CTA text and link to be provided together', () => {
+    expect(() => normalizeAdvertiserPromotionFields({
+      headline: 'Lunch special',
+      startDate: '2026-06-01',
+      endDate: '2026-06-30',
+      ctaText: '',
+      ctaLink: 'https://example.com/menu',
+    })).toThrow('CTA text is required');
+  });
+
+  it('rejects non-http CTA links', () => {
+    expect(() => normalizeAdvertiserPromotionFields({
+      headline: 'Lunch special',
+      startDate: '2026-06-01',
+      endDate: '2026-06-30',
+      ctaText: 'Menu',
+      ctaLink: 'javascript:alert(1)',
+    })).toThrow('CTA URL must be a valid http:// or https:// URL');
   });
 
   it('rejects promotion date ranges where the end date is not after the start date', () => {

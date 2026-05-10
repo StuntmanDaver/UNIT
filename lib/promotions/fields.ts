@@ -29,14 +29,35 @@ function optionalText(value?: string | null): string | null {
   return trimmed ? trimmed : null;
 }
 
+function optionalHttpUrl(value: string | null, fieldName: string): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error(`${fieldName} must start with http:// or https://`);
+    }
+    return url.toString();
+  } catch {
+    throw new Error(`${fieldName} must be a valid http:// or https:// URL`);
+  }
+}
+
 export function normalizeAdvertiserPromotionFields(
   data: AdvertiserPromotionFieldsInput
 ): NormalizedAdvertiserPromotionFields {
   const startDate = requiredText(data.startDate, 'Start date');
   const endDate = requiredText(data.endDate, 'End date');
+  const ctaText = optionalText(data.ctaText);
+  const ctaLink = optionalHttpUrl(optionalText(data.ctaLink), 'CTA URL');
 
   if (endDate <= startDate) {
     throw new Error('End date must be after start date');
+  }
+  if (ctaText && !ctaLink) {
+    throw new Error('CTA URL is required when CTA text is set');
+  }
+  if (!ctaText && ctaLink) {
+    throw new Error('CTA text is required when CTA URL is set');
   }
 
   return {
@@ -45,7 +66,7 @@ export function normalizeAdvertiserPromotionFields(
     start_date: startDate,
     end_date: endDate,
     image_url: optionalText(data.imageUrl),
-    cta_text: optionalText(data.ctaText),
-    cta_link: optionalText(data.ctaLink),
+    cta_text: ctaText,
+    cta_link: ctaLink,
   };
 }

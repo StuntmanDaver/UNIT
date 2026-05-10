@@ -101,6 +101,18 @@ function selectedPropertyId(propertyIds: string[], requested?: string | null): s
   return propertyIds[0] ?? '';
 }
 
+function normalizeHttpUrl(value: string, fieldName: string): string {
+  try {
+    const url = new URL(value.trim());
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      throw new Error(`${fieldName} must start with http:// or https://`);
+    }
+    return url.toString();
+  } catch {
+    throw new Error(`${fieldName} must be a valid http:// or https:// URL`);
+  }
+}
+
 function toProperty(row: AdminProperty): AdminProperty {
   return row;
 }
@@ -283,7 +295,11 @@ export async function setTenantStatusAction(profileId: string, status: 'active' 
   const canEdit = context.propertyIds.some((propertyId) => tenantPropertyIds.includes(propertyId));
   if (!canEdit) throw new Error('You do not have access to this tenant');
 
-  const { error } = await supabase.from('profiles').update({ status }).eq('id', profileId);
+  const updates = status === 'active'
+    ? { status, activated_at: new Date().toISOString() }
+    : { status };
+
+  const { error } = await supabase.from('profiles').update(updates).eq('id', profileId);
   throwIfError(error);
   revalidatePath('/admin/tenants');
   revalidatePath('/admin');
@@ -549,6 +565,7 @@ export async function createExternalPromotionAction(input: ExternalPromotionInpu
   const context = await requireAdminAction();
   assertAdminPropertyAccess(context, input.propertyId);
   if (input.endDate <= input.startDate) throw new Error('End date must be after start date');
+  const ctaLink = normalizeHttpUrl(input.ctaLink, 'CTA URL');
 
   const supabase = createServiceRoleClient();
   const { data, error } = await supabase
@@ -562,7 +579,7 @@ export async function createExternalPromotionAction(input: ExternalPromotionInpu
       description: input.description.trim(),
       image_url: input.imageUrl,
       cta_text: input.ctaText.trim(),
-      cta_link: input.ctaLink.trim(),
+      cta_link: ctaLink,
       external_contact_name: input.externalContactName?.trim() || null,
       external_contact_email: input.externalContactEmail?.trim() || null,
       external_contact_phone: input.externalContactPhone?.trim() || null,

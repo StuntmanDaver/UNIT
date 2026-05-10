@@ -387,7 +387,12 @@ export function TenantAdminClient({
           filteredTenants.map((tenant) => {
             const businessName = tenant.business?.business_name || 'Unclaimed business'
             const isInactive = tenant.profile.status === 'inactive'
-            const buttonLabel = isInactive ? `Reactivate ${businessName}` : `Disable ${businessName}`
+            const isInvited = tenant.profile.status === 'invited'
+            const buttonLabel = isInvited
+              ? `Approve ${businessName}`
+              : isInactive
+                ? `Reactivate ${businessName}`
+                : `Disable ${businessName}`
             return (
               <article key={tenant.profile.id} className="unit-card p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -405,18 +410,18 @@ export function TenantAdminClient({
                   </div>
                   <button
                     type="button"
-                    className={`unit-btn ${isInactive ? 'unit-btn-primary' : 'unit-btn-danger'}`}
+                    className={`unit-btn ${isInactive || isInvited ? 'unit-btn-primary' : 'unit-btn-danger'}`}
                     aria-label={buttonLabel}
                     disabled={actionKey === tenant.profile.id}
                     onClick={() => void runAction(
                       tenant.profile.id,
-                      () => isInactive
+                      () => isInactive || isInvited
                         ? actions.reactivateTenant(tenant.profile.id).then(() => undefined)
                         : actions.disableTenant(tenant.profile.id).then(() => undefined),
-                      isInactive ? 'Tenant reactivated' : 'Tenant disabled',
+                      isInvited ? 'Tenant approved' : isInactive ? 'Tenant reactivated' : 'Tenant disabled',
                     )}
                   >
-                    {isInactive ? 'Reactivate' : 'Disable'}
+                    {isInvited ? 'Approve' : isInactive ? 'Reactivate' : 'Disable'}
                   </button>
                 </div>
               </article>

@@ -17,10 +17,10 @@ type PromotionMediaFieldProps = {
   onUploadingChange?: (isUploading: boolean) => void;
 };
 
-function getUploadPath(file: File): string {
+function getUploadPath(file: File, userId: string): string {
   const extension = file.name.split('.').pop()?.toLowerCase() ?? 'image';
   const safeExtension = extension.replace(/[^a-z0-9]/g, '') || 'image';
-  return `promotions/${crypto.randomUUID()}.${safeExtension}`;
+  return `${userId}/promotions/${crypto.randomUUID()}.${safeExtension}`;
 }
 
 export function PromotionMediaField({
@@ -51,7 +51,11 @@ export function PromotionMediaField({
 
     setUploading(true);
     try {
-      const path = getUploadPath(file);
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      if (!user) throw new Error('You must be signed in to upload images');
+
+      const path = getUploadPath(file, user.id);
       const { error } = await supabase.storage
         .from('public-assets')
         .upload(path, file, {

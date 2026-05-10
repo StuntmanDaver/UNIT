@@ -47,6 +47,15 @@ function trimOrNull(value: string): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 export function ExternalPromotionForm({
   properties,
   selectedPropertyId,
@@ -78,6 +87,7 @@ export function ExternalPromotionForm({
     if (!description.trim()) nextErrors.description = 'Description is required';
     if (!ctaText.trim()) nextErrors.ctaText = 'CTA label is required';
     if (!ctaLink.trim()) nextErrors.ctaLink = 'CTA URL is required';
+    else if (!isHttpUrl(ctaLink.trim())) nextErrors.ctaLink = 'CTA URL must start with http:// or https://';
     if (!startDate) nextErrors.startDate = 'Start date is required';
     if (!endDate) nextErrors.endDate = 'End date is required';
     if (startDate && endDate && endDate <= startDate) {
