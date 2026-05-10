@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
   const adminClient = createClient(supabaseUrl, serviceRoleKey);
   const { data: profile } = await adminClient
     .from('profiles')
-    .select('role')
+    .select('role, property_ids')
     .eq('id', user.id)
     .single();
   if (profile?.role !== 'landlord') {
@@ -74,13 +74,20 @@ Deno.serve(async (req) => {
   // 1. Validate promotion is in refundable state
   const { data: promotion, error: promoError } = await adminClient
     .from('promotions')
-    .select('id, payment_status, review_status')
+    .select('id, property_id, payment_status, review_status')
     .eq('id', promotionId)
     .single();
 
   if (promoError || !promotion) {
     return new Response(JSON.stringify({ error: 'Promotion not found' }), {
       status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const allowedPropertyIds: string[] = profile.property_ids ?? [];
+  if (!allowedPropertyIds.includes(promotion.property_id)) {
+    return new Response(JSON.stringify({ error: 'Forbidden: property access denied' }), {
+      status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 

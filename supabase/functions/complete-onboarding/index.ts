@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
   // Fetch existing property_ids first so we append rather than overwrite
   const { data: existingProfile } = await adminClient
     .from('profiles')
-    .select('property_ids')
+    .select('property_ids, status, activated_at')
     .eq('id', user.id)
     .single();
   const mergedPropertyIds = Array.from(
@@ -81,8 +81,8 @@ Deno.serve(async (req) => {
     .from('profiles')
     .update({
       property_ids: mergedPropertyIds,
-      status: 'active',
-      activated_at: new Date().toISOString(),
+      status: existingProfile?.status === 'active' ? 'active' : 'invited',
+      activated_at: existingProfile?.status === 'active' ? existingProfile.activated_at : null,
     })
     .eq('id', user.id);
 
@@ -93,7 +93,10 @@ Deno.serve(async (req) => {
     });
   }
 
-  return new Response(JSON.stringify({ success: true }), {
+  return new Response(JSON.stringify({
+    success: true,
+    status: existingProfile?.status === 'active' ? 'active' : 'pending_approval',
+  }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
 });

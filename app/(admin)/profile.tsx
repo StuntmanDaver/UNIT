@@ -59,12 +59,12 @@ export default function AdminProfileScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <Pressable
             testID="back-btn"
-            onPress={() => router.back()}
+            onPress={() => router.push('/(admin)/')}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
@@ -86,47 +86,47 @@ export default function AdminProfileScreen() {
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
         <View className="px-4 pt-6">
           <Card className="overflow-hidden mb-6">
-            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
+            <Text className="text-sm font-nunito-semibold text-brand-ink-muted leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
               Account
             </Text>
 
             {user?.email ? (
               <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
-                <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+                <Text className="text-base font-nunito text-brand-ink leading-relaxed">
                   Email
                 </Text>
-                <Text className="text-sm font-nunito text-brand-steel leading-normal">
+                <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
                   {user.email}
                 </Text>
               </View>
             ) : null}
 
             <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">
                 Role
               </Text>
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">
+              <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
                 Property Admin
               </Text>
             </View>
 
             <View className="flex-row items-center justify-between px-4 py-3">
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">
                 App Version
               </Text>
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">
+              <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
                 {appVersion}
               </Text>
             </View>
           </Card>
 
           <Card className="overflow-hidden mb-6">
-            <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
+            <Text className="text-sm font-nunito-semibold text-brand-ink-muted leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
               Preferences
             </Text>
 
             <View className="flex-row justify-between items-center px-4 py-3">
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">
                 Push Notifications
               </Text>
               <Switch
@@ -136,7 +136,7 @@ export default function AdminProfileScreen() {
                   else disablePush();
                 }}
                 trackColor={{ false: '#465A75', true: BRAND.blue }}
-                thumbColor={permissionGranted ? '#E0E1DE' : '#7C8DA7'}
+                thumbColor={permissionGranted ? '#E0E1DE' : '#5F708A'}
               />
             </View>
           </Card>

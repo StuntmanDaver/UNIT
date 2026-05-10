@@ -13,3 +13,7 @@ appId: com.unitapp.mobile
     visible:
       text: "Admin Dashboard"
     timeout: 15000
+- extendedWaitUntil:
+    visible:
+      text: "Manage Promotions"
+    timeout: 15000

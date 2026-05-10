@@ -26,11 +26,30 @@ import { promotionsService } from '@/services/promotions';
 import { storageService } from '@/services/storage';
 import { useAuth } from '@/lib/AuthContext';
 
+function isHttpUrl(value: string): boolean {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const schema = z.object({
   headline: z.string().min(1, 'Headline is required'),
   description: z.string().min(1, 'Description is required'),
   cta_text: z.string().optional(),
-  cta_link: z.string().optional(),
+  cta_link: z.string().optional().refine((value) => isHttpUrl(value ?? ''), 'CTA URL must start with http:// or https://'),
+}).superRefine((data, ctx) => {
+  const ctaText = data.cta_text?.trim();
+  const ctaLink = data.cta_link?.trim();
+  if (ctaText && !ctaLink) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cta_link'], message: 'CTA URL is required when CTA text is set' });
+  }
+  if (!ctaText && ctaLink) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['cta_text'], message: 'CTA text is required when CTA URL is set' });
+  }
 });
 
 type FormData = z.infer<typeof schema>;
@@ -153,7 +172,7 @@ export default function CreatePromotionScreen() {
   const pickerLabel = activePicker === 'start' ? 'Start Date' : 'End Date';
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">Promote My Business</Text>
       </GradientHeader>
@@ -202,27 +221,27 @@ export default function CreatePromotionScreen() {
         {/* Date pickers */}
         <View className="flex-row gap-3 mb-4">
           <View className="flex-1">
-            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Start Date *</Text>
+            <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Start Date *</Text>
             <Pressable
               onPress={() => setActivePicker('start')}
               testID="promotion-start-date"
-              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
+              className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-3 h-12"
             >
-              <Calendar size={16} color="#7C8DA7" />
-              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-gray">
+              <Calendar size={16} color="#5F708A" />
+              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-ink">
                 {startDate ? format(startDate, 'MMM d, yyyy') : 'Select'}
               </Text>
             </Pressable>
           </View>
           <View className="flex-1">
-            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">End Date *</Text>
+            <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">End Date *</Text>
             <Pressable
               onPress={() => setActivePicker('end')}
               testID="promotion-end-date"
-              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-3 h-12"
+              className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-3 h-12"
             >
-              <Calendar size={16} color="#7C8DA7" />
-              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-gray">
+              <Calendar size={16} color="#5F708A" />
+              <Text className="flex-1 ml-2 text-sm font-nunito leading-normal text-brand-ink">
                 {endDate ? format(endDate, 'MMM d, yyyy') : 'Select'}
               </Text>
             </Pressable>
@@ -237,14 +256,14 @@ export default function CreatePromotionScreen() {
               onPress={() => setActivePicker(null)}
             >
               <Pressable onPress={(e) => e.stopPropagation()}>
-                <View className="bg-brand-navy-light rounded-t-2xl pb-8">
+                <View className="bg-brand-mist rounded-t-2xl pb-8">
                   <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
                     <Pressable onPress={() => setActivePicker(null)}>
-                      <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal">Cancel</Text>
+                      <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal">Cancel</Text>
                     </Pressable>
-                    <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">{pickerLabel}</Text>
+                    <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">{pickerLabel}</Text>
                     <Pressable onPress={() => setActivePicker(null)}>
-                      <Text className="text-sm font-nunito-semibold text-white leading-normal">Done</Text>
+                      <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">Done</Text>
                     </Pressable>
                   </View>
                   <DateTimePicker
@@ -304,7 +323,7 @@ export default function CreatePromotionScreen() {
 
         {/* Image picker */}
         <View className="mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Image (optional)</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Image (optional)</Text>
           {imageUri ? (
             <View className="relative rounded-xl overflow-hidden">
               <Image
@@ -324,8 +343,8 @@ export default function CreatePromotionScreen() {
               onPress={handlePickImage}
               className="border-2 border-dashed border-brand-steel/40 rounded-xl h-32 items-center justify-center gap-2"
             >
-              <ImagePlus size={24} color="#7C8DA7" />
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">Add an image</Text>
+              <ImagePlus size={24} color="#5F708A" />
+              <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">Add an image</Text>
             </Pressable>
           )}
         </View>

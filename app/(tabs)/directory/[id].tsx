@@ -19,8 +19,9 @@ import { Button } from '@/components/ui/Button';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { useBusiness } from '@/hooks/useBusiness';
 import { useAuth } from '@/lib/AuthContext';
+import { isHttpUrl, openHttpUrl } from '@/lib/url';
 import { getCategoryLabel } from '@/constants/categories';
-import { CATEGORY_COLORS } from '@/constants/colors';
+import { CATEGORY_COLORS, getReadableTextColor } from '@/constants/colors';
 
 export default function BusinessDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -34,14 +35,14 @@ export default function BusinessDetailScreen() {
 
   if (!business) {
     return (
-      <View className="flex-1 items-center justify-center bg-brand-navy">
-        <Text className="text-base font-nunito text-brand-gray leading-relaxed">Business not found.</Text>
+      <View className="flex-1 items-center justify-center bg-brand-cloud">
+        <Text className="text-base font-nunito text-brand-ink leading-relaxed">Business not found.</Text>
       </View>
     );
   }
 
   const categoryColor = CATEGORY_COLORS[business.category] ?? '#465A75';
-  const badgeColor = { bg: categoryColor + '20', text: categoryColor };
+  const badgeColor = { bg: categoryColor, text: getReadableTextColor(categoryColor) };
   const isOwner = business.owner_email === user?.email;
   const qrValue = `unit://directory/${business.id}`;
 
@@ -57,9 +58,9 @@ export default function BusinessDetailScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-brand-navy" contentContainerStyle={{ paddingBottom: 40 }}>
+    <ScrollView className="flex-1 bg-brand-cloud" contentContainerStyle={{ paddingBottom: 40 }}>
       {/* Dark header */}
-      <View className="bg-brand-navy px-4 pt-14 pb-8">
+      <View className="bg-brand-ink px-4 pt-14 pb-8">
         <Pressable
           testID="back-btn"
           onPress={() => {
@@ -88,7 +89,7 @@ export default function BusinessDetailScreen() {
             {business.business_name}
           </Text>
           {business.unit_number && (
-            <Text className="text-sm font-nunito text-brand-steel leading-normal mt-1">Unit {business.unit_number}</Text>
+            <Text className="text-sm font-nunito text-white leading-normal mt-1">Unit {business.unit_number}</Text>
           )}
           <View className="mt-2">
             <Badge
@@ -104,8 +105,8 @@ export default function BusinessDetailScreen() {
         {/* Description */}
         {business.business_description && (
           <Card className="p-6 mb-6">
-            <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">About</Text>
-            <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+            <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-2">About</Text>
+            <Text className="text-base font-nunito text-brand-ink leading-relaxed">
               {business.business_description}
             </Text>
           </Card>
@@ -114,10 +115,10 @@ export default function BusinessDetailScreen() {
         {/* Contact section */}
         {(business.contact_name || business.contact_phone || business.contact_email || business.website) && (
           <Card className="p-6 mb-6">
-            <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-3">Contact</Text>
+            <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-3">Contact</Text>
 
             {business.contact_name && (
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-3">{business.contact_name}</Text>
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed mb-3">{business.contact_name}</Text>
             )}
 
             {/* Action buttons */}
@@ -131,7 +132,7 @@ export default function BusinessDetailScreen() {
                   <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
                     <Phone size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1">
+                  <Text className="text-base font-nunito text-brand-ink leading-relaxed flex-1">
                     {business.contact_phone}
                   </Text>
                 </Pressable>
@@ -146,22 +147,22 @@ export default function BusinessDetailScreen() {
                   <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
                     <Mail size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1">
+                  <Text className="text-base font-nunito text-brand-ink leading-relaxed flex-1">
                     {business.contact_email}
                   </Text>
                 </Pressable>
               )}
 
-              {business.website && (
+              {isHttpUrl(business.website) && (
                 <Pressable
                   testID="business-contact-website"
-                  onPress={() => Linking.openURL(business.website!)}
+                  onPress={() => openHttpUrl(business.website)}
                   className="flex-row items-center gap-4 p-4"
                 >
                   <View className="w-10 h-10 rounded-full bg-brand-blue items-center justify-center">
                     <Globe size={18} color="#FFFFFF" />
                   </View>
-                  <Text className="text-base font-nunito text-brand-gray leading-relaxed flex-1" numberOfLines={1}>
+                  <Text className="text-base font-nunito text-brand-ink leading-relaxed flex-1" numberOfLines={1}>
                     {business.website}
                   </Text>
                 </Pressable>
@@ -172,7 +173,7 @@ export default function BusinessDetailScreen() {
 
         {/* QR Code section */}
         <Card className="mb-6 items-center p-6">
-          <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-4">Business QR Code</Text>
+          <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-4">Business QR Code</Text>
           <QRCode
             value={qrValue}
             size={150}

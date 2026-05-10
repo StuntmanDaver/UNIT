@@ -10,6 +10,7 @@ dist/
 web-build/
 .env
 .env.local
+.env.fastlane
 .claude/
 supabase/.temp/
 

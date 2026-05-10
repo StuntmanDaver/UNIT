@@ -151,11 +151,24 @@ The mobile-tenant checkout depends on the Stripe / pricing schema added on May 2
 
 Apply with `cd unit && npx supabase db push`.
 
+### Security migration checks
+
+Before promoting a Supabase deploy, run the local security checks from `unit/`:
+
+```bash
+npm run db:test:security
+npm run edge:check
+```
+
+`db:test:security` requires Docker/Supabase local services. It verifies that pending tenants cannot read tenant data, tenants cannot self-activate, and landlords cannot manage tenants outside assigned properties.
+
 ### Required Edge Function secrets
 
 ```bash
 npx supabase secrets set \
-  STRIPE_SECRET_KEY=<your-stripe-secret-key>
+  STRIPE_SECRET_KEY=<your-stripe-secret-key> \
+  RESEND_API_KEY=<your-resend-api-key> \
+  RESEND_FROM_EMAIL=<sender-email>
 ```
 
 `STRIPE_WEBHOOK_SECRET` lives on the **portal** environment (Vercel), not on Supabase, because the webhook handler is in the Next.js portal.
@@ -175,6 +188,29 @@ Subscribe to these events:
 - `payment_intent.payment_failed`
 
 The portal's `STRIPE_WEBHOOK_SECRET` must match the signing secret Stripe shows for that endpoint.
+
+### Secret rotation checklist
+
+Rotate credentials immediately if a real value is ever copied into a commit, planning note, screenshot, chat, or CI log:
+
+- Stripe Dashboard: rotate the webhook signing secret for `https://<portal-host>/api/webhooks/stripe`, then update Vercel `STRIPE_WEBHOOK_SECRET`.
+- Stripe Dashboard: rotate `STRIPE_SECRET_KEY` if an API key was exposed, then update Supabase Edge Function secrets and Vercel as applicable.
+- Supabase Dashboard: rotate service-role keys only during a planned deploy window, then update every server-only environment that uses `SUPABASE_SERVICE_ROLE_KEY`.
+- GitHub Actions: update `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID`, `SUPABASE_DB_PASSWORD`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `EXPO_ACCESS_TOKEN`, `RESEND_API_KEY`, and `RESEND_FROM_EMAIL` in the `unit` repository secrets.
+
+Never rotate by editing committed files. Use provider dashboards and hosted environment secret stores.
+
+### Security QA smoke test
+
+Run this against staging after migrations deploy:
+
+- Tenant signup creates a business profile and lands on `/(auth)/pending-approval`.
+- Pending tenant cannot access Home, Directory, Community, Promotions, Notifications, or tenant promotion creation.
+- Landlord sees invited tenant and can approve them from the tenant admin list.
+- Approved tenant can access tenant data for their property.
+- Inactive tenant lands on the disabled/pending screen and cannot access tenant data.
+- Landlord A cannot approve, disable, refund, or send push notifications for Property B.
+- Promotion CTA and business website fields reject non-HTTP schemes such as `javascript:`.
 
 ### Deploy command
 
@@ -199,6 +235,21 @@ eas login
 
 Ensure `eas.json` is present at the project root (already committed).
 
+Before a TestFlight candidate, run the local release gate:
+
+```bash
+npm run release:check
+```
+
+This checks required mobile environment variables without printing secret values, runs TypeScript, brand lint, Jest, and Expo Doctor.
+
+Production builds use EAS remote app versioning and `autoIncrement`, so the App Store build number is managed by EAS. Check or adjust it with:
+
+```bash
+eas build:version:get --platform ios
+eas build:version:set --platform ios
+```
+
 ### Build Commands
 
 | Profile | Command | Use Case |
@@ -210,6 +261,62 @@ Ensure `eas.json` is present at the project root (already committed).
 
 All builds are configured with `autoIncrement: true` for production, so the build number increments automatically.
 
+### TestFlight Candidate
+
+Use this sequence for the iOS beta build:
+
+```bash
+cd unit
+npm run release:check
+npm run release:ios:testflight
+```
+
+The combined command builds the production iOS binary and submits it to App Store Connect. If you want to inspect the EAS build before submitting, split it into:
+
+```bash
+npm run release:ios:build
+npm run release:ios:submit
+```
+
+After Apple finishes processing, add the build to the internal TestFlight group and run the TestFlight QA checklist below on a physical iPhone.
+
+### App Store Connect API / Fastlane
+
+Fastlane reads App Store Connect API credentials from `.env.fastlane`, which is intentionally git-ignored alongside the `.p8` private key. Copy `.env.fastlane.example` and set the local values before running Fastlane lanes.
+
+The current local key file is expected at:
+
+```bash
+/Users/davidk/Documents/Dev-Projects/App-Ideas/UNIT-PRoject/unit/AuthKey_46L2QUFTGB.p8
+```
+
+Verify the key can access the App Store Connect app:
+
+```bash
+npm run appstore:auth:check
+```
+
+After a build is uploaded and processed, distribute the latest uploaded build to the configured external TestFlight group:
+
+```bash
+npm run testflight:distribute
+```
+
+External TestFlight distribution still depends on Apple's Beta App Review and on required App Store Connect metadata being complete. If the lane reports missing review/contact/demo fields, fill them in `.env.fastlane` or complete them in App Store Connect before retrying.
+
+### TestFlight QA Checklist
+
+- Fresh install opens without a crash and shows the expected auth flow.
+- Login, logout, reset password, and session restore work.
+- Tenant onboarding completes and lands in the tab app.
+- Home, directory, community, promotions, notifications, and profile screens load for a seeded tenant.
+- Image upload works for business logo, community post media, and promotion creative.
+- Promotion creation can open Stripe Checkout and return to `unit://`.
+- Pending-payment edge states render correctly after returning from Checkout.
+- Admin screens load for a landlord/admin account.
+- Push notification permission prompt appears only when expected, and Expo push token registration succeeds on a real device.
+- Sentry receives a release crash/error event if production observability is enabled.
+
 ---
 
 ## App Store Submission
@@ -217,18 +324,20 @@ All builds are configured with `autoIncrement: true` for production, so the buil
 ### iOS (App Store)
 
 ```bash
-eas submit --platform ios
+eas submit --platform ios --profile production
 ```
 
 Requires:
 - Apple Developer account with active membership
 - App Store Connect API key (set via EAS credentials or `~/.appstoreconnect/private_keys/`)
 - Completed App Store Connect listing (description, keywords, screenshots, privacy policy URL)
+- App privacy questionnaire completed
+- Internal or external TestFlight tester group configured
 
 ### Android (Google Play)
 
 ```bash
-eas submit --platform android
+eas submit --platform android --profile production
 ```
 
 Requires:
@@ -293,6 +402,10 @@ eas update --branch production --message "Brief description of change"
 | `EXPO_PUBLIC_SUPABASE_URL` | `.env.local` | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `.env.local` | Supabase anon/public key |
 | `EXPO_PUBLIC_APP_URL` | `.env.local` | App deep link base URL |
+| `EXPO_PUBLIC_SENTRY_DSN` | `.env.local` and EAS env | Optional production crash reporting |
+| `SENTRY_ORG` | EAS env | Optional source map upload |
+| `SENTRY_PROJECT` | EAS env | Optional source map upload |
+| `SENTRY_AUTH_TOKEN` | EAS secret | Optional source map upload |
 | `SUPABASE_SERVICE_ROLE_KEY` | Auto-injected by hosted Supabase Edge Functions | Admin-level DB operations |
 | `RESEND_API_KEY` | Edge Function secrets | Transactional email delivery |
 | `RESEND_FROM_EMAIL` | Edge Function secrets | Sender email address for invites |

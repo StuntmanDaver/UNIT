@@ -45,24 +45,24 @@ export function PostCard({ post, authorBusiness, onPress }: PostCardProps) {
           size={32}
         />
         <View className="flex-1 min-w-0">
-          <Text className="text-sm font-nunito-semibold text-brand-gray" numberOfLines={1}>
+          <Text className="text-sm font-nunito-semibold text-brand-ink" numberOfLines={1}>
             {authorName}
           </Text>
-          <Text className="text-sm font-nunito text-brand-gray">{relativeTime}</Text>
+          <Text className="text-sm font-nunito text-brand-ink">{relativeTime}</Text>
         </View>
         <Badge label={formatTypeLabel(post.type)} color={typeColor} size="sm" />
       </View>
 
       {/* Content */}
-      <Text className="text-base font-nunito-semibold text-brand-gray mb-1 leading-relaxed">{post.title}</Text>
-      <Text className="text-base font-nunito text-brand-gray leading-relaxed" numberOfLines={3}>
+      <Text className="text-base font-nunito-semibold text-brand-ink mb-1 leading-relaxed">{post.title}</Text>
+      <Text className="text-base font-nunito text-brand-ink leading-relaxed" numberOfLines={3}>
         {post.content}
       </Text>
 
       {/* Event Date */}
       {post.type === 'event' && post.event_date && (
         <View className="mt-2 flex-row items-center">
-          <Text className="text-sm font-nunito-semibold text-brand-gray">
+          <Text className="text-sm font-nunito-semibold text-brand-ink">
             {formatEventDate(post.event_date, post.event_time)}
           </Text>
         </View>

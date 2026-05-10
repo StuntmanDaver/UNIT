@@ -34,14 +34,14 @@ export function CategoryChips({ selected, onSelect }: CategoryChipsProps) {
             className={
               isSelected
                 ? 'rounded-full px-4 py-2 bg-brand-blue'
-                : 'rounded-full px-4 py-2 bg-brand-navy-light border border-brand-blue/40'
+                : 'rounded-full px-4 py-2 bg-brand-mist border border-brand-blue/40'
             }
           >
             <Text
               className={
                 isSelected
                   ? 'text-sm font-nunito-semibold text-white'
-                  : 'text-sm font-nunito text-brand-gray'
+                  : 'text-sm font-nunito text-brand-ink'
               }
             >
               {item.label}

@@ -99,26 +99,26 @@ export default function PropertiesScreen() {
 
   const renderProperty = ({ item }: { item: Property }) => (
     <Card className="mx-4 mb-3 p-4">
-      <Text className="text-base font-nunito-semibold text-white">{item.name}</Text>
-      <Text className="text-sm font-nunito text-brand-gray mt-1">{item.address}</Text>
-      <Text className="text-sm font-nunito text-brand-gray">
+      <Text className="text-base font-nunito-semibold text-brand-ink">{item.name}</Text>
+      <Text className="text-sm font-nunito text-brand-ink mt-1">{item.address}</Text>
+      <Text className="text-sm font-nunito text-brand-ink">
         {item.city}, {item.state}
       </Text>
       <View className="flex-row items-center gap-3 mt-2">
         {item.type ? (
           <View className="bg-brand-blue/40 rounded-md px-2 py-0.5">
-            <Text className="text-sm font-nunito text-brand-gray capitalize">{item.type}</Text>
+            <Text className="text-sm font-nunito text-brand-ink capitalize">{item.type}</Text>
           </View>
         ) : null}
         {item.total_units > 0 ? (
-          <Text className="text-sm font-nunito text-brand-gray">{item.total_units} units</Text>
+          <Text className="text-sm font-nunito text-brand-ink">{item.total_units} units</Text>
         ) : null}
       </View>
     </Card>
   );
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Pressable
           testID="back-btn"
@@ -140,7 +140,7 @@ export default function PropertiesScreen() {
         <LoadingScreen message="Loading properties..." />
       ) : isError ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-base font-nunito text-red-400 text-center mb-3">
+          <Text className="text-base font-nunito text-red-700 text-center mb-3">
             {error?.message ?? 'Failed to load properties'}
           </Text>
           <Button onPress={() => refetch()} variant="secondary">Retry</Button>

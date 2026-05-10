@@ -71,8 +71,8 @@ function RelativeTime({ isoDate }: { isoDate: string }) {
 
 /**
  * Light-surface activity card for the Home Feed (US-007).
- * Uses brand-mist / brand-paper / brand-ink tokens — permitted only here
- * and on screens explicitly migrated to the light-surface design per CLAUDE.md.
+ * Uses the same brand-mist / brand-paper / brand-ink tokens now shared
+ * across the app.
  */
 export function ActivityFeedCard({ item, onPress, testID = 'activity-feed-card' }: Props) {
   const hasHeroImage = item.kind === 'promotion' && !!item.imageUrl;

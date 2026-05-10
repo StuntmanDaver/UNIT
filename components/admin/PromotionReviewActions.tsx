@@ -93,7 +93,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           },
         ]}
       >
-        <Text className="text-sm font-nunito text-brand-gray mb-3">
+        <Text className="text-sm font-nunito text-brand-ink mb-3">
           Provide a note for the advertiser explaining what needs to change.
         </Text>
         <Input

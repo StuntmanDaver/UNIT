@@ -25,7 +25,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 // LoadingScreen is also used below while fonts are loading
 
 function AuthGuard() {
-  const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin } = useAuth();
+  const { isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, needsApproval, isInactive, isAdmin } = useAuth();
   const segments = useSegments();
   const router = useRouter();
   const splashHiddenRef = useRef(false);
@@ -42,6 +42,7 @@ function AuthGuard() {
     const inTabsGroup = segments[0] === '(tabs)';
     const onResetPassword = segments.includes('reset-password');
     const onOnboarding = segments.includes('onboarding');
+    const onPendingApproval = segments.includes('pending-approval');
 
     // Unauthenticated: redirect to login from anywhere except login/signup
     // themselves. Previously this only fired when !inAuthGroup, which stranded
@@ -74,9 +75,14 @@ function AuthGuard() {
       return;
     }
 
+    if (!needsPasswordChange && !needsOnboarding && (needsApproval || isInactive) && !onPendingApproval) {
+      router.replace('/(auth)/pending-approval');
+      return;
+    }
+
     // Stranded-in-auth-group branch: authed user with nothing to do is sitting
     // on login/signup/reset-password/onboarding — push them to the right home.
-    if (!needsPasswordChange && !needsOnboarding && inAuthGroup) {
+    if (!needsPasswordChange && !needsOnboarding && !needsApproval && !isInactive && inAuthGroup) {
       // BUG-04 decision: post-reset landing stays at /(tabs)/profile/edit.
       // Invited tenants have a business profile stub-created by the invite-tenant
       // Edge Function with no logo / unit_number / contact fields — sending them
@@ -94,10 +100,10 @@ function AuthGuard() {
       }
     }
 
-    if (!needsPasswordChange && !needsOnboarding && isAdmin && inTabsGroup) {
+    if (!needsPasswordChange && !needsOnboarding && !needsApproval && !isInactive && isAdmin && inTabsGroup) {
       router.replace('/(admin)/');
     }
-  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, isAdmin, segments]);
+  }, [isAuthenticated, isLoading, needsPasswordChange, needsOnboarding, needsApproval, isInactive, isAdmin, segments]);
 
   if (isLoading) {
     return <LoadingScreen message="Loading..." showLogo />;

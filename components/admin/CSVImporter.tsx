@@ -158,21 +158,21 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
 
   if (parsedData.length === 0 && failedRows.length === 0) {
     return (
-      <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
-        <Text className="text-2xl font-lora-semibold text-brand-gray mb-2">
+      <View className="bg-brand-mist rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
+        <Text className="text-2xl font-lora-semibold text-brand-ink mb-2">
           CSV Bulk Import
         </Text>
-        <Text className="text-sm font-nunito text-brand-gray mb-4">
+        <Text className="text-sm font-nunito text-brand-ink mb-4">
           Required headers: email, business_name, category. Optional:
           contact_name, contact_phone, services, unit_number.
         </Text>
         <Pressable
           onPress={handlePickFile}
-          className="border-2 border-dashed border-brand-blue/40 rounded-xl p-8 items-center bg-brand-navy min-h-[44px]"
+          className="border-2 border-dashed border-brand-blue/40 rounded-xl p-8 items-center bg-brand-cloud min-h-[44px]"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
           <Upload size={24} color={BRAND.blue} />
-          <Text className="text-base font-nunito-semibold text-brand-gray mt-2">
+          <Text className="text-base font-nunito-semibold text-brand-ink mt-2">
             Pick CSV
           </Text>
         </Pressable>
@@ -184,9 +184,9 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
   const invalidCount = parsedData.length - validCount;
 
   return (
-    <View className="bg-brand-navy-light rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
+    <View className="bg-brand-mist rounded-xl border border-brand-blue/40 p-4 mb-4 mx-4 mt-4">
       <View className="flex-row items-center justify-between mb-4">
-        <Text className="text-2xl font-lora-semibold text-brand-gray">
+        <Text className="text-2xl font-lora-semibold text-brand-ink">
           Import Preview
         </Text>
         <Pressable
@@ -196,13 +196,13 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
           className="p-2 min-h-[44px] min-w-[44px] items-center justify-center"
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
         >
-          <X size={20} color={BRAND.gray} />
+          <X size={20} color={BRAND.blue} />
         </Pressable>
       </View>
 
       {parsedData.length > 0 && (
-        <View className="bg-brand-navy rounded-xl p-4 mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray">
+        <View className="bg-brand-cloud rounded-xl p-4 mb-4">
+          <Text className="text-sm font-nunito-semibold text-brand-ink">
             Found {parsedData.length} rows ({validCount} valid, {invalidCount} invalid)
           </Text>
         </View>
@@ -224,16 +224,16 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
                 {row._isValid ? (
                   <CheckCircle2 size={16} color={BRAND.blue} />
                 ) : (
-                  <AlertCircle size={16} color="#EF4444" />
+                <AlertCircle size={16} color="#DC2626" />
                 )}
                 <Text
-                  className="text-sm font-nunito-semibold text-brand-gray flex-1"
+                  className="text-sm font-nunito-semibold text-brand-ink flex-1"
                   numberOfLines={1}
                 >
                   {row.email || '(missing email)'}
                 </Text>
                 <Text
-                  className="text-sm font-nunito text-brand-gray flex-1"
+                  className="text-sm font-nunito text-brand-ink flex-1"
                   numberOfLines={1}
                 >
                   {row.business_name || '—'}
@@ -244,7 +244,7 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
                   {row._errors.map((err, errIdx) => (
                     <Text
                       key={errIdx}
-                      className="text-sm font-nunito text-red-500"
+                      className="text-sm font-nunito text-red-700"
                     >
                       • {err}
                     </Text>
@@ -254,8 +254,8 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
             </View>
           ))}
           {parsedData.length > 100 && (
-            <View className="px-4 py-2 bg-brand-navy">
-              <Text className="text-sm font-nunito text-brand-gray text-center">
+            <View className="px-4 py-2 bg-brand-cloud">
+              <Text className="text-sm font-nunito text-brand-ink text-center">
                 … and {parsedData.length - 100} more rows
               </Text>
             </View>
@@ -265,20 +265,20 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
 
       {failedRows.length > 0 && !isImporting && (
         <View className="bg-red-500/10 border border-red-500/40 rounded-xl p-4 mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2">
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2">
             {failedRows.length} import failures:
           </Text>
           {failedRows.slice(0, 5).map((f, idx) => (
             <Text
               key={idx}
-              className="text-sm font-nunito text-red-500"
+              className="text-sm font-nunito text-red-700"
               numberOfLines={2}
             >
               • {f.email}: {f.reason}
             </Text>
           ))}
           {failedRows.length > 5 && (
-            <Text className="text-sm font-nunito text-brand-gray mt-2">
+            <Text className="text-sm font-nunito text-brand-ink mt-2">
               … and {failedRows.length - 5} more
             </Text>
           )}
@@ -288,7 +288,7 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
       {isImporting ? (
         <View className="items-center py-2">
           <ActivityIndicator color={BRAND.blue} />
-          <Text className="text-sm font-nunito-semibold text-brand-gray mt-2">
+          <Text className="text-sm font-nunito-semibold text-brand-ink mt-2">
             Importing… {progress}%
           </Text>
         </View>

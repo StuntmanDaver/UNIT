@@ -14,7 +14,16 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci --legacy-peer-deps
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
       - name: TypeScript check
         run: npx tsc --noEmit
+      - name: Edge Function type check
+        run: npm run edge:check
+      - name: Supabase security tests
+        run: |
+          supabase start
+          npm run db:test:security
       - name: Run tests
         run: npx jest --ci --passWithNoTests

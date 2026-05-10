@@ -16,14 +16,14 @@ module.exports = {
       },
       colors: {
         brand: {
-          navy: '#101B29',
-          'navy-light': '#1D263A',
+          navy: '#F4F5F7',
+          'navy-light': '#FFFFFF',
           blue: '#465A75',
-          steel: '#7C8DA7',
-          gray: '#E0E1DE',
-          // Light-surface tokens (Delta-inspired). Permitted only on Home Feed
-          // and explicitly migrated screens; header surfaces and tab bar
-          // background stay brand-navy. See unit/CLAUDE.md Brand Theming.
+          steel: '#5F708A',
+          gray: '#101B29',
+          // Light-surface tokens (Delta-inspired). These mirror the legacy
+          // brand-navy / brand-navy-light / brand-gray mappings so the palette
+          // applies consistently across all mobile pages.
           cloud: '#F4F5F7',
           mist: '#FFFFFF',
           paper: '#E5E7EB',

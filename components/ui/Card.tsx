@@ -1,6 +1,7 @@
-// variant='dark' (default): bg-brand-navy-light — use on dark (brand-navy) screens.
-// variant='light': bg-brand-mist border-brand-paper — use only on Home Feed and explicitly migrated light-surface screens.
-// Text inside a light card must use text-brand-ink / text-brand-ink-muted for AA contrast.
+// variant='dark' keeps the historical API name while now resolving to the
+// global Delta-style light card surface.
+// variant='light' remains an explicit alias for screens that already use
+// brand-mist / brand-paper / brand-ink tokens directly.
 import { View, Pressable } from 'react-native';
 
 export type CardVariant = 'dark' | 'light';
@@ -17,7 +18,7 @@ export function Card({ children, onPress, className = '', variant = 'dark', test
   const variantClass =
     variant === 'light'
       ? 'bg-brand-mist border border-brand-paper rounded-xl shadow-sm'
-      : 'bg-brand-navy-light rounded-xl shadow-sm border border-brand-blue/40';
+      : 'bg-brand-mist rounded-xl shadow-sm border border-brand-blue/40';
 
   const baseClass = `${variantClass} ${className}`;
 

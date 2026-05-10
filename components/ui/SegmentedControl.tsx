@@ -8,7 +8,7 @@ type SegmentedControlProps = {
 
 export function SegmentedControl({ segments, selected, onChange }: SegmentedControlProps) {
   return (
-    <View className="flex-row bg-brand-navy-light rounded-xl p-1">
+    <View className="flex-row bg-brand-mist rounded-xl p-1">
       {segments.map((segment) => {
         const isSelected = segment === selected;
         return (
@@ -25,7 +25,7 @@ export function SegmentedControl({ segments, selected, onChange }: SegmentedCont
               className={
                 isSelected
                   ? 'text-white font-nunito-semibold text-sm'
-                  : 'text-brand-gray font-nunito text-sm'
+                  : 'text-brand-ink font-nunito text-sm'
               }
             >
               {segment}

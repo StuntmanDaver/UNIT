@@ -51,7 +51,7 @@ export default function DirectoryScreen() {
   }
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight mb-3">Directory</Text>
         <SearchBar

@@ -65,18 +65,18 @@ export default function AdvertisersScreen() {
       <Card className="mx-4 mb-3 p-4">
         <View className="flex-row items-start justify-between mb-2">
           <View className="flex-1 mr-3">
-            <Text className="text-base font-nunito-semibold text-white">{item.headline}</Text>
-            <Text className="text-sm font-nunito text-brand-gray mt-0.5">{item.business_name}</Text>
+            <Text className="text-base font-nunito-semibold text-brand-ink">{item.headline}</Text>
+            <Text className="text-sm font-nunito text-brand-ink mt-0.5">{item.business_name}</Text>
           </View>
           <View className="bg-brand-blue/40 rounded-full px-2 py-1">
-            <Text className="text-sm font-nunito-semibold text-white">
+            <Text className="text-sm font-nunito-semibold text-brand-ink">
               {item.review_status.charAt(0).toUpperCase() + item.review_status.slice(1)}
             </Text>
           </View>
         </View>
 
         {item.description ? (
-          <Text className="text-sm font-nunito text-brand-gray leading-relaxed mb-3" numberOfLines={2}>
+          <Text className="text-sm font-nunito text-brand-ink leading-relaxed mb-3" numberOfLines={2}>
             {item.description}
           </Text>
         ) : null}
@@ -85,10 +85,10 @@ export default function AdvertisersScreen() {
   );
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => router.push('/(admin)/')}
           hitSlop={8}
           style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
           className="mb-2 self-start"
@@ -108,7 +108,7 @@ export default function AdvertisersScreen() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-base font-nunito text-brand-steel text-center">
+          <Text className="text-base font-nunito text-brand-ink-muted text-center">
             Select a property to manage promotions
           </Text>
         </View>
@@ -121,7 +121,7 @@ export default function AdvertisersScreen() {
               onChange={handleSegmentChange}
             />
             {recentWindowActive ? (
-              <Text className="text-sm font-nunito text-brand-steel">Last 30 days</Text>
+              <Text className="text-sm font-nunito text-brand-ink-muted">Last 30 days</Text>
             ) : null}
           </View>
 
@@ -129,7 +129,7 @@ export default function AdvertisersScreen() {
             <LoadingScreen message="Loading promotions..." />
           ) : isError ? (
             <View className="flex-1 items-center justify-center px-6">
-              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+              <Text className="text-base font-nunito text-red-700 text-center mb-3">
                 {error?.message ?? 'Failed to load promotions'}
               </Text>
               <Button onPress={() => refetch()} variant="secondary">Retry</Button>

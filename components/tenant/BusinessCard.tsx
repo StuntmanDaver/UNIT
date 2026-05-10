@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native';
 import { Business } from '@/services/businesses';
 import { getCategoryLabel } from '@/constants/categories';
-import { CATEGORY_COLORS } from '@/constants/colors';
+import { BRAND, CATEGORY_COLORS } from '@/constants/colors';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
@@ -20,7 +20,7 @@ export function BusinessCard({
   testID = 'business-card',
 }: BusinessCardProps) {
   const categoryColor = CATEGORY_COLORS[business.category] ?? '#6B7280';
-  const badgeColor = { bg: categoryColor + '20', text: categoryColor };
+  const badgeColor = { bg: categoryColor + '20', text: BRAND.ink };
 
   return (
     <Card onPress={onPress} className="p-4" testID={testID}>
@@ -32,11 +32,11 @@ export function BusinessCard({
         />
         <View className="flex-1 min-w-0">
           <View className="flex-row items-start justify-between gap-2">
-            <Text className="text-base font-nunito-semibold text-brand-gray flex-1 leading-relaxed" numberOfLines={1}>
+            <Text className="text-base font-nunito-semibold text-brand-ink flex-1 leading-relaxed" numberOfLines={1}>
               {business.business_name}
             </Text>
             {business.unit_number && (
-              <Text className="text-sm font-nunito text-brand-gray">Unit {business.unit_number}</Text>
+              <Text className="text-sm font-nunito text-brand-ink">Unit {business.unit_number}</Text>
             )}
           </View>
 
@@ -49,7 +49,7 @@ export function BusinessCard({
           </View>
 
           {!compact && business.business_description && (
-            <Text className="text-sm font-nunito text-brand-gray leading-relaxed" numberOfLines={2}>
+            <Text className="text-sm font-nunito text-brand-ink leading-relaxed" numberOfLines={2}>
               {business.business_description}
             </Text>
           )}

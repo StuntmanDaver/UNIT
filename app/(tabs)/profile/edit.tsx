@@ -25,7 +25,6 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { businessesService } from '@/services/businesses';
 import { storageService } from '@/services/storage';
 import { BUSINESS_CATEGORIES, getCategoryLabel } from '@/constants/categories';
-import { CATEGORY_COLORS } from '@/constants/colors';
 
 const editProfileSchema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
@@ -150,7 +149,7 @@ export default function EditProfileScreen() {
   const displayName = watch('business_name') || business?.business_name || 'Business';
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">Edit Profile</Text>
       </GradientHeader>
@@ -168,7 +167,7 @@ export default function EditProfileScreen() {
                 <Camera size={12} color="#FFFFFF" />
               </View>
             </View>
-            <Text className="text-sm font-nunito text-brand-gray leading-normal">Change Logo</Text>
+            <Text className="text-sm font-nunito text-brand-ink leading-normal">Change Logo</Text>
           </Pressable>
         </View>
 
@@ -189,7 +188,7 @@ export default function EditProfileScreen() {
 
         {/* Category picker */}
         <View className="mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Category *</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Category *</Text>
           <FlatList
             data={BUSINESS_CATEGORIES as unknown as string[]}
             horizontal
@@ -198,19 +197,18 @@ export default function EditProfileScreen() {
             contentContainerStyle={{ gap: 8 }}
             renderItem={({ item }) => {
               const isSelected = selectedCategory === item;
-              const color = CATEGORY_COLORS[item] ?? '#465A75';
               return (
                 <Pressable
                   onPress={() => setValue('category', item)}
                   className="rounded-full px-4 py-2 border border-brand-blue/40"
                   style={{
-                    backgroundColor: isSelected ? color : '#1D263A',
-                    borderColor: isSelected ? color : undefined,
+                    backgroundColor: isSelected ? '#465A75' : '#FFFFFF',
+                    borderColor: isSelected ? '#465A75' : undefined,
                   }}
                 >
                   <Text
                     className="text-sm font-nunito-semibold leading-normal"
-                    style={{ color: isSelected ? '#FFFFFF' : '#E0E1DE' }}
+                    style={{ color: isSelected ? '#FFFFFF' : '#101B29' }}
                   >
                     {getCategoryLabel(item)}
                   </Text>
@@ -219,7 +217,7 @@ export default function EditProfileScreen() {
             }}
           />
           {errors.category && (
-            <Text className="text-sm font-nunito text-red-500 mt-2 leading-normal">{errors.category.message}</Text>
+            <Text className="text-sm font-nunito text-red-700 mt-2 leading-normal">{errors.category.message}</Text>
           )}
         </View>
 

@@ -185,30 +185,29 @@ assets/                 # App icons, splash screen images
 ## Brand Theming
 
 ### Colors (locked in `tailwind.config.js`)
-- `brand-navy` (#101B29) — Dominant (60%): screen backgrounds, splash, tab bar, status bar, nav headers
-- `brand-navy-light` (#1D263A) — Secondary (30%): cards, modals, inputs, elevated surfaces
+- `brand-navy` (#F4F5F7) — Global light screen background, matching the Delta-inspired surface treatment.
+- `brand-navy-light` (#FFFFFF) — Cards, modals, inputs, and elevated surfaces on the light background.
 - `brand-blue` (#465A75) — Accent (10%, reserved): primary buttons, focused input borders, selected segments, card hairlines (`border-brand-blue/40`), `GradientHeader` endpoint
-- `brand-steel` (#7C8DA7) — Muted text on `brand-navy` ONLY (WCAG ratio 5.15:1); BANNED for body text on `brand-navy-light` (ratio 4.48:1 fails WCAG AA)
-- `brand-gray` (#E0E1DE) — Primary text on any brand surface (passes AAA)
-- `white` (#FFFFFF) — High-emphasis titles, button labels on `bg-brand-blue`
+- `brand-steel` (#5F708A) — Muted support text and inactive controls. This is the light-surface-safe muted token; it passes AA for small text on `brand-mist` and `brand-cloud`.
+- `brand-gray` (#101B29) — Primary text on global light surfaces.
+- `white` (#FFFFFF) — Header titles and button labels on dark/blue surfaces.
 - `red-500` (#EF4444) — Destructive actions only (only non-brand color permitted)
 - Additional constants in `constants/colors.ts`
 
-### Light-surface tokens (Delta-inspired, scoped use only)
-Added 2026-05-02 to support the new Home Feed and incrementally migrated screens. **Do NOT introduce these into existing screens without an explicit story** — the milestone direction is targeted, not a full re-theme.
+### Light-surface tokens (Delta-inspired, global)
+Added 2026-05-02 for Home Feed and expanded globally on 2026-05-07.
 
-- `brand-cloud` (#F4F5F7) — Light screen background (Home Feed root only). Always paired with a `GradientHeader` so the navy brand still anchors the top of the screen.
+- `brand-cloud` (#F4F5F7) — Light screen background. Pair major tab/admin screens with a `GradientHeader` where practical so navy still anchors the top of the screen.
 - `brand-mist` (#FFFFFF) — White card surface on top of `brand-cloud`. Always pair with `text-brand-ink` / `text-brand-ink-muted` for AA contrast.
 - `brand-paper` (#E5E7EB) — Card hairline border on `brand-mist` (`border border-brand-paper`).
 - `brand-ink` (#101B29) — Primary text on `brand-mist` (same hex as `brand-navy`; semantic-only alias for light surfaces).
 - `brand-ink-muted` (#465A75) — Secondary text on `brand-mist` (same hex as `brand-blue`; semantic-only alias).
 
 **Light-surface usage rules:**
-- Permitted ONLY on the Home Feed (`app/(tabs)/home.tsx`) and screens explicitly migrated in a future story.
-- Header surfaces and the bottom tab bar background MUST stay `brand-navy`.
-- `text-brand-gray` is BANNED on `bg-brand-mist` (white) — fails AA contrast. Use `text-brand-ink` / `text-brand-ink-muted` instead.
-- Any `.tsx` file that uses `bg-brand-mist` AND `text-brand-gray` together will FAIL brand-lint (AA violation rule, live since US-016).
-- Any `.tsx` file that uses `bg-brand-cloud` MUST also import `@/components/ui/GradientHeader` — brand-lint enforces this (navy header anchor rule, live since US-016).
+- The Delta-inspired light surface is now the default for all pages, not Home-only.
+- Header surfaces and the bottom tab bar may stay dark navy through explicit constants/styles for contrast.
+- Prefer explicit light-surface classes in React Native screens: `bg-brand-cloud`, `bg-brand-mist`, `text-brand-ink`, and `text-brand-ink-muted`.
+- Prefer `GradientHeader` on top-level tab/admin pages that need a strong brand anchor.
 
 **Delta app design references** (for future re-design or light-surface expansion work):
 - `/Users/davidk/Downloads/Screenshot 2026-05-02 at 8.04.21 PM.png` — Find My Trip (light gray bg, white card, navy header)
@@ -236,13 +235,13 @@ The app uses **Lora** (serif, headings/display) and **Nunito** (sans-serif, body
 Banned sizes: `text-xs`, `text-lg`, `text-xl`, `text-4xl+`.
 
 ### Splash & app icon
-- Splash background: `#101B29` (brand-navy)
-- Splash image: `./assets/unit-logo-dark.png` via the `expo-splash-screen` config plugin in `app.json` (do NOT use the legacy top-level `splash` block). This variant has the brand-navy background baked in so it blends seamlessly with the splash `backgroundColor` and avoids the white-on-navy contrast bug from `logo-transparent-light.png`.
-- `userInterfaceStyle` in `app.json` must be `"dark"` — this app is dark-theme only
+- Splash background: `#F4F5F7` (`brand-cloud`)
+- Splash image: `./assets/unit-logo-light.png` via the `expo-splash-screen` config plugin in `app.json` (do NOT use the legacy top-level `splash` block).
+- `userInterfaceStyle` in `app.json` must be `"light"` so launch/loading screens stay in the lighter logo colorway.
 
 ### Enforcement
 - Every `<Text>` MUST have one of the 4 font classes and one of the 4 size classes
-- Every screen root `<View>` in `app/(tabs)/**` and `app/(admin)/**` MUST start with `bg-brand-navy` (or `GradientHeader` + inner `bg-brand-navy` wrapper)
+- Every screen root `<View>` in `app/(tabs)/**` and `app/(admin)/**` should use `bg-brand-cloud` unless it is an intentional dark header/chrome surface.
 - No raw Tailwind color classes: `bg-white`, `bg-gray-*`, `text-gray-*`, `border-gray-*`, `bg-black` (except `bg-black/50` on Modal scrim), `text-black`
 - Spacing uses the strict 4/8pt grid: `{4, 8, 16, 24, 32, 48, 64}` px. `p-3` is permitted ONLY on icon-only `Pressable` hit targets and on `Button` padding (`py-3 px-4`), justified by the 44pt Apple HIG touch-target requirement
 - Touch targets: minimum 44×44pt on every interactive element; use `activeOpacity={0.7}` on `Pressable`

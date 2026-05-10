@@ -48,8 +48,8 @@ export default function PendingPaymentScreen() {
 
   if (!promo) {
     return (
-      <View className="flex-1 items-center justify-center bg-brand-navy">
-        <Text className="text-base font-nunito text-brand-gray leading-relaxed">Promotion not found.</Text>
+      <View className="flex-1 items-center justify-center bg-brand-cloud">
+        <Text className="text-base font-nunito text-brand-ink leading-relaxed">Promotion not found.</Text>
       </View>
     );
   }
@@ -135,7 +135,7 @@ export default function PendingPaymentScreen() {
   }
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">
           {isPaid ? 'Awaiting Review' : 'Promotion Created'}
@@ -143,17 +143,17 @@ export default function PendingPaymentScreen() {
       </GradientHeader>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}>
-        <View className="flex-row items-center gap-3 bg-brand-navy-light border border-brand-blue/40 rounded-2xl p-4 mb-6">
+        <View className="flex-row items-center gap-3 bg-brand-mist border border-brand-blue/40 rounded-2xl p-4 mb-6">
           {isPaid ? (
-            <CheckCircle size={24} color={BRAND.gray} />
+            <CheckCircle size={24} color={BRAND.blue} />
           ) : (
             <Clock size={24} color={BRAND.steel} />
           )}
           <View className="flex-1">
-            <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+            <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">
               {isPaid ? 'Awaiting Review' : 'Pending Payment'}
             </Text>
-            <Text className="text-sm font-nunito text-brand-steel leading-normal mt-0.5">
+            <Text className="text-sm font-nunito text-brand-ink-muted leading-normal mt-0.5">
               {isPaid
                 ? 'Payment received. Admins will review your promotion shortly.'
                 : 'Complete payment to submit your promotion for admin review.'}
@@ -162,19 +162,19 @@ export default function PendingPaymentScreen() {
         </View>
 
         <Card className="p-5 mb-6">
-          <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3">
+          <Text className="text-sm font-nunito-semibold text-brand-ink-muted leading-normal uppercase tracking-wide mb-3">
             Your Promotion
           </Text>
-          <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">
+          <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-2">
             {promo.headline}
           </Text>
           {promo.description && (
-            <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-3">
+            <Text className="text-base font-nunito text-brand-ink leading-relaxed mb-3">
               {promo.description}
             </Text>
           )}
           {(promo.start_date || promo.end_date) && (
-            <Text className="text-sm font-nunito text-brand-steel leading-normal">
+            <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
               {promo.start_date && `From ${promo.start_date}`}
               {promo.start_date && promo.end_date && ' · '}
               {promo.end_date && `Until ${promo.end_date}`}
@@ -186,7 +186,7 @@ export default function PendingPaymentScreen() {
           <View className="mb-6">
             <Text
               accessibilityRole="header"
-              className="text-sm font-nunito-semibold text-brand-steel leading-normal uppercase tracking-wide mb-3"
+              className="text-sm font-nunito-semibold text-brand-ink-muted leading-normal uppercase tracking-wide mb-3"
             >
               Choose a tier
             </Text>
@@ -207,21 +207,21 @@ export default function PendingPaymentScreen() {
                     accessibilityLabel={`${tier.name}${tier.is_featured ? ' Featured' : ''}, ${tier.duration_days} days, ${formatPrice(tier.price_cents, tier.currency)}`}
                     className={`rounded-2xl p-4 border ${
                       selected
-                        ? 'border-brand-blue bg-brand-navy-light'
-                        : 'border-brand-blue/40 bg-brand-navy-light'
+                        ? 'border-brand-blue bg-brand-mist'
+                        : 'border-brand-blue/40 bg-brand-mist'
                     }`}
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1 pr-4">
-                        <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+                        <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">
                           {tier.name}
                           {tier.is_featured ? ' · Featured' : ''}
                         </Text>
-                        <Text className="text-sm font-nunito text-brand-steel leading-normal mt-0.5">
+                        <Text className="text-sm font-nunito text-brand-ink-muted leading-normal mt-0.5">
                           {tier.duration_days} days
                         </Text>
                       </View>
-                      <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+                      <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">
                         {formatPrice(tier.price_cents, tier.currency)}
                       </Text>
                     </View>
@@ -229,7 +229,7 @@ export default function PendingPaymentScreen() {
                 );
               })}
               {(tiers?.length ?? 0) === 0 && (
-                <Text className="text-sm font-nunito text-brand-steel leading-normal">
+                <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
                   No tiers available. Contact your property admin.
                 </Text>
               )}
@@ -253,7 +253,7 @@ export default function PendingPaymentScreen() {
         </View>
 
         {!isPaid && (
-          <Text className="text-sm font-nunito text-brand-steel leading-normal text-center mt-6">
+          <Text className="text-sm font-nunito text-brand-ink-muted leading-normal text-center mt-6">
             Your promotion is saved as a draft. You can return to complete payment anytime from the Promotions tab.
           </Text>
         )}

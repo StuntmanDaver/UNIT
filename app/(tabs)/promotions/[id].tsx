@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, Image, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { promotionsService } from '@/services/promotions';
+import { isHttpUrl, openHttpUrl } from '@/lib/url';
 
 export default function PromotionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -23,8 +24,8 @@ export default function PromotionDetailScreen() {
 
   if (!promo) {
     return (
-      <View className="flex-1 items-center justify-center bg-brand-navy">
-        <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+      <View className="flex-1 items-center justify-center bg-brand-cloud">
+        <Text className="text-base font-nunito text-brand-ink leading-relaxed">
           Promotion not found.
         </Text>
       </View>
@@ -32,14 +33,12 @@ export default function PromotionDetailScreen() {
   }
 
   const handleCTA = () => {
-    if (promo.cta_link) {
-      Linking.openURL(promo.cta_link).catch(() => {});
-    }
+    openHttpUrl(promo.cta_link);
   };
 
   return (
     <ScrollView
-      className="flex-1 bg-brand-navy"
+      className="flex-1 bg-brand-cloud"
       contentContainerStyle={{ paddingBottom: 40 }}
     >
       <GradientHeader>
@@ -69,16 +68,16 @@ export default function PromotionDetailScreen() {
         )}
 
         <Card className="p-6 mb-4">
-          <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">
+          <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-2">
             {promo.headline}
           </Text>
           {promo.description && (
-            <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+            <Text className="text-base font-nunito text-brand-ink leading-relaxed">
               {promo.description}
             </Text>
           )}
           {(promo.start_date || promo.end_date) && (
-            <Text className="text-sm font-nunito text-brand-gray leading-normal mt-3">
+            <Text className="text-sm font-nunito text-brand-ink leading-normal mt-3">
               {promo.start_date && `From ${promo.start_date}`}
               {promo.start_date && promo.end_date && ' · '}
               {promo.end_date && `Until ${promo.end_date}`}
@@ -86,7 +85,7 @@ export default function PromotionDetailScreen() {
           )}
         </Card>
 
-        {promo.cta_text && promo.cta_link && (
+        {promo.cta_text && isHttpUrl(promo.cta_link) && (
           <Button onPress={handleCTA} variant="primary">
             {promo.cta_text}
           </Button>

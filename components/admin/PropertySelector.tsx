@@ -67,7 +67,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return (
       <View className="flex-row items-center gap-2 px-1">
         <ActivityIndicator size="small" color={BRAND.steel} />
-        <Text className="text-sm font-nunito text-brand-steel">Loading properties...</Text>
+        <Text className="text-sm font-nunito text-brand-ink-muted">Loading properties...</Text>
       </View>
     );
   }
@@ -78,7 +78,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
         onPress={fetchProperties}
         className="flex-row items-center gap-2 bg-red-500/10 border border-red-500/40 rounded-xl px-4 py-3"
       >
-        <Text className="text-sm font-nunito text-red-400 flex-1" numberOfLines={2}>
+        <Text className="text-sm font-nunito text-red-700 flex-1" numberOfLines={2}>
           {loadError} — tap to retry
         </Text>
       </Pressable>
@@ -94,9 +94,9 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return (
       <View
         testID="property-selector"
-        className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
+        className="flex-row items-center gap-2 bg-brand-mist border border-brand-blue/40 rounded-xl px-4 py-3"
       >
-        <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
+        <Text className="text-sm font-nunito-semibold text-brand-ink flex-1" numberOfLines={1}>
           {properties[0].name}
         </Text>
       </View>
@@ -110,17 +110,17 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
       <Pressable
         testID="property-selector"
         onPress={() => setOpen((prev) => !prev)}
-        className="flex-row items-center gap-2 bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 py-3"
+        className="flex-row items-center gap-2 bg-brand-mist border border-brand-blue/40 rounded-xl px-4 py-3"
         style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
       >
-        <Text className="text-sm font-nunito-semibold text-brand-gray flex-1" numberOfLines={1}>
+        <Text className="text-sm font-nunito-semibold text-brand-ink flex-1" numberOfLines={1}>
           {selectedProperty?.name ?? 'Select property'}
         </Text>
         <ChevronDown size={16} color={BRAND.steel} />
       </Pressable>
 
       {open && (
-        <View className="absolute top-full mt-1 left-0 right-0 bg-brand-navy-light border border-brand-blue/40 rounded-xl shadow-md overflow-hidden">
+        <View className="absolute top-full mt-1 left-0 right-0 bg-brand-mist border border-brand-blue/40 rounded-xl shadow-md overflow-hidden">
           {properties.map((property) => {
             const isSelected = property.id === selected;
             return (
@@ -133,11 +133,11 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
                 }}
                 className="flex-row items-center px-4 py-3 border-b border-brand-blue/40"
                 style={({ pressed }) => ({
-                  backgroundColor: pressed ? '#101B29' : isSelected ? '#101B29' : '#1D263A',
+                  backgroundColor: pressed ? '#F4F5F7' : isSelected ? '#EAF0F8' : '#FFFFFF',
                 })}
               >
                 <Text
-                  className={`flex-1 text-sm text-brand-gray ${isSelected ? 'font-nunito-semibold' : 'font-nunito'}`}
+                  className={`flex-1 text-sm text-brand-ink ${isSelected ? 'font-nunito-semibold' : 'font-nunito'}`}
                   numberOfLines={1}
                 >
                   {property.name}

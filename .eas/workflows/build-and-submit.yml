@@ -1,4 +1,4 @@
-name: Production Build and Submit
+name: Production Build and Store Distribution
 
 on:
   push:
@@ -20,18 +20,21 @@ jobs:
       platform: android
       profile: production
 
-  submit_ios:
-    name: Submit iOS to App Store
-    type: submit
+  testflight_ios:
+    name: Distribute iOS to TestFlight
+    type: testflight
     needs: [build_ios]
     params:
-      store: apple
       build_id: ${{ needs.build_ios.outputs.build_id }}
+      profile: production
+      changelog: ${{ github.ref_name }}
+      submit_beta_review: false
+      wait_processing_timeout_seconds: 3600
 
   submit_android:
     name: Submit Android to Google Play
     type: submit
     needs: [build_android]
     params:
-      store: google_play
       build_id: ${{ needs.build_android.outputs.build_id }}
+      profile: production

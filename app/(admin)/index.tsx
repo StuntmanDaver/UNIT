@@ -41,7 +41,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <Text className="text-2xl font-lora-semibold text-white">Admin Dashboard</Text>
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-base font-nunito text-brand-steel text-center">
+          <Text className="text-base font-nunito text-brand-ink-muted text-center">
             Select a property to view stats
           </Text>
         </View>
@@ -117,7 +117,7 @@ export default function AdminDashboard() {
               className="flex-row items-center px-4 py-3.5"
             >
               <Megaphone size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Manage Promotions
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -128,7 +128,7 @@ export default function AdminDashboard() {
               className="flex-row items-center px-4 py-3.5"
             >
               <Megaphone size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 View Pending Approvals
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -139,7 +139,7 @@ export default function AdminDashboard() {
               className="flex-row items-center px-4 py-3.5"
             >
               <Users size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Manage Tenants
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -147,7 +147,7 @@ export default function AdminDashboard() {
 
             <Card onPress={() => router.push('/(admin)/properties')} className="flex-row items-center px-4 py-3.5">
               <Building2 size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Manage Properties
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -158,7 +158,7 @@ export default function AdminDashboard() {
               className="flex-row items-center px-4 py-3.5"
             >
               <Bell size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Send Push Notification
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -166,7 +166,7 @@ export default function AdminDashboard() {
 
             <Card onPress={() => router.push('/(admin)/pricing')} className="flex-row items-center px-4 py-3.5">
               <DollarSign size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Promotion Pricing
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
@@ -174,15 +174,15 @@ export default function AdminDashboard() {
 
             <Card onPress={() => router.push('/(admin)/profile')} className="flex-row items-center px-4 py-3.5">
               <User size={20} color={BRAND.blue} />
-              <Text className="flex-1 text-base font-nunito-semibold text-brand-gray ml-3">
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Account & Settings
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>
 
             <Card onPress={handleLogout} className="flex-row items-center px-4 py-3.5">
-              <LogOut size={20} color="#EF4444" />
-              <Text className="flex-1 text-base font-nunito-semibold text-red-400 ml-3">
+              <LogOut size={20} color="#DC2626" />
+              <Text className="flex-1 text-base font-nunito-semibold text-red-700 ml-3">
                 Log Out
               </Text>
             </Card>
@@ -190,14 +190,14 @@ export default function AdminDashboard() {
 
           {/* Recent Activity */}
           <View className="px-4 mt-6">
-            <Text className="text-2xl font-lora-semibold text-white mb-3">Recent Activity</Text>
+            <Text className="text-2xl font-lora-semibold text-brand-ink mb-3">Recent Activity</Text>
             {activityLoading ? (
               <View className="items-center py-8">
-                <Text className="text-base font-nunito text-brand-steel">Loading activity...</Text>
+                <Text className="text-base font-nunito text-brand-ink-muted">Loading activity...</Text>
               </View>
             ) : !recentActivity || recentActivity.length === 0 ? (
               <View className="items-center py-8">
-                <Text className="text-base font-nunito text-brand-steel">No recent activity</Text>
+                <Text className="text-base font-nunito text-brand-ink-muted">No recent activity</Text>
               </View>
             ) : (
               <View className="gap-2">
@@ -211,14 +211,14 @@ export default function AdminDashboard() {
                       )}
                     </View>
                     <View className="flex-1">
-                      <Text className="text-sm font-nunito-semibold text-brand-gray" numberOfLines={1}>
+                      <Text className="text-sm font-nunito-semibold text-brand-ink" numberOfLines={1}>
                         {item.label}
                       </Text>
-                      <Text className="text-sm font-nunito text-brand-steel" numberOfLines={1}>
+                      <Text className="text-sm font-nunito text-brand-ink-muted" numberOfLines={1}>
                         {item.sublabel}
                       </Text>
                     </View>
-                    <Text className="text-sm font-nunito text-brand-steel ml-2">
+                    <Text className="text-sm font-nunito text-brand-ink-muted ml-2">
                       {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                     </Text>
                   </Card>

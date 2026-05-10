@@ -24,7 +24,7 @@ function StatusPill({ label }: { label: string }) {
     .join(' ');
   return (
     <View className="bg-brand-blue/40 rounded-full px-3 py-1">
-      <Text className="text-sm font-nunito-semibold text-white">{display}</Text>
+      <Text className="text-sm font-nunito-semibold text-brand-ink">{display}</Text>
     </View>
   );
 }
@@ -49,8 +49,8 @@ export default function AdminPromotionDetailScreen() {
 
   if (!id) {
     return (
-      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
-        <Text className="text-base font-nunito text-red-400 text-center mb-3">Missing promotion ID</Text>
+      <View className="flex-1 bg-brand-cloud items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-700 text-center mb-3">Missing promotion ID</Text>
         <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
       </View>
     );
@@ -60,8 +60,8 @@ export default function AdminPromotionDetailScreen() {
 
   if (isError) {
     return (
-      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
-        <Text className="text-base font-nunito text-red-400 text-center mb-3">
+      <View className="flex-1 bg-brand-cloud items-center justify-center px-6">
+        <Text className="text-base font-nunito text-red-700 text-center mb-3">
           {error?.message ?? 'Failed to load promotion'}
         </Text>
         <Button onPress={() => refetch()} variant="secondary">Retry</Button>
@@ -71,8 +71,8 @@ export default function AdminPromotionDetailScreen() {
 
   if (!promotion) {
     return (
-      <View className="flex-1 bg-brand-navy items-center justify-center px-6">
-        <Text className="text-base font-nunito text-brand-steel text-center mb-3">Promotion not found</Text>
+      <View className="flex-1 bg-brand-cloud items-center justify-center px-6">
+        <Text className="text-base font-nunito text-brand-ink-muted text-center mb-3">Promotion not found</Text>
         <Button onPress={() => router.back()} variant="secondary">Go Back</Button>
       </View>
     );
@@ -163,7 +163,7 @@ export default function AdminPromotionDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Pressable
           testID="back-btn"
@@ -190,7 +190,7 @@ export default function AdminPromotionDetailScreen() {
             accessibilityLiveRegion="polite"
             className="bg-brand-blue/40 border border-brand-blue rounded-xl p-3 mb-4"
           >
-            <Text className="text-sm font-nunito-semibold text-white">{feedbackMessage}</Text>
+            <Text className="text-sm font-nunito-semibold text-brand-ink">{feedbackMessage}</Text>
           </View>
         )}
 
@@ -203,27 +203,27 @@ export default function AdminPromotionDetailScreen() {
         )}
 
         {promotion.review_note && (
-          <View className="bg-brand-navy-light border border-brand-blue/40 rounded-xl p-4 mb-4">
-            <Text className="text-sm font-nunito-semibold text-brand-gray mb-1">Admin note</Text>
-            <Text className="text-sm font-nunito text-brand-gray">{promotion.review_note}</Text>
+          <View className="bg-brand-mist border border-brand-blue/40 rounded-xl p-4 mb-4">
+            <Text className="text-sm font-nunito-semibold text-brand-ink mb-1">Admin note</Text>
+            <Text className="text-sm font-nunito text-brand-ink">{promotion.review_note}</Text>
           </View>
         )}
 
-        <View className="bg-brand-navy-light rounded-xl p-4 border border-brand-blue/40 shadow-sm mb-4">
-          <Text className="text-base font-nunito-semibold text-white mb-1">
+        <View className="bg-brand-mist rounded-xl p-4 border border-brand-blue/40 shadow-sm mb-4">
+          <Text className="text-base font-nunito-semibold text-brand-ink mb-1">
             {promotion.business_name}
           </Text>
           {promotion.description && (
-            <Text className="text-sm font-nunito text-brand-gray mb-2">{promotion.description}</Text>
+            <Text className="text-sm font-nunito text-brand-ink mb-2">{promotion.description}</Text>
           )}
-          <Text className="text-sm font-nunito text-brand-gray">
+          <Text className="text-sm font-nunito text-brand-ink">
             {promotion.start_date} → {promotion.end_date}
           </Text>
         </View>
 
         {canReview && (
           <View className="mb-4">
-            <Text className="text-sm font-nunito-semibold text-brand-gray mb-2">Review Actions</Text>
+            <Text className="text-sm font-nunito-semibold text-brand-ink mb-2">Review Actions</Text>
             <PromotionReviewActions onAction={handleReviewAction} loading={actionLoading} />
           </View>
         )}

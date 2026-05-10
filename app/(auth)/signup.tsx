@@ -63,15 +63,15 @@ export default function SignupScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-brand-navy"
+      className="flex-1 bg-brand-cloud"
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-10">
-          <Text className="text-3xl font-lora-semibold text-white text-center mb-2 leading-tight">Create Account</Text>
-          <Text className="text-brand-steel text-center mb-10 font-nunito">Join your property community</Text>
+          <Text className="text-3xl font-lora-semibold text-brand-ink text-center mb-2 leading-tight">Create Account</Text>
+          <Text className="text-brand-ink-muted text-center mb-10 font-nunito">Join your property community</Text>
 
           <Controller
             control={control}
@@ -130,12 +130,12 @@ export default function SignupScreen() {
           </Button>
 
           <View className="mt-8 flex-row justify-center items-center gap-2">
-            <Text className="text-brand-steel font-nunito">
+            <Text className="text-brand-ink-muted font-nunito">
               Already have an account?
             </Text>
             <Link href="/(auth)/login" asChild>
               <Pressable className="p-2 -m-2">
-                <Text className="text-base font-nunito-semibold text-white">Log In</Text>
+                <Text className="text-base font-nunito-semibold text-brand-blue">Log In</Text>
               </Pressable>
             </Link>
           </View>

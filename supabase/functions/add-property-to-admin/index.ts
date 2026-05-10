@@ -55,6 +55,50 @@ Deno.serve(async (req) => {
     });
   }
 
+  const { data: property } = await adminClient
+    .from('properties')
+    .select('id, created_at, created_by_landlord_id')
+    .eq('id', property_id)
+    .single();
+
+  if (!property) {
+    return new Response(JSON.stringify({ error: 'Property not found' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const createdAt = new Date(property.created_at).getTime();
+  const tenMinutes = 10 * 60 * 1000;
+  if (!Number.isFinite(createdAt) || Date.now() - createdAt > tenMinutes) {
+    return new Response(JSON.stringify({ error: 'Only newly created properties can be assigned this way' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (property.created_by_landlord_id !== user.id) {
+    return new Response(JSON.stringify({ error: 'Only the property creator can self-assign this property' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  const { data: existingAdmins } = await adminClient
+    .from('profiles')
+    .select('id')
+    .eq('role', 'landlord')
+    .contains('property_ids', [property_id])
+    .neq('id', user.id)
+    .limit(1);
+
+  if ((existingAdmins?.length ?? 0) > 0) {
+    return new Response(JSON.stringify({ error: 'Property is already assigned to another admin' }), {
+      status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
   // Use service role to append to property_ids array
   const currentIds: string[] = profile.property_ids ?? [];
 

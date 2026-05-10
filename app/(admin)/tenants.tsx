@@ -158,7 +158,7 @@ export default function TenantsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Pressable
           testID="back-btn"
@@ -181,7 +181,7 @@ export default function TenantsScreen() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-base font-nunito text-brand-steel text-center">
+          <Text className="text-base font-nunito text-brand-ink-muted text-center">
             Select a property to manage tenants
           </Text>
         </View>
@@ -218,7 +218,7 @@ export default function TenantsScreen() {
             <LoadingScreen message="Loading tenants..." />
           ) : isError ? (
             <View className="flex-1 items-center justify-center px-6">
-              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+              <Text className="text-base font-nunito text-red-700 text-center mb-3">
                 {error?.message ?? 'Failed to load tenants'}
               </Text>
               <Button onPress={() => refetch()} variant="secondary">Retry</Button>

@@ -14,7 +14,7 @@
       "checkAutomatically": "ON_LOAD"
     },
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "scheme": "unit",
     "assetBundlePatterns": [
       "**/*"
@@ -31,10 +31,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f5f5f7"
       },
-      "package": "com.unitapp.mobile",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "package": "com.unitapp.mobile"
     },
     "web": {
       "favicon": "./assets/favicon.png",

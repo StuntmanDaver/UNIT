@@ -15,8 +15,7 @@ const SEGMENT_NEARBY = 'Nearby (≤ 2 mi)';
 
 /**
  * Skeleton placeholder card shown while the feed is loading.
- * Uses brand-mist / brand-paper tokens — permitted on the Home Feed
- * per the light-surface design rules in CLAUDE.md.
+ * Uses the same light-surface tokens now shared across the app.
  */
 function SkeletonCard() {
   return (

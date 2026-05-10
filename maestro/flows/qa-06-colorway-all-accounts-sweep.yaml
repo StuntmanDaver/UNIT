@@ -1,0 +1,151 @@
+appId: com.unitapp.mobile
+---
+# QA-06: Colorway visual sweep across tenant and admin accounts.
+# Focus: shading, contrast, and readability after the global light-surface update.
+
+- launchApp:
+    clearState: true
+
+# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: "http://localhost:8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- assertVisible: "Home"
+- takeScreenshot: colorway-tenant-home
+
+- tapOn:
+    id: "tab-directory"
+- assertVisible: "Directory"
+- takeScreenshot: colorway-tenant-directory
+
+- tapOn:
+    id: "tab-promotions"
+- assertVisible: "Promotions"
+- takeScreenshot: colorway-tenant-promotions
+
+- tapOn:
+    id: "fab-create-promotion"
+- assertVisible: "Promote My Business"
+- takeScreenshot: colorway-tenant-promotion-create
+- tapOn: "Cancel"
+- assertVisible: "Promotions"
+
+- tapOn:
+    id: "tab-community"
+- assertVisible: "Community"
+- takeScreenshot: colorway-tenant-community
+
+- tapOn:
+    id: "fab-create-post"
+- assertVisible: "New Post"
+- takeScreenshot: colorway-tenant-community-create
+- tapOn: "Cancel"
+- assertVisible: "Community"
+
+- tapOn:
+    id: "tab-alerts"
+- waitForAnimationToEnd
+- takeScreenshot: colorway-tenant-alerts
+
+- tapOn:
+    id: "tab-profile"
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading profile..."
+    timeout: 15000
+- takeScreenshot: colorway-tenant-profile
+
+- runFlow:
+    when:
+      visible: "Edit Profile"
+    commands:
+      - tapOn: "Edit Profile"
+      - assertVisible: "Edit Profile"
+      - takeScreenshot: colorway-tenant-profile-edit
+      - tapOn:
+          id: "btn-profile-cancel"
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "tab-profile"
+      - extendedWaitUntil:
+          notVisible:
+            text: "Save Changes"
+          timeout: 8000
+
+- runFlow: ../subflows/logout.yaml
+
+- runFlow: ../subflows/login-admin.yaml
+- assertVisible: "Admin Dashboard"
+- takeScreenshot: colorway-admin-dashboard
+
+- tapOn: "Manage Promotions"
+- assertVisible: "Promotions"
+- takeScreenshot: colorway-admin-promotions
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- tapOn: "View Pending Approvals"
+- assertVisible: "Pending"
+- takeScreenshot: colorway-admin-advertisers
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- tapOn: "Manage Tenants"
+- assertVisible: "Tenants"
+- takeScreenshot: colorway-admin-tenants
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- tapOn: "Manage Properties"
+- assertVisible: "Properties"
+- takeScreenshot: colorway-admin-properties
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- scrollUntilVisible:
+    element:
+      text: "Send Push Notification"
+    direction: DOWN
+- tapOn: "Send Push Notification"
+- assertVisible: "Push Notifications"
+- takeScreenshot: colorway-admin-push
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- scrollUntilVisible:
+    element:
+      text: "Promotion Pricing"
+    direction: DOWN
+- tapOn: "Promotion Pricing"
+- assertVisible: "Promotion Pricing"
+- takeScreenshot: colorway-admin-pricing
+
+- runFlow: ../subflows/reset-login-admin-dev.yaml
+
+- scrollUntilVisible:
+    element:
+      text: "Account & Settings"
+    direction: DOWN
+- tapOn: "Account & Settings"
+- assertVisible: "Account"
+- takeScreenshot: colorway-admin-profile

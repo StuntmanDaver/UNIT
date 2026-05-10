@@ -1,4 +1,5 @@
 import { View, ActivityIndicator, Text, Image } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 type LoadingScreenProps = {
   message?: string;
@@ -8,6 +9,7 @@ type LoadingScreenProps = {
 export function LoadingScreen({ message, showLogo = false }: LoadingScreenProps) {
   return (
     <View className="flex-1 items-center justify-center bg-brand-cloud px-8">
+      <StatusBar style="dark" />
       {showLogo && (
         <Image
           accessibilityIgnoresInvertColors

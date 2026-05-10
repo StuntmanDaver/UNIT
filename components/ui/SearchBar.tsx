@@ -10,15 +10,15 @@ type SearchBarProps = {
 
 export function SearchBar({ value, onChangeText, placeholder = 'Search...' }: SearchBarProps) {
   return (
-    <View className="flex-row items-center bg-brand-navy-light rounded-xl px-4 py-3 gap-2">
+    <View className="flex-row items-center bg-brand-mist rounded-xl px-4 py-3 gap-2">
       <Search size={18} color={BRAND.steel} />
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={BRAND.steel}
-        className="flex-1 text-brand-gray font-nunito text-base"
-        style={{ color: BRAND.gray }}
+        className="flex-1 text-brand-ink font-nunito text-base"
+        style={{ color: BRAND.ink }}
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"

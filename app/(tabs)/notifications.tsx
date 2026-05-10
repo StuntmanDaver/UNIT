@@ -14,8 +14,8 @@ import { useAuth } from '@/lib/AuthContext';
 import { notificationsService, type Notification } from '@/services/notifications';
 import { BRAND } from '@/constants/colors';
 
-// Unread tint: brand-navy-light +10% lightness — stays on-brand, subtle enough to feel like a state, not a new surface
-const UNREAD_BG = '#22304A';
+// Unread tint: a quiet blue wash on the global light surface.
+const UNREAD_BG = '#EAF0F8';
 
 function getIcon(type: string) {
   switch (type) {
@@ -61,7 +61,7 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
   return (
     <TouchableOpacity
       testID="notification-row"
-      style={[styles.row, { backgroundColor: isUnread ? UNREAD_BG : BRAND.navyLight }]}
+      style={[styles.row, { backgroundColor: isUnread ? UNREAD_BG : BRAND.mist }]}
       onPress={() => onPress(item)}
       activeOpacity={0.7}
     >
@@ -70,15 +70,15 @@ function NotificationRow({ item, onPress }: NotificationRowProps) {
       </View>
       <View style={styles.textContainer}>
         <Text
-          className={`text-base leading-relaxed ${isUnread ? 'font-nunito-semibold text-white' : 'font-nunito text-brand-gray'}`}
+          className={`text-base leading-relaxed ${isUnread ? 'font-nunito-semibold text-brand-ink' : 'font-nunito text-brand-ink'}`}
           numberOfLines={1}
         >
           {item.title}
         </Text>
-        <Text className="text-sm font-nunito text-brand-gray leading-normal" numberOfLines={1}>
+        <Text className="text-sm font-nunito text-brand-ink leading-normal" numberOfLines={1}>
           {item.message}
         </Text>
-        <Text className="text-sm font-nunito text-brand-gray leading-normal">
+        <Text className="text-sm font-nunito text-brand-ink leading-normal">
           {formatDistanceToNow(new Date(item.created_date), { addSuffix: true })}
         </Text>
       </View>
@@ -138,7 +138,7 @@ export default function NotificationsScreen() {
   }
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <Text className="text-3xl font-lora-semibold text-white leading-tight">Notifications</Text>
@@ -181,13 +181,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#465A75',
+    borderBottomColor: '#E5E7EB',
   },
   iconContainer: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#1D263A',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,

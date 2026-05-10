@@ -1,0 +1,72 @@
+name: Deploy Supabase
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/functions/**"
+      - ".github/workflows/supabase-deploy.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Apply migrations and deploy active functions
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Link project
+        run: supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Apply migrations
+        run: supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Type-check active Edge Functions
+        run: npm run edge:check
+
+      - name: Set Edge Function secrets
+        run: |
+          supabase secrets set \
+            STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}" \
+            STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}" \
+            EXPO_ACCESS_TOKEN="${{ secrets.EXPO_ACCESS_TOKEN }}" \
+            RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}" \
+            RESEND_FROM_EMAIL="${{ secrets.RESEND_FROM_EMAIL }}"
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Deploy active Edge Functions
+        run: |
+          supabase functions deploy add-property-to-admin
+          supabase functions deploy complete-onboarding
+          supabase functions deploy create-promotion-checkout-session
+          supabase functions deploy delete-account
+          supabase functions deploy expire-promotions
+          supabase functions deploy invite-tenant
+          supabase functions deploy issue-refund
+          supabase functions deploy send-push-notification
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+  # Dormant functions intentionally not deployed from CI:
+  # - mark-escalated-requests
+  # - mark-overdue-invoices
+  # - send-escalation-email
+  # - send-invoice-email

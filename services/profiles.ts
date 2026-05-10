@@ -53,6 +53,6 @@ export const profilesService = {
   },
 
   async reactivate(id: string): Promise<Profile> {
-    return this.update(id, { status: 'active' });
+    return this.update(id, { status: 'active', activated_at: new Date().toISOString() });
   },
 };

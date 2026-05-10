@@ -106,6 +106,7 @@ appId: com.unitapp.mobile
 # ── CASE 1: Promotion summary renders ────────────────────────────────────────
 - assertVisible: "QA Payment Edge Test"
 - assertVisible: "Pending Payment"
+- takeScreenshot: colorway-tenant-pending-payment
 
 # ── CASE 2: Tier list renders (radio rows) ────────────────────────────────────
 # Tiers section visible if any tiers exist

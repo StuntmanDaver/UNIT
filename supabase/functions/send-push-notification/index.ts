@@ -91,16 +91,8 @@ Deno.serve(async (req) => {
   }
 
   const currentIds: string[] = callerProfile.property_ids ?? [];
-  if (!currentIds.includes(property_id)) {
+  if (callerProfile.role !== 'landlord' || !currentIds.includes(property_id)) {
     return new Response(JSON.stringify({ error: 'Forbidden: Access to property denied' }), {
-      status: 403,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // If it's a broadcast or advertiser_approved message, ensure caller is a landlord
-  if ((data?.type === 'broadcast' || data?.type === 'advertiser_approved') && callerProfile.role !== 'landlord') {
-    return new Response(JSON.stringify({ error: 'Admin access required for this notification type' }), {
       status: 403,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

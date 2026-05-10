@@ -1,0 +1,4 @@
+app_identifier(ENV["IOS_BUNDLE_ID"] || "com.unitapp.mobile")
+apple_id(ENV["APPLE_ID"] || "ketchel.david@gmail.com")
+itc_team_id(ENV["ASC_TEAM_ID"] || "KLJ7P6JXK7")
+team_id(ENV["APPLE_TEAM_ID"] || "KLJ7P6JXK7")

@@ -35,12 +35,12 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
       >
         <Pressable
           accessible={false}
-          className="bg-brand-navy-light rounded-2xl w-full max-w-lg overflow-hidden"
+          className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden"
           onPress={(e) => e.stopPropagation()}
         >
           {/* Header */}
           <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
-            <Text testID="modal-title" className="text-2xl font-lora-semibold text-brand-gray flex-1 mr-3 leading-tight">{title}</Text>
+            <Text testID="modal-title" className="text-2xl font-lora-semibold text-brand-ink flex-1 mr-3 leading-tight">{title}</Text>
             <Pressable testID="modal-close" onPress={onClose} hitSlop={8}>
               <X size={20} color={BRAND.steel} />
             </Pressable>

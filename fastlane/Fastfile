@@ -1,0 +1,105 @@
+default_platform(:ios)
+
+ENV_FILE = File.expand_path("../.env.fastlane", __dir__)
+
+def load_env_file(path = ENV_FILE)
+  return unless File.exist?(path)
+
+  File.readlines(path, chomp: true).each do |line|
+    next if line.strip.empty? || line.strip.start_with?("#")
+
+    key, value = line.split("=", 2)
+    next if key.nil? || value.nil?
+
+    ENV[key.strip] = value.strip if ENV[key.strip].to_s.empty?
+  end
+end
+
+def required_env(name)
+  load_env_file
+  value = ENV[name].to_s.strip
+  UI.user_error!("Missing #{name}. Add it to #{ENV_FILE} or export it in your shell.") if value.empty?
+  value
+end
+
+def optional_env(name)
+  load_env_file
+  value = ENV[name].to_s.strip
+  value.empty? ? nil : value
+end
+
+def app_store_api_key
+  app_store_connect_api_key(
+    key_id: required_env("APP_STORE_CONNECT_API_KEY_ID"),
+    issuer_id: required_env("APP_STORE_CONNECT_API_ISSUER_ID"),
+    key_filepath: File.expand_path(required_env("APP_STORE_CONNECT_API_KEY_PATH")),
+    duration: 1200,
+    in_house: false
+  )
+end
+
+def connect_api_token
+  Spaceship::ConnectAPI::Token.create(
+    key_id: required_env("APP_STORE_CONNECT_API_KEY_ID"),
+    issuer_id: required_env("APP_STORE_CONNECT_API_ISSUER_ID"),
+    filepath: File.expand_path(required_env("APP_STORE_CONNECT_API_KEY_PATH")),
+    duration: 1200,
+    in_house: false
+  )
+end
+
+def testflight_groups
+  required_env("TESTFLIGHT_GROUPS").split(",").map(&:strip).reject(&:empty?)
+end
+
+def beta_review_info
+  return nil unless optional_env("PILOT_REVIEW_FIRST_NAME")
+
+  {
+    contact_first_name: required_env("PILOT_REVIEW_FIRST_NAME"),
+    contact_last_name: required_env("PILOT_REVIEW_LAST_NAME"),
+    contact_email: required_env("PILOT_REVIEW_EMAIL"),
+    contact_phone: required_env("PILOT_REVIEW_PHONE"),
+    demo_account_name: optional_env("PILOT_DEMO_ACCOUNT_NAME"),
+    demo_account_password: optional_env("PILOT_DEMO_ACCOUNT_PASSWORD"),
+    notes: optional_env("PILOT_REVIEW_NOTES")
+  }.compact
+end
+
+platform :ios do
+  desc "Verify the local App Store Connect API key can access the UNIT app"
+  lane :appstore_auth_check do
+    load_env_file
+    Spaceship::ConnectAPI.token = connect_api_token
+    app = Spaceship::ConnectAPI::App.find(required_env("IOS_BUNDLE_ID"))
+    UI.user_error!("No App Store Connect app found for #{required_env("IOS_BUNDLE_ID")}.") unless app
+
+    UI.success("Connected to App Store Connect app: #{app.name} (Apple ID #{required_env("ASC_APP_ID")})")
+  end
+
+  desc "Distribute the latest uploaded build to the configured TestFlight external group"
+  lane :distribute_testflight do
+    info = {
+      "en-US" => {
+        description: required_env("PILOT_BETA_APP_DESCRIPTION")
+      }
+    }
+    info["en-US"][:feedback_email] = optional_env("PILOT_BETA_APP_FEEDBACK_EMAIL") if optional_env("PILOT_BETA_APP_FEEDBACK_EMAIL")
+    info["en-US"][:marketing_url] = optional_env("PILOT_MARKETING_URL") if optional_env("PILOT_MARKETING_URL")
+    info["en-US"][:privacy_policy_url] = optional_env("PILOT_PRIVACY_POLICY_URL") if optional_env("PILOT_PRIVACY_POLICY_URL")
+
+    pilot(
+      api_key: app_store_api_key,
+      apple_id: required_env("ASC_APP_ID"),
+      app_identifier: required_env("IOS_BUNDLE_ID"),
+      distribute_only: true,
+      distribute_external: true,
+      groups: testflight_groups,
+      changelog: required_env("PILOT_CHANGELOG"),
+      localized_app_info: info,
+      beta_app_review_info: beta_review_info,
+      demo_account_required: optional_env("PILOT_DEMO_ACCOUNT_REQUIRED") == "true",
+      uses_non_exempt_encryption: false
+    )
+  end
+end

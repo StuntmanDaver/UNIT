@@ -19,7 +19,7 @@ export function TenantRow({ profile, business, onPress }: TenantRowProps) {
     <Pressable
       testID="tenant-row"
       onPress={onPress}
-      className="flex-row items-center px-4 py-3 bg-brand-navy-light border-b border-brand-blue/40"
+      className="flex-row items-center px-4 py-3 bg-brand-mist border-b border-brand-blue/40"
       style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}
     >
       <Avatar
@@ -28,10 +28,10 @@ export function TenantRow({ profile, business, onPress }: TenantRowProps) {
         size={44}
       />
       <View className="flex-1 ml-3 min-w-0">
-        <Text className="text-base font-nunito-semibold text-brand-gray" numberOfLines={1}>
+        <Text className="text-base font-nunito-semibold text-brand-ink" numberOfLines={1}>
           {business?.business_name ?? profile.display_name ?? 'Unnamed Tenant'}
         </Text>
-        <Text className="text-sm font-nunito text-brand-gray" numberOfLines={1}>
+        <Text className="text-sm font-nunito text-brand-ink" numberOfLines={1}>
           {profile.email}
         </Text>
       </View>

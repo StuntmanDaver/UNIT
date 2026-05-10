@@ -84,15 +84,15 @@ export default function ResetPasswordScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-brand-navy"
+      className="flex-1 bg-brand-cloud"
     >
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="px-6 py-10">
-          <Text className="text-3xl font-lora-semibold text-white text-center mb-2 leading-tight">Set New Password</Text>
-          <Text className="text-base font-nunito text-brand-steel text-center mb-10 leading-relaxed">
+          <Text className="text-3xl font-lora-semibold text-brand-ink text-center mb-2 leading-tight">Set New Password</Text>
+          <Text className="text-base font-nunito text-brand-ink-muted text-center mb-10 leading-relaxed">
             Please create a new password to secure your account
           </Text>
 

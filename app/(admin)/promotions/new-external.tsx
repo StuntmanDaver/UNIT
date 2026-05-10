@@ -28,12 +28,21 @@ import { storageService } from '@/services/storage';
 import { promotionsService } from '@/services/promotions';
 import { firstParam } from '@/lib/routeParams';
 
+function isHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
   headline: z.string().min(1, 'Headline is required'),
   description: z.string().min(1, 'Description is required'),
   cta_text: z.string().min(1, 'CTA label is required'),
-  cta_link: z.string().min(1, 'CTA URL is required'),
+  cta_link: z.string().min(1, 'CTA URL is required').refine(isHttpUrl, 'CTA URL must start with http:// or https://'),
   ext_contact_name: z.string().optional(),
   ext_contact_email: z.string().optional(),
   ext_contact_phone: z.string().optional(),
@@ -159,7 +168,7 @@ export default function NewExternalPromotionScreen() {
     activePicker === 'start' ? (startDate ?? today) : (endDate ?? startDate ?? today);
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Pressable
           onPress={() => router.back()}
@@ -181,7 +190,7 @@ export default function NewExternalPromotionScreen() {
       >
         {/* Property selector */}
         <View className="mb-4">
-          <Text className="text-sm font-nunito text-brand-gray mb-2">Target Property *</Text>
+          <Text className="text-sm font-nunito text-brand-ink mb-2">Target Property *</Text>
           <PropertySelector
             propertyIds={propertyIds}
             selected={selectedPropertyId}
@@ -276,16 +285,16 @@ export default function NewExternalPromotionScreen() {
         {/* Date range */}
         <View className="flex-row gap-3 mb-4">
           <View className="flex-1">
-            <Text className="text-sm font-nunito text-brand-gray mb-2">Start Date *</Text>
+            <Text className="text-sm font-nunito text-brand-ink mb-2">Start Date *</Text>
             <Pressable
               testID="external-promo-start-date"
               onPress={() => setActivePicker('start')}
-              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
+              className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-4 h-12"
             >
               <Calendar size={16} color={BRAND.steel} />
               <Text
                 className={`flex-1 ml-2 text-base font-nunito leading-relaxed ${
-                  startDate ? 'text-brand-gray' : 'text-brand-steel'
+                  startDate ? 'text-brand-ink' : 'text-brand-ink-muted'
                 }`}
                 numberOfLines={1}
               >
@@ -295,16 +304,16 @@ export default function NewExternalPromotionScreen() {
           </View>
 
           <View className="flex-1">
-            <Text className="text-sm font-nunito text-brand-gray mb-2">End Date *</Text>
+            <Text className="text-sm font-nunito text-brand-ink mb-2">End Date *</Text>
             <Pressable
               testID="external-promo-end-date"
               onPress={() => setActivePicker('end')}
-              className="flex-row items-center bg-brand-navy-light border border-brand-blue/40 rounded-xl px-4 h-12"
+              className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-4 h-12"
             >
               <Calendar size={16} color={BRAND.steel} />
               <Text
                 className={`flex-1 ml-2 text-base font-nunito leading-relaxed ${
-                  endDate ? 'text-brand-gray' : 'text-brand-steel'
+                  endDate ? 'text-brand-ink' : 'text-brand-ink-muted'
                 }`}
                 numberOfLines={1}
               >
@@ -322,7 +331,7 @@ export default function NewExternalPromotionScreen() {
               onPress={() => setActivePicker(null)}
             >
               <Pressable onPress={(e) => e.stopPropagation()}>
-                <View className="bg-brand-navy-light rounded-t-2xl pb-8">
+                <View className="bg-brand-mist rounded-t-2xl pb-8">
                   <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
                     <Pressable
                       onPress={() => {
@@ -331,15 +340,15 @@ export default function NewExternalPromotionScreen() {
                         setActivePicker(null);
                       }}
                     >
-                      <Text className="text-sm font-nunito-semibold text-brand-steel leading-normal">
+                      <Text className="text-sm font-nunito-semibold text-brand-ink-muted leading-normal">
                         Clear
                       </Text>
                     </Pressable>
-                    <Text className="text-base font-nunito-semibold text-brand-gray leading-relaxed">
+                    <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">
                       {activePicker === 'start' ? 'Start Date' : 'End Date'}
                     </Text>
                     <Pressable onPress={() => setActivePicker(null)}>
-                      <Text className="text-sm font-nunito-semibold text-white leading-normal">
+                      <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">
                         Done
                       </Text>
                     </Pressable>
@@ -371,7 +380,7 @@ export default function NewExternalPromotionScreen() {
 
         {/* Image */}
         <View className="mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">
             Promotion Image (optional)
           </Text>
           {imageUri ? (
@@ -394,7 +403,7 @@ export default function NewExternalPromotionScreen() {
               className="border-2 border-dashed border-brand-steel/40 rounded-xl h-32 items-center justify-center gap-2"
             >
               <ImagePlus size={24} color={BRAND.steel} />
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">
+              <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">
                 Add an image
               </Text>
             </Pressable>
@@ -403,7 +412,7 @@ export default function NewExternalPromotionScreen() {
 
         {/* External contact (optional) */}
         <View className="mb-2">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-3 leading-normal">
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-3 leading-normal">
             External Contact (optional)
           </Text>
           <Controller

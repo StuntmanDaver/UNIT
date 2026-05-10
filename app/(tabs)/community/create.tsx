@@ -147,7 +147,7 @@ export default function CreateCommunityPostScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">New Post</Text>
       </GradientHeader>
@@ -158,7 +158,7 @@ export default function CreateCommunityPostScreen() {
       >
         {/* Type selector */}
         <View className="mb-5">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Post Type *</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Post Type *</Text>
           <SegmentedControl
             segments={['announcement', 'event']}
             selected={postType}
@@ -239,7 +239,7 @@ export default function CreateCommunityPostScreen() {
 
         {/* Image picker */}
         <View className="mb-4">
-          <Text className="text-sm font-nunito-semibold text-brand-gray mb-2 leading-normal">Image (optional)</Text>
+          <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Image (optional)</Text>
           {imageUri ? (
             <View className="relative rounded-xl overflow-hidden">
               <Image
@@ -259,8 +259,8 @@ export default function CreateCommunityPostScreen() {
               onPress={handlePickImage}
               className="border-2 border-dashed border-brand-steel/40 rounded-xl h-32 items-center justify-center gap-2"
             >
-              <ImagePlus size={24} color="#7C8DA7" />
-              <Text className="text-sm font-nunito text-brand-steel leading-normal">Add an image</Text>
+              <ImagePlus size={24} color="#5F708A" />
+              <Text className="text-sm font-nunito text-brand-ink-muted leading-normal">Add an image</Text>
             </Pressable>
           )}
         </View>

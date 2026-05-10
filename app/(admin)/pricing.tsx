@@ -151,7 +151,7 @@ export default function AdminPricingScreen() {
         <View className="flex-row items-start justify-between">
           <View className="flex-1 mr-3">
             <View className="flex-row items-center gap-2 flex-wrap">
-              <Text className="text-base font-nunito-semibold text-white">{item.name}</Text>
+              <Text className="text-base font-nunito-semibold text-brand-ink">{item.name}</Text>
               {item.is_featured && (
                 <Badge label="Featured" color={{ bg: BRAND.blue, text: '#FFFFFF' }} size="sm" />
               )}
@@ -159,11 +159,11 @@ export default function AdminPricingScreen() {
                 <Badge label="Inactive" color={{ bg: BRAND.steel, text: '#FFFFFF' }} size="sm" />
               )}
             </View>
-            <Text className="text-sm font-nunito text-brand-gray mt-1">
+            <Text className="text-sm font-nunito text-brand-ink mt-1">
               {item.duration_days} days
             </Text>
           </View>
-          <Text className="text-base font-nunito-semibold text-white">
+          <Text className="text-base font-nunito-semibold text-brand-ink">
             {formatPrice(item.price_cents)}
           </Text>
         </View>
@@ -195,12 +195,12 @@ export default function AdminPricingScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between mb-2">
           <Pressable
             testID="back-btn"
-            onPress={() => router.back()}
+            onPress={() => router.push('/(admin)/')}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             className="p-3"
@@ -221,7 +221,7 @@ export default function AdminPricingScreen() {
         <Text className="text-2xl font-lora-semibold text-white leading-tight">
           Promotion Pricing
         </Text>
-        <Text className="text-sm font-nunito text-brand-steel mt-1">
+        <Text className="text-sm font-nunito text-white mt-1">
           Set prices tenants pay for promotions
         </Text>
       </GradientHeader>
@@ -230,7 +230,7 @@ export default function AdminPricingScreen() {
         <LoadingScreen message="Loading tiers..." />
       ) : isError ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-base font-nunito text-red-400 text-center mb-3">
+          <Text className="text-base font-nunito text-red-700 text-center mb-3">
             {error?.message ?? 'Failed to load pricing tiers'}
           </Text>
           <Button onPress={() => refetch()} variant="secondary">Retry</Button>
@@ -263,19 +263,19 @@ export default function AdminPricingScreen() {
         ]}
       >
         <View className="mb-4">
-          <Text className="text-sm font-nunito text-brand-gray mb-2">Name</Text>
+          <Text className="text-sm font-nunito text-brand-ink mb-2">Name</Text>
           <TextInput
             testID="pricing-tier-name"
             value={editState.name}
             onChangeText={(v) => setEditState((s) => ({ ...s, name: v }))}
             placeholder="e.g. 7-day Standard"
             placeholderTextColor={BRAND.steel}
-            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-white font-nunito bg-brand-navy"
+            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-brand-ink font-nunito bg-brand-cloud"
           />
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-nunito text-brand-gray mb-2">Duration (days)</Text>
+          <Text className="text-sm font-nunito text-brand-ink mb-2">Duration (days)</Text>
           <TextInput
             testID="pricing-tier-duration"
             value={editState.duration_days}
@@ -283,12 +283,12 @@ export default function AdminPricingScreen() {
             placeholder="7"
             placeholderTextColor={BRAND.steel}
             keyboardType="number-pad"
-            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-white font-nunito bg-brand-navy"
+            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-brand-ink font-nunito bg-brand-cloud"
           />
         </View>
 
         <View className="mb-4">
-          <Text className="text-sm font-nunito text-brand-gray mb-2">Price (USD)</Text>
+          <Text className="text-sm font-nunito text-brand-ink mb-2">Price (USD)</Text>
           <TextInput
             testID="pricing-tier-price"
             value={editState.price_dollars}
@@ -296,14 +296,14 @@ export default function AdminPricingScreen() {
             placeholder="25.00"
             placeholderTextColor={BRAND.steel}
             keyboardType="decimal-pad"
-            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-white font-nunito bg-brand-navy"
+            className="border border-brand-blue/40 rounded-xl px-4 py-3 text-base text-brand-ink font-nunito bg-brand-cloud"
           />
         </View>
 
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center gap-2">
             <Star size={16} color={BRAND.steel} />
-            <Text className="text-sm font-nunito text-brand-gray">Featured placement</Text>
+            <Text className="text-sm font-nunito text-brand-ink">Featured placement</Text>
           </View>
           <Switch
             testID="pricing-tier-featured"
@@ -315,7 +315,7 @@ export default function AdminPricingScreen() {
         </View>
 
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-sm font-nunito text-brand-gray">Active (visible to tenants)</Text>
+          <Text className="text-sm font-nunito text-brand-ink">Active (visible to tenants)</Text>
           <Switch
             testID="pricing-tier-active"
             value={editState.is_active}

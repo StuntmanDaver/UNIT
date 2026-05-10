@@ -13,7 +13,7 @@ export function RevenueChart({ data }: Props) {
   if (data.length === 0) {
     return (
       <View className="items-center justify-center h-40">
-        <Text className="text-sm font-nunito text-brand-gray">No revenue data yet</Text>
+        <Text className="text-sm font-nunito text-brand-ink">No revenue data yet</Text>
       </View>
     );
   }
@@ -44,11 +44,11 @@ export function RevenueChart({ data }: Props) {
       <View className="flex-row gap-4 px-2 mt-1">
         <View className="flex-row items-center gap-2">
           <View className="w-3 h-3 rounded-sm" style={{ backgroundColor: GROSS_COLOR }} />
-          <Text className="text-sm font-nunito text-brand-gray">Gross</Text>
+          <Text className="text-sm font-nunito text-brand-ink">Gross</Text>
         </View>
         <View className="flex-row items-center gap-2">
           <View className="w-3 h-3 rounded-sm" style={{ backgroundColor: NET_COLOR }} />
-          <Text className="text-sm font-nunito text-brand-gray">Net</Text>
+          <Text className="text-sm font-nunito text-brand-ink">Net</Text>
         </View>
       </View>
     </View>

@@ -73,10 +73,10 @@ export default function AdminPromotionsScreen() {
         <Card className="mx-4 mb-3 p-4">
           <View className="flex-row items-start justify-between mb-2">
             <View className="flex-1 mr-3">
-              <Text className="text-base font-nunito-semibold text-white" numberOfLines={1}>
+              <Text className="text-base font-nunito-semibold text-brand-ink" numberOfLines={1}>
                 {item.headline}
               </Text>
-              <Text className="text-sm font-nunito text-brand-gray mt-0.5" numberOfLines={1}>
+              <Text className="text-sm font-nunito text-brand-ink mt-0.5" numberOfLines={1}>
                 {item.business_name}
               </Text>
             </View>
@@ -89,14 +89,14 @@ export default function AdminPromotionsScreen() {
                 />
               )}
               <View className="bg-brand-blue/40 rounded-full px-2 py-1">
-                <Text className="text-sm font-nunito-semibold text-white">{statusLabel}</Text>
+                <Text className="text-sm font-nunito-semibold text-brand-ink">{statusLabel}</Text>
               </View>
             </View>
           </View>
 
           {item.description ? (
             <Text
-              className="text-sm font-nunito text-brand-gray leading-relaxed"
+              className="text-sm font-nunito text-brand-ink leading-relaxed"
               numberOfLines={2}
             >
               {item.description}
@@ -104,7 +104,7 @@ export default function AdminPromotionsScreen() {
           ) : null}
 
           {item.start_date && item.end_date ? (
-            <Text className="text-sm font-nunito text-brand-steel mt-2">
+            <Text className="text-sm font-nunito text-brand-ink-muted mt-2">
               {item.start_date} → {item.end_date}
             </Text>
           ) : null}
@@ -114,12 +114,12 @@ export default function AdminPromotionsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between mb-2">
           <Pressable
             testID="back-btn"
-            onPress={() => router.back()}
+            onPress={() => router.push('/(admin)/')}
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.7 : 1 })}
             className="p-3"
@@ -156,7 +156,7 @@ export default function AdminPromotionsScreen() {
 
       {!activePropertyId ? (
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-base font-nunito text-brand-steel text-center">
+          <Text className="text-base font-nunito text-brand-ink-muted text-center">
             Select a property to manage promotions
           </Text>
         </View>
@@ -170,7 +170,7 @@ export default function AdminPromotionsScreen() {
             <LoadingScreen message="Loading promotions..." />
           ) : isError ? (
             <View className="flex-1 items-center justify-center px-6">
-              <Text className="text-base font-nunito text-red-400 text-center mb-3">
+              <Text className="text-base font-nunito text-red-700 text-center mb-3">
                 {error?.message ?? 'Failed to load promotions'}
               </Text>
               <Button onPress={() => refetch()} variant="secondary">Retry</Button>

@@ -84,13 +84,13 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View className="flex-1 bg-brand-navy">
+    <View className="flex-1 bg-brand-cloud">
       <GradientHeader>
         <View className="flex-row items-center justify-between">
           <View>
             <Text className="text-3xl font-lora-semibold text-white leading-tight">Profile</Text>
             {user?.email && (
-              <Text className="text-brand-steel text-sm font-nunito leading-normal mt-0.5">{user.email}</Text>
+              <Text className="text-white text-sm font-nunito leading-normal mt-0.5">{user.email}</Text>
             )}
           </View>
           <Pressable
@@ -120,10 +120,10 @@ export default function ProfileScreen() {
             </View>
           ) : (
             <Card className="p-6 mb-4">
-              <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-2">
+              <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-2">
                 No business profile yet
               </Text>
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">
                 Set up your business profile to appear in the directory.
               </Text>
             </Card>
@@ -134,11 +134,11 @@ export default function ProfileScreen() {
             <Card className="p-5 mb-4">
               <View className="flex-row items-center gap-3 mb-3">
                 <Megaphone size={22} color={BRAND.blue} />
-                <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight flex-1">
+                <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight flex-1">
                   Promote My Business
                 </Text>
               </View>
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed mb-4">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed mb-4">
                 Reach tenants across your property with a featured promotion.
               </Text>
               <Button onPress={() => router.push('/promotions/create')} variant="primary">
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
           {/* QR Code */}
           {business && (
             <Card className="items-center p-6 mb-4">
-              <Text className="text-2xl font-lora-semibold text-brand-gray leading-tight mb-4">My QR Code</Text>
+              <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-4">My QR Code</Text>
               <QRCode
                 value={qrValue}
                 size={150}
@@ -168,24 +168,24 @@ export default function ProfileScreen() {
 
           {/* Settings section */}
           <Card className="overflow-hidden mb-6">
-            <Text className="text-sm font-nunito-semibold text-brand-gray leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
+            <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal uppercase tracking-wide px-4 pt-4 pb-2">
               Settings
             </Text>
 
             {propertyName ? (
               <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
-                <Text className="text-base font-nunito text-brand-gray leading-relaxed">Property</Text>
-                <Text className="text-sm font-nunito text-brand-gray leading-normal">{propertyName}</Text>
+                <Text className="text-base font-nunito text-brand-ink leading-relaxed">Property</Text>
+                <Text className="text-sm font-nunito text-brand-ink leading-normal">{propertyName}</Text>
               </View>
             ) : null}
 
             <View className="flex-row items-center justify-between px-4 py-3 border-b border-brand-blue/40">
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">App Version</Text>
-              <Text className="text-sm font-nunito text-brand-gray leading-normal">{appVersion}</Text>
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">App Version</Text>
+              <Text className="text-sm font-nunito text-brand-ink leading-normal">{appVersion}</Text>
             </View>
 
-            <View className="flex-row justify-between items-center px-4 py-3">
-              <Text className="text-base font-nunito text-brand-gray leading-relaxed">Push Notifications</Text>
+            <View className="flex-row justify-between items-center px-4 py-3 border-b border-brand-blue/40">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">Push Notifications</Text>
               <Switch
                 testID="profile-push-switch"
                 value={permissionGranted}
@@ -194,7 +194,7 @@ export default function ProfileScreen() {
                   else disablePush();
                 }}
                 trackColor={{ false: '#465A75', true: BRAND.blue }}
-                thumbColor={permissionGranted ? '#E0E1DE' : '#7C8DA7'}
+                thumbColor={permissionGranted ? '#E0E1DE' : '#5F708A'}
               />
             </View>
 

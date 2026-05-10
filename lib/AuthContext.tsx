@@ -11,6 +11,8 @@ type AuthState = {
   isAdmin: boolean;
   needsPasswordChange: boolean;
   needsOnboarding: boolean;
+  needsApproval: boolean;
+  isInactive: boolean;
   propertyIds: string[];
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -153,6 +155,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAuthenticated = !!user;
   const isAdmin = profile?.role === 'landlord';
   const needsPasswordChange = profile?.needs_password_change ?? false;
+  const needsApproval = profile?.role === 'tenant' && profile.status === 'invited' && !needsOnboarding && !needsPasswordChange;
+  const isInactive = profile?.role === 'tenant' && profile.status === 'inactive';
   const propertyIds = profile?.property_ids ?? [];
 
   return (
@@ -165,6 +169,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin,
         needsPasswordChange,
         needsOnboarding,
+        needsApproval,
+        isInactive,
         propertyIds,
         logout,
         refreshProfile,

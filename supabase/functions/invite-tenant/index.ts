@@ -8,6 +8,39 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+type TenantInviteInput = {
+  email?: string;
+  business_name?: string;
+  category?: string;
+  property_id?: string;
+  contact_name?: string;
+  contact_phone?: string;
+  description?: string;
+  unit_number?: string;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function toOptionalString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
+function parseTenantInviteInput(value: unknown): TenantInviteInput {
+  if (!isRecord(value)) return {};
+  return {
+    email: toOptionalString(value.email),
+    business_name: toOptionalString(value.business_name),
+    category: toOptionalString(value.category),
+    property_id: toOptionalString(value.property_id),
+    contact_name: toOptionalString(value.contact_name),
+    contact_phone: toOptionalString(value.contact_phone),
+    description: toOptionalString(value.description),
+    unit_number: toOptionalString(value.unit_number),
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -65,7 +98,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  let requestBody: { tenants?: Array<Record<string, unknown>> };
+  let requestBody: { tenants?: unknown[] };
 
   try {
     requestBody = await req.json();
@@ -76,15 +109,14 @@ Deno.serve(async (req) => {
     });
   }
 
-  const { tenants } = requestBody;
-
-  if (!Array.isArray(tenants)) {
+  if (!Array.isArray(requestBody.tenants)) {
     return new Response(JSON.stringify({ error: 'tenants must be an array' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
+  const tenants = requestBody.tenants.map(parseTenantInviteInput);
   const results = { imported: 0, failed: [] as Array<{ email: string; reason: string }>, total: tenants.length };
   const allowedPropertyIds: string[] = callerProfile?.property_ids ?? [];
 
