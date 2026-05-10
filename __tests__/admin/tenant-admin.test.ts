@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTenantCsvPreview } from '@/components/admin/TenantAdminClient'
+import { buildTenantCsvExport, buildTenantCsvPreview } from '@/lib/admin/tenantCsv'
 
 describe('TenantAdminClient CSV helpers', () => {
   it('parses quoted commas and preserves optional tenant fields', () => {
@@ -29,5 +29,21 @@ describe('TenantAdminClient CSV helpers', () => {
     expect(preview.headerErrors).toEqual(['Missing required header: category'])
     expect(preview.validRows).toEqual([])
     expect(preview.rows[0]?._errors).toContain('Missing required header: category')
+  })
+
+  it('builds CSV export text without touching the DOM', () => {
+    expect(buildTenantCsvExport([
+      {
+        profile: { email: 'owner@example.com', status: 'active' },
+        business: {
+          business_name: 'Coffee "Plus"',
+          category: 'food',
+          contact_name: 'Jamie',
+          contact_phone: '555-0100',
+          services: 'coffee, snacks',
+          unit_number: '12B',
+        },
+      },
+    ])).toContain('"Coffee ""Plus"""')
   })
 })

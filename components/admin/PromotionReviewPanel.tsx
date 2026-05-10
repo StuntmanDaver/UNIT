@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { PaymentStatusBadge, ReviewStatusBadge } from '@/components/StatusBadges';
 import { PromotionPreview } from '@/components/PromotionPreview';
+import { canRefundPromotion, canReviewPromotion, canSuspendPromotion } from '@/lib/admin/promotionWorkflow';
 import type { PaymentStatus, ReviewStatus } from '@/lib/supabase/types';
 
 export type AdminPromotion = {
@@ -89,14 +90,9 @@ export function PromotionReviewPanel({
   const [refundError, setRefundError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  const canReview = promotion.review_status === 'pending' && Boolean(onReviewAction);
-  const canSuspend =
-    (promotion.review_status === 'approved' || promotion.review_status === 'suspended') &&
-    Boolean(onToggleSuspension);
-  const canRefund =
-    promotion.review_status === 'rejected' &&
-    (promotion.payment_status === 'paid' || promotion.payment_status === 'repayment_required') &&
-    Boolean(onIssueRefund);
+  const canReview = canReviewPromotion(promotion) && Boolean(onReviewAction);
+  const canSuspend = canSuspendPromotion(promotion) && Boolean(onToggleSuspension);
+  const canRefund = canRefundPromotion(promotion) && Boolean(onIssueRefund);
 
   const statusSummary = useMemo(
     () => [

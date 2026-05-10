@@ -4,6 +4,11 @@ import { useMemo, useRef, useState, useTransition } from 'react'
 import type { FormEvent } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import {
+  buildTenantCsvExport,
+  buildTenantCsvPreview,
+  type TenantCsvPreview,
+} from '@/lib/admin/tenantCsv'
 
 export type TenantStatus = 'invited' | 'active' | 'inactive'
 export type TenantStatusFilter = 'all' | TenantStatus
@@ -66,25 +71,6 @@ export type TenantAdminActions = {
   reactivateTenant: (profileId: string) => Promise<TenantActionResult | void>
 }
 
-export type TenantCsvParsedRow = {
-  email: string
-  business_name: string
-  category: string
-  contact_name?: string
-  contact_phone?: string
-  services?: string
-  unit_number?: string
-  _rowIndex: number
-  _isValid: boolean
-  _errors: string[]
-}
-
-export type TenantCsvPreview = {
-  headerErrors: string[]
-  rows: TenantCsvParsedRow[]
-  validRows: Array<Omit<TenantCsvParsedRow, '_rowIndex' | '_isValid' | '_errors'>>
-}
-
 type TenantAdminClientProps = {
   properties: AdminPropertyOption[]
   tenants: TenantAdminRow[]
@@ -94,38 +80,12 @@ type TenantAdminClientProps = {
   actions: TenantAdminActions
 }
 
-const REQUIRED_HEADERS = ['email', 'business_name', 'category'] as const
-const OPTIONAL_HEADERS = ['contact_name', 'contact_phone', 'services', 'unit_number'] as const
 const STATUS_FILTERS: Array<{ value: TenantStatusFilter; label: string }> = [
   { value: 'all', label: 'All' },
   { value: 'invited', label: 'Invited' },
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
 ]
-
-export function buildTenantCsvPreview(csvText: string): TenantCsvPreview {
-  const matrix = parseCsvMatrix(csvText)
-  const [headerRow, ...dataRows] = matrix
-  const headers = (headerRow ?? []).map(normalizeHeader)
-  const headerErrors = REQUIRED_HEADERS
-    .filter((header) => !headers.includes(header))
-    .map((header) => `Missing required header: ${header}`)
-
-  const rows = dataRows
-    .filter((row) => row.some((cell) => cell.trim().length > 0))
-    .map((row, index) => {
-      const record = Object.fromEntries(headers.map((header, cellIndex) => [header, row[cellIndex] ?? '']))
-      return validateTenantCsvRow(record, index, headerErrors)
-    })
-
-  return {
-    headerErrors,
-    rows,
-    validRows: headerErrors.length > 0
-      ? []
-      : rows.filter((row) => row._isValid).map(stripCsvDiagnostics),
-  }
-}
 
 export function TenantAdminClient({
   properties,
@@ -487,114 +447,8 @@ export function TenantAdminClient({
   )
 }
 
-function normalizeHeader(header: string): string {
-  return header.trim().toLowerCase().replace(/\s+/g, '_')
-}
-
-function validateTenantCsvRow(
-  record: Record<string, string>,
-  index: number,
-  headerErrors: string[],
-): TenantCsvParsedRow {
-  const row = {
-    email: requiredCell(record.email),
-    business_name: requiredCell(record.business_name),
-    category: requiredCell(record.category).toLowerCase(),
-    contact_name: optionalCell(record.contact_name),
-    contact_phone: optionalCell(record.contact_phone),
-    services: optionalCell(record.services),
-    unit_number: optionalCell(record.unit_number),
-  }
-  const errors = [...headerErrors]
-  if (!row.email) errors.push('email required')
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) errors.push('Invalid email')
-  if (!row.business_name) errors.push('business_name required')
-  if (!row.category) errors.push('category required')
-
-  return {
-    ...row,
-    _rowIndex: index,
-    _isValid: errors.length === 0,
-    _errors: errors,
-  }
-}
-
-function stripCsvDiagnostics(row: TenantCsvParsedRow): Omit<TenantCsvParsedRow, '_rowIndex' | '_isValid' | '_errors'> {
-  const clean: Omit<TenantCsvParsedRow, '_rowIndex' | '_isValid' | '_errors'> = {
-    email: row.email,
-    business_name: row.business_name,
-    category: row.category,
-  }
-  for (const field of OPTIONAL_HEADERS) {
-    const value = row[field]
-    if (value) clean[field] = value
-  }
-  return clean
-}
-
-function requiredCell(value: string | undefined): string {
-  return (value ?? '').trim()
-}
-
-function optionalCell(value: string | undefined): string | undefined {
-  const trimmed = (value ?? '').trim()
-  return trimmed.length > 0 ? trimmed : undefined
-}
-
-function parseCsvMatrix(csvText: string): string[][] {
-  const rows: string[][] = []
-  let row: string[] = []
-  let cell = ''
-  let inQuotes = false
-
-  for (let i = 0; i < csvText.length; i += 1) {
-    const char = csvText[i]
-    const next = csvText[i + 1]
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        cell += '"'
-        i += 1
-      } else {
-        inQuotes = !inQuotes
-      }
-    } else if (char === ',' && !inQuotes) {
-      row.push(cell)
-      cell = ''
-    } else if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && next === '\n') i += 1
-      row.push(cell)
-      rows.push(row)
-      row = []
-      cell = ''
-    } else {
-      cell += char
-    }
-  }
-
-  if (cell.length > 0 || row.length > 0) {
-    row.push(cell)
-    rows.push(row)
-  }
-
-  return rows
-}
-
 function exportTenantCsv(tenants: TenantAdminRow[]): void {
-  const rows = tenants.map((tenant) => [
-    tenant.profile.email ?? '',
-    tenant.business?.business_name ?? '',
-    tenant.business?.category ?? '',
-    tenant.profile.status,
-    tenant.business?.contact_name ?? '',
-    tenant.business?.contact_phone ?? '',
-    tenant.business?.services ?? '',
-    tenant.business?.unit_number ?? '',
-  ])
-  const csv = [
-    ['email', 'business_name', 'category', 'status', 'contact_name', 'contact_phone', 'services', 'unit_number'],
-    ...rows,
-  ].map((row) => row.map(escapeCsvCell).join(',')).join('\n')
+  const csv = buildTenantCsvExport(tenants)
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
@@ -603,10 +457,6 @@ function exportTenantCsv(tenants: TenantAdminRow[]): void {
   link.click()
   document.body.removeChild(link)
   URL.revokeObjectURL(link.href)
-}
-
-function escapeCsvCell(value: string): string {
-  return `"${value.replace(/"/g, '""')}"`
 }
 
 function statusClassName(status: TenantStatus): string {
