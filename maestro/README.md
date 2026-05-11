@@ -6,15 +6,17 @@ End-to-end tests for the UNIT mobile app using [Maestro](https://maestro.mobile.
 
 ```bash
 # From unit/
-npm run test:e2e                        # Run all flows in config.yaml
-~/.maestro/bin/maestro test maestro/flows/qa-00-full-suite.yaml   # Full new suite
-~/.maestro/bin/maestro test maestro/flows/qa-auth-01-login-validation.yaml  # Single flow
+npm run test:e2e                         # Run all flows against com.unitapp.mobile
+npm run test:e2e:staging                 # Run all flows against com.unitapp.mobile.staging
+~/.maestro/bin/maestro test -e MAESTRO_APP_ID=com.unitapp.mobile maestro/flows/qa-00-full-suite.yaml
+~/.maestro/bin/maestro test -e MAESTRO_APP_ID=com.unitapp.mobile maestro/flows/qa-auth-01-login-validation.yaml
 ```
 
 Set environment before running:
 ```bash
 export JAVA_HOME=/opt/homebrew/opt/openjdk@21
 export MAESTRO_CLI_NO_ANALYTICS=1
+export MAESTRO_APP_ID=com.unitapp.mobile
 ```
 
 ---
@@ -102,7 +104,7 @@ If missing: run `qa-admin-06-new-external-promo.yaml` then `qa-admin-05-promo-re
 
 ```sql
 -- Check pricing tiers
-SELECT id, name, duration_days, price_cents, is_active FROM public.promotion_pricing_tiers
+SELECT id, name, duration_days, price_cents, is_active FROM public.promotion_price_tiers
 WHERE is_active = true;
 ```
 
@@ -110,7 +112,7 @@ If empty: run `qa-admin-07-pricing-tier-crud.yaml` to create tiers first.
 
 Minimum data needed:
 ```sql
-INSERT INTO public.promotion_pricing_tiers (name, duration_days, price_cents, is_active, is_featured)
+INSERT INTO public.promotion_price_tiers (name, duration_days, price_cents, is_active, is_featured)
 VALUES ('7-Day Standard', 7, 2999, true, false),
        ('14-Day Featured', 14, 4999, true, true);
 ```
@@ -248,6 +250,39 @@ These require manual QA or alternative tooling:
 | Cold-start push notification tap | `getLastNotificationResponseAsync` not implemented in app |
 | Multi-device push delivery | Requires real devices, not simulator |
 | Alert.prompt (refund reason) | iOS-specific, not testable in Maestro flows |
+
+---
+
+## Local Root Automation
+
+The project root now provides the production-readiness runner that executes
+each child flow separately, retries a failing flow once, and continues so the
+final report contains the full pass/fail set:
+
+```bash
+cd /Users/davidk/Documents/Dev-Projects/App-Ideas/UNIT-PRoject
+npm run e2e:doctor
+E2E_TARGET=production E2E_ALLOW_PRODUCTION=1 npm run e2e:all
+```
+
+Mobile-only aliases are available from `unit/`:
+
+```bash
+npm run e2e:auto
+npm run e2e:auto:ios
+npm run e2e:auto:android
+```
+
+These commands use the committed runner in `unit/scripts/e2e/`.
+
+The platform suite entrypoints are:
+
+| Platform | Suite |
+|---|---|
+| iOS | `maestro/flows/qa-00-full-suite-ios.yaml` |
+| Android | `maestro/flows/qa-00-full-suite-android.yaml` |
+
+Reports are written to `../e2e-results/<run-id>/`.
 
 ---
 

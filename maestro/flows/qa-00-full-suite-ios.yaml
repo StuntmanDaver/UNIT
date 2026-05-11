@@ -1,0 +1,34 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Full iOS E2E suite. The root automation runner executes each child flow
+# independently so failures can retry once and the rest of the suite continues.
+
+- runFlow: ./qa-auth-01-login-validation.yaml
+- runFlow: ./qa-auth-02-signup-edge.yaml
+- runFlow: ./qa-auth-03-reset-password.yaml
+- runFlow: ./qa-auth-04-onboarding-edge.yaml
+- runFlow: ./qa-auth-05-routing-redirects.yaml
+- runFlow: ./qa-home-01-feed-states.yaml
+- runFlow: ./qa-directory-01-search-states.yaml
+- runFlow: ./qa-business-01-contact-actions.yaml
+- runFlow: ./qa-community-01-create-announcement.yaml
+- runFlow: ./qa-community-02-create-event.yaml
+- runFlow: ./qa-promotions-01-segments-analytics.yaml
+- runFlow: ./qa-promotions-02-create-cancel-paths.yaml
+- runFlow: ./qa-promotions-03-pending-payment-edges.yaml
+- runFlow: ./qa-promotion-detail-01.yaml
+- runFlow: ./m5-02-tenant-paid-promotion.yaml
+- runFlow: ./qa-alerts-01-mark-read.yaml
+- runFlow: ./qa-profile-01-qr-share.yaml
+- runFlow: ./qa-profile-02-push-toggle.yaml
+- runFlow: ./qa-profile-03-edit-full.yaml
+- runFlow: ./qa-admin-01-dashboard-nav.yaml
+- runFlow: ./qa-admin-02-tenants-add-invite.yaml
+- runFlow: ./qa-admin-03-properties-create.yaml
+- runFlow: ./qa-admin-04-advertisers-segments.yaml
+- runFlow: ./qa-admin-05-promo-review-all-actions.yaml
+- runFlow: ./qa-admin-06-new-external-promo.yaml
+- runFlow: ./qa-admin-07-pricing-tier-crud.yaml
+- runFlow: ./qa-admin-08-push-broadcast-full.yaml
+- runFlow: ./qa-deeplink-01-stripe-return.yaml
+- runFlow: ./qa-permissions-01-push-photo.yaml

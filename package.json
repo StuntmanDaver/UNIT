@@ -10,12 +10,16 @@
     "lint": "expo lint",
     "test": "jest --passWithNoTests",
     "typecheck": "tsc --noEmit",
-    "edge:check": "deno check --config supabase/functions/deno.json supabase/functions/add-property-to-admin/index.ts supabase/functions/complete-onboarding/index.ts supabase/functions/create-promotion-checkout-session/index.ts supabase/functions/delete-account/index.ts supabase/functions/expire-promotions/index.ts supabase/functions/invite-tenant/index.ts supabase/functions/issue-refund/index.ts supabase/functions/send-push-notification/index.ts",
+    "edge:check": "deno check --config supabase/functions/deno.json supabase/functions/add-property-to-admin/index.ts supabase/functions/complete-onboarding/index.ts supabase/functions/complete-password-reset/index.ts supabase/functions/create-promotion-checkout-session/index.ts supabase/functions/delete-account/index.ts supabase/functions/expire-promotions/index.ts supabase/functions/invite-tenant/index.ts supabase/functions/issue-refund/index.ts supabase/functions/send-push-notification/index.ts",
     "db:test:security": "supabase test db supabase/tests/security_rls.test.sql",
     "brand-lint": "bash -c '! grep -rn --include=\"*.tsx\" -E \"bg-white|bg-gray-|text-gray-|border-gray-|text-black[^-]|bg-black([^/]|$)\" app components && ! grep -rn --include=\"*.tsx\" -E \"font-arcadia|font-bold|font-medium|font-nunito-bold|font-lora-bold\" app components && ! grep -rn --include=\"*.tsx\" -E \"text-xs|text-lg|text-xl|text-4xl\" app components && echo brand-lint-clean'",
     "release:check-env": "node scripts/check-release-env.mjs",
-    "release:check": "npm run release:check-env && npm run lint && npm run typecheck && npm run brand-lint && npm test && npx expo-doctor",
+    "release:check": "APP_VARIANT=production EXPO_PUBLIC_ENV=production EXPO_PUBLIC_APP_URL=unit:// npm run release:check-env && npm run lint && npm run typecheck && npm run brand-lint && npm test && npx expo-doctor",
+    "release:check:staging": "APP_VARIANT=staging EXPO_PUBLIC_ENV=staging EXPO_PUBLIC_APP_URL=unit-staging:// npm run release:check-env && npm run lint && npm run typecheck && npm run brand-lint && npm test && npx expo-doctor",
+    "release:staging:ios:build": "eas build --platform ios --profile staging",
+    "release:staging:android:build": "eas build --platform android --profile staging",
     "release:ios:build": "eas build --platform ios --profile production",
+    "release:android:build": "eas build --platform android --profile production",
     "release:ios:submit": "eas submit --platform ios --profile production",
     "release:ios:testflight": "eas build --platform ios --profile production --submit",
     "appstore:auth:check": "fastlane ios appstore_auth_check",
@@ -24,7 +28,12 @@
     "build:web": "npx expo export --platform web",
     "start:web": "npx serve dist",
     "db:seed": "tsx scripts/generate-seed-sql.ts",
-    "test:e2e": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro test maestro/flows/",
+    "e2e:auto": "node scripts/e2e/run-all.mjs --only mobile",
+    "e2e:auto:ios": "node scripts/e2e/run-all.mjs --only ios",
+    "e2e:auto:android": "node scripts/e2e/run-all.mjs --only android",
+    "e2e:doctor": "node scripts/e2e/doctor.mjs",
+    "test:e2e": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro test -e MAESTRO_APP_ID=${MAESTRO_APP_ID:-com.unitapp.mobile} maestro/flows/",
+    "test:e2e:staging": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro test -e MAESTRO_APP_ID=com.unitapp.mobile.staging maestro/flows/",
     "maestro": "JAVA_HOME=/opt/homebrew/opt/openjdk@21 MAESTRO_CLI_NO_ANALYTICS=1 MAESTRO_CLI_ANALYSIS_NOTIFICATION_DISABLED=true ~/.maestro/bin/maestro"
   },
   "dependencies": {
@@ -80,6 +89,7 @@
     "@types/jest": "29.5.14",
     "@types/papaparse": "^5.5.2",
     "@types/react": "~19.1.0",
+    "@e965/xlsx": "0.20.3",
     "autoprefixer": "^10.5.0",
     "babel-preset-expo": "~54.0.10",
     "deno": "^2.7.14",
@@ -92,8 +102,15 @@
     "react-test-renderer": "^19.1.0",
     "supabase": "^2.89.1",
     "tsx": "^4.21.0",
-    "typescript": "~5.9.2",
-    "xlsx": "^0.18.5"
+    "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "@tootallnate/once": "3.0.1",
+    "@xmldom/xmldom": "0.9.10",
+    "fast-uri": "3.1.2",
+    "hono": "4.12.18",
+    "ip-address": "10.2.0",
+    "postcss": "8.5.14"
   },
   "private": true
 }
