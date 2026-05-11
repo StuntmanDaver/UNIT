@@ -28,6 +28,9 @@ SENTRY_AUTH_TOKEN=
 Notes:
 - `NEXT_PUBLIC_APP_URL` must match the portal origin used for checkout redirects.
 - `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it to client code or commit it.
+- Production must use Stripe live-mode keys: `STRIPE_SECRET_KEY=sk_live_...`,
+  `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...`, and the signing secret
+  from the live-mode webhook endpoint.
 - Sentry variables are optional unless release upload/monitoring is enabled for the deployment.
 
 ## Local Development
@@ -78,13 +81,14 @@ npm run test:e2e
 
 `npm run test:e2e` writes Playwright output to `playwright-report/` and `test-results/`, which are generated artifacts.
 
-`npm run release:check` validates required portal environment variables without printing secret values, then runs lint, unit tests, and the production build. Stripe test-mode keys are allowed for TestFlight QA, but live production must use live Stripe keys and the matching live webhook signing secret.
+`npm run release:check` validates required portal environment variables without printing secret values, then runs lint, unit tests, and the production build. Production fails fast if Stripe is still configured with sandbox/test keys.
 
 ## Deploy Notes
 
 - Deploy from the `portal/` directory. On Vercel, set the project root directory to `portal`.
 - Configure all production environment variables in the host, with `NEXT_PUBLIC_APP_URL` set to the production portal URL.
 - In Stripe Dashboard, add a production webhook endpoint for `https://<portal-domain>/api/webhooks/stripe` and store its signing secret as `STRIPE_WEBHOOK_SECRET`.
+- Set the same live `STRIPE_SECRET_KEY` in both Vercel and Supabase Edge Function secrets so portal Checkout, mobile Checkout, and refunds all hit the same live Stripe account.
 - Keep Stripe keys, Supabase service role keys, and Sentry auth tokens out of source control.
 - Run `npm run build` with production env vars before promoting the release.
 - Run `npm run release:check` before connecting the mobile TestFlight build to a production portal.
