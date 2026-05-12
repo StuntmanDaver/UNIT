@@ -56,8 +56,8 @@ UNIT is a multi-tenant property community mobile application built with Expo and
 - Jest 30.3.0 -- Test runner
 - @testing-library/react-native 13.3.3 -- Component testing
 ## Configuration Files
-- `app.json` -- Expo app config (name, slug, icons, splash, permissions, plugins)
-- `eas.json` -- EAS Build profiles (development, preview, production)
+- `app.config.ts` -- Expo app config (name, slug, app identity, icons, splash, permissions, plugins)
+- `eas.json` -- EAS Build profiles (development, staging, preview, production)
 - `babel.config.js` -- Babel presets (expo + nativewind)
 - `metro.config.js` -- Metro bundler config with NativeWind integration
 - `tailwind.config.js` -- Tailwind theme (brand colors, NativeWind preset)
@@ -75,6 +75,13 @@ UNIT is a multi-tenant property community mobile application built with Expo and
 - EAS CLI for builds (`eas build`)
 - iOS Simulator or Android Emulator for local development
 - Supabase project (database, auth, storage bucket `public-assets`, Edge Functions)
+
+## Release Automation Memory
+- Android store automation lives in `.github/workflows/android-release.yml` and targets Google Play `internal` by default through EAS Build auto-submit.
+- The workflow expects `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` to contain the full JSON contents of `google-play-key.json`; never commit the key file.
+- Android release CI runs from the `unit/` repository root, so any deployment docs or helper scripts required by GitHub Actions must live under `unit/`, not only in the parent project docs folder.
+- GitHub Actions secrets are used for local release checks, but the actual Android binary is built remotely by EAS; keep production runtime/build variables configured in the EAS production environment too.
+- Do not automate production-track rollout until internal-track releases have passed QA repeatedly; use a separate approval-gated workflow for production.
 <!-- GSD:stack-end -->
 
 <!-- GSD:conventions-start source:CONVENTIONS.md -->
