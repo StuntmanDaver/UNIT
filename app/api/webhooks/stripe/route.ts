@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import Stripe from 'stripe';
 import { createServiceRoleClient } from '@/lib/supabase/server';
 
@@ -41,10 +42,17 @@ export async function POST(req: Request) {
   }
 
   const markComplete = async () => {
-    await supabase
+    const { error } = await supabase
       .from('stripe_webhook_events')
       .update({ completed_at: new Date().toISOString() })
       .eq('id', event.id);
+    if (error) {
+      Sentry.captureException(error, {
+        tags: { subsystem: 'stripe_webhook_mark_complete', stripe_event_type: event.type },
+        extra: { stripeEventId: event.id },
+      });
+      throw error;
+    }
   };
 
   // Audit-only failure handlers (US-013): never mutate promotions.payment_status
@@ -55,7 +63,8 @@ export async function POST(req: Request) {
       .from('promotion_payment_attempts')
       .update({ status: 'failed' })
       .eq('stripe_checkout_session_id', session.id)
-      .in('status', ['created']);
+      .in('status', ['created'])
+      .throwOnError();
     await markComplete();
     return NextResponse.json({ received: true });
   }
@@ -88,7 +97,8 @@ export async function POST(req: Request) {
       await supabase
         .from('promotion_payment_attempts')
         .update({ status: 'failed', stripe_payment_intent_id: intent.id })
-        .eq('id', attempt.id);
+        .eq('id', attempt.id)
+        .throwOnError();
     }
 
     await markComplete();
@@ -114,11 +124,15 @@ export async function POST(req: Request) {
       .eq('id', promotionId)
       .single();
 
+    const alreadyMarkedPaid =
+      currentPromo?.payment_status === 'paid' && currentPromo?.review_status === 'pending';
+
     // Update payment attempt
     await supabase
       .from('promotion_payment_attempts')
       .update({ status: 'completed', stripe_payment_intent_id: paymentIntentId })
-      .eq('stripe_checkout_session_id', session.id);
+      .eq('stripe_checkout_session_id', session.id)
+      .throwOnError();
 
     // Update promotion
     await supabase
@@ -128,19 +142,26 @@ export async function POST(req: Request) {
         review_status: 'pending',
         current_payment_intent_id: paymentIntentId,
       })
-      .eq('id', promotionId);
+      .eq('id', promotionId)
+      .throwOnError();
 
-    // Insert status event
-    await supabase.from('promotion_status_events').insert({
-      promotion_id: promotionId,
-      from_review_status: currentPromo?.review_status ?? 'draft',
-      to_review_status: 'pending',
-      from_payment_status: currentPromo?.payment_status ?? 'unpaid',
-      to_payment_status: 'paid',
-      actor_type: 'webhook',
-      actor_user_id: null,
-      note: null,
-    });
+    // Insert status event only for the first successful writer. Mobile can
+    // confirm the session directly as a fallback when this webhook is delayed.
+    if (!alreadyMarkedPaid) {
+      await supabase
+        .from('promotion_status_events')
+        .insert({
+          promotion_id: promotionId,
+          from_review_status: currentPromo?.review_status ?? 'draft',
+          to_review_status: 'pending',
+          from_payment_status: currentPromo?.payment_status ?? 'unpaid',
+          to_payment_status: 'paid',
+          actor_type: 'webhook',
+          actor_user_id: null,
+          note: null,
+        })
+        .throwOnError();
+    }
 
     // Notify admins who manage this property
     const propertyId = currentPromo?.property_id;
@@ -161,7 +182,7 @@ export async function POST(req: Request) {
           .filter((t): t is string => t !== null);
 
         if (tokens.length > 0) {
-          await fetch('https://exp.host/--/api/v2/push/send', {
+          const pushResponse = await fetch('https://exp.host/--/api/v2/push/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(
@@ -174,10 +195,17 @@ export async function POST(req: Request) {
               }))
             ),
           });
+          if (!pushResponse.ok) {
+            Sentry.captureMessage('Stripe webhook admin push notification failed', {
+              level: 'warning',
+              tags: { subsystem: 'stripe_webhook_admin_push', stripe_event_type: event.type },
+              extra: { stripeEventId: event.id, promotionId, status: pushResponse.status },
+            });
+          }
         }
 
         // In-app notification records so admins see it in the notifications tab
-        await supabase.from('notifications').insert(
+        const { error: notificationError } = await supabase.from('notifications').insert(
           adminProfiles.map((p: { id: string; email: string }) => ({
             user_id: p.id,
             user_email: p.email,
@@ -189,6 +217,12 @@ export async function POST(req: Request) {
             read: false,
           }))
         );
+        if (notificationError) {
+          Sentry.captureException(notificationError, {
+            tags: { subsystem: 'stripe_webhook_admin_notification', stripe_event_type: event.type },
+            extra: { stripeEventId: event.id, promotionId, propertyId },
+          });
+        }
       }
     }
   }
