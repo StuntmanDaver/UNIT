@@ -25,7 +25,7 @@
         "APP_VARIANT": "staging",
         "EXPO_PUBLIC_ENV": "staging",
         "EXPO_PUBLIC_APP_URL": "unit-staging://",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "false"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
     "preview": {
@@ -44,7 +44,7 @@
         "APP_VARIANT": "production",
         "EXPO_PUBLIC_ENV": "production",
         "EXPO_PUBLIC_APP_URL": "unit://",
-        "SENTRY_DISABLE_AUTO_UPLOAD": "false"
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     }
   },
