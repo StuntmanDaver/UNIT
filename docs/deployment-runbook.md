@@ -173,6 +173,11 @@ npx supabase secrets set \
 
 `STRIPE_WEBHOOK_SECRET` lives on the **portal** environment (Vercel), not on Supabase, because the webhook handler is in the Next.js portal.
 
+For live production, `STRIPE_SECRET_KEY` must be the live-mode key from the
+same Stripe account used by the portal (`sk_live_...`). Staging and TestFlight
+rehearsals may use `sk_test_...`, but production checkout and refund Edge
+Functions must not.
+
 ### Stripe dashboard endpoint
 
 Register exactly one endpoint in the Stripe dashboard pointing at the portal:
@@ -188,6 +193,8 @@ Subscribe to these events:
 - `payment_intent.payment_failed`
 
 The portal's `STRIPE_WEBHOOK_SECRET` must match the signing secret Stripe shows for that endpoint.
+Create this endpoint with the Stripe Dashboard in live mode. Test-mode webhook
+signing secrets do not verify live-mode events.
 
 ### Secret rotation checklist
 
@@ -390,7 +397,7 @@ eas update --branch production --message "Brief description of change"
 
 **Important constraints:**
 - OTA updates only apply to JavaScript/TypeScript changes: UI, business logic, new screens, navigation tweaks.
-- OTA updates do NOT work for: new native modules, changes to `app.json`, updated permissions, Expo SDK version bumps, or any change that modifies the native binary.
+- OTA updates do NOT work for: new native modules, changes to `app.config.ts`, updated permissions, Expo SDK version bumps, or any change that modifies the native binary.
 - When in doubt, do a full EAS build and app store submission.
 
 ---

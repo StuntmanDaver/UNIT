@@ -137,7 +137,7 @@ export default function LoginScreen() {
             </Button>
           </View>
 
-          <Pressable onPress={handleForgotPassword} className="mt-8 items-center">
+          <Pressable onPress={handleForgotPassword} className="mt-8 items-center" testID="forgot-password-link">
             <Text className="text-brand-ink-muted text-sm font-nunito">Forgot password?</Text>
           </Pressable>
 

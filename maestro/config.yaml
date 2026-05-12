@@ -1,5 +1,8 @@
 # Maestro workspace for UNIT mobile app
-# Bundle ID: com.unitapp.mobile
+# Bundle ID: pass with `-e MAESTRO_APP_ID=...`
+#   Production: com.unitapp.mobile
+#   Staging:    com.unitapp.mobile.staging
+#   Dev:        com.unitapp.mobile.dev
 #
 # Run all flows:
 #   npm run test:e2e            (from unit/)
@@ -7,7 +10,7 @@
 # Run a single flow (from unit/):
 #   JAVA_HOME=/opt/homebrew/opt/openjdk@21 \
 #   MAESTRO_CLI_NO_ANALYTICS=1 \
-#   ~/.maestro/bin/maestro test maestro/flows/m2-02-directory.yaml
+#   ~/.maestro/bin/maestro test -e MAESTRO_APP_ID=com.unitapp.mobile maestro/flows/m2-02-directory.yaml
 #
 # Prerequisites:
 #   - iPhone 16 Pro Max simulator booted

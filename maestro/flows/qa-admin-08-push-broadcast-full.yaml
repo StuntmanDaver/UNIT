@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-ADMIN-08: Admin Push Notifications — compose, audience select, confirm send
 # Covers items 247-257 from the exhaustive inventory:
@@ -24,7 +24,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:

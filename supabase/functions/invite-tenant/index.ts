@@ -2,6 +2,7 @@
 // set via `supabase secrets set RESEND_API_KEY=<key>`. Missing config returns 500
 // per D-03c — configure, don't skip. See 02-01 Plan §BUG-07.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -277,6 +278,19 @@ Deno.serve(async (req) => {
 
       results.imported++;
     } catch (error) {
+      await captureEdgeException(error, {
+        functionName: 'invite-tenant',
+        level: 'warning',
+        userId: caller.id,
+        tags: { subsystem: 'tenant_invite' },
+        extra: {
+          email: tenant.email,
+          property_id: tenant.property_id,
+          createdUserId,
+          createdBusinessId,
+        },
+      });
+
       if (createdBusinessId) {
         await adminClient.from('businesses').delete().eq('id', createdBusinessId);
       }

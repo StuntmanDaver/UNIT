@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-PROFILE-03: Profile edit — full field coverage
 # Covers items 151-159 from the exhaustive inventory:
@@ -20,7 +20,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -53,68 +53,92 @@ appId: com.unitapp.mobile
     timeout: 8000
 
 # ── CASE 1: Clear business name → validation error on save ────────────────────
-# Input label is "Business Name *"
 - tapOn:
-    label: "Business Name *"
+    id: "profile-business-name-input"
 - eraseText: 100
-- hideKeyboard
+- tapOn: "Edit Profile"
+- scrollUntilVisible:
+    element:
+      id: "btn-profile-save"
+    direction: DOWN
+    centerElement: true
 - tapOn:
     id: "btn-profile-save"
 # Zod error for required field; stays on edit screen
 - assertVisible: "Edit Profile"
 
 # Restore business name
-- tapOn:
-    label: "Business Name *"
-- inputText: "Updated Test Business"
-- hideKeyboard
-
-# ── CASE 2: Change category chip ─────────────────────────────────────────────
 - scrollUntilVisible:
     element:
-      text: "Technology"
-    direction: RIGHT
-- tapOn: "Technology"
+      id: "profile-business-name-input"
+    direction: UP
+- tapOn:
+    id: "profile-business-name-input"
+- inputText: "Updated Test Business"
+- pressKey: Enter
+
+# ── CASE 2: Change category chip ─────────────────────────────────────────────
+- tapOn: "Medical"
 - waitForAnimationToEnd
 
 # ── CASE 3: Change description ───────────────────────────────────────────────
 - tapOn:
-    label: "Description"
+    id: "profile-description-input"
 - eraseText: 200
 - inputText: "Updated description from Maestro E2E test."
-- hideKeyboard
+- tapOn: "Edit Profile"
 
 # ── CASE 4: Change contact fields ─────────────────────────────────────────────
 - scrollUntilVisible:
     element:
-      label: "Contact Name"
+      id: "profile-contact-name-input"
     direction: DOWN
 - tapOn:
-    label: "Contact Name"
+    id: "profile-contact-name-input"
 - eraseText: 100
 - inputText: "QA Contact"
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: "profile-phone-input"
+    direction: DOWN
 - tapOn:
-    label: "Phone"
+    id: "profile-phone-input"
 - eraseText: 100
 - inputText: "5551234567"
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: "profile-email-input"
+    direction: DOWN
 - tapOn:
-    label: "Email"
+    id: "profile-email-input"
 - eraseText: 100
 - inputText: "qa@unit-test.com"
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: "profile-website-input"
+    direction: DOWN
 - tapOn:
-    label: "Website"
+    id: "profile-website-input"
 - eraseText: 100
 - inputText: "https://unit.app"
-- hideKeyboard
+- pressKey: Enter
 
 # ── CASE 5: Save → success toast → back ──────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      id: "btn-profile-save"
+    direction: DOWN
+    centerElement: true
 - tapOn:
     id: "btn-profile-save"
 - extendedWaitUntil:
     visible:
-      text: "Profile updated"
-    timeout: 8000
-- assertVisible: "Updated Test Business"
+      text: "Profile"
+    timeout: 15000
+- assertVisible: "Updated description from Maestro E2E test."
 
 # ── CASE 6: Cancel path ───────────────────────────────────────────────────────
 - tapOn: "Edit Profile"

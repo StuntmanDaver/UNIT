@@ -45,7 +45,7 @@ async function main() {
   assertRemoteWriteGuard(target);
   console.log(`UNIT E2E run ${runId} target=${target} only=${only}`);
 
-  const doctor = await run('node', ['scripts/e2e/doctor.mjs', '--target', target], {
+  const doctor = await run('node', [join(unitDir, 'scripts/e2e/doctor.mjs'), '--target', target], {
     cwd: projectRoot,
     logPath: join(resultsDir, 'doctor.log'),
     inherit: true,
@@ -55,7 +55,7 @@ async function main() {
   }
 
   if (shouldSeed) {
-    const seed = await run('node', ['scripts/e2e/seed.mjs', '--target', target, '--run-id', runId], {
+    const seed = await run('node', [join(unitDir, 'scripts/e2e/seed.mjs'), '--target', target, '--run-id', runId], {
       cwd: projectRoot,
       logPath: join(resultsDir, 'seed.log'),
       inherit: true,
@@ -82,7 +82,7 @@ async function main() {
 
   summary.finishedAt = new Date().toISOString();
   writeJson(join(resultsDir, 'summary.json'), summary);
-  await run('node', ['scripts/e2e/report.mjs', '--run-id', runId], { cwd: projectRoot, inherit: true });
+  await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, inherit: true });
 
   const failed = summary.results.filter((result) => result.status !== 0);
   console.log(`E2E complete: ${summary.results.length - failed.length} passed, ${failed.length} failed`);
@@ -205,7 +205,7 @@ async function runMaestroSuite(platform, suitePath, appId) {
     while (attempts < 2 && status !== 0) {
       attempts += 1;
       logPath = join(resultsDir, platform, `${name.replace(/\.ya?ml$/, '')}-attempt-${attempts}.log`);
-      const result = await run(maestroBin(), ['test', '-e', `MAESTRO_APP_ID=${appId}`, flow], {
+      const result = await run(maestroBin(), ['test', '--platform', platform, '-e', `MAESTRO_APP_ID=${appId}`, flow], {
         cwd: unitDir,
         env: maestroEnv(appId),
         logPath,

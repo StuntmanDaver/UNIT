@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-PROMOTIONS-03: Pending-payment screen — tier selection, edge cases
 # Covers items 115-124 from the exhaustive inventory:
@@ -25,7 +25,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -51,6 +51,14 @@ appId: com.unitapp.mobile
 # Create a promotion to get to pending-payment
 - tapOn:
     id: "fab-create-promotion"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Promote My Business"
+    commands:
+      - tapOn:
+          id: "fab-create-promotion"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Promote My Business"
@@ -135,6 +143,10 @@ appId: com.unitapp.mobile
       - assertVisible: "Pay Now"
 
 # ── CASE 4: "Save for Later" returns to promotions ────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "Save for Later"
+    direction: DOWN
 - tapOn: "Save for Later"
 - assertVisible: "Promotions"
 

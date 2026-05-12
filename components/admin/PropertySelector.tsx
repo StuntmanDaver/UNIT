@@ -61,7 +61,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds, onSelect]);
+  }, [propertyIds, selected, onSelect]);
 
   if (loading) {
     return (

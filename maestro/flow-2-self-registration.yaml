@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 name: Self Registration Flow
 ---
 - launchApp

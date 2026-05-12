@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-DEEPLINK-01: Stripe checkout return URL handling
 # Covers items 272-274 from the exhaustive inventory:
@@ -23,7 +23,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -47,6 +47,14 @@ appId: com.unitapp.mobile
     id: "tab-promotions"
 - tapOn:
     id: "fab-create-promotion"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Promote My Business"
+    commands:
+      - tapOn:
+          id: "fab-create-promotion"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Promote My Business"
@@ -100,31 +108,49 @@ appId: com.unitapp.mobile
 
 # Select first tier and initiate Pay Now
 - tapOn:
-    index: 0
-    point: "50%,50%"
+    id: "promotion-tier-0"
 - waitForAnimationToEnd
-- tapOn: "Pay Now"
+- scrollUntilVisible:
+    element:
+      id: "pending-payment-pay-now"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: "pending-payment-pay-now"
 
 # ── Stripe in-app browser opens ───────────────────────────────────────────────
 # AUTOMATED: Stripe Checkout opens in Safari View Controller.
 # Full card entry is covered by m5-02. Here we test the dismiss/cancel path
 # by pressing Back immediately (SVC dismissal = graceful cancel).
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: "Card information"
+      text: "Payment method"
     timeout: 20000
 
 # ── CASE: Dismiss SVC without paying → app stays on pending-payment ───────────
-- tapOn: "Done"
+- tapOn: "Cancel"
 - waitForAnimationToEnd
 # Should return to pending-payment screen gracefully (no crash)
 - extendedWaitUntil:
     visible:
-      text: "Pending Payment"
+      text: "Promotion Created"
     timeout: 10000
 
 # Navigate back to promotions
-- tapOn: "Save for Later"
+- scrollUntilVisible:
+    element:
+      id: "pending-payment-save-later"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: "pending-payment-save-later"
 - assertVisible: "Promotions"
 
 - runFlow: ../subflows/logout.yaml

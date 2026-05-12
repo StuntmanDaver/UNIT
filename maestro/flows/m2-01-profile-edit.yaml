@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M2-01: Tenant profile edit — verifies spinner fix and profile edit flow
 

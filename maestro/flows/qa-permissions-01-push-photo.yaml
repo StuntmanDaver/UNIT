@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-PERMISSIONS-01: OS permission prompts — push notifications and photo library
 # Covers items 266-267, 275-276 from the exhaustive inventory:
@@ -10,7 +10,7 @@ appId: com.unitapp.mobile
 #       clearState: true does NOT reset OS permissions (only app storage/AsyncStorage).
 #       To reliably test the "Allow" prompt:
 #         * Reset simulator: Device > Erase All Content and Settings
-#         * Or use `xcrun simctl privacy booted reset photos com.unitapp.mobile`
+#         * Or use `xcrun simctl privacy booted reset photos <MAESTRO_APP_ID>`
 #           before running this flow.
 #
 # The "Deny" push path (item 267) and graceful fallback are MANUAL:
@@ -25,7 +25,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 
 # ── CASE 1: Push permission prompt on first JS load ───────────────────────────

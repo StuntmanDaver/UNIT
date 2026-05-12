@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-HOME-01: Home feed — states and interactions
 # Covers items 48-55 from the exhaustive inventory:
@@ -10,7 +10,7 @@ appId: com.unitapp.mobile
 #   - Tap card with ctaRoute → navigates
 #
 # PREREQUISITE: At least one activity item (post or promotion) in tenant1's property feed.
-#               A geocoded neighbor property within 2 mi for the "Nearby" enabled path.
+#               A geocoded neighbor property within 20 mi for the "Nearby" enabled path.
 
 - launchApp:
     clearState: true
@@ -19,7 +19,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:

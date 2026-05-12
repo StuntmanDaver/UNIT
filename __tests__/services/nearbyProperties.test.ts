@@ -2,6 +2,7 @@ import {
   getNearbyPropertyIds,
   haversineMiles,
 } from '@/services/nearbyProperties';
+import { NEARBY_RADIUS_MILES } from '@/constants/nearby';
 
 // ─── chainable supabase mock ────────────────────────────────────────────────
 const mockChain = {
@@ -33,17 +34,17 @@ describe('haversineMiles', () => {
     expect(haversineMiles(point, point)).toBeCloseTo(0, 5);
   });
 
-  it('Daytona cluster: two points ~0.6 mi apart are within a 2 mi radius', () => {
+  it('Daytona cluster: two points ~0.6 mi apart are within the nearby radius', () => {
     // Downtown Daytona Beach vs ~0.92 km north along the same longitude.
     const downtown = { lat: 29.2108, lon: -81.0228 };
     const justNorth = { lat: 29.2208, lon: -81.0228 };
     const distance = haversineMiles(downtown, justNorth);
     expect(distance).toBeGreaterThan(0.5);
     expect(distance).toBeLessThan(0.8);
-    expect(distance).toBeLessThanOrEqual(2);
+    expect(distance).toBeLessThanOrEqual(NEARBY_RADIUS_MILES);
   });
 
-  it('one degree of latitude is ~69 miles (well outside a 2 mi radius)', () => {
+  it('one degree of latitude is ~69 miles (well outside the nearby radius)', () => {
     const a = { lat: 29.0, lon: -81.0 };
     const b = { lat: 30.0, lon: -81.0 };
     const distance = haversineMiles(a, b);
@@ -67,7 +68,7 @@ describe('getNearbyPropertyIds', () => {
     const origin = { id: 'orig', latitude: 29.2108, longitude: -81.0228 };
     const near = { id: 'near', latitude: 29.2208, longitude: -81.0228 }; // ~0.69 mi
     const veryNear = { id: 'very-near', latitude: 29.2128, longitude: -81.0228 }; // ~0.14 mi
-    const far = { id: 'far', latitude: 30.0, longitude: -81.0228 }; // ~55 mi
+    const far = { id: 'far', latitude: 29.6108, longitude: -81.0228 }; // ~28 mi
 
     mockChain.single.mockResolvedValueOnce({ data: origin, error: null });
     // Second call (.select without .eq().single()) should resolve via the
@@ -78,7 +79,7 @@ describe('getNearbyPropertyIds', () => {
         Promise.resolve({ data: [origin, near, veryNear, far], error: null })
       );
 
-    const result = await getNearbyPropertyIds('orig', 2);
+    const result = await getNearbyPropertyIds('orig');
     expect(result[0]).toBe('orig');
     expect(result.slice(1)).toEqual(['very-near', 'near']);
     expect(result).not.toContain('far');

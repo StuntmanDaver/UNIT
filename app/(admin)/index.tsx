@@ -12,6 +12,7 @@ import {
   Building2,
   DollarSign,
   LogOut,
+  LifeBuoy,
 } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -176,6 +177,14 @@ export default function AdminDashboard() {
               <User size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Account & Settings
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card onPress={() => router.push('/(admin)/support')} className="flex-row items-center px-4 py-3.5">
+              <LifeBuoy size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
+                Support & Diagnostics
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>

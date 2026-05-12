@@ -1,6 +1,6 @@
 // supabase/functions/create-promotion-checkout-session/index.ts
 //
-// Creates a Stripe Checkout Session for a tenant-submitted promotion.
+// Creates or confirms a Stripe Checkout Session for a tenant-submitted promotion.
 // Called by the mobile app when the tenant taps "Pay Now" on their draft
 // promotion. The existing portal webhook (portal/app/api/webhooks/stripe/route.ts)
 // handles checkout.session.completed for all promotions — no separate webhook needed.
@@ -8,15 +8,19 @@
 // POST body: { promotionId: string, priceTierId: string }
 // Returns:   { url: string, sessionId: string }
 //
+// POST body: { action: 'confirm', promotionId: string, sessionId: string }
+// Returns:   { paid: boolean, paymentStatus?: string, reviewStatus?: string }
+//
 // Stripe customer handling: tenants do NOT have stripe_customer_id (only
 // advertiser_profiles does). Pass customer_email so Stripe creates the customer
 // on the fly — do NOT add stripe_customer_id to profiles in this milestone.
 //
-// Deep-link URLs use the unit:// scheme (expo-linking) so the in-app browser
-// returns control to the mobile app after payment.
+// Deep-link URLs use MOBILE_APP_URL (unit-staging:// in staging, unit:// in
+// production) so the in-app browser returns control to the matching app.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'https://esm.sh/stripe@17?target=deno';
+import Stripe from 'https://esm.sh/stripe@22?target=deno';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,8 +28,16 @@ const corsHeaders = {
 };
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2026-03-25.dahlia',
+  apiVersion: '2026-04-22.dahlia',
 });
+
+function getMobileDeepLinkBase(): string {
+  const configuredUrl = Deno.env.get('MOBILE_APP_URL') ?? 'unit://';
+  if (configuredUrl.endsWith('://') || configuredUrl.endsWith('/')) {
+    return configuredUrl;
+  }
+  return `${configuredUrl}/`;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -56,12 +68,16 @@ Deno.serve(async (req) => {
   }
 
   // ── 2. Parse request body ───────────────────────────────────────────────────
+  let action: string | undefined;
   let promotionId: string;
-  let priceTierId: string;
+  let priceTierId: string | undefined;
+  let sessionId: string | undefined;
   try {
     const body = await req.json();
+    action = body.action;
     promotionId = body.promotionId;
     priceTierId = body.priceTierId;
+    sessionId = body.sessionId;
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid request body' }), {
       status: 400,
@@ -71,12 +87,6 @@ Deno.serve(async (req) => {
 
   if (!promotionId || typeof promotionId !== 'string') {
     return new Response(JSON.stringify({ error: 'promotionId is required' }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-  if (!priceTierId || typeof priceTierId !== 'string') {
-    return new Response(JSON.stringify({ error: 'priceTierId is required' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -102,6 +112,96 @@ Deno.serve(async (req) => {
   if (promotion.advertiser_id !== user.id) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), {
       status: 403,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (action === 'confirm') {
+    if (!sessionId || typeof sessionId !== 'string') {
+      return new Response(JSON.stringify({ error: 'sessionId is required' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    let session: Stripe.Checkout.Session;
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['payment_intent'],
+      });
+    } catch (stripeErr: unknown) {
+      await captureEdgeException(stripeErr, {
+        functionName: 'create-promotion-checkout-session',
+        userId: user.id,
+        tags: { subsystem: 'stripe_checkout_confirm' },
+        extra: { promotionId, sessionId },
+      });
+      const msg = stripeErr instanceof Error ? stripeErr.message : 'Could not verify checkout session';
+      return new Response(JSON.stringify({ error: msg }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (session.metadata?.promotionId !== promotionId) {
+      return new Response(JSON.stringify({ error: 'Checkout session does not match promotion' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (session.status !== 'complete' || session.payment_status !== 'paid') {
+      return new Response(JSON.stringify({ paid: false }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    const paymentIntentId = typeof session.payment_intent === 'string'
+      ? session.payment_intent
+      : session.payment_intent?.id ?? null;
+
+    await adminClient
+      .from('promotion_payment_attempts')
+      .update({ status: 'completed', stripe_payment_intent_id: paymentIntentId })
+      .eq('stripe_checkout_session_id', session.id)
+      .throwOnError();
+
+    if (promotion.payment_status !== 'paid' || promotion.review_status !== 'pending') {
+      await adminClient
+        .from('promotions')
+        .update({
+          payment_status: 'paid',
+          review_status: 'pending',
+          current_payment_intent_id: paymentIntentId,
+        })
+        .eq('id', promotionId)
+        .throwOnError();
+
+      await adminClient
+        .from('promotion_status_events')
+        .insert({
+          promotion_id: promotionId,
+          from_review_status: promotion.review_status ?? 'draft',
+          to_review_status: 'pending',
+          from_payment_status: promotion.payment_status ?? 'unpaid',
+          to_payment_status: 'paid',
+          actor_type: 'webhook',
+          actor_user_id: null,
+          note: null,
+        })
+        .throwOnError();
+    }
+
+    return new Response(JSON.stringify({ paid: true, paymentStatus: 'paid', reviewStatus: 'pending' }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  if (!priceTierId || typeof priceTierId !== 'string') {
+    return new Response(JSON.stringify({ error: 'priceTierId is required' }), {
+      status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -134,6 +234,7 @@ Deno.serve(async (req) => {
   // Metadata must include promotionId so the existing portal webhook can update
   // the promotions row when checkout.session.completed fires.
   let session: Stripe.Checkout.Session;
+  const mobileDeepLinkBase = getMobileDeepLinkBase();
   try {
     session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -151,8 +252,8 @@ Deno.serve(async (req) => {
           quantity: 1,
         },
       ],
-      success_url: `unit://promotions/${promotionId}?status=success`,
-      cancel_url: `unit://promotions/${promotionId}?status=cancel`,
+      success_url: `${mobileDeepLinkBase}promotions/${promotionId}?status=success`,
+      cancel_url: `${mobileDeepLinkBase}promotions/${promotionId}?status=cancel`,
       metadata: {
         promotionId,
         priceTierId,
@@ -172,6 +273,12 @@ Deno.serve(async (req) => {
       },
     });
   } catch (stripeErr: unknown) {
+    await captureEdgeException(stripeErr, {
+      functionName: 'create-promotion-checkout-session',
+      userId: user.id,
+      tags: { subsystem: 'stripe_checkout' },
+      extra: { promotionId, priceTierId },
+    });
     const msg = stripeErr instanceof Error ? stripeErr.message : 'Failed to create checkout session';
     return new Response(JSON.stringify({ error: msg }), {
       status: 502,
@@ -198,6 +305,13 @@ Deno.serve(async (req) => {
     // Log but don't block — Stripe session is already created and the webhook
     // will still complete the payment even if the attempt row is missing.
     console.error('Failed to insert payment attempt:', attemptError.message);
+    await captureEdgeException(attemptError, {
+      functionName: 'create-promotion-checkout-session',
+      level: 'warning',
+      userId: user.id,
+      tags: { subsystem: 'payment_attempt_audit' },
+      extra: { promotionId, priceTierId, sessionId: session.id },
+    });
   }
 
   return new Response(JSON.stringify({ url: session.url, sessionId: session.id }), {

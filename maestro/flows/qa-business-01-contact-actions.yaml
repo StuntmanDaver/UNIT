@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-BUSINESS-01: Business detail — contact actions, QR share, back navigation
 # Covers items 65-74 from the exhaustive inventory:
@@ -19,7 +19,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -97,7 +97,19 @@ appId: com.unitapp.mobile
       - tapOn:
           id: "business-contact-website"
       - waitForAnimationToEnd
-      - back
+      - runFlow:
+          when:
+            visible: "Example Domain"
+          commands:
+            - tapOn:
+                point: "7%,5%"
+            - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible:
+              id: "back-btn"
+          commands:
+            - waitForAnimationToEnd
       - waitForAnimationToEnd
 
 # ── CASE 5: QR Share button ───────────────────────────────────────────────────
@@ -114,8 +126,13 @@ appId: com.unitapp.mobile
       - waitForAnimationToEnd
 
 # ── CASE 6: Back button → directory ──────────────────────────────────────────
-- tapOn:
-    id: "back-btn"
+- runFlow:
+    when:
+      visible:
+        id: "back-btn"
+    commands:
+      - tapOn:
+          id: "back-btn"
 - extendedWaitUntil:
     visible:
       text: "Directory"

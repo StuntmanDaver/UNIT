@@ -7,11 +7,12 @@ import { ActivityFeedCard } from '@/components/tenant/ActivityFeedCard';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { useActivityFeed } from '@/hooks/useActivityFeed';
 import { useNearbyPropertyIds } from '@/hooks/useNearbyPropertyIds';
+import { NEARBY_EMPTY_MESSAGE, NEARBY_SEGMENT_LABEL } from '@/constants/nearby';
 import { useAuth } from '@/lib/AuthContext';
 import type { ActivityFeedItem } from '@/services/activityFeed';
 
 const SEGMENT_MY = 'My Property';
-const SEGMENT_NEARBY = 'Nearby (≤ 2 mi)';
+const SEGMENT_NEARBY = NEARBY_SEGMENT_LABEL;
 
 /**
  * Skeleton placeholder card shown while the feed is loading.
@@ -64,7 +65,7 @@ export default function HomeScreen() {
 
   // Nearby IDs — staleTime 1h, disabled when propertyId is absent.
   // Returns [origin, ...neighbours] sorted nearest-first; length > 1 means
-  // at least one neighbour exists within the 2-mile radius.
+  // at least one neighbour exists within the configured nearby radius.
   const { data: nearbyIds = [] } = useNearbyPropertyIds(propertyId || null);
   const hasNearbyNeighbors = nearbyIds.length > 1;
 
@@ -75,7 +76,7 @@ export default function HomeScreen() {
 
   const { data: items, isLoading, refetch, isRefetching } = useActivityFeed(feedIds);
 
-  // Prevent switching to Nearby when there are no neighbours within 2 mi.
+  // Prevent switching to Nearby when there are no neighbours within radius.
   const handleSegmentChange = useCallback(
     (next: string) => {
       if (next === SEGMENT_NEARBY && !hasNearbyNeighbors) return;
@@ -122,7 +123,7 @@ export default function HomeScreen() {
           />
           {!hasNearbyNeighbors && (
             <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">
-              No nearby properties within 2 miles.
+              {NEARBY_EMPTY_MESSAGE}
             </Text>
           )}
         </View>
@@ -148,7 +149,7 @@ export default function HomeScreen() {
         />
         {!hasNearbyNeighbors && (
           <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">
-            No nearby properties within 2 miles.
+            {NEARBY_EMPTY_MESSAGE}
           </Text>
         )}
       </View>

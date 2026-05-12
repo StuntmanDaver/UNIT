@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # ADMIN-03: Tenant list filter, search, and status toggle
 

@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M5-01: Home Feed (LinkedIn-style activity stream)
 # Verifies tenant lands on Home, sees activity, can switch to Nearby segment,
@@ -12,7 +12,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 # iOS push-notification permission prompt may pop on first JS run after
 # clearState. Allow it if it appears.
@@ -57,7 +57,7 @@ appId: com.unitapp.mobile
 # Switch to Nearby segment. The toggle is visible regardless of neighbour
 # count; tapping it is allowed even if disabled (no-op should not crash).
 - tapOn:
-    text: "Nearby \\(≤ 2 mi\\)"
+    text: "Nearby \\(≤ 20 mi\\)"
 - waitForAnimationToEnd
 
 # Tap the first activity card and verify navigation. This proves the

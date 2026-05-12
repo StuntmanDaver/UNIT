@@ -5,13 +5,12 @@ import {
   ScrollView,
   Pressable,
   Linking,
-  ActivityIndicator,
   Alert,
   Share,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
-import { ArrowLeft, Phone, Mail, Globe, Share2, Edit2 } from 'lucide-react-native';
+import { ArrowLeft, Phone, Mail, Globe, Share2 } from 'lucide-react-native';
 import { Avatar } from '@/components/ui/Avatar';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -22,6 +21,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { isHttpUrl, openHttpUrl } from '@/lib/url';
 import { getCategoryLabel } from '@/constants/categories';
 import { CATEGORY_COLORS, getReadableTextColor } from '@/constants/colors';
+import { buildAppDeepLink } from '@/constants/runtime';
 
 export default function BusinessDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -44,7 +44,7 @@ export default function BusinessDetailScreen() {
   const categoryColor = CATEGORY_COLORS[business.category] ?? '#465A75';
   const badgeColor = { bg: categoryColor, text: getReadableTextColor(categoryColor) };
   const isOwner = business.owner_email === user?.email;
-  const qrValue = `unit://directory/${business.id}`;
+  const qrValue = buildAppDeepLink(`directory/${business.id}`);
 
   const handleShare = async () => {
     try {
@@ -52,7 +52,7 @@ export default function BusinessDetailScreen() {
         message: `Check out ${business.business_name} on UNIT! ${qrValue}`,
         url: qrValue,
       });
-    } catch (error) {
+    } catch {
       Alert.alert('Error', 'Could not share this profile.');
     }
   };

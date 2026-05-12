@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-COMMUNITY-02: Community create — event type with date field
 # Covers items 85-86 from the exhaustive inventory:
@@ -14,7 +14,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -43,7 +43,7 @@ appId: com.unitapp.mobile
 
 # Open create
 - tapOn:
-    text: "+"
+    id: "fab-create-post"
 - extendedWaitUntil:
     visible:
       text: "New Post"
@@ -58,21 +58,21 @@ appId: com.unitapp.mobile
 
 # Title (required) — Input label is "Title *"
 - tapOn:
-    label: "Title *"
+    id: "post-title"
 - inputText: "QA Event Post"
 
 # Content (required) — Input label is "Content *"
 - tapOn:
-    label: "Content *"
+    id: "post-content"
 - inputText: "This is an automated E2E event post created by Maestro."
 
 # Event date (required, YYYY-MM-DD) — Input label is "Event Date *"
 - tapOn:
-    label: "Event Date *"
+    id: "post-event-date"
 - inputText: "2026-12-31"
 
 # Event time (optional — skip)
-- hideKeyboard
+- pressKey: Enter
 
 # Submit
 - tapOn:

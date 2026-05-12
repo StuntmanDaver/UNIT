@@ -5,8 +5,6 @@ import {
   ScrollView,
   Pressable,
   FlatList,
-  ActivityIndicator,
-  Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
@@ -130,7 +128,7 @@ export default function EditProfileScreen() {
       });
 
       router.back();
-    } catch (err) {
+    } catch {
       Toast.show({
         type: 'error',
         text1: 'Update failed',
@@ -178,6 +176,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Business Name *"
+              testID="profile-business-name-input"
               value={value}
               onChangeText={onChange}
               placeholder="Your business name"
@@ -228,6 +227,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Description"
+              testID="profile-description-input"
               value={value}
               onChangeText={onChange}
               placeholder="Tell people about your business"
@@ -247,6 +247,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Contact Name"
+              testID="profile-contact-name-input"
               value={value}
               onChangeText={onChange}
               placeholder="Contact person's name"
@@ -262,6 +263,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Phone"
+              testID="profile-phone-input"
               value={value}
               onChangeText={onChange}
               placeholder="+1 (555) 000-0000"
@@ -278,6 +280,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Email"
+              testID="profile-email-input"
               value={value}
               onChangeText={onChange}
               placeholder="contact@business.com"
@@ -295,6 +298,7 @@ export default function EditProfileScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Website"
+              testID="profile-website-input"
               value={value}
               onChangeText={onChange}
               placeholder="https://yourbusiness.com"

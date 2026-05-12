@@ -15,6 +15,7 @@
  * here — this milestone is auto-grouping only.
  */
 import { supabase } from './supabase';
+import { NEARBY_RADIUS_MILES } from '@/constants/nearby';
 
 const EARTH_RADIUS_MILES = 3958.7613;
 
@@ -53,7 +54,7 @@ type CoordRow = {
  */
 export async function getNearbyPropertyIds(
   originPropertyId: string,
-  radiusMiles = 2
+  radiusMiles = NEARBY_RADIUS_MILES
 ): Promise<string[]> {
   const { data: origin, error: originErr } = await supabase
     .from('properties')

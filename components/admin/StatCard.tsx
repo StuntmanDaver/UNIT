@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native';
 import { LucideIcon } from 'lucide-react-native';
-import { BRAND } from '@/constants/colors';
 import { Card } from '@/components/ui/Card';
 
 type StatCardProps = {

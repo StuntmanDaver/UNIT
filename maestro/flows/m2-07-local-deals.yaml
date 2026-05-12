@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M2-07: Local Deals segment shows only approved advertiser promotions
 

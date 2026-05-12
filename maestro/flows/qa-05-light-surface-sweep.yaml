@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-05: Light-surface visual regression sweep
 # Opens the Home Feed, scrolls through cards, and captures screenshots for
@@ -12,7 +12,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -53,7 +53,7 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 - takeScreenshot: home-feed-scroll-2
 
-# Tap the Nearby segment (label is "Nearby (≤ 2 mi)"; use regex to avoid Unicode issues)
+# Tap the Nearby segment (label is "Nearby (≤ 20 mi)"; use regex to avoid Unicode issues)
 - tapOn:
     text: "Nearby.*"
 - waitForAnimationToEnd

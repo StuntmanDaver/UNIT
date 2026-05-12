@@ -12,18 +12,27 @@
         "simulator": true
       },
       "env": {
+        "APP_VARIANT": "development",
+        "EXPO_PUBLIC_ENV": "development",
+        "EXPO_PUBLIC_APP_URL": "unit-dev://",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+      }
+    },
+    "staging": {
+      "distribution": "internal",
+      "channel": "staging",
+      "env": {
+        "APP_VARIANT": "staging",
+        "EXPO_PUBLIC_ENV": "staging",
+        "EXPO_PUBLIC_APP_URL": "unit-staging://",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "false"
       }
     },
     "preview": {
-      "distribution": "internal",
-      "channel": "preview",
-      "env": {
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
-      }
+      "extends": "staging"
     },
     "preview-simulator": {
-      "extends": "preview",
+      "extends": "staging",
       "ios": {
         "simulator": true
       }
@@ -32,7 +41,10 @@
       "autoIncrement": true,
       "channel": "production",
       "env": {
-        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_APP_URL": "unit://",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "false"
       }
     }
   },

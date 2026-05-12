@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-PROMOTIONS-02: Promotion create — full form + cancel path
 # Covers items 103-114 from the exhaustive inventory:
@@ -19,7 +19,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -104,12 +104,12 @@ appId: com.unitapp.mobile
 
 # Optional CTA — labels from source: "Button Label (optional)" and "Button Link (optional)"
 - tapOn:
-    label: "Button Label (optional)"
+    id: "promotion-cta-label"
 - inputText: "Visit Us"
 - tapOn:
-    label: "Button Link (optional)"
+    id: "promotion-cta-link"
 - inputText: "https://unit.app"
-- hideKeyboard
+- pressKey: Enter
 
 # Scroll down to submit button
 - swipe:
@@ -127,6 +127,10 @@ appId: com.unitapp.mobile
     timeout: 12000
 
 # Navigate back to promotions list
+- scrollUntilVisible:
+    element:
+      text: "Save for Later"
+    direction: DOWN
 - tapOn: "Save for Later"
 - assertVisible: "Promotions"
 

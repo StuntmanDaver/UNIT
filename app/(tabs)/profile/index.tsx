@@ -24,6 +24,7 @@ import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuth } from '@/lib/AuthContext';
 import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
+import { buildAppDeepLink } from '@/constants/runtime';
 
 function TenantProfileContent() {
   const { user, propertyIds, logout } = useAuth();
@@ -37,7 +38,7 @@ function TenantProfileContent() {
   const propertyName = properties?.[0]?.name ?? '';
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
-  const qrValue = business ? `unit://directory/${business.id}` : 'unit://profile';
+  const qrValue = business ? buildAppDeepLink(`directory/${business.id}`) : buildAppDeepLink('profile');
 
   const handleShare = async () => {
     try {

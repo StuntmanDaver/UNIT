@@ -24,6 +24,8 @@ const accounts = {
 };
 
 const propertyName = 'QA E2E Property';
+const nearbyPropertyName = 'QA E2E Nearby Property';
+const outsidePropertyName = 'QA E2E Outside Radius Property';
 
 async function main() {
   if (dryRun) {
@@ -60,17 +62,41 @@ async function main() {
   }
 
   const property = await ensureProperty(supabase);
+  const nearbyProperty = await ensureNamedProperty(supabase, {
+    name: nearbyPropertyName,
+    address: '140 QA Nearby Way',
+    city: 'Daytona Beach',
+    state: 'FL',
+    type: 'commercial',
+    total_units: 8,
+    latitude: 29.2508,
+    longitude: -81.0228,
+  });
+  const outsideProperty = await ensureNamedProperty(supabase, {
+    name: outsidePropertyName,
+    address: '900 QA Far Way',
+    city: 'Orlando',
+    state: 'FL',
+    type: 'commercial',
+    total_units: 6,
+    latitude: 28.5383,
+    longitude: -81.3792,
+  });
   summary.propertyId = property.id;
+  summary.nearbyPropertyId = nearbyProperty.id;
+  summary.outsidePropertyId = outsideProperty.id;
   summary.actions.push(`Ensured property ${property.name} (${property.id})`);
+  summary.actions.push(`Ensured nearby property ${nearbyProperty.name} (${nearbyProperty.id})`);
+  summary.actions.push(`Ensured outside-radius property ${outsideProperty.name} (${outsideProperty.id})`);
 
   await ensureProfiles(supabase, users, property.id);
   summary.actions.push('Ensured tenant/admin profiles and reset-password state');
 
-  await resetQaRows(supabase, property.id);
-  summary.actions.push('Removed old QA rows for fixed test property only');
+  await resetQaRows(supabase, [property.id, nearbyProperty.id, outsideProperty.id]);
+  summary.actions.push('Removed old QA rows for fixed test properties only');
 
   await seedBusinesses(supabase, users, property.id);
-  await seedPosts(supabase, property.id);
+  await seedPosts(supabase, property.id, nearbyProperty.id, outsideProperty.id);
   await seedNotifications(supabase, users, property.id);
   await seedPricing(supabase);
   await seedAdvertisersAndPromotions(supabase, users, property.id, runId);
@@ -122,15 +148,7 @@ async function findUserByEmail(supabase, email) {
 }
 
 async function ensureProperty(supabase) {
-  const { data: existingRows, error: findError } = await supabase
-    .from('properties')
-    .select('id, name')
-    .eq('name', propertyName)
-    .limit(1);
-  if (findError) throw findError;
-  const existing = existingRows?.[0] ?? null;
-
-  const payload = {
+  return ensureNamedProperty(supabase, {
     name: propertyName,
     address: '100 QA Way',
     city: 'Daytona Beach',
@@ -139,7 +157,17 @@ async function ensureProperty(supabase) {
     total_units: 10,
     latitude: 29.2108,
     longitude: -81.0228,
-  };
+  });
+}
+
+async function ensureNamedProperty(supabase, payload) {
+  const { data: existingRows, error: findError } = await supabase
+    .from('properties')
+    .select('id, name')
+    .eq('name', payload.name)
+    .limit(1);
+  if (findError) throw findError;
+  const existing = existingRows?.[0] ?? null;
 
   if (existing) {
     const { data, error } = await supabase
@@ -194,11 +222,11 @@ async function ensureProfiles(supabase, users, propertyId) {
   if (error) throw error;
 }
 
-async function resetQaRows(supabase, propertyId) {
+async function resetQaRows(supabase, propertyIds) {
   const { data: promotions } = await supabase
     .from('promotions')
     .select('id')
-    .eq('property_id', propertyId)
+    .in('property_id', propertyIds)
     .ilike('headline', 'QA E2E%');
   const promotionIds = (promotions ?? []).map((promotion) => promotion.id);
   if (promotionIds.length > 0) {
@@ -207,9 +235,13 @@ async function resetQaRows(supabase, propertyId) {
     await supabase.from('promotions').delete().in('id', promotionIds);
   }
 
-  await supabase.from('notifications').delete().eq('property_id', propertyId).ilike('title', 'QA E2E%');
-  await supabase.from('posts').delete().eq('property_id', propertyId).ilike('title', 'QA E2E%');
-  await supabase.from('businesses').delete().eq('property_id', propertyId).ilike('business_name', 'QA E2E%');
+  await supabase.from('notifications').delete().in('property_id', propertyIds).ilike('title', 'QA E2E%');
+  await supabase.from('posts').delete().in('property_id', propertyIds).ilike('title', 'QA E2E%');
+  await supabase.from('businesses').delete().in('property_id', propertyIds).ilike('business_name', 'QA E2E%');
+  await supabase
+    .from('businesses')
+    .delete()
+    .in('owner_email', [accounts.tenant.email, accounts.resetTenant.email, 'fitness@unit-test.com']);
 }
 
 async function seedBusinesses(supabase, users, propertyId) {
@@ -229,7 +261,7 @@ async function seedBusinesses(supabase, users, propertyId) {
     },
     {
       property_id: propertyId,
-      owner_email: accounts.admin.email,
+      owner_email: 'fitness@unit-test.com',
       business_name: 'QA E2E Fitness',
       unit_number: 'QA-202',
       category: 'Fitness',
@@ -245,8 +277,9 @@ async function seedBusinesses(supabase, users, propertyId) {
   if (error) throw error;
 }
 
-async function seedPosts(supabase, propertyId) {
+async function seedPosts(supabase, propertyId, nearbyPropertyId, outsidePropertyId) {
   const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const now = Date.now();
   const { error } = await supabase.from('posts').insert([
     {
       property_id: propertyId,
@@ -256,11 +289,50 @@ async function seedPosts(supabase, propertyId) {
     },
     {
       property_id: propertyId,
+      type: 'announcement',
+      title: 'QA Nearby Origin Announcement',
+      content: 'Origin-property announcement for the 20-mile Nearby E2E suite.',
+      created_date: new Date(now + 2 * 60 * 1000).toISOString(),
+    },
+    {
+      property_id: propertyId,
       type: 'event',
       title: 'QA E2E Networking Event',
       content: 'Seeded event for the automated E2E suite.',
       event_date: tomorrow,
       event_time: '10:00 AM',
+    },
+    {
+      property_id: nearbyPropertyId,
+      type: 'announcement',
+      title: 'QA Nearby Neighbor Announcement',
+      content: 'Nearby-property announcement that must appear within the 20-mile Home feed.',
+      created_date: new Date(now + 3 * 60 * 1000).toISOString(),
+    },
+    {
+      property_id: nearbyPropertyId,
+      type: 'event',
+      title: 'QA Nearby Neighbor Event',
+      content: 'Nearby-property event that must appear within the 20-mile Home feed.',
+      event_date: tomorrow,
+      event_time: '11:00 AM',
+      created_date: new Date(now + 3 * 60 * 1000 + 1000).toISOString(),
+    },
+    {
+      property_id: outsidePropertyId,
+      type: 'announcement',
+      title: 'QA Nearby Outside Announcement',
+      content: 'Outside-radius announcement that must not appear in the 20-mile Home feed.',
+      created_date: new Date(now + 4 * 60 * 1000).toISOString(),
+    },
+    {
+      property_id: outsidePropertyId,
+      type: 'event',
+      title: 'QA Nearby Outside Event',
+      content: 'Outside-radius event that must not appear in the 20-mile Home feed.',
+      event_date: tomorrow,
+      event_time: '12:00 PM',
+      created_date: new Date(now + 4 * 60 * 1000 + 1000).toISOString(),
     },
   ]);
   if (error) throw error;
@@ -354,6 +426,10 @@ function printSummary(summary) {
 }
 
 main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else {
+    console.error(JSON.stringify(error, null, 2));
+  }
   process.exit(1);
 });

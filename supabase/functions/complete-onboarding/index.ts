@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -87,6 +88,12 @@ Deno.serve(async (req) => {
     .eq('id', user.id);
 
   if (error) {
+    await captureEdgeException(error, {
+      functionName: 'complete-onboarding',
+      userId: user.id,
+      tags: { subsystem: 'profile_onboarding_update' },
+      extra: { property_id },
+    });
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

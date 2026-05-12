@@ -54,8 +54,8 @@ WHERE email IN ('tenant1@unit-test.com', 'david@cultrhealth.com');
 
 ### 2. Test property with coordinates (required by qa-home-01)
 
-The "Nearby (≤ 2 mi)" segment requires a property with `latitude`/`longitude` set
-and at least one neighbor property within 2 miles:
+The "Nearby (≤ 20 mi)" segment requires a property with `latitude`/`longitude` set
+and at least one neighbor property within 20 miles:
 
 ```sql
 -- Add coordinates to the primary test property

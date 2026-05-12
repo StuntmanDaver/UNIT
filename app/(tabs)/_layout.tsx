@@ -13,6 +13,7 @@ import { businessesService } from '@/services/businesses';
 import { notificationsService } from '@/services/notifications';
 import { getNearbyPropertyIds } from '@/services/nearbyProperties';
 import { postsService, type Post } from '@/services/posts';
+import { NEARBY_RADIUS_MILES } from '@/constants/nearby';
 
 // Renders icon with a 2pt brand-blue accent bar above it when the tab is active.
 function makeTabIcon(Icon: React.ComponentType<{ size: number; color: string }>) {
@@ -51,8 +52,8 @@ export default function TabLayout() {
         queryFn: () => getActivityFeed([propertyId], 50),
       }),
       queryClient.prefetchQuery({
-        queryKey: ['nearby-properties', propertyId, 2],
-        queryFn: () => getNearbyPropertyIds(propertyId, 2),
+        queryKey: ['nearby-properties', propertyId, NEARBY_RADIUS_MILES],
+        queryFn: () => getNearbyPropertyIds(propertyId, NEARBY_RADIUS_MILES),
       }),
       queryClient.prefetchQuery({
         queryKey: ['businesses', propertyId, { search: undefined, category: undefined }],

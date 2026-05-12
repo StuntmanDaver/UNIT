@@ -1,5 +1,21 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-12 — iOS production E2E green
+
+### Fixed
+- **Home Nearby radius** — Home Nearby now uses the shared 20-mile radius constant for the UI label, empty copy, hook default, service default, and tests.
+- **Nearby feed coverage** — The E2E seed creates current-property, nearby-property, and outside-radius control activity. The focused Maestro flow verifies origin and nearby activity appear while outside-radius activity stays hidden after refresh.
+- **Forced reset-password flow** — The reset screen now completes through the `complete-password-reset` Edge Function and refreshes the profile after success, avoiding the simulator blocker in the full suite.
+- **Mobile checkout return path** — Pending-payment now uses the configured app deep-link base and confirms paid sessions through the checkout Edge Function as a fallback to delayed webhooks.
+- **Maestro runner targeting** — The E2E runner passes the explicit Maestro platform for iOS and Android suite execution.
+
+### Verification
+- Full iOS suite: `e2e_20260512T023846Z_kuicrw`, `31 passed, 0 failed`.
+- Static checks: `node --check scripts/e2e/seed.mjs`, `npm run lint -- --quiet`, `npm run typecheck -- --pretty false`, `npm run edge:check`.
+
+### Note
+- Android remains blocked locally by Maestro Android driver/emulator instability, not by a failing Home Nearby or checkout assertion.
+
 ## 2026-05-08 — Navigation responsiveness and loader polish
 
 ### Changed

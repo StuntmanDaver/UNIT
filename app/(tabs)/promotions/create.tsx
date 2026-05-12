@@ -298,6 +298,7 @@ export default function CreatePromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Button Label (optional)"
+              testID="promotion-cta-label"
               value={value ?? ''}
               onChangeText={onChange}
               placeholder="e.g. Claim Offer"
@@ -311,6 +312,7 @@ export default function CreatePromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               label="Button Link (optional)"
+              testID="promotion-cta-link"
               value={value ?? ''}
               onChangeText={onChange}
               placeholder="https://..."

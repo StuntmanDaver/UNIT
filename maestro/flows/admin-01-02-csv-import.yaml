@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # ADMIN-01 + ADMIN-02 + M1-04: CSV bulk import
 #

@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -99,8 +99,14 @@ export default function NewExternalPromotionScreen() {
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
     if (Platform.OS === 'android') setActivePicker(null);
     if (!date) return;
-    if (activePicker === 'start') setStartDate(date);
-    else if (activePicker === 'end') setEndDate(date);
+    if (activePicker === 'start') {
+      setStartDate(date);
+      setEndDate((currentEndDate) =>
+        !currentEndDate || currentEndDate <= date ? addDays(date, 7) : currentEndDate
+      );
+    } else if (activePicker === 'end') {
+      setEndDate(startDate && date <= startDate ? addDays(startDate, 7) : date);
+    }
   };
 
   const onSubmit = async (data: FormData) => {

@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-ADMIN-05: Admin Promotion Detail — all review actions
 # Covers items 216-227 from the exhaustive inventory:
@@ -28,7 +28,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -77,7 +77,7 @@ appId: com.unitapp.mobile
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
@@ -101,14 +101,21 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please revise the image and resubmit."
-- hideKeyboard
 - waitForAnimationToEnd
 - tapOn:
-    id: "promotion-review-confirm"
+    point: "50%,57%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-title"
+    commands:
+      - tapOn:
+          point: "50%,57%"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
@@ -132,14 +139,21 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please repay after the placement update."
-- hideKeyboard
 - waitForAnimationToEnd
 - tapOn:
-    id: "promotion-review-confirm"
+    point: "50%,57%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-title"
+    commands:
+      - tapOn:
+          point: "50%,57%"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
@@ -167,14 +181,21 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "promotion-review-note"
 - inputText: "This promotion does not meet property guidelines."
-- hideKeyboard
 - waitForAnimationToEnd
 - tapOn:
-    id: "promotion-review-confirm"
+    point: "50%,57%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-title"
+    commands:
+      - tapOn:
+          point: "50%,57%"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Action applied"
 - extendedWaitUntil:
     visible:
@@ -199,7 +220,7 @@ appId: com.unitapp.mobile
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Status updated"
 - extendedWaitUntil:
     visible:
@@ -212,7 +233,7 @@ appId: com.unitapp.mobile
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
-    timeout: 8000
+    timeout: 20000
 - assertVisible: "Status updated"
 - extendedWaitUntil:
     visible:

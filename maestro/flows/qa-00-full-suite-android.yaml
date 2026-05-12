@@ -9,6 +9,7 @@ appId: ${MAESTRO_APP_ID}
 - runFlow: ./qa-auth-04-onboarding-edge.yaml
 - runFlow: ./qa-auth-05-routing-redirects.yaml
 - runFlow: ./qa-home-01-feed-states.yaml
+- runFlow: ./qa-home-02-nearby-20-mile-feed.yaml
 - runFlow: ./qa-directory-01-search-states.yaml
 - runFlow: ./qa-business-01-contact-actions.yaml
 - runFlow: ./qa-community-01-create-announcement.yaml

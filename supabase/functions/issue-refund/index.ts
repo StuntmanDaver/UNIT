@@ -1,6 +1,7 @@
 // supabase/functions/issue-refund/index.ts
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import Stripe from 'https://esm.sh/stripe@17?target=deno';
+import Stripe from 'https://esm.sh/stripe@22?target=deno';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,7 +9,7 @@ const corsHeaders = {
 };
 
 const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-03-25.dahlia' });
+const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-04-22.dahlia' });
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -126,6 +127,12 @@ Deno.serve(async (req) => {
   try {
     await stripe.refunds.create({ payment_intent: attempt.stripe_payment_intent_id });
   } catch (stripeError: unknown) {
+    await captureEdgeException(stripeError, {
+      functionName: 'issue-refund',
+      userId: user.id,
+      tags: { subsystem: 'stripe_refund' },
+      extra: { promotionId, paymentAttemptId: attempt.id },
+    });
     const msg = stripeError instanceof Error ? stripeError.message : 'Stripe refund failed';
     return new Response(
       JSON.stringify({ error: msg }),
@@ -147,6 +154,12 @@ Deno.serve(async (req) => {
     .eq('id', promotionId);
 
   if (updatePromoError) {
+    await captureEdgeException(updatePromoError, {
+      functionName: 'issue-refund',
+      userId: user.id,
+      tags: { subsystem: 'promotion_refund_update' },
+      extra: { promotionId, paymentAttemptId: attempt.id },
+    });
     return new Response(
       JSON.stringify({ error: 'Stripe refund issued but failed to update promotion record' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -160,6 +173,12 @@ Deno.serve(async (req) => {
     .eq('id', attempt.id);
 
   if (updateAttemptError) {
+    await captureEdgeException(updateAttemptError, {
+      functionName: 'issue-refund',
+      userId: user.id,
+      tags: { subsystem: 'payment_attempt_refund_update' },
+      extra: { promotionId, paymentAttemptId: attempt.id },
+    });
     return new Response(
       JSON.stringify({ error: 'Stripe refund issued but failed to update payment attempt record' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
@@ -181,6 +200,12 @@ Deno.serve(async (req) => {
     });
 
   if (insertEventError) {
+    await captureEdgeException(insertEventError, {
+      functionName: 'issue-refund',
+      userId: user.id,
+      tags: { subsystem: 'promotion_status_event' },
+      extra: { promotionId, paymentAttemptId: attempt.id },
+    });
     return new Response(
       JSON.stringify({ error: 'Stripe refund issued but failed to insert status event' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

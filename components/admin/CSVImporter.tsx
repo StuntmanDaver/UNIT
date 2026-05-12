@@ -42,7 +42,7 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [failedRows, setFailedRows] = useState<Array<{ email: string; reason: string }>>([]);
+  const [failedRows, setFailedRows] = useState<{ email: string; reason: string }[]>([]);
   const queryClient = useQueryClient();
 
   const handlePickFile = async () => {
@@ -104,7 +104,7 @@ export function CSVImporter({ propertyId }: CSVImporterProps) {
 
     const total = validRows.length;
     let successCount = 0;
-    const failed: Array<{ email: string; reason: string }> = [];
+    const failed: { email: string; reason: string }[] = [];
 
     for (let i = 0; i < validRows.length; i += BATCH_SIZE) {
       const slice = validRows.slice(i, i + BATCH_SIZE);

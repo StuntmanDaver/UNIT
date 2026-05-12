@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-PROMOTIONS-01: Promotions list — segments, analytics scroll-view trigger, CTA tap
 # Covers items 93-102 from the exhaustive inventory:
@@ -21,7 +21,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:

@@ -1,0 +1,62 @@
+appId: ${MAESTRO_APP_ID}
+---
+# QA-HOME-02: Home Nearby feed — 20-mile geolocated activity
+# Requires scripts/e2e/seed.mjs to create origin, nearby, and outside-radius
+# QA posts before this flow runs.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-home"
+- extendedWaitUntil:
+    visible: "My Property"
+    timeout: 8000
+- assertVisible: "QA Nearby Origin Announcement"
+- assertNotVisible: "QA Nearby Neighbor Announcement"
+- assertNotVisible: "QA Nearby Outside Announcement"
+- assertNotVisible: "No nearby properties within 20 miles."
+
+- tapOn:
+    text: "Nearby.*20 mi.*"
+- extendedWaitUntil:
+    visible: "QA Nearby Neighbor Announcement"
+    timeout: 10000
+- assertVisible: "QA Nearby Neighbor Announcement"
+- assertVisible: "QA Nearby Origin Announcement"
+- assertNotVisible: "QA Nearby Outside Announcement"
+- assertNotVisible: "QA Nearby Outside Event"
+
+- swipe:
+    from:
+      id: "home-feed-list"
+    direction: DOWN
+    duration: 500
+- waitForAnimationToEnd
+- assertVisible: "QA Nearby Neighbor Announcement"
+- assertNotVisible: "QA Nearby Outside Announcement"
+
+- runFlow: ../subflows/logout.yaml

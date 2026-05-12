@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Bell, Send, ChevronLeft } from 'lucide-react-native';
+import { Bell, ChevronLeft } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import { formatDistanceToNow } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';

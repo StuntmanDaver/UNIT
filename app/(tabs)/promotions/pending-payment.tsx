@@ -12,8 +12,9 @@ import { promotionsService } from '@/services/promotions';
 import { promotionPricingService, type PromotionPriceTier } from '@/services/promotionPricing';
 import { supabase } from '@/services/supabase';
 import { BRAND } from '@/constants/colors';
+import { buildAppDeepLink } from '@/constants/runtime';
 
-const RETURN_URL = 'unit://promotions';
+const RETURN_URL = buildAppDeepLink('promotions');
 
 function formatPrice(cents: number, currency: string): string {
   const amount = (cents / 100).toFixed(2);
@@ -98,6 +99,32 @@ export default function PendingPaymentScreen() {
           userReachedSuccessUrl = status === 'success';
         } catch {
           // Malformed URL — fall through to DB poll.
+        }
+      }
+
+      // Confirm with the Edge Function as a fallback to the portal webhook.
+      // This keeps the mobile return path correct when the webhook is delayed
+      // or unavailable in local/staging E2E.
+      if (userReachedSuccessUrl && data.sessionId) {
+        const { data: confirmData, error: confirmError } = await supabase.functions.invoke<{
+          paid: boolean;
+          paymentStatus?: 'paid';
+          reviewStatus?: 'pending';
+        }>(
+          'create-promotion-checkout-session',
+          { body: { action: 'confirm', promotionId: id, sessionId: data.sessionId } }
+        );
+        if (confirmError) {
+          console.warn('[pending-payment] checkout confirmation fallback failed:', confirmError.message);
+        } else if (confirmData?.paid) {
+          queryClient.setQueryData(['promotion', id], (existing: typeof promo | undefined) => {
+            if (!existing) return existing;
+            return {
+              ...existing,
+              payment_status: 'paid',
+              review_status: 'pending',
+            };
+          });
         }
       }
 
@@ -243,11 +270,12 @@ export default function PendingPaymentScreen() {
               onPress={handlePayNow}
               disabled={!selectedTierId || submitting || (tiers?.length ?? 0) === 0}
               loading={submitting}
+              testID="pending-payment-pay-now"
             >
               Pay Now
             </Button>
           )}
-          <Button onPress={() => router.replace('/(tabs)/promotions')} variant="ghost">
+          <Button onPress={() => router.replace('/(tabs)/promotions')} variant="ghost" testID="pending-payment-save-later">
             {isPaid ? 'Back to Promotions' : 'Save for Later'}
           </Button>
         </View>

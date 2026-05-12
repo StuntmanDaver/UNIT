@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 Deno.serve(async (_req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -15,6 +16,11 @@ Deno.serve(async (_req) => {
     .lt('end_date', today);
 
   if (fetchError) {
+    await captureEdgeException(fetchError, {
+      functionName: 'expire-promotions',
+      tags: { subsystem: 'promotion_expiry_fetch' },
+      extra: { today },
+    });
     return new Response(JSON.stringify({ error: fetchError.message }), { status: 500 });
   }
 
@@ -27,6 +33,12 @@ Deno.serve(async (_req) => {
       .eq('id', promo.id);
 
     if (updateError) {
+      await captureEdgeException(updateError, {
+        functionName: 'expire-promotions',
+        level: 'warning',
+        tags: { subsystem: 'promotion_expiry_update' },
+        extra: { promotionId: promo.id },
+      });
       failed++;
       continue;
     }
@@ -47,6 +59,12 @@ Deno.serve(async (_req) => {
     if (!insertError) {
       expired++;
     } else {
+      await captureEdgeException(insertError, {
+        functionName: 'expire-promotions',
+        level: 'warning',
+        tags: { subsystem: 'promotion_expiry_event' },
+        extra: { promotionId: promo.id },
+      });
       failed++;
     }
   }

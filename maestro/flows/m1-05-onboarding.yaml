@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M1-05: Fresh signup → onboarding → directory
 # BUG-03 regression: after signup AuthGuard must redirect to onboarding, NOT tabs

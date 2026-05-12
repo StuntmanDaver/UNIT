@@ -83,6 +83,7 @@ export default function SignupScreen() {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
+                testID="signup-email"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -100,6 +101,7 @@ export default function SignupScreen() {
                 placeholder="At least 8 characters"
                 secureTextEntry
                 textContentType="oneTimeCode"
+                testID="signup-password"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -117,6 +119,7 @@ export default function SignupScreen() {
                 placeholder="Re-enter your password"
                 secureTextEntry
                 textContentType="oneTimeCode"
+                testID="signup-confirm-password"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}

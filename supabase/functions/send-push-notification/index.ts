@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -170,7 +171,13 @@ Deno.serve(async (req) => {
           failed++;
         }
       }
-    } catch {
+    } catch (pushError: unknown) {
+      await captureEdgeException(pushError, {
+        functionName: 'send-push-notification',
+        userId: user.id,
+        tags: { subsystem: 'expo_push' },
+        extra: { property_id, batchSize: batch.length },
+      });
       // Count entire batch as failed if request itself errors
       failed += batch.length;
     }
@@ -194,6 +201,12 @@ Deno.serve(async (req) => {
       .insert(notificationRecords);
 
     if (notificationInsertError) {
+      await captureEdgeException(notificationInsertError, {
+        functionName: 'send-push-notification',
+        userId: user.id,
+        tags: { subsystem: 'notification_audit_insert' },
+        extra: { property_id, targetedCount: targetedProfiles.length },
+      });
       return new Response(
         JSON.stringify({
           error: notificationInsertError.message,

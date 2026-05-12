@@ -29,15 +29,12 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
   return (
     <View testID="modal-overlay" className="absolute inset-0 z-50">
       <Pressable
-        accessible={false}
-        className="flex-1 bg-black/50 items-center justify-center px-4"
+        testID="modal-backdrop"
+        className="absolute inset-0 bg-black/50"
         onPress={onClose}
-      >
-        <Pressable
-          accessible={false}
-          className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden"
-          onPress={(e) => e.stopPropagation()}
-        >
+      />
+      <View pointerEvents="box-none" className="flex-1 items-center justify-center px-4">
+        <View className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden">
           {/* Header */}
           <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
             <Text testID="modal-title" className="text-2xl font-lora-semibold text-brand-ink flex-1 mr-3 leading-tight">{title}</Text>
@@ -71,8 +68,8 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
               ))}
             </View>
           )}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </View>
   );
 }

@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 name: Invited Tenant Login Flow
 ---
 - launchApp

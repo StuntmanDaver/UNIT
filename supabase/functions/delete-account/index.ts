@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
+import { captureEdgeException } from '../_shared/sentry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -231,6 +232,10 @@ Deno.serve(async (req) => {
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Could not delete account';
     console.error('delete-account failed:', message);
+    await captureEdgeException(error, {
+      functionName: 'delete-account',
+      tags: { subsystem: 'account_deletion' },
+    });
     return jsonResponse({ error: message }, 500);
   }
 });

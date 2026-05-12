@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M5-02: Tenant-paid promotion happy path
 # Tenant logs in → submits a promotion → picks a tier → pays via Stripe
@@ -16,7 +16,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 # iOS push-notification permission prompt may pop on first JS run after
 # clearState. Allow it if it appears.
@@ -53,6 +53,14 @@ appId: com.unitapp.mobile
 
 - tapOn:
     id: "fab-create-promotion"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Promote My Business"
+    commands:
+      - tapOn:
+          id: "fab-create-promotion"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Promote My Business"
@@ -143,8 +151,14 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "promotion-tier-0"
 - waitForAnimationToEnd
+- scrollUntilVisible:
+    element:
+      id: "pending-payment-pay-now"
+    direction: DOWN
+    centerElement: true
 
-- tapOn: "Pay Now"
+- tapOn:
+    id: "pending-payment-pay-now"
 
 # iOS shows a native ASWebAuthenticationSession consent prompt the first
 # time `openAuthSessionAsync` opens stripe.com. Pay Now triggers a
@@ -156,7 +170,12 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 - waitForAnimationToEnd
 - waitForAnimationToEnd
-- tapOn: "Continue"
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 
 # Stripe Checkout opens in the in-app browser. Card field labels are

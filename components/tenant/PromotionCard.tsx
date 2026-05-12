@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { Post } from '@/services/posts';
 import { type Promotion } from '@/services/promotions';
 import { Card } from '@/components/ui/Card';

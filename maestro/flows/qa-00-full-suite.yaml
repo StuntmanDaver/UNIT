@@ -1,11 +1,11 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-00: Full E2E Suite — runs every qa-* flow in dependency order
 #
 # Run from unit/ with:
 #   JAVA_HOME=/opt/homebrew/opt/openjdk@21 \
 #   MAESTRO_CLI_NO_ANALYTICS=1 \
-#   ~/.maestro/bin/maestro test maestro/flows/qa-00-full-suite.yaml
+#   ~/.maestro/bin/maestro test -e MAESTRO_APP_ID=com.unitapp.mobile maestro/flows/qa-00-full-suite.yaml
 #
 # Tag exclusions:
 #   --exclude-tags=stripe   Skip Stripe checkout flows (needs Stripe test-mode keys)
@@ -21,7 +21,7 @@ appId: com.unitapp.mobile
 #   [ ] At least 1 pending advertiser promotion in test property
 #   [ ] At least 1 approved advertiser promotion with CTA in test property
 #   [ ] At least 1 active pricing tier
-#   [ ] Test property has latitude/longitude set + neighbor within 2 mi (for Nearby)
+#   [ ] Test property has latitude/longitude set + neighbor within 20 mi (for Nearby)
 #   [ ] At least 1 unread notification for tenant1 (for qa-alerts-01)
 #   [ ] At least 4 pending promotions for admin review flow (qa-admin-05)
 #   [ ] Stripe test mode keys on create-promotion-checkout-session Edge Function (for m5-02)

@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import { supabase } from '@/services/supabase';
-import { profilesService } from '@/services/profiles';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -22,9 +21,18 @@ const resetSchema = z
 
 type ResetForm = z.infer<typeof resetSchema>;
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  return Promise.race([
+    promise,
+    new Promise<null>((resolve) => {
+      setTimeout(() => resolve(null), timeoutMs);
+    }),
+  ]);
+}
+
 export default function ResetPasswordScreen() {
   const [loading, setLoading] = useState(false);
-  const { user, profile } = useAuth();
+  const { refreshProfile } = useAuth();
 
   const {
     control,
@@ -39,26 +47,31 @@ export default function ResetPasswordScreen() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: data.password,
-      });
+      const updateResult = await withTimeout(
+        supabase.functions.invoke('complete-password-reset', {
+          body: {
+            password: data.password,
+          },
+        }),
+        15000
+      );
 
-      if (error) {
+      if (!updateResult) {
         Toast.show({
           type: 'error',
-          text1: 'Password update failed',
-          text2: error.message,
+          text1: 'Password update timed out',
+          text2: 'Please try again',
         });
         return;
       }
 
-      // Update profile to clear the forced reset flag
-      if (profile?.id) {
-        await profilesService.update(profile.id, {
-          needs_password_change: false,
-          status: 'active',
-          activated_at: new Date().toISOString(),
+      if (updateResult?.error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Password update failed',
+          text2: updateResult.error.message,
         });
+        return;
       }
 
       Toast.show({
@@ -67,9 +80,7 @@ export default function ResetPasswordScreen() {
         text2: 'You can now use the app',
       });
 
-      // AuthGuard will detect needs_password_change is now false and redirect
-      // Force a re-check by reloading the session
-      await supabase.auth.refreshSession();
+      await refreshProfile();
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -104,6 +115,7 @@ export default function ResetPasswordScreen() {
                 label="New Password"
                 placeholder="At least 8 characters"
                 secureTextEntry
+                testID="reset-password-new"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}
@@ -120,6 +132,7 @@ export default function ResetPasswordScreen() {
                 label="Confirm New Password"
                 placeholder="Re-enter your new password"
                 secureTextEntry
+                testID="reset-password-confirm"
                 value={value}
                 onBlur={onBlur}
                 onChangeText={onChange}

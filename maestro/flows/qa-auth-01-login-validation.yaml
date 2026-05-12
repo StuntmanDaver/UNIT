@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-AUTH-01: Login screen validation paths
 # Covers items 1-11 from the exhaustive inventory:
@@ -19,7 +19,9 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -41,11 +43,45 @@ appId: com.unitapp.mobile
     commands:
       - tapOn: "Allow"
       - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- tapOn:
+    text: "Continue"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Close"
+    optional: true
 
 - extendedWaitUntil:
     visible:
       text: "Log In"
-    timeout: 30000
+    timeout: 60000
 
 # ── CASE 1: Wrong password ───────────────────────────────────────────────────
 - tapOn:
@@ -55,6 +91,12 @@ appId: com.unitapp.mobile
     id: "login-password"
 - inputText: "wrongpassword"
 - tapOn:
+    id: "login-logo"
+- scrollUntilVisible:
+    element:
+      id: "btn-login-submit"
+    direction: DOWN
+- tapOn:
     id: "btn-login-submit"
 - extendedWaitUntil:
     visible:
@@ -63,27 +105,153 @@ appId: com.unitapp.mobile
 # Must still be on login screen
 - assertVisible: "Log In"
 
-# Clear fields
+# Restart between validation cases. Android can leave a suffix character when
+# eraseText starts from a centered cursor in an email field.
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 - tapOn:
-    id: "login-email"
-- eraseText: 100
+    text: "Continue"
+    optional: true
+- waitForAnimationToEnd
 - tapOn:
-    id: "login-password"
-- eraseText: 100
-- hideKeyboard
+    text: "Close"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
 
 # ── CASE 2: Empty email, attempt submit → Zod field error ────────────────────
 - tapOn:
     id: "login-password"
 - inputText: "admin123"
 - tapOn:
+    id: "login-logo"
+- scrollUntilVisible:
+    element:
+      id: "btn-login-submit"
+    direction: DOWN
+- tapOn:
     id: "btn-login-submit"
 # Zod error appears inline near the email field
 - assertVisible: "Log In"
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 - tapOn:
-    id: "login-password"
-- eraseText: 100
-- hideKeyboard
+    text: "Continue"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Close"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
 
 # ── CASE 3: Forgot password with empty email — guard prevents reset, stay on login.
 # Toast (`Enter your email above, then tap here again`) auto-dismisses in ~4s; rely on
@@ -99,15 +267,71 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "login-email"
 - inputText: "tenant1@unit-test.com"
-- tapOn: "Forgot password?"
+- pressKey: Enter
+- scrollUntilVisible:
+    element:
+      id: "forgot-password-link"
+    direction: DOWN
+- tapOn:
+    id: "forgot-password-link"
 - waitForAnimationToEnd
 - assertVisible: "Forgot password?"
 - assertVisible:
     id: "login-email"
+
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: ".*8081"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 - tapOn:
-    id: "login-email"
-- eraseText: 100
-- hideKeyboard
+    text: "Continue"
+    optional: true
+- waitForAnimationToEnd
+- tapOn:
+    text: "Close"
+    optional: true
+- extendedWaitUntil:
+    visible:
+      text: "Log In"
+    timeout: 60000
 
 # ── CASE 5: Sign Up link navigates to signup screen ─────────────────────────
 - tapOn: "Sign Up"

@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-04: Drive through every tab + admin screen
 # Metro console should show only the known benign push-token warning
@@ -11,7 +11,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 # iOS push-notification permission prompt may pop on first JS run after
 # clearState. Allow it if it appears.
@@ -49,7 +49,7 @@ appId: com.unitapp.mobile
       text: "My Property"
     timeout: 8000
 - tapOn:
-    text: "Nearby \\(≤ 2 mi\\)"
+    text: "Nearby \\(≤ 20 mi\\)"
 - waitForAnimationToEnd
 
 # Tab sweep

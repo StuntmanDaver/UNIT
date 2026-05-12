@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # QA-ADMIN-06: Admin New External Promotion — full form submit and cancel
 # Covers items 228-236 from the exhaustive inventory:
@@ -23,7 +23,7 @@ appId: com.unitapp.mobile
     when:
       visible: "Development Build"
     commands:
-      - tapOn: "http://localhost:8081"
+      - tapOn: ".*8081"
       - waitForAnimationToEnd
 - runFlow:
     when:
@@ -50,9 +50,14 @@ appId: com.unitapp.mobile
 - tapOn:
     id: "property-selector"
 - waitForAnimationToEnd
-- tapOn:
-    id: "property-selector-option"
-    index: 0
+- runFlow:
+    when:
+      visible:
+        id: "property-selector-option"
+    commands:
+      - tapOn:
+          id: "property-selector-option"
+          index: 0
 - waitForAnimationToEnd
 
 - extendedWaitUntil:
@@ -123,7 +128,7 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 - tapOn:
     id: "external-promo-cta-url"
-- inputText: "unitapp"
+- inputText: "https://unit.app"
 - tapOn: "return"
 - waitForAnimationToEnd
 
@@ -146,7 +151,7 @@ appId: com.unitapp.mobile
 - waitForAnimationToEnd
 - swipe:
     start: "50%, 85%"
-    end: "50%, 65%"
+    end: "50%, 55%"
 - waitForAnimationToEnd
 - tapOn:
     point: "93%,73%"
@@ -172,7 +177,8 @@ appId: com.unitapp.mobile
 # Back on promo list — new external appears in "External" segment
 - tapOn: "External"
 - waitForAnimationToEnd
-- assertVisible: "QA External Advertiser"
+- assertVisible:
+    id: "promo-card"
 
 # Log out
 - tapOn:

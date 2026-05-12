@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # Reusable subflow: log in as admin
 # Precondition: app launched, waiting for login screen
@@ -7,8 +7,22 @@ appId: com.unitapp.mobile
     visible:
       text: "Log In"
     timeout: 60000
-- tapOn: "Admin"
-- tapOn: "Log In"
+- tapOn:
+    id: "login-email"
+- eraseText: 100
+- inputText: "david@cultrhealth.com"
+- tapOn:
+    id: "login-password"
+- eraseText: 100
+- inputText: "admin123"
+- tapOn:
+    id: "login-logo"
+- scrollUntilVisible:
+    element:
+      id: "btn-login-submit"
+    direction: DOWN
+- tapOn:
+    id: "btn-login-submit"
 - extendedWaitUntil:
     visible:
       text: "Admin Dashboard"

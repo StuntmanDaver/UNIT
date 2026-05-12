@@ -1,4 +1,4 @@
-appId: com.unitapp.mobile
+appId: ${MAESTRO_APP_ID}
 ---
 # M2-06: Admin approves/rejects advertiser promotions
 # Precondition: at least one promotion in Pending status exists

@@ -135,7 +135,7 @@ export default function CreateCommunityPostScreen() {
       }
 
       router.back();
-    } catch (err) {
+    } catch {
       Toast.show({
         type: 'error',
         text1: 'Failed to publish post',
@@ -213,10 +213,10 @@ export default function CreateCommunityPostScreen() {
               render={({ field: { onChange, value } }) => (
                 <Input
                   label="Event Date *"
+                  testID="post-event-date"
                   value={value}
                   onChangeText={onChange}
                   placeholder="YYYY-MM-DD"
-                  keyboardType="numeric"
                   error={errors.event_date?.message}
                 />
               )}
