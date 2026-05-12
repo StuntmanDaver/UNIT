@@ -1,4 +1,4 @@
-import * as xlsx from 'xlsx';
+import * as xlsx from '@e965/xlsx';
 import * as path from 'path';
 import * as fs from 'fs';
 
