@@ -1,5 +1,21 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-12 — Android Google Play internal release automation
+
+### Added
+- **GitHub Actions Android release workflow** — Added manual `Android Release to Google Play Internal` workflow that runs production release checks, recreates `google-play-key.json` from `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`, validates the Google Play/EAS preflight, and starts an EAS Android production build with optional auto-submit to the configured Play internal track.
+- **Google Play release helper scripts** — Added scripts to create the Google Play service account key and preflight the Android submit configuration before CI attempts a store upload.
+
+### Changed
+- **Deployment runbook memory** — Documented the required GitHub secrets, EAS production environment requirement, and the internal-track-first promotion policy for Android releases.
+
+### Verification
+- `actionlint unit/.github/workflows/android-release.yml`
+- `ruby -e "require 'yaml'; YAML.load_file('unit/.github/workflows/android-release.yml')"`
+- `node -e "JSON.parse(require('fs').readFileSync('unit/eas.json','utf8')); JSON.parse(require('fs').readFileSync('unit/package.json','utf8'))"`
+- `npm run release:check -- --help` completed release env checks, Expo lint, TypeScript, brand lint, and Jest before printing Expo Doctor help.
+- `npx expo-doctor` — 17/17 checks passed.
+
 ## 2026-05-12 — iOS production E2E green
 
 ### Fixed

@@ -5,6 +5,7 @@ dist/
 *.p8
 *.p12
 *.key
+google-play-key.json
 *.mobileprovision
 *.orig.*
 web-build/

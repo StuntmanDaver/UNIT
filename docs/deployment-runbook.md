@@ -352,6 +352,32 @@ Requires:
 - Service account JSON key with "Release Manager" role
 - Completed Play Store listing (description, screenshots, privacy policy URL)
 
+For automated internal-track releases, use the GitHub Actions workflow:
+
+```text
+Android Release to Google Play Internal
+```
+
+Configure these GitHub Actions secrets before dispatching it:
+
+```text
+EXPO_TOKEN
+GOOGLE_PLAY_SERVICE_ACCOUNT_JSON
+EXPO_PUBLIC_SUPABASE_URL
+EXPO_PUBLIC_SUPABASE_ANON_KEY
+EXPO_PUBLIC_SUPPORT_EMAIL
+EXPO_PUBLIC_SENTRY_DSN
+SENTRY_ORG
+SENTRY_PROJECT
+SENTRY_AUTH_TOKEN
+```
+
+`GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` must be the full JSON contents of `google-play-key.json`, not a filesystem path. Keep the same production runtime/build variables configured in the EAS production environment because EAS builds the Android binary remotely.
+
+The workflow runs `npm run release:check`, `npm run release:android:preflight`, then `eas build --platform android --profile production --auto-submit --non-interactive --wait`. Leave the workflow's `submit` input enabled for normal internal-track releases; disable it only for a production-profile build rehearsal that should not be submitted.
+
+Keep automation on the Play internal track until at least two internal releases complete cleanly. Promote to closed/open/production only after QA signoff, and use a separate approval-gated workflow for production staged rollout.
+
 ### Both Platforms Require
 
 - App store description (short and full)
