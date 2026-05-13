@@ -7,6 +7,7 @@ import {
   Alert,
   Switch,
   Share,
+  Linking,
 } from 'react-native';
 import { router, Redirect } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
@@ -25,6 +26,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
 import { buildAppDeepLink } from '@/constants/runtime';
+import { policyUrls } from '@/constants/policy';
 
 function TenantProfileContent() {
   const { user, propertyIds, logout } = useAuth();
@@ -93,6 +95,7 @@ function TenantProfileContent() {
           </View>
           <Pressable
             onPress={handleLogout}
+            testID="profile-header-logout-btn"
             hitSlop={8}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
@@ -196,6 +199,27 @@ function TenantProfileContent() {
               />
             </View>
 
+            <Pressable
+              onPress={() => Linking.openURL(policyUrls.terms)}
+              className="px-4 py-3 border-b border-brand-blue/40"
+            >
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">Terms of Use</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => Linking.openURL(policyUrls.privacy)}
+              className="px-4 py-3 border-b border-brand-blue/40"
+            >
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">Privacy Policy</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => Linking.openURL(policyUrls.accountDeletion)}
+              className="px-4 py-3 border-b border-brand-blue/40"
+            >
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed">Account Deletion Help</Text>
+            </Pressable>
+
             <View className="px-4 py-4">
               <Button
                 onPress={() => setDeleteModalVisible(true)}
@@ -214,7 +238,7 @@ function TenantProfileContent() {
 
       {/* Log Out always visible regardless of loading state */}
       <View className="px-4 pb-8">
-        <Button onPress={handleLogout} variant="destructive">
+        <Button onPress={handleLogout} variant="destructive" testID="profile-logout-btn">
           Log Out
         </Button>
       </View>
@@ -244,7 +268,9 @@ function TenantProfileContent() {
       >
         <Text className="text-base font-nunito text-brand-ink leading-relaxed">
           This permanently deletes your UNIT account, profile, business listing, posts,
-          promotions, notifications, and related account data. This cannot be undone.
+          promotions, notifications, and related account data. UNIT may retain limited records
+          required for legal, security, or fraud prevention purposes; any such records will no
+          longer be linked to your identity. This cannot be undone.
         </Text>
       </Modal>
     </View>

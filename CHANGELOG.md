@@ -1,5 +1,52 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-13 — Apple account deletion compliance
+
+### Fixed
+- **Tenant deletion modal retention disclosure** — Added required disclosure sentence informing tenants that UNIT may retain limited records for legal, security, or fraud prevention purposes and that any retained records will no longer be linked to their identity. Matches the disclosure already present in the admin deletion modal and the web `/delete-account` page. Required by [Apple account deletion guidelines](https://developer.apple.com/support/offering-account-deletion-in-your-app).
+- **Tenant profile policy links** — Added in-app Terms of Use, Privacy Policy, and Account Deletion Help links to the tenant profile Settings card, matching the links already present in the admin profile.
+
+### Verification
+- `app/(tabs)/profile/index.tsx` deletion modal shows retention disclosure before user confirms
+- `app/(admin)/profile.tsx` deletion modal unchanged and already compliant
+- `portal/app/delete-account/page.tsx` web fallback unchanged and already compliant
+- `constants/policy.ts` supplies `policyUrls.terms`, `policyUrls.privacy`, `policyUrls.accountDeletion`
+
+## 2026-05-12 — Restore light app icon for store builds
+
+### Fixed
+- **Light UNIT app icon restored** — Replaced the dark app icon artwork with the light iOS v3 app icon for Expo `icon`, Android adaptive icon, favicon, and the generated iOS AppIcon asset used by local native builds.
+- **Release guard added** — Added `npm run icon:check` and wired it into production/staging release checks so the known dark UNIT icon hash fails before another store build can be shipped.
+
+### Verification
+- `npm run icon:check`
+- Production Expo config points `icon` to `./assets/icon.png`, Android adaptive foreground to `./assets/adaptive-icon.png`, and favicon to `./assets/favicon.png`.
+
+## 2026-05-12 — Google Play compliance and Sentry store-build upload guard
+
+### Added
+- **Google Play Billing compliance path** — Added Android in-app purchase support for tenant promotion checkout, Google Play product IDs on promotion pricing tiers, backend Android Publisher API purchase verification, and Google Play payment audit fields.
+- **UGC safety controls** — Added Terms acceptance before posting/uploading, content/business reporting, blocked-business filtering, and an admin moderation queue.
+- **Play policy URLs** — Added public privacy, terms, and account deletion URL support plus in-app links for tenants/admins.
+
+### Changed
+- **Sentry upload disabled for store builds** — Production EAS and the Android release workflow now set `SENTRY_DISABLE_AUTO_UPLOAD=true`. The Sentry Expo plugin may still warn about missing org/project metadata, but source-map upload is skipped and crash capture can still use `EXPO_PUBLIC_SENTRY_DSN`.
+- **Android permission surface** — Release manifest removes unused `RECORD_AUDIO`, `SYSTEM_ALERT_WINDOW`, `READ_EXTERNAL_STORAGE`, and `WRITE_EXTERNAL_STORAGE`; Play Billing, camera, notifications, network, and vibration remain.
+
+### Verification
+- `npm run typecheck`
+- `npm run lint`
+- `npm run edge:check`
+- `npm test -- --runInBand` — 18 suites, 85 tests
+- Portal `npm run build`
+- `./gradlew :app:processReleaseMainManifest --no-daemon`
+- `./gradlew :app:assembleRelease --no-daemon`
+- Release manifest check confirmed blocked sensitive permissions absent and `com.android.vending.BILLING` present.
+
+### Release blocker
+- Production Android AAB uploaded to EAS Build: `6c602432-f90b-468d-8663-f7e78fc5b9dd`, versionCode `3`, artifact `https://expo.dev/artifacts/eas/eocjwL8vF7T9oQdPMTPSWR.aab`.
+- Google Play submission is blocked until `unit/google-play-key.json` exists locally or `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` is configured in CI, and that service account has Google Play Console access for `com.unitapp.mobile`. The local key helper failed because `ketchel.david@gmail.com` lacks permission to enable `androidpublisher.googleapis.com` on Google Cloud project `cultrhealth`.
+
 ## 2026-05-12 — Android Google Play internal release automation
 
 ### Added
