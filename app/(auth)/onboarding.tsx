@@ -119,7 +119,10 @@ export default function OnboardingScreen() {
   };
 
   const onSubmit = async (data: BusinessForm) => {
-    if (!selectedProperty || !user?.email) return;
+    if (!selectedProperty || !user?.email) {
+      Toast.show({ type: 'error', text1: 'Something went wrong', text2: 'Please sign out and try again.' });
+      return;
+    }
     if (logoUri && !(await ensureTermsAccepted())) {
       // Terms modal is already showing; tell the user what to do next.
       Toast.show({
@@ -426,7 +429,20 @@ export default function OnboardingScreen() {
             )}
           />
 
-          <Button onPress={handleSubmit(onSubmit)} loading={loading} className="mt-4" testID="btn-create-profile">
+          <Button
+            onPress={handleSubmit(onSubmit, (formErrors) => {
+              const message =
+                formErrors.business_name?.message ??
+                formErrors.category?.message ??
+                formErrors.contact_email?.message ??
+                formErrors.website?.message ??
+                'Please fill in all required fields.';
+              Toast.show({ type: 'error', text1: 'Check your form', text2: message });
+            })}
+            loading={loading}
+            className="mt-4"
+            testID="btn-create-profile"
+          >
             Create Profile
           </Button>
 
