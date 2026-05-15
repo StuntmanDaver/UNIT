@@ -1,5 +1,20 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-15 — Advertiser approval admin screen
+
+### Added
+- **Mobile admin advertiser approval screen** — `app/(admin)/advertiser-accounts.tsx` lets mobile admins approve, suspend, or reactivate advertiser accounts that signed up through the web portal. Closes the cross-surface gap where advertiser approval was previously portal-only, leaving mobile-only admins unable to unlock new advertisers.
+- **Service + hook** — `services/advertiserAccounts.ts` (list with promotion counts, setStatus) and `hooks/useAdvertiserAccounts.ts` (React Query wrapper). Reads/writes the same `advertiser_profiles` table the portal's server actions hit, so changes from either surface stay in sync.
+- **Stack registration + dashboard nav** — Registered `advertiser-accounts` route in `(admin)/_layout.tsx` and added a navigation card on the admin dashboard with the `BadgeCheck` icon.
+
+### Verification
+- `npx tsc --noEmit` → 0 errors
+- `npm run brand-lint` → brand-lint-clean
+- `npm test` → 85 / 85 tests across 18 suites
+- ESLint on changed files → 0 warnings
+- No `Platform.OS` conditionals — iOS and Android share identical behavior
+- Cross-checked portal pattern at `portal/lib/admin/advertisers.ts` for parity (same status transitions, same `advertiser_profiles` writes, same promotion-count display)
+
 ## 2026-05-13 — Apple account deletion compliance
 
 ### Fixed

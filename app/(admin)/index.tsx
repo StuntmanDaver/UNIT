@@ -13,6 +13,8 @@ import {
   DollarSign,
   LogOut,
   LifeBuoy,
+  ShieldAlert,
+  BadgeCheck,
 } from 'lucide-react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { GradientHeader } from '@/components/ui/GradientHeader';
@@ -136,6 +138,18 @@ export default function AdminDashboard() {
             </Card>
 
             <Card
+              onPress={() => router.push('/(admin)/advertiser-accounts')}
+              className="flex-row items-center px-4 py-3.5"
+              testID="nav-advertiser-accounts"
+            >
+              <BadgeCheck size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
+                Advertiser Approval
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card
               onPress={() => router.push({ pathname: '/(admin)/tenants', params: { propertyId: activePropertyId } })}
               className="flex-row items-center px-4 py-3.5"
             >
@@ -169,6 +183,17 @@ export default function AdminDashboard() {
               <DollarSign size={20} color={BRAND.blue} />
               <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
                 Promotion Pricing
+              </Text>
+              <ChevronRight size={18} color={BRAND.steel} />
+            </Card>
+
+            <Card
+              onPress={() => router.push({ pathname: '/(admin)/moderation', params: { propertyId: activePropertyId } })}
+              className="flex-row items-center px-4 py-3.5"
+            >
+              <ShieldAlert size={20} color={BRAND.blue} />
+              <Text className="flex-1 text-base font-nunito-semibold text-brand-ink ml-3">
+                Moderation Queue
               </Text>
               <ChevronRight size={18} color={BRAND.steel} />
             </Card>

@@ -13,10 +13,12 @@ export default function AdminLayout() {
       <Stack.Screen name="index" />
       <Stack.Screen name="tenants" />
       <Stack.Screen name="advertisers" />
+      <Stack.Screen name="advertiser-accounts" />
       <Stack.Screen name="properties" />
       <Stack.Screen name="push" />
       <Stack.Screen name="profile" />
       <Stack.Screen name="support" />
+      <Stack.Screen name="moderation" />
       <Stack.Screen name="promotions/index" />
       <Stack.Screen name="promotions/new-external" />
       <Stack.Screen name="promotions/[id]" />
