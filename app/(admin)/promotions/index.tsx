@@ -16,10 +16,14 @@ import { useAdminAllPromotionList } from '@/hooks/useAdminPromotions';
 import { type Promotion, getPromotionKind } from '@/services/promotions';
 import { firstParam } from '@/lib/routeParams';
 
-const SEGMENTS = ['All', 'Pending', 'Approved', 'External'];
+const SEGMENTS = ['All', 'Draft', 'Pending', 'Approved', 'External'];
 
 function filterPromotions(promotions: Promotion[], segment: string): Promotion[] {
   switch (segment) {
+    case 'Draft':
+      // New tenant promotions land here before payment is completed.
+      // review_status='draft' until the Stripe webhook flips it to 'pending'.
+      return promotions.filter((p) => p.review_status === 'draft');
     case 'Pending':
       return promotions.filter((p) => p.review_status === 'pending');
     case 'Approved':

@@ -16,14 +16,17 @@ export function useTenants(propertyId: string, status?: string, search?: string)
         businessesService.filter({ property_id: propertyId }),
       ]);
 
+      // Normalize to lowercase on both sides: Supabase auth lowercases email
+      // in auth.users but manually-entered values in businesses.owner_email
+      // may differ in case (e.g. admin CSV import with mixed-case email).
       const businessByEmail = new Map<string, Business>();
       for (const business of businesses) {
-        businessByEmail.set(business.owner_email, business);
+        businessByEmail.set(business.owner_email.toLowerCase(), business);
       }
 
       let tenants: TenantWithBusiness[] = profiles.map((profile) => ({
         profile,
-        business: businessByEmail.get(profile.email) ?? null,
+        business: businessByEmail.get((profile.email ?? '').toLowerCase()) ?? null,
       }));
 
       if (status) {

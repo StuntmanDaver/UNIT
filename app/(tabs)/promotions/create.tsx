@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +25,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { promotionsService } from '@/services/promotions';
 import { storageService } from '@/services/storage';
 import { useAuth } from '@/lib/AuthContext';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 
 function isHttpUrl(value: string): boolean {
   if (!value) return true;
@@ -59,12 +60,17 @@ type ActivePicker = null | 'start' | 'end';
 export default function CreatePromotionScreen() {
   const queryClient = useQueryClient();
   const { propertyIds, user } = useAuth();
+  const { ensureTermsAccepted, TermsModal } = useTermsAcceptance();
   const { data: business } = useCurrentUser();
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
+  // iOS spinner fires onChange on every scroll step — track a draft so the
+  // picker header doesn't switch from "Start Date" to "End Date" mid-scroll.
+  // Only committed when the user taps Done.
+  const [draftDate, setDraftDate] = useState<Date | null>(null);
 
   const propertyId = propertyIds[0] ?? '';
   const today = new Date();
@@ -79,6 +85,7 @@ export default function CreatePromotionScreen() {
   });
 
   const handlePickImage = async () => {
+    if (!(await ensureTermsAccepted())) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -90,23 +97,47 @@ export default function CreatePromotionScreen() {
   };
 
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
-    if (Platform.OS === 'android') setActivePicker(null);
     if (!date) return;
-    if (activePicker === 'start') {
-      setStartDate(date);
-      // Auto-advance to end picker on iOS
-      if (Platform.OS !== 'android') setActivePicker('end');
-    } else if (activePicker === 'end') {
-      setEndDate(date);
-      if (Platform.OS !== 'android') setActivePicker(null);
+    if (Platform.OS === 'android') {
+      // Android shows a native confirm dialog — onChange fires once on confirm.
+      setActivePicker(null);
+      if (activePicker === 'start') {
+        setStartDate(date);
+        if (!endDate || endDate <= date) setEndDate(addDays(date, 7));
+      } else if (activePicker === 'end') {
+        setEndDate(startDate && date <= startDate ? addDays(startDate, 7) : date);
+      }
+    } else {
+      // iOS spinner fires onChange on every scroll step — just update the draft.
+      // Commit happens in handlePickerDone so the picker label never flickers.
+      setDraftDate(date);
     }
   };
 
+  const handlePickerDone = () => {
+    const confirmed = draftDate ?? pickerValue;
+    if (activePicker === 'start') {
+      setStartDate(confirmed);
+      if (!endDate || endDate <= confirmed) setEndDate(addDays(confirmed, 7));
+      setActivePicker('end');
+    } else if (activePicker === 'end') {
+      setEndDate(startDate && confirmed <= startDate ? addDays(startDate, 7) : confirmed);
+      setActivePicker(null);
+    }
+    setDraftDate(null);
+  };
+
+  const handlePickerCancel = () => {
+    setActivePicker(null);
+    setDraftDate(null);
+  };
+
   const pickerValue = activePicker === 'start'
-    ? (startDate ?? today)
-    : (endDate ?? startDate ?? today);
+    ? (draftDate ?? startDate ?? today)
+    : (draftDate ?? endDate ?? startDate ?? today);
 
   const onSubmit = async (data: FormData) => {
+    if (!(await ensureTermsAccepted())) return;
     if (!business) {
       Toast.show({ type: 'error', text1: 'No business profile found' });
       return;
@@ -253,16 +284,16 @@ export default function CreatePromotionScreen() {
           <Modal visible transparent animationType="slide">
             <Pressable
               className="flex-1 bg-black/50 justify-end"
-              onPress={() => setActivePicker(null)}
+              onPress={handlePickerCancel}
             >
               <Pressable onPress={(e) => e.stopPropagation()}>
                 <View className="bg-brand-mist rounded-t-2xl pb-8">
                   <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
-                    <Pressable onPress={() => setActivePicker(null)}>
+                    <Pressable onPress={handlePickerCancel}>
                       <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal">Cancel</Text>
                     </Pressable>
                     <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">{pickerLabel}</Text>
-                    <Pressable onPress={() => setActivePicker(null)}>
+                    <Pressable onPress={handlePickerDone}>
                       <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">Done</Text>
                     </Pressable>
                   </View>
@@ -361,6 +392,7 @@ export default function CreatePromotionScreen() {
           </Button>
         </View>
       </ScrollView>
+      <TermsModal />
     </View>
   );
 }
