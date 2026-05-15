@@ -5,8 +5,8 @@ import {
   ScrollView,
   Pressable,
   Image,
-  Modal,
   Platform,
+  Keyboard,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { addDays, format } from 'date-fns';
@@ -94,6 +94,12 @@ export default function CreatePromotionScreen() {
     if (!result.canceled && result.assets[0]) {
       setImageUri(result.assets[0].uri);
     }
+  };
+
+  const openPicker = (which: 'start' | 'end') => {
+    // Dismiss keyboard so it doesn't overlap the picker spinner.
+    Keyboard.dismiss();
+    setActivePicker(which);
   };
 
   const handleDateChange = (_event: DateTimePickerEvent, date?: Date) => {
@@ -254,7 +260,7 @@ export default function CreatePromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Start Date *</Text>
             <Pressable
-              onPress={() => setActivePicker('start')}
+              onPress={() => openPicker('start')}
               testID="promotion-start-date"
               className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-3 h-12"
             >
@@ -267,7 +273,7 @@ export default function CreatePromotionScreen() {
           <View className="flex-1">
             <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">End Date *</Text>
             <Pressable
-              onPress={() => setActivePicker('end')}
+              onPress={() => openPicker('end')}
               testID="promotion-end-date"
               className="flex-row items-center bg-brand-mist border border-brand-blue/40 rounded-xl px-3 h-12"
             >
@@ -278,38 +284,6 @@ export default function CreatePromotionScreen() {
             </Pressable>
           </View>
         </View>
-
-        {/* iOS date picker modal */}
-        {Platform.OS === 'ios' && activePicker !== null && (
-          <Modal visible transparent animationType="slide">
-            <Pressable
-              className="flex-1 bg-black/50 justify-end"
-              onPress={handlePickerCancel}
-            >
-              <Pressable onPress={(e) => e.stopPropagation()}>
-                <View className="bg-brand-mist rounded-t-2xl pb-8">
-                  <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
-                    <Pressable onPress={handlePickerCancel}>
-                      <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal">Cancel</Text>
-                    </Pressable>
-                    <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">{pickerLabel}</Text>
-                    <Pressable onPress={handlePickerDone}>
-                      <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">Done</Text>
-                    </Pressable>
-                  </View>
-                  <DateTimePicker
-                    value={pickerValue}
-                    mode="date"
-                    display="spinner"
-                    minimumDate={activePicker === 'end' && startDate ? startDate : today}
-                    onChange={handleDateChange}
-                    themeVariant="dark"
-                  />
-                </View>
-              </Pressable>
-            </Pressable>
-          </Modal>
-        )}
 
         {/* Android inline date picker */}
         {Platform.OS === 'android' && activePicker !== null && (
@@ -387,11 +361,69 @@ export default function CreatePromotionScreen() {
           <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="promotion-submit">
             Continue to Payment
           </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving}>
+          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="promotion-cancel">
             Cancel
           </Button>
         </View>
       </ScrollView>
+
+      {/* iOS date picker overlay — uses absolute View instead of RN Modal so
+          the picker stays in the main accessibility tree (Maestro can read it,
+          screen readers traverse correctly, and there's no UIWindow stacking
+          weirdness on iPad split view / multi-tasking). */}
+      {Platform.OS === 'ios' && activePicker !== null && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        >
+          <Pressable
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+            onPress={handlePickerCancel}
+            testID="date-picker-backdrop"
+            accessible={false}
+          >
+            <Pressable onPress={(e) => e.stopPropagation()} accessible={false}>
+              <View className="bg-brand-mist rounded-t-2xl pb-8">
+                <View className="flex-row justify-between items-center px-4 pt-4 pb-2">
+                  <Pressable
+                    onPress={handlePickerCancel}
+                    testID="date-picker-cancel"
+                    accessibilityLabel="Cancel date picker"
+                    accessible
+                    hitSlop={12}
+                  >
+                    <Text className="text-sm font-nunito-semibold text-brand-ink leading-normal">Cancel</Text>
+                  </Pressable>
+                  <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">{pickerLabel}</Text>
+                  <Pressable
+                    onPress={handlePickerDone}
+                    testID="date-picker-done"
+                    accessibilityLabel="Confirm date selection"
+                    accessible
+                    hitSlop={12}
+                  >
+                    <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">Done</Text>
+                  </Pressable>
+                </View>
+                <DateTimePicker
+                  value={pickerValue}
+                  mode="date"
+                  display="spinner"
+                  minimumDate={activePicker === 'end' && startDate ? startDate : today}
+                  onChange={handleDateChange}
+                  themeVariant="dark"
+                />
+              </View>
+            </Pressable>
+          </Pressable>
+        </View>
+      )}
+
       <TermsModal />
     </View>
   );

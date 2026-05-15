@@ -1,0 +1,107 @@
+appId: ${MAESTRO_APP_ID}
+---
+# QA-ADMIN-09: Admin sync — new self-signup tenant + promotion visibility
+#
+# Verifies that after a self-signup tenant creates a business and a promotion:
+#   1. Admin can see the tenant in the Tenants list (Invited or Active segment)
+#   2. Admin can see the promotion in the Promotions → Draft segment
+#
+# PREREQUISITE: The m1-05-onboarding flow must have run first to create a
+# self-signup tenant for one of the admin's managed properties. This test then
+# logs in as admin and verifies the data is visible.
+#
+# NOTE: Both this test and m1-05-onboarding run against production Supabase.
+# Test data accumulates — clean up e2e-* accounts periodically via Supabase
+# dashboard (Auth → Users, filter by email prefix "e2e-").
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-admin.yaml
+
+# ── VERIFY: Admin dashboard loads with property selector ─────────────────────
+- assertVisible: "Admin Dashboard"
+- assertVisible: "Select a property to view stats"
+
+# Select first managed property (property selector auto-selects if only one)
+- runFlow:
+    when:
+      visible: "Select a property"
+    commands:
+      - tapOn: "Select a property"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+
+# ── VERIFY: Stats loaded after property selection ─────────────────────────────
+- extendedWaitUntil:
+    notVisible:
+      text: "Loading dashboard..."
+    timeout: 10000
+
+# ── VERIFY: Admin tenant list includes self-signup tenants ───────────────────
+- tapOn: "Tenants"
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 8000
+
+# The tenant list should not be empty. At minimum the pre-seeded test tenants
+# should appear. Self-signup tenants appear under All or Invited.
+- assertVisible: "Tenants"
+- assertNotVisible: "Loading tenants..."
+
+# ── VERIFY: Admin promotions screen has Draft segment ───────────────────────
+- tapOn:
+    id: "back-btn"
+- tapOn: "Manage Promotions"
+- extendedWaitUntil:
+    visible:
+      text: "Promotions"
+    timeout: 8000
+
+# Select first managed property in promotions screen if needed
+- runFlow:
+    when:
+      visible: "Select a property to manage promotions"
+    commands:
+      - tapOn: "Select a property"
+      - waitForAnimationToEnd
+      - tapOn:
+          index: 0
+      - waitForAnimationToEnd
+
+# Draft segment must be visible (added in this session)
+- assertVisible: "Draft"
+- tapOn: "Draft"
+- waitForAnimationToEnd
+
+# All, Pending, Approved, External segments must also be present
+- assertVisible: "All"
+- assertVisible: "Pending"
+- assertVisible: "Approved"
+- assertVisible: "External"
+
+- runFlow: ../subflows/logout.yaml

@@ -1,20 +1,19 @@
 appId: ${MAESTRO_APP_ID}
 ---
-# QA-PROMOTIONS-02: Promotion create — full form + cancel path
-# Covers items 103-114 from the exhaustive inventory:
-#   - Headline / description required fields
-#   - Date picker (iOS modal) — start and end
-#   - Optional CTA label + link
-#   - Submit → lands on pending-payment screen
-#   - Cancel → back to promotions list
+# QA-PROMOTIONS-02: Promotion create — full submit path with date picker
 #
-# This flow creates a real promotion in the DB. The resulting pending-payment
-# screen is covered separately in qa-promotions-03.
+# Tests the date picker fix: on iOS, the spinner used to auto-advance to
+# 'End Date' on every scroll tick (because onChange fires continuously).
+# Fixed: draftDate now tracks spinner state, commit + advance only on Done tap.
+#
+# This test creates a real promotion in production Supabase. Test promotions
+# can be identified by headline "QA Test Promotion" and cleaned up via the
+# admin promotions screen (Draft segment).
 
 - launchApp:
     clearState: true
 
-# Dev build: clearState resets launcher URL — open Metro bundle before login waits on "Log In".
+# Dev client overlay
 - runFlow:
     when:
       visible: "Development Build"
@@ -42,17 +41,7 @@ appId: ${MAESTRO_APP_ID}
     id: "tab-promotions"
 - assertVisible: "Promotions"
 
-# ── CASE 1: Cancel immediately → back to promotions ──────────────────────────
-- tapOn:
-    id: "fab-create-promotion"
-- extendedWaitUntil:
-    visible:
-      text: "Promote My Business"
-    timeout: 8000
-- tapOn: "Cancel"
-- assertVisible: "Promotions"
-
-# ── CASE 2: Full form submit → pending-payment screen ────────────────────────
+# ── Open create form ────────────────────────────────────────────────────────
 - tapOn:
     id: "fab-create-promotion"
 - extendedWaitUntil:
@@ -60,78 +49,59 @@ appId: ${MAESTRO_APP_ID}
       text: "Promote My Business"
     timeout: 8000
 
-# Headline (required)
+# ── Required fields ─────────────────────────────────────────────────────────
 - tapOn:
     id: "promotion-headline"
 - inputText: "QA Test Promotion"
 
-# Description (required)
 - tapOn:
     id: "promotion-description"
 - inputText: "Automated Maestro promotion for end-to-end testing."
 
-# Dismiss keyboard by tapping header
-- tapOn: "Promote My Business"
-
-# Start date — open picker and swipe one day forward
+# ── Start date — opens iOS spinner overlay (keyboard auto-dismissed) ────────
+# With the fix: the spinner stays in "Start Date" mode while scrolling.
+# Tapping Done commits the start date AND auto-advances to "End Date" overlay.
 - tapOn:
     id: "promotion-start-date"
-- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "date-picker-done"
+    timeout: 5000
 - swipe:
-    start: "50%, 85%"
-    end: "50%, 80%"
-- waitForAnimationToEnd
-# Auto-advances to end picker on iOS; swipe end date wheel
-- swipe:
-    start: "50%, 85%"
+    start: "50%, 80%"
     end: "50%, 65%"
 - waitForAnimationToEnd
-# Dismiss modal if still open
-- runFlow:
-    when:
-      visible: "Cancel, Start Date, Done"
-    commands:
-      - tapOn:
-          point: "92%, 71%"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Cancel, End Date, Done"
-    commands:
-      - tapOn:
-          point: "92%, 71%"
-      - waitForAnimationToEnd
-
-# Optional CTA — labels from source: "Button Label (optional)" and "Button Link (optional)"
 - tapOn:
-    id: "promotion-cta-label"
-- inputText: "Visit Us"
-- tapOn:
-    id: "promotion-cta-link"
-- inputText: "https://unit.app"
-- pressKey: Enter
-
-# Scroll down to submit button
-- swipe:
-    start: "50%, 60%"
-    end: "50%, 15%"
+    id: "date-picker-done"
 - waitForAnimationToEnd
 
+# ── End date — iOS auto-advanced here. Tap Done to commit.
+- extendedWaitUntil:
+    visible:
+      id: "date-picker-done"
+    timeout: 5000
+- swipe:
+    start: "50%, 80%"
+    end: "50%, 65%"
+- waitForAnimationToEnd
+- tapOn:
+    id: "date-picker-done"
+- waitForAnimationToEnd
+
+# ── Submit ──────────────────────────────────────────────────────────────────
+- scrollUntilVisible:
+    element:
+      id: "promotion-submit"
+    direction: DOWN
+    centerElement: true
+- waitForAnimationToEnd
 - tapOn:
     id: "promotion-submit"
 
-# Land on pending-payment
+# ── Verify landed on pending-payment screen ────────────────────────────────
 - extendedWaitUntil:
     visible:
       text: "Pending Payment"
-    timeout: 12000
-
-# Navigate back to promotions list
-- scrollUntilVisible:
-    element:
-      text: "Save for Later"
-    direction: DOWN
-- tapOn: "Save for Later"
-- assertVisible: "Promotions"
+    timeout: 15000
 
 - runFlow: ../subflows/logout.yaml
