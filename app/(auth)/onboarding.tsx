@@ -301,6 +301,7 @@ export default function OnboardingScreen() {
             render={({ field: { onChange, onBlur, value } }) => (
               <Input
                 label="Business Name"
+                testID="onboarding-business-name"
                 placeholder="Your business name"
                 value={value}
                 onBlur={onBlur}

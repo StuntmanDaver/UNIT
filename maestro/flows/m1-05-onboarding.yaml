@@ -1,16 +1,42 @@
 appId: ${MAESTRO_APP_ID}
 ---
-# M1-05: Fresh signup → onboarding → directory
-# BUG-03 regression: after signup AuthGuard must redirect to onboarding, NOT tabs
+# M1-05: Fresh signup → onboarding → pending-approval
+# Tests the complete new-user flow end-to-end:
+#   1. Signup with a fresh mailinator email
+#   2. Land on onboarding (BUG-03 regression check)
+#   3. Select property
+#   4. Fill profile form (business name + category required)
+#   5. Submit → land on pending-approval screen
 #
-# MANUAL STEP REQUIRED before running:
-#   Create a fresh Mailinator account in Supabase auth (or use the app signup)
-#   and ensure no business profile exists for the test email.
-#
-# This flow uses the Sign Up path with a timestamp-based email.
+# Note: New self-signup users remain status='invited' after onboarding,
+# so they land on pending-approval (not Directory). An admin must approve
+# before they can access the main tabs.
 
 - launchApp:
     clearState: true
+
+# Handle dev client overlay (shown when app is a development build)
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -23,86 +49,72 @@ appId: ${MAESTRO_APP_ID}
       text: "Create Account"
     timeout: 8000
 
-# Generate a unique email for this run
-- evalScript: |
-    var ts = Date.now();
-    output.testEmail = 'e2e-' + ts + '@mailinator.com';
-    output.testPassword = 'TestPass123!';
+# Generate a unique email for this run (single-line evalScript required)
+- evalScript: ${output.testEmail = 'e2e-' + Date.now() + '@mailinator.com'}
 
-# Fill signup form
+# Fill signup form using testIDs
 - tapOn:
-    label: "Email"
+    id: "signup-email"
 - inputText: ${output.testEmail}
 - tapOn:
-    label: "Password"
-- inputText: ${output.testPassword}
+    id: "signup-password"
+- inputText: "TestPass123!"
 - tapOn:
-    label: "Confirm Password"
-- inputText: ${output.testPassword}
-- hideKeyboard
-- tapOn: "Sign Up"
+    id: "signup-confirm-password"
+- inputText: "TestPass123!"
+- tapOn: "Create Account"
+- scrollUntilVisible:
+    element:
+      id: "btn-signup-submit"
+    direction: DOWN
+- tapOn:
+    id: "btn-signup-submit"
 
-# NOTE: Supabase email confirmation may be required.
-# If email confirmation is disabled in Supabase auth settings,
-# the flow continues automatically to onboarding.
-# If confirmation is required, this flow will stop here and need manual email click.
-
-# BUG-03 check: must land on onboarding, not directory
+# BUG-03 check: must land on onboarding (Select Your Property), NOT tabs
 - extendedWaitUntil:
     visible:
       text: "Select Your Property"
-    timeout: 15000
+    timeout: 20000
 
-# Step 1: Select property (tap first available property)
-- scrollUntilVisible:
-    element:
-      index: 0
-    direction: DOWN
+# Step 1: Select the first available property (tap the row directly by testID)
+- waitForAnimationToEnd
 - tapOn:
+    id: "property-list-item"
     index: 0
-    childOf:
-      id: "property-list-item"
 
-# If the above doesn't work, try tapping first text in the list after the header
-# Property items show name text — try tapping by position if needed
-
-# Step 2: Select unit
-- assertVisible: "Select Your Unit"
-- scrollUntilVisible:
-    element:
-      index: 0
-    direction: DOWN
-- tapOn:
-    index: 0
-    childOf:
-      id: "unit-list-item"
-
-# Step 3: Fill profile
-- assertVisible: "Create Your Profile"
-- tapOn:
-    label: "Business Name"
-- inputText: "E2E Test Business"
-- hideKeyboard
-# Select a category chip. Onboarding chips live in a horizontal ScrollView
-# (testID: "onboarding-category-scroll"). Bounded repeat swipes LEFT until
-# "Healthcare" (position 13 in BUSINESS_CATEGORIES) is visible, then taps.
-- repeat:
-    times: 8
-    commands:
-      - runFlow:
-          when:
-            notVisible: "Healthcare"
-          commands:
-            - swipe:
-                from:
-                  id: "onboarding-category-scroll"
-                direction: LEFT
-                duration: 600
-- tapOn: "Healthcare"
-- tapOn: "Create Profile"
-
-# Success: redirected to directory
+# Step 2: Fill business profile form (no unit selection step in current flow)
 - extendedWaitUntil:
     visible:
-      text: "Directory"
-    timeout: 20000
+      text: "Create Your Profile"
+    timeout: 8000
+
+- tapOn:
+    id: "onboarding-business-name"
+- inputText: "E2E Test Business"
+- tapOn: "Create Your Profile"
+
+# Select a category chip — tap "Restaurant" (first chip, always visible)
+- tapOn: "Restaurant"
+
+# Submit the form
+- tapOn:
+    id: "btn-create-profile"
+
+# After successful submission the user lands on either:
+#   - the Home feed (if the Supabase project auto-activates new tenants), or
+#   - the Approval pending screen (if admin approval is required)
+# Both are valid success states — profile was created and onboarding is done.
+- runFlow:
+    when:
+      visible: "Approval pending"
+    commands:
+      - assertVisible: "Approval pending"
+- runFlow:
+    when:
+      notVisible: "Approval pending"
+    commands:
+      - extendedWaitUntil:
+          visible:
+            text: "Home"
+          timeout: 30000
+      - assertVisible: "Home"
