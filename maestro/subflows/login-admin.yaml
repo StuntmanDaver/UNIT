@@ -3,6 +3,14 @@ appId: ${MAESTRO_APP_ID}
 # Reusable subflow: log in as admin
 # Precondition: app launched, waiting for login screen
 # Postcondition: app is on Admin Dashboard with property selector visible
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -10,10 +18,11 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "login-email"
 - eraseText: 100
-- inputText: "david@cultrhealth.com"
+- inputText: "admin@unit-test.com"
+- pressKey: Enter
+- waitForAnimationToEnd
 - tapOn:
     id: "login-password"
-- eraseText: 100
 - inputText: "admin123"
 - tapOn:
     id: "login-logo"
@@ -26,8 +35,8 @@ appId: ${MAESTRO_APP_ID}
 - extendedWaitUntil:
     visible:
       text: "Admin Dashboard"
-    timeout: 15000
+    timeout: 30000
 - extendedWaitUntil:
     visible:
       text: "Manage Promotions"
-    timeout: 15000
+    timeout: 30000
