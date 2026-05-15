@@ -21,6 +21,7 @@ export {
 export { deactivatePricingTierAction, getPricingTiers, upsertPricingTierAction } from './pricing';
 export { createPropertyAction, getAdminProperties } from './properties';
 export { getBroadcastHistory, sendPushBroadcastAction } from './push';
+export { getContentReports, updateContentReportStatusAction } from './moderation';
 export { logoutAdminAction } from './session';
 export {
   disableTenantAction,

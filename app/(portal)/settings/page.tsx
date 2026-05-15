@@ -1,11 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import type { AdvertiserProfile } from '@/lib/supabase/types';
-import { getMyProfile, updateMyProfile } from './actions';
+import { deleteMyAdvertiserAccount, getMyProfile, updateMyProfile } from './actions';
 
 const schema = z.object({
   businessName: z.string().min(2, 'Business name required'),
@@ -14,12 +15,29 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<AdvertiserProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  const handleDeleteAccount = async (): Promise<void> => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await deleteMyAdvertiserAccount();
+      toast.success('Your advertiser account has been deleted.');
+      router.replace('/login');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Could not delete account.';
+      toast.error(message);
+      setDeleting(false);
+    }
+  };
 
   useEffect(() => {
     getMyProfile().then((p) => {
@@ -72,6 +90,44 @@ export default function SettingsPage() {
           {loading ? 'Saving…' : 'Save Changes'}
         </button>
       </form>
+
+      <section className="unit-card mt-6 max-w-lg space-y-3 p-6">
+        <h2 className="text-base font-black text-[#101B29]">Delete Account</h2>
+        <p className="text-sm text-[#465A75]">
+          Permanently delete your advertiser account. Your promotions will be detached and retained
+          for property admin records; UNIT may keep limited records required for legal, security, or
+          fraud-prevention purposes, no longer linked to your identity. This cannot be undone.
+        </p>
+        {confirmDelete ? (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="unit-btn unit-btn-danger"
+              disabled={deleting}
+              onClick={() => void handleDeleteAccount()}
+              aria-label="Confirm permanent account deletion"
+            >
+              {deleting ? 'Deleting…' : 'Yes, delete my account'}
+            </button>
+            <button
+              type="button"
+              className="unit-btn unit-btn-secondary"
+              disabled={deleting}
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="unit-btn unit-btn-danger"
+            onClick={() => setConfirmDelete(true)}
+          >
+            Delete Account
+          </button>
+        )}
+      </section>
     </div>
   );
 }

@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { href: '/admin/promotions/new-external', label: 'New External', section: 'Promotions', propertyScoped: true },
   { href: '/admin/properties', label: 'Properties', section: 'Operations', propertyScoped: false },
   { href: '/admin/push', label: 'Broadcasts', section: 'Operations', propertyScoped: true },
+  { href: '/admin/moderation', label: 'Moderation', section: 'Operations', propertyScoped: true },
   { href: '/admin/profile', label: 'Admin Profile', section: 'Account', propertyScoped: false },
 ];
 

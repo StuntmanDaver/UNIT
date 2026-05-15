@@ -83,6 +83,10 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           <h2 className="font-black">Broadcasts</h2>
           <p className="mt-1 text-sm text-[#465A75]">Send property-scoped announcements to tenants.</p>
         </Link>
+        <Link className="unit-card p-5 transition-shadow hover:shadow-md" href={`/admin/moderation?propertyId=${data.selectedPropertyId}`}>
+          <h2 className="font-black">Moderation Queue</h2>
+          <p className="mt-1 text-sm text-[#465A75]">Review tenant reports for posts, businesses, and promotions.</p>
+        </Link>
       </section>
 
       <section className="space-y-3">
