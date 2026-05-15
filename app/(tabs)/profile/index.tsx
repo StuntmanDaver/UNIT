@@ -9,6 +9,7 @@ import {
   Share,
   Linking,
 } from 'react-native';
+import { useQueryClient } from '@tanstack/react-query';
 import { router, Redirect } from 'expo-router';
 import QRCode from 'react-native-qrcode-svg';
 import Constants from 'expo-constants';
@@ -29,7 +30,8 @@ import { buildAppDeepLink } from '@/constants/runtime';
 import { policyUrls } from '@/constants/policy';
 
 function TenantProfileContent() {
-  const { user, propertyIds, logout } = useAuth();
+  const { user, propertyIds, logout, refreshProfile } = useAuth();
+  const queryClient = useQueryClient();
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const { data: business, isLoading } = useCurrentUser();
@@ -124,9 +126,18 @@ function TenantProfileContent() {
               <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-2">
                 No business profile yet
               </Text>
-              <Text className="text-base font-nunito text-brand-ink leading-relaxed">
+              <Text className="text-base font-nunito text-brand-ink leading-relaxed mb-4">
                 Set up your business profile to appear in the directory.
               </Text>
+              <Button
+                onPress={async () => {
+                  await refreshProfile();
+                  queryClient.invalidateQueries({ queryKey: ['currentUser', user?.email] });
+                }}
+                variant="primary"
+              >
+                Set Up Profile
+              </Button>
             </Card>
           )}
 

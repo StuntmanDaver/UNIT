@@ -49,13 +49,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (profileData.role === 'landlord') {
         setNeedsOnboarding(false);
       } else {
-        const { data: businesses } = await supabase
+        const { data: businesses, error: businessesError } = await supabase
           .from('businesses')
           .select('id')
           .eq('owner_email', userEmail)
           .limit(1);
 
-        setNeedsOnboarding(!businesses || businesses.length === 0);
+        if (businessesError) {
+          // Safe default: route to onboarding when business status is unknown.
+          // The onboarding screen handles the case where a business already exists
+          // (pre-check before INSERT), so defaulting to true is safe.
+          console.warn('fetchProfile: businesses check failed, defaulting needsOnboarding=true', businessesError);
+          setNeedsOnboarding(true);
+        } else {
+          setNeedsOnboarding(!businesses || businesses.length === 0);
+        }
       }
     } else {
       setNeedsOnboarding(false);

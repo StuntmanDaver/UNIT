@@ -23,6 +23,7 @@ import { businessesService } from '@/services/businesses';
 import { storageService } from '@/services/storage';
 import { adminService } from '@/services/admin';
 import { useAuth } from '@/lib/AuthContext';
+import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { BUSINESS_CATEGORIES, getCategoryLabel } from '@/constants/categories';
@@ -60,6 +61,7 @@ function SignOutLink({ onSignOut }: { onSignOut: () => Promise<void> }) {
 
 export default function OnboardingScreen() {
   const { user, logout, refreshProfile } = useAuth();
+  const { ensureTermsAccepted, TermsModal } = useTermsAcceptance();
   const insets = useSafeAreaInsets();
 
   const [step, setStep] = useState<'property' | 'profile'>('property');
@@ -103,6 +105,7 @@ export default function OnboardingScreen() {
   };
 
   const pickImage = async () => {
+    if (!(await ensureTermsAccepted())) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
@@ -117,42 +120,83 @@ export default function OnboardingScreen() {
 
   const onSubmit = async (data: BusinessForm) => {
     if (!selectedProperty || !user?.email) return;
+    if (logoUri && !(await ensureTermsAccepted())) {
+      // Terms modal is already showing; tell the user what to do next.
+      Toast.show({
+        type: 'info',
+        text1: 'Review the terms to continue',
+        text2: 'Accept the terms, then tap Create Profile again.',
+      });
+      return;
+    }
 
     setLoading(true);
 
     try {
-      // Logo upload is best-effort — a stalled upload should not block profile creation
-      let logoUrl: string | null = null;
-      if (logoUri) {
-        try {
-          const ext = logoUri.split('.').pop() ?? 'jpg';
-          const { file_url } = await storageService.uploadFile(logoUri, ext);
-          logoUrl = file_url;
-        } catch {
-          // Per D-05 / Risk Area 5: continue without logo so the user is not
-          // blocked, but surface a warning so they know the upload failed and
-          // can retry from profile edit later.
-          Toast.show({
-            type: 'info',
-            text1: 'Logo upload failed',
-            text2: 'You can try again from your profile settings.',
-          });
+      // Pre-check: does a business already exist for this email?
+      // Handles the retry case where a previous submit wrote the business row
+      // but the completeOnboarding Edge Function call then failed, leaving the
+      // user stuck (the guard_single_business_claim_per_email trigger blocks any
+      // subsequent INSERT). Uses sentinel booleans so Supabase query errors are
+      // never confused with our own thrown errors.
+      let skipCreate = false;
+      let differentPropertyConflict = false;
+      try {
+        const existing = await businessesService.filter({ owner_email: user.email });
+        if (existing.length > 0) {
+          if (existing[0].property_id !== selectedProperty.id) {
+            differentPropertyConflict = true;
+          } else {
+            // Business already created for this property — skip INSERT, just
+            // re-run completeOnboarding (idempotent: merges property_id via Set).
+            skipCreate = true;
+          }
         }
+      } catch {
+        // Pre-check query failed (network, RLS, etc.) — log and fall through to
+        // the normal create path. If a duplicate truly exists the DB trigger will
+        // surface a clear error to the user.
+        console.warn('onboarding pre-check query failed, proceeding with create');
       }
 
-      await businessesService.create({
-        property_id: selectedProperty.id,
-        owner_email: user.email,
-        business_name: data.business_name,
-        category: data.category,
-        business_description: data.business_description || null,
-        contact_name: data.contact_name || null,
-        contact_email: data.contact_email || null,
-        contact_phone: data.contact_phone || null,
-        website: data.website || null,
-        logo_url: logoUrl,
-        unit_number: null,
-      });
+      if (differentPropertyConflict) {
+        throw new Error('A business profile already exists for your email at a different property. Contact your property admin.');
+      }
+
+      if (!skipCreate) {
+        // Logo upload is best-effort — a stalled upload should not block profile creation
+        let logoUrl: string | null = null;
+        if (logoUri) {
+          try {
+            const ext = logoUri.split('.').pop() ?? 'jpg';
+            const { file_url } = await storageService.uploadFile(logoUri, ext);
+            logoUrl = file_url;
+          } catch {
+            // Per D-05 / Risk Area 5: continue without logo so the user is not
+            // blocked, but surface a warning so they know the upload failed and
+            // can retry from profile edit later.
+            Toast.show({
+              type: 'info',
+              text1: 'Logo upload failed',
+              text2: 'You can try again from your profile settings.',
+            });
+          }
+        }
+
+        await businessesService.create({
+          property_id: selectedProperty.id,
+          owner_email: user.email,
+          business_name: data.business_name,
+          category: data.category,
+          business_description: data.business_description || null,
+          contact_name: data.contact_name || null,
+          contact_email: data.contact_email || null,
+          contact_phone: data.contact_phone || null,
+          website: data.website || null,
+          logo_url: logoUrl,
+          unit_number: null,
+        });
+      }
 
       // Set property_ids. New tenant signups remain invited until a landlord
       // approves them from the admin tenant list.
@@ -397,6 +441,7 @@ export default function OnboardingScreen() {
           <SignOutLink onSignOut={logout} />
         </View>
       </ScrollView>
+      <TermsModal />
     </KeyboardAvoidingView>
   );
 }
