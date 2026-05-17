@@ -11,6 +11,8 @@ export type Profile = {
   invited_at: string | null;
   activated_at: string | null;
   status: 'invited' | 'active' | 'inactive';
+  accepted_terms_version: string | null;
+  accepted_terms_at: string | null;
   created_at: string;
 };
 
