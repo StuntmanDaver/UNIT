@@ -1,5 +1,12 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-17 — Cross-surface sync UAT: mobile fixes live-validated
+
+### Verified (live UAT)
+- **Fix #1 — Mobile admin advertiser approval** ✅ — Mobile admin approved a portal-registered advertiser; `advertiser_profiles.status` flipped to `active`, confirmed by live DB query. Cross-surface sync verified.
+- **Fix #2 — Portal moderation queue** ✅ — Tenant submitted a content report on mobile; report appeared in both the mobile admin moderation queue and the portal `/admin/moderation` page. Fix #2 confirmed end-to-end.
+- Full UAT results at `.planning/quick/260515-uat-cross-surface-sync/RESULTS.md`.
+
 ## 2026-05-15 — Advertiser approval admin screen
 
 ### Added
