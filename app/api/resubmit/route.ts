@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
@@ -28,12 +29,20 @@ export async function POST(req: Request) {
 
   const serviceClient = createServiceRoleClient();
 
-  await serviceClient
+  const { error: updateError } = await serviceClient
     .from('promotions')
     .update({ review_status: 'pending' })
     .eq('id', promotionId);
+  if (updateError) {
+    Sentry.captureException(updateError, {
+      tags: { subsystem: 'promotion_resubmit_update' },
+      user: { id: user.id, email: user.email ?? undefined },
+      extra: { promotionId },
+    });
+    return NextResponse.json({ error: 'Could not resubmit promotion' }, { status: 500 });
+  }
 
-  await serviceClient.from('promotion_status_events').insert({
+  const { error: eventError } = await serviceClient.from('promotion_status_events').insert({
     promotion_id: promotionId,
     from_review_status: 'revision_requested',
     to_review_status: 'pending',
@@ -43,6 +52,14 @@ export async function POST(req: Request) {
     actor_type: 'advertiser',
     note: null,
   });
+  if (eventError) {
+    Sentry.captureException(eventError, {
+      tags: { subsystem: 'promotion_resubmit_event' },
+      user: { id: user.id, email: user.email ?? undefined },
+      extra: { promotionId },
+    });
+    return NextResponse.json({ error: 'Could not record resubmission' }, { status: 500 });
+  }
 
   return NextResponse.json({ success: true });
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import {
@@ -118,6 +119,15 @@ export async function POST(req: Request) {
     attempt_type: attemptType,
   });
   if (attemptError) {
+    Sentry.captureException(attemptError, {
+      tags: { subsystem: 'checkout_payment_attempt' },
+      user: { id: user.id, email: user.email ?? undefined },
+      extra: {
+        promotionId: body.promotionId,
+        priceTierId: priceTier.id,
+        stripeCheckoutSessionId: session.id,
+      },
+    });
     return NextResponse.json({ error: 'Unable to record payment attempt' }, { status: 500 });
   }
 

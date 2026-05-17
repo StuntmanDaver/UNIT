@@ -8,21 +8,25 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "node scripts/clean-next-generated-types.mjs && tsc --noEmit --pretty false",
     "release:check-env": "node scripts/check-release-env.mjs",
-    "release:check": "npm run release:check-env && npm run lint && npm run test && npm run build",
+    "release:check": "NEXT_PUBLIC_ENV=production npm run release:check-env && npm run typecheck && npm run lint && npm run test && npm run build",
+    "release:check:staging": "NEXT_PUBLIC_ENV=staging npm run release:check-env && npm run typecheck && npm run lint && npm run test && npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "e2e:auto": "node ../scripts/e2e/run-all.mjs --only portal",
     "test:e2e": "playwright test",
     "test:e2e:full": "RUN_FULL_E2E=1 playwright test e2e/admin-full.spec.ts --project=chromium --workers=1",
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@sentry/nextjs": "10.52.0",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.0",
     "date-fns": "^4.1.0",
-    "next": "15.5.15",
+    "next": "15.5.18",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.72.1",
@@ -44,10 +48,13 @@
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.4",
     "eslint": "^9",
-    "eslint-config-next": "15.5.15",
+    "eslint-config-next": "15.5.18",
     "jsdom": "^29.0.2",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.4"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
   }
 }

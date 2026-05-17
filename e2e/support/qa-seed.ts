@@ -7,6 +7,7 @@ export type QaSeed = {
   propertyId: string;
   admin: { id: string; email: string; password: string };
   advertiser: { id: string; email: string; password: string };
+  activeAdvertiser: { id: string; email: string; password: string };
   tenant: { id: string; email: string; password: string };
   promotionIds: {
     pending: string;
@@ -74,9 +75,10 @@ async function createAuthUser(supabase: SupabaseClient, qaRunId: string, prefix:
 export async function seedQaData(): Promise<QaSeed> {
   const supabase = serviceClient();
   const qaRunId = `qa_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const [admin, advertiser, tenant] = await Promise.all([
+  const [admin, advertiser, activeAdvertiser, tenant] = await Promise.all([
     createAuthUser(supabase, qaRunId, 'admin'),
     createAuthUser(supabase, qaRunId, 'advertiser'),
+    createAuthUser(supabase, qaRunId, 'active-advertiser'),
     createAuthUser(supabase, qaRunId, 'tenant'),
   ]);
 
@@ -130,6 +132,13 @@ export async function seedQaData(): Promise<QaSeed> {
     business_name: `QA Advertiser ${qaRunId}`,
     contact_email: advertiser.email,
     status: 'pending',
+  });
+
+  await supabase.from('advertiser_profiles').insert({
+    id: activeAdvertiser.id,
+    business_name: `QA Active Advertiser ${qaRunId}`,
+    contact_email: activeAdvertiser.email,
+    status: 'active',
   });
 
   const { data: tier, error: tierError } = await supabase
@@ -191,6 +200,7 @@ export async function seedQaData(): Promise<QaSeed> {
     propertyId: property.id as string,
     admin,
     advertiser,
+    activeAdvertiser,
     tenant,
     promotionIds: {
       pending: promotionId('QA Pending Review'),
@@ -237,19 +247,27 @@ function promotionPayload(input: {
 export async function cleanupQaData(seed: QaSeed | null): Promise<void> {
   if (!seed) return;
   const supabase = serviceClient();
-  const promotionIds = Object.values(seed.promotionIds);
+  const { data: qaPromotions } = await supabase
+    .from('promotions')
+    .select('id')
+    .eq('property_id', seed.propertyId);
+  const promotionIds = Array.from(new Set([
+    ...Object.values(seed.promotionIds),
+    ...((qaPromotions ?? []).map((promotion) => promotion.id as string)),
+  ]));
   await supabase.from('promotion_status_events').delete().in('promotion_id', promotionIds);
   await supabase.from('promotion_payment_attempts').delete().in('promotion_id', promotionIds);
   await supabase.from('promotions').delete().in('id', promotionIds);
   await supabase.from('notifications').delete().eq('property_id', seed.propertyId);
   await supabase.from('businesses').delete().eq('property_id', seed.propertyId);
   await supabase.from('promotion_price_tiers').delete().eq('id', seed.priceTierId);
-  await supabase.from('advertiser_profiles').delete().eq('id', seed.advertiser.id);
+  await supabase.from('advertiser_profiles').delete().in('id', [seed.advertiser.id, seed.activeAdvertiser.id]);
   await supabase.from('profiles').delete().in('id', [seed.admin.id, seed.tenant.id]);
   await supabase.from('properties').delete().eq('id', seed.propertyId);
   await Promise.allSettled([
     supabase.auth.admin.deleteUser(seed.admin.id),
     supabase.auth.admin.deleteUser(seed.advertiser.id),
+    supabase.auth.admin.deleteUser(seed.activeAdvertiser.id),
     supabase.auth.admin.deleteUser(seed.tenant.id),
   ]);
 }
