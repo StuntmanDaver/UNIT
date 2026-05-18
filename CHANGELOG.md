@@ -1,5 +1,22 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-18 — iOS production E2E suite hardening
+
+### Changed
+- **E2E doctor** — Added Maestro 2.x executable fallback, real Android detection via `adb devices -l`, optional `E2E_REAL_ANDROID_REQUIRED`, and iOS simulator auto-detection with `iPhone 17` as the default production test target.
+- **Environment loading** — E2E scripts now load `.env.e2e.production.local` / local E2E env files while preserving explicitly inherited shell variables, so one-off guarded production runs do not get overwritten by dotenv defaults.
+- **iOS Maestro runner** — Added iOS temp-flow stabilization for direct app launches, release-style `unit://` opens, the `Open in "UNIT"?` system confirmation, session-restore launches, and startup prompt settling.
+- **Flow hardening** — Stabilized onboarding property selection, directory category reset, and community post/event creation by dismissing keyboards and overlays, using stable selectors, and scrolling submit buttons into view.
+
+### Verified
+- `git diff --check` passed for the staged E2E runner and Maestro flow changes.
+- Built and installed a production-variant iOS simulator app on `iPhone 17`.
+- Latest iOS run reached green checkpoints through seed, auth login validation, signup edge, reset password, onboarding edge, routing redirects, home feed, nearby 20-mile relation checks, directory search/filter/detail, and business contact actions.
+
+### Remaining
+- Full production readiness still requires a clean full iOS rerun, Android real-device Maestro suite, portal Playwright suite, Stripe test-mode verification, code review, and two consecutive green full E2E cycles.
+- Pushed commit: `233f9dc test(e2e): harden iOS production suite`.
+
 ## 2026-05-17 — Cross-surface sync UAT: mobile fixes live-validated
 
 ### Verified (live UAT)
