@@ -1,5 +1,21 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-18 — iOS full-suite rerun record
+
+### Verified
+- E2E doctor passed for guarded production target with `E2E_IOS_DEVICE=iPhone 17`, production guard enabled, Supabase service role present, and real Android explicitly not required for this iOS-only pass.
+- Production-safe QA seed completed for run `e2e_20260518T140257Z_kwrwwu`.
+- iOS full-suite runner completed and wrote summary/debug artifacts under `e2e-results/e2e_20260518T140257Z_kwrwwu/`.
+
+### Result
+- iOS full suite is **red**: `2 passed, 29 failed`.
+- Passing checks: production-safe QA seed and `qa-auth-02-signup-edge.yaml`.
+- Dominant failure signature: authenticated tenant/admin login submits credentials, then assertions for `My Property` / `Admin Dashboard` time out across downstream flows.
+- Harness regression found: `qa-auth-04-onboarding-edge.yaml` referenced `maestro/subflows/dismiss-ios-save-password.yaml`, but the subflow had been left in the cleanup stash as an untracked file. The subflow is now restored as a tracked file.
+
+### Remaining
+- Investigate whether the post-login landing failures are auth/session, profile bootstrap, production seed, or assertion-timing regressions before moving to portal Playwright and Stripe test-mode gates.
+
 ## 2026-05-18 — iOS production E2E suite hardening
 
 ### Changed
