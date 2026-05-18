@@ -38,6 +38,9 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
 
+      - name: Verify Edge Function coverage
+        run: npm run edge:guard
+
       - name: Type-check Edge Functions
         run: npm run edge:check
 
