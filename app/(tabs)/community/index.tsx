@@ -46,7 +46,11 @@ export default function CommunityScreen() {
   const renderItem = useCallback(
     ({ item }: { item: Post }) => (
       <View className="px-4 mb-3">
-        <PostCard post={item} authorBusiness={businessMap[item.business_id] ?? null} />
+        <PostCard
+          post={item}
+          authorBusiness={businessMap[item.business_id] ?? null}
+          onPress={() => router.push(`/community/${item.id}`)}
+        />
       </View>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { formatDistanceToNow } from 'date-fns';
 import { Post } from '@/services/posts';
 import { Business } from '@/services/businesses';
@@ -36,37 +36,47 @@ export function PostCard({ post, authorBusiness, onPress }: PostCardProps) {
   const relativeTime = formatDistanceToNow(new Date(post.created_date), { addSuffix: true });
 
   return (
-    <Card onPress={onPress} className="p-4">
-      {/* Author Row */}
-      <View className="flex-row items-center gap-2 mb-3">
-        <Avatar
-          imageUrl={authorBusiness?.logo_url}
-          name={authorName}
-          size={32}
+    <Card onPress={onPress} className="overflow-hidden">
+      {post.image_url && (
+        <Image
+          source={{ uri: post.image_url }}
+          style={{ aspectRatio: 16 / 9, width: '100%' }}
+          resizeMode="cover"
         />
-        <View className="flex-1 min-w-0">
-          <Text className="text-sm font-nunito-semibold text-brand-ink" numberOfLines={1}>
-            {authorName}
-          </Text>
-          <Text className="text-sm font-nunito text-brand-ink">{relativeTime}</Text>
-        </View>
-        <Badge label={formatTypeLabel(post.type)} color={typeColor} size="sm" />
-      </View>
-
-      {/* Content */}
-      <Text className="text-base font-nunito-semibold text-brand-ink mb-1 leading-relaxed">{post.title}</Text>
-      <Text className="text-base font-nunito text-brand-ink leading-relaxed" numberOfLines={3}>
-        {post.content}
-      </Text>
-
-      {/* Event Date */}
-      {post.type === 'event' && post.event_date && (
-        <View className="mt-2 flex-row items-center">
-          <Text className="text-sm font-nunito-semibold text-brand-ink">
-            {formatEventDate(post.event_date, post.event_time)}
-          </Text>
-        </View>
       )}
+
+      <View className="p-4">
+        {/* Author Row */}
+        <View className="flex-row items-center gap-2 mb-3">
+          <Avatar
+            imageUrl={authorBusiness?.logo_url}
+            name={authorName}
+            size={32}
+          />
+          <View className="flex-1 min-w-0">
+            <Text className="text-sm font-nunito-semibold text-brand-ink" numberOfLines={1}>
+              {authorName}
+            </Text>
+            <Text className="text-sm font-nunito text-brand-ink">{relativeTime}</Text>
+          </View>
+          <Badge label={formatTypeLabel(post.type)} color={typeColor} size="sm" />
+        </View>
+
+        {/* Content */}
+        <Text className="text-base font-nunito-semibold text-brand-ink mb-1 leading-relaxed">{post.title}</Text>
+        <Text className="text-base font-nunito text-brand-ink leading-relaxed" numberOfLines={3}>
+          {post.content}
+        </Text>
+
+        {/* Event Date */}
+        {post.type === 'event' && post.event_date && (
+          <View className="mt-2 flex-row items-center">
+            <Text className="text-sm font-nunito-semibold text-brand-ink">
+              {formatEventDate(post.event_date, post.event_time)}
+            </Text>
+          </View>
+        )}
+      </View>
     </Card>
   );
 }

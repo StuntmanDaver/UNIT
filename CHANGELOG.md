@@ -1,5 +1,18 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-18 — Community post image viewing fixed
+
+### Fixed
+- **Community post cards** — `PostCard` now renders uploaded `image_url` media so business-created posts show their attached images in the Community feed.
+- **Community post detail** — Added `app/(tabs)/community/[id].tsx` and wired Community list cards to `/community/:id`, letting tenants tap a post and view its uploaded image full width with author and event context.
+
+### Verified
+- `npm run typecheck`
+- `npm run lint`
+- `npm run brand-lint`
+- `git -C unit diff --check -- 'app/(tabs)/community/index.tsx' 'app/(tabs)/community/[id].tsx' components/tenant/PostCard.tsx`
+- `npm test -- --runInBand` — 18 suites / 85 tests passed
+
 ## 2026-05-18 — Promotion date picker visibility fixed
 
 ### Fixed
