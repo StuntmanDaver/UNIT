@@ -365,7 +365,9 @@ export default function NewExternalPromotionScreen() {
                     display="spinner"
                     minimumDate={activePicker === 'end' ? (startDate ?? today) : today}
                     onChange={handleDateChange}
-                    themeVariant="dark"
+                    themeVariant="light"
+                    textColor={BRAND.gray}
+                    style={{ height: 216 }}
                   />
                 </View>
               </Pressable>

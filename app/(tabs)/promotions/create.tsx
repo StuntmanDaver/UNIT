@@ -416,7 +416,9 @@ export default function CreatePromotionScreen() {
                   display="spinner"
                   minimumDate={activePicker === 'end' && startDate ? startDate : today}
                   onChange={handleDateChange}
-                  themeVariant="dark"
+                  themeVariant="light"
+                  textColor="#101B29"
+                  style={{ height: 216 }}
                 />
               </View>
             </Pressable>

@@ -1,5 +1,18 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-18 — Promotion date picker visibility fixed
+
+### Fixed
+- **Tenant promotion create dates** — The iOS Start Date / End Date spinner in `app/(tabs)/promotions/create.tsx` now renders with a light theme, explicit brand-ink text, and a stable height so the date wheel visibly loads on the white modal sheet.
+- **Admin external promotion dates** — Applied the same fix to `app/(admin)/promotions/new-external.tsx` so admin-created external promotion dates do not inherit the invisible dark-spinner-on-light-sheet behavior.
+
+### Verified
+- `npm run typecheck`
+- `npm run lint`
+- `npm run brand-lint`
+- `git -C unit diff --check -- 'app/(tabs)/promotions/create.tsx' 'app/(admin)/promotions/new-external.tsx'`
+- `npm test -- --runInBand` — 18 suites / 85 tests passed
+
 ## 2026-05-18 — iOS full-suite rerun record
 
 ### Verified
