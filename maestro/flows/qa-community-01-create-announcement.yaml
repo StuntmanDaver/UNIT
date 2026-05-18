@@ -101,15 +101,25 @@ appId: ${MAESTRO_APP_ID}
 # Title (required) — input testID is post-title
 - tapOn:
     id: "post-title"
+- waitForAnimationToEnd
 - inputText: "QA Announcement Post"
 
 # Content (required) — input testID is post-content
 - tapOn:
     id: "post-content"
+- waitForAnimationToEnd
 - inputText: "This is an automated E2E announcement created by Maestro."
-- hideKeyboard
+- tapOn: "New Post"
+- waitForAnimationToEnd
 
-# Submit
+# Submit — iOS keeps the keyboard over the lower form, so make the button
+# visible before tapping it.
+- scrollUntilVisible:
+    element:
+      id: "btn-post-submit"
+    direction: DOWN
+    speed: 40
+    timeout: 20000
 - tapOn:
     id: "btn-post-submit"
 - extendedWaitUntil:

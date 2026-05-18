@@ -40,17 +40,26 @@ export function parseArgs(argv = process.argv.slice(2)) {
 }
 
 export function loadEnv() {
-  for (const file of [
-    '.env',
-    '.env.local',
-    '.env.production.local',
-    'unit/.env',
-    'unit/.env.local',
-    'portal/.env',
-    'portal/.env.local',
-    'portal/.env.production.local',
-  ]) {
-    const path = join(projectRoot, file);
+  const inheritedEnv = new Set(Object.keys(process.env));
+  const files = [
+    { name: '.env', override: false },
+    { name: '.env.local', override: false },
+    { name: '.env.production.local', override: false },
+    { name: 'unit/.env', override: false },
+    { name: 'unit/.env.local', override: false },
+    { name: 'portal/.env', override: false },
+    { name: 'portal/.env.local', override: false },
+    { name: 'portal/.env.production.local', override: false },
+    { name: '.env.e2e.local', override: true },
+    { name: '.env.e2e.production.local', override: true },
+    { name: 'unit/.env.e2e.local', override: true },
+    { name: 'unit/.env.e2e.production.local', override: true },
+    { name: 'portal/.env.e2e.local', override: true },
+    { name: 'portal/.env.e2e.production.local', override: true },
+  ];
+
+  for (const file of files) {
+    const path = join(projectRoot, file.name);
     if (!existsSync(path)) continue;
     const lines = readFileSync(path, 'utf8').split(/\r?\n/);
     for (const line of lines) {
@@ -60,8 +69,11 @@ export function loadEnv() {
       if (separator < 1) continue;
       const key = trimmed.slice(0, separator).trim();
       const rawValue = trimmed.slice(separator + 1).trim();
-      if (process.env[key]) continue;
-      process.env[key] = rawValue.replace(/^["']|["']$/g, '');
+      const value = rawValue.replace(/^["']|["']$/g, '');
+      if (value === '') continue;
+      if (inheritedEnv.has(key)) continue;
+      if (!file.override && process.env[key]) continue;
+      process.env[key] = value;
     }
   }
   applyLocalToolchainDefaults();
@@ -112,6 +124,7 @@ export function spawnSyncCapture(command, args = [], options = {}) {
 export function run(command, args = [], options = {}) {
   return new Promise((resolveRun) => {
     const logPath = options.logPath;
+    let timedOut = false;
     const child = spawn(command, args, {
       cwd: options.cwd ?? projectRoot,
       env: { ...process.env, ...(options.env ?? {}) },
@@ -124,14 +137,25 @@ export function run(command, args = [], options = {}) {
       output += text;
       if (options.inherit) process.stdout.write(text);
     };
+    const timer = options.timeoutMs
+      ? setTimeout(() => {
+          timedOut = true;
+          const message = `\nCommand timed out after ${options.timeoutMs}ms: ${command} ${args.join(' ')}\n`;
+          output += message;
+          if (options.inherit) process.stderr.write(message);
+          child.kill('SIGTERM');
+          setTimeout(() => child.kill('SIGKILL'), 2000).unref();
+        }, options.timeoutMs)
+      : null;
     child.stdout.on('data', append);
     child.stderr.on('data', append);
     child.on('close', (status) => {
+      if (timer) clearTimeout(timer);
       if (logPath) {
         ensureDir(dirname(logPath));
         writeFileSync(logPath, output);
       }
-      resolveRun({ status, output });
+      resolveRun({ status: timedOut ? 124 : status, output });
     });
   });
 }

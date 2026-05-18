@@ -45,7 +45,9 @@ hasCommand('adb', ['version']);
 hasCommand('emulator', ['-version']);
 hasCommand('xcrun', ['--version']);
 
-const maestroPath = optionalEnv('MAESTRO_BIN', `${process.env.HOME}/.maestro/bin/maestro`);
+const legacyMaestro = `${process.env.HOME}/.maestro/bin/maestro`;
+const currentMaestro = `${process.env.HOME}/.maestro/maestro/bin/maestro`;
+const maestroPath = optionalEnv('MAESTRO_BIN', existsSync(currentMaestro) ? currentMaestro : legacyMaestro);
 check('maestro', existsSync(maestroPath), maestroPath);
 
 const androidHome = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT;
@@ -55,19 +57,42 @@ const avdName = optionalEnv('E2E_ANDROID_AVD', 'UNIT_Pixel_8_API_36');
 const avds = spawnSyncCapture('emulator', ['-list-avds']);
 check(`Android AVD ${avdName}`, avds.output.split(/\r?\n/).includes(avdName), avds.output.trim() || 'no AVDs listed');
 
-const adbDevices = spawnSyncCapture('adb', ['devices']);
+const adbDevices = spawnSyncCapture('adb', ['devices', '-l']);
 const bootedAndroid = adbDevices.output
   .split(/\r?\n/)
-  .some((line) => /\bdevice$/.test(line) && !line.startsWith('List of devices'));
+  .some((line) => /\bdevice\b/.test(line) && !line.startsWith('List of devices'));
 check(
   'booted Android device',
   strictDevice ? bootedAndroid : true,
   bootedAndroid ? 'adb sees a device' : 'not booted; runner will start emulator when needed',
 );
 
-const iosDevice = optionalEnv('E2E_IOS_DEVICE', 'iPhone 16 Pro Max');
+const realAndroidRequired = process.env.E2E_REAL_ANDROID_REQUIRED === '1';
+const realAndroidSerial = process.env.E2E_REAL_ANDROID_SERIAL || process.env.ANDROID_SERIAL || '';
+const androidDeviceLines = adbDevices.output
+  .split(/\r?\n/)
+  .filter((line) => /\bdevice\b/.test(line) && !line.startsWith('List of devices'));
+const realAndroid = androidDeviceLines.some((line) => {
+  if (realAndroidSerial && line.startsWith(realAndroidSerial)) return true;
+  return /\busb:/.test(line);
+});
+check(
+  'real Android device',
+  realAndroidRequired ? realAndroid : true,
+  realAndroid ? 'physical device detected' : realAndroidRequired ? 'required but not detected' : 'not required',
+);
+
 const sims = spawnSyncCapture('xcrun', ['simctl', 'list', 'devices']);
-check(`iOS simulator ${iosDevice}`, sims.output.includes(iosDevice), sims.output.includes(iosDevice) ? 'configured' : 'not found');
+const requestedIosDevice = process.env.E2E_IOS_DEVICE;
+const fallbackIosDevice = findAvailableIphoneSimulator(sims.output);
+const iosDevice = optionalEnv('E2E_IOS_DEVICE', fallbackIosDevice || 'iPhone 17');
+check(
+  `iOS simulator ${iosDevice}`,
+  sims.output.includes(iosDevice),
+  sims.output.includes(iosDevice)
+    ? (requestedIosDevice ? 'configured' : 'auto-detected')
+    : 'not found',
+);
 
 check('unit/package.json', existsSync(join(unitDir, 'package.json')), join(unitDir, 'package.json'));
 check('portal/package.json', existsSync(join(projectRoot, 'portal/package.json')), join(projectRoot, 'portal/package.json'));
@@ -90,3 +115,8 @@ if (json) {
 }
 
 process.exit(failed.length === 0 ? 0 : 1);
+
+function findAvailableIphoneSimulator(output) {
+  const match = output.match(/^\s+(iPhone[^(]+?)\s+\([0-9A-F-]+\)\s+\((?:Booted|Shutdown)\)/m);
+  return match?.[1]?.trim() ?? '';
+}

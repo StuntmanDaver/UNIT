@@ -44,6 +44,7 @@ appId: ${MAESTRO_APP_ID}
 - evalScript: ${output.testEmail = 'onboard-edge-' + Date.now() + '@mailinator.com'}
 
 - tapOn: "Sign Up"
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 - extendedWaitUntil:
     visible:
       text: "Create Account"
@@ -60,6 +61,7 @@ appId: ${MAESTRO_APP_ID}
 - tapOn: "Create Account"
 - tapOn:
     id: "btn-signup-submit"
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 
 # Should land on onboarding step 1 — Select Your Property
 - extendedWaitUntil:
@@ -78,25 +80,33 @@ appId: ${MAESTRO_APP_ID}
 # Search with valid partial name
 - inputText: "Test"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Select Your Property"
 
-# Clear search to show full list
+# Select the fixed E2E property by name instead of tapping the first row in a
+# noisy shared property list.
 - tapOn:
     text: "Search properties..."
 - eraseText: 100
+- inputText: "QA E2E Property"
+- waitForAnimationToEnd
+- assertVisible: "QA E2E Property"
 - hideKeyboard
 
 # ── CASE 3: Select property → profile step ───────────────────────────────────
 - tapOn:
-    index: 0
-    childOf:
-      id: "property-list-item"
+    id: "property-list-item"
 - extendedWaitUntil:
     visible:
       text: "Create Your Profile"
     timeout: 8000
 
 # ── CASE 4: "Back to properties" → property step ─────────────────────────────
+- scrollUntilVisible:
+    element:
+      text: "Back to properties"
+    direction: DOWN
+    speed: 40
+    timeout: 20000
 - tapOn: "Back to properties"
 - extendedWaitUntil:
     visible:
@@ -105,9 +115,7 @@ appId: ${MAESTRO_APP_ID}
 
 # Select property again
 - tapOn:
-    index: 0
-    childOf:
-      id: "property-list-item"
+    id: "property-list-item"
 - extendedWaitUntil:
     visible:
       text: "Create Your Profile"

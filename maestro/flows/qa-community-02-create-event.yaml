@@ -59,11 +59,13 @@ appId: ${MAESTRO_APP_ID}
 # Title (required) — Input label is "Title *"
 - tapOn:
     id: "post-title"
+- waitForAnimationToEnd
 - inputText: "QA Event Post"
 
 # Content (required) — Input label is "Content *"
 - tapOn:
     id: "post-content"
+- waitForAnimationToEnd
 - inputText: "This is an automated E2E event post created by Maestro."
 
 # Event date (required, YYYY-MM-DD) — Input label is "Event Date *"
@@ -73,8 +75,16 @@ appId: ${MAESTRO_APP_ID}
 
 # Event time (optional — skip)
 - pressKey: Enter
+- tapOn: "New Post"
+- waitForAnimationToEnd
 
 # Submit
+- scrollUntilVisible:
+    element:
+      id: "btn-post-submit"
+    direction: DOWN
+    speed: 40
+    timeout: 20000
 - tapOn:
     id: "btn-post-submit"
 - extendedWaitUntil:

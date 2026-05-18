@@ -70,7 +70,7 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "search-input"
 - eraseText: 100
-- hideKeyboard
+- tapOn: "Directory"
 - waitForAnimationToEnd
 
 # ── CASE 4: Category chip filter ─────────────────────────────────────────────
@@ -100,6 +100,20 @@ appId: ${MAESTRO_APP_ID}
 # Filtered list or empty state
 
 # ── CASE 5: "All" chip clears filter ─────────────────────────────────────────
+# Return the horizontal chip list to the leading "All" chip after testing a
+# far-right category.
+- repeat:
+    times: 8
+    commands:
+      - runFlow:
+          when:
+            notVisible: "All"
+          commands:
+            - swipe:
+                from:
+                  id: "category-chips-list"
+                direction: RIGHT
+                duration: 600
 - tapOn: "All"
 - waitForAnimationToEnd
 
