@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "edge:guard": "node scripts/check-edge-functions.mjs",
     "edge:check": "deno check --config supabase/functions/deno.json supabase/functions/add-property-to-admin/index.ts supabase/functions/complete-onboarding/index.ts supabase/functions/complete-password-reset/index.ts supabase/functions/create-promotion-checkout-session/index.ts supabase/functions/delete-account/index.ts supabase/functions/expire-promotions/index.ts supabase/functions/invite-tenant/index.ts supabase/functions/issue-refund/index.ts supabase/functions/mark-escalated-requests/index.ts supabase/functions/mark-overdue-invoices/index.ts supabase/functions/send-escalation-email/index.ts supabase/functions/send-invoice-email/index.ts supabase/functions/send-push-notification/index.ts",
+    "db:audit:relationships": "node scripts/run-relationship-audit.mjs",
     "db:test:security": "supabase test db supabase/tests/security_rls.test.sql",
     "brand-lint": "bash -c '! grep -rn --include=\"*.tsx\" -E \"bg-white|bg-gray-|text-gray-|border-gray-|text-black[^-]|bg-black([^/]|$)\" app components && ! grep -rn --include=\"*.tsx\" -E \"font-arcadia|font-bold|font-medium|font-nunito-bold|font-lora-bold\" app components && ! grep -rn --include=\"*.tsx\" -E \"text-xs|text-lg|text-xl|text-4xl\" app components && echo brand-lint-clean'",
     "release:check-env": "node scripts/check-release-env.mjs",

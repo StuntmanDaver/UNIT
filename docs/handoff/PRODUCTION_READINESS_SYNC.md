@@ -29,7 +29,7 @@ Run Supabase commands from the `unit/` repo root, because migrations and functio
 
 1. Take production database backup.
 2. Save pre-migration relationship audit:
-   - run `scripts/relationship-audit.sql` against production and archive output.
+   - run `cd unit && RELATIONSHIP_AUDIT_DATABASE_URL=<production-db-url> npm run db:audit:relationships > ../production-relationship-audit-before.txt`
 3. Link production Supabase project:
    - `supabase link --project-ref <production-ref>`
 4. Apply migrations:
@@ -46,6 +46,7 @@ Run Supabase commands from the `unit/` repo root, because migrations and functio
 6. Deploy functions:
    - use `.github/workflows/supabase-deploy.yml`, or deploy the same function list manually from that workflow.
 7. Save post-migration relationship audit and compare against pre-migration output.
+   - `cd unit && RELATIONSHIP_AUDIT_DATABASE_URL=<production-db-url> npm run db:audit:relationships > ../production-relationship-audit-after.txt`
 8. Deploy portal production after database/functions are ready.
 9. Build production mobile artifacts:
    - `cd unit && npm run release:ios:build`
