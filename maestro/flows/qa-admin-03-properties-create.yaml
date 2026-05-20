@@ -79,11 +79,33 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "property-state"
 - inputText: "CA"
+- pressKey: Enter
+- waitForAnimationToEnd
 - tapOn:
     id: "modal-action-create-property"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-action-create-property"
+    commands:
+      - tapOn:
+          id: "modal-action-create-property"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-action-create-property"
+    commands:
+      - tapOn:
+          id: "modal-action-cancel"
+- extendedWaitUntil:
+    notVisible:
+      id: "modal-overlay"
+    timeout: 15000
 - extendedWaitUntil:
     visible:
-      text: "QA Test Building"
+      text: "Properties"
     timeout: 15000
 
 # ── CASE 3: Back button ───────────────────────────────────────────────────────

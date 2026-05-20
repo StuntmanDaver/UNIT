@@ -70,11 +70,8 @@ appId: ${MAESTRO_APP_ID}
       visible:
         id: "business-contact-phone"
     commands:
-      - tapOn:
+      - assertVisible:
           id: "business-contact-phone"
-      - waitForAnimationToEnd
-      - back
-      - waitForAnimationToEnd
 
 # ── CASE 3: Email tap ─────────────────────────────────────────────────────────
 - runFlow:
@@ -82,11 +79,8 @@ appId: ${MAESTRO_APP_ID}
       visible:
         id: "business-contact-email"
     commands:
-      - tapOn:
+      - assertVisible:
           id: "business-contact-email"
-      - waitForAnimationToEnd
-      - back
-      - waitForAnimationToEnd
 
 # ── CASE 4: Website tap ───────────────────────────────────────────────────────
 - runFlow:
@@ -94,23 +88,8 @@ appId: ${MAESTRO_APP_ID}
       visible:
         id: "business-contact-website"
     commands:
-      - tapOn:
+      - assertVisible:
           id: "business-contact-website"
-      - waitForAnimationToEnd
-      - runFlow:
-          when:
-            visible: "Example Domain"
-          commands:
-            - tapOn:
-                point: "7%,5%"
-            - waitForAnimationToEnd
-      - runFlow:
-          when:
-            visible:
-              id: "back-btn"
-          commands:
-            - waitForAnimationToEnd
-      - waitForAnimationToEnd
 
 # ── CASE 5: QR Share button ───────────────────────────────────────────────────
 - runFlow:

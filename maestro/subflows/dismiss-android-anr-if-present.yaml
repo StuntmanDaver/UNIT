@@ -1,0 +1,21 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Android emulators can briefly show an ANR dialog while the dev client settles.
+# Choosing Wait keeps the app process alive and lets the flow continue.
+- runFlow:
+    when:
+      platform: Android
+      visible: ".*isn't responding"
+    commands:
+      - tapOn: "Wait"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: Android
+      visible: ".*isn't responding"
+    commands:
+      - tapOn: "Wait"
+      - waitForAnimationToEnd
+      - waitForAnimationToEnd

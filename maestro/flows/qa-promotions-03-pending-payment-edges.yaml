@@ -70,38 +70,63 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "promotion-description"
 - inputText: "Testing pending-payment screen edge cases."
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
 - tapOn: "Promote My Business"
 
 # Set dates
 - tapOn:
     id: "promotion-start-date"
 - waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 80%"
-- waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 65%"
-- waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Cancel, Start Date, Done"
+      visible:
+        id: "date-picker-done"
     commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
       - tapOn:
-          point: "92%, 71%"
+          id: "date-picker-done"
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Cancel, End Date, Done"
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "date-picker-done"
+    commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
+      - tapOn:
+          id: "date-picker-done"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "promotion-end-date"
     commands:
       - tapOn:
-          point: "92%, 71%"
+          id: "promotion-end-date"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 
-- swipe:
-    start: "50%, 60%"
-    end: "50%, 15%"
+- scrollUntilVisible:
+    element:
+      id: "promotion-submit"
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
 - waitForAnimationToEnd
 
 - tapOn:
@@ -148,6 +173,12 @@ appId: ${MAESTRO_APP_ID}
       text: "Save for Later"
     direction: DOWN
 - tapOn: "Save for Later"
-- assertVisible: "Promotions"
+- waitForAnimationToEnd
+- tapOn:
+    id: "tab-promotions"
+- extendedWaitUntil:
+    visible:
+      text: "Promotions"
+    timeout: 10000
 
 - runFlow: ../subflows/logout.yaml

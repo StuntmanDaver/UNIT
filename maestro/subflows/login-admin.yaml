@@ -11,6 +11,31 @@ appId: ${MAESTRO_APP_ID}
       - waitForAnimationToEnd
       - tapOn: "Close"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Admin Dashboard"
+    commands:
+      - tapOn:
+          id: "admin-logout-btn"
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            notVisible: "Are you sure you want to log out?"
+          commands:
+            - tapOn:
+                point: "91%,10%"
+            - waitForAnimationToEnd
+      - extendedWaitUntil:
+          visible:
+            text: "Are you sure you want to log out?"
+          timeout: 8000
+      - tapOn:
+          text: "Log Out"
+          index: 1
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 15000
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -19,19 +44,84 @@ appId: ${MAESTRO_APP_ID}
     id: "login-email"
 - eraseText: 100
 - inputText: "admin@unit-test.com"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
 - pressKey: Enter
 - waitForAnimationToEnd
 - tapOn:
     id: "login-password"
 - inputText: "admin123"
-- tapOn:
-    id: "login-logo"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      visible:
+        id: "login-logo"
+    commands:
+      - tapOn:
+          id: "login-logo"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          point: "50%,25%"
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - hideKeyboard
 - scrollUntilVisible:
     element:
       id: "btn-login-submit"
     direction: DOWN
+    timeout: 20000
+    speed: 40
+    visibilityPercentage: 80
+    centerElement: false
 - tapOn:
     id: "btn-login-submit"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+      visible:
+        id: "btn-login-submit"
+    commands:
+      - tapOn:
+          id: "btn-login-submit"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+      visible: "Password is required"
+    commands:
+      - tapOn:
+          id: "login-password"
+      - eraseText: 100
+      - inputText: "admin123"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+      - tapOn:
+          point: "50%,25%"
+      - waitForAnimationToEnd
+      - scrollUntilVisible:
+          element:
+            id: "btn-login-submit"
+          direction: DOWN
+          timeout: 20000
+          speed: 40
+          visibilityPercentage: 80
+          centerElement: false
+      - tapOn:
+          id: "btn-login-submit"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 - extendedWaitUntil:
     visible:
       text: "Admin Dashboard"

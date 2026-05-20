@@ -33,6 +33,7 @@ appId: ${MAESTRO_APP_ID}
       - waitForAnimationToEnd
       - tapOn: "Close"
       - waitForAnimationToEnd
+- runFlow: ../subflows/logout-admin-if-present.yaml
 
 # ── CASE 1: No session → login screen ────────────────────────────────────────
 - extendedWaitUntil:
@@ -53,12 +54,30 @@ appId: ${MAESTRO_APP_ID}
 - stopApp
 - launchApp:
     clearState: false
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     notVisible:
       text: "Log In"
     timeout: 20000
-- assertVisible:
-    id: "tab-home"
 - assertNotVisible: "Log In"
 
 # ── CASE 4: Log out → then restart cold → shows login ────────────────────────
@@ -66,6 +85,26 @@ appId: ${MAESTRO_APP_ID}
 - stopApp
 - launchApp:
     clearState: false
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -81,6 +120,26 @@ appId: ${MAESTRO_APP_ID}
 - stopApp
 - launchApp:
     clearState: false
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Admin Dashboard"

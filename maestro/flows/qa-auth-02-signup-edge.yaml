@@ -32,6 +32,7 @@ appId: ${MAESTRO_APP_ID}
       - waitForAnimationToEnd
       - tapOn: "Close"
       - waitForAnimationToEnd
+- runFlow: ../subflows/logout-admin-if-present.yaml
 
 - extendedWaitUntil:
     visible:

@@ -96,14 +96,24 @@ appId: ${MAESTRO_APP_ID}
       text: "Allow Revision"
     timeout: 8000
 - tapOn: "Allow Revision"
-- assertVisible:
-    id: "modal-title"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible:
+        id: "modal-title"
+    commands:
+      - tapOn: "Allow Revision"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "modal-title"
+    timeout: 8000
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please revise the image and resubmit."
 - waitForAnimationToEnd
 - tapOn:
-    point: "50%,57%"
+    id: "promotion-review-confirm"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -111,7 +121,7 @@ appId: ${MAESTRO_APP_ID}
         id: "modal-title"
     commands:
       - tapOn:
-          point: "50%,57%"
+          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
@@ -134,14 +144,24 @@ appId: ${MAESTRO_APP_ID}
       text: "Require Repayment"
     timeout: 8000
 - tapOn: "Require Repayment"
-- assertVisible:
-    id: "modal-title"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible:
+        id: "modal-title"
+    commands:
+      - tapOn: "Require Repayment"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "modal-title"
+    timeout: 8000
 - tapOn:
     id: "promotion-review-note"
 - inputText: "Please repay after the placement update."
 - waitForAnimationToEnd
 - tapOn:
-    point: "50%,57%"
+    id: "promotion-review-confirm"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -149,7 +169,7 @@ appId: ${MAESTRO_APP_ID}
         id: "modal-title"
     commands:
       - tapOn:
-          point: "50%,57%"
+          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
@@ -176,14 +196,24 @@ appId: ${MAESTRO_APP_ID}
       text: "Reject"
     timeout: 8000
 - tapOn: "Reject"
-- assertVisible:
-    id: "modal-title"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible:
+        id: "modal-title"
+    commands:
+      - tapOn: "Reject"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "modal-title"
+    timeout: 8000
 - tapOn:
     id: "promotion-review-note"
 - inputText: "This promotion does not meet property guidelines."
 - waitForAnimationToEnd
 - tapOn:
-    point: "50%,57%"
+    id: "promotion-review-confirm"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -191,7 +221,7 @@ appId: ${MAESTRO_APP_ID}
         id: "modal-title"
     commands:
       - tapOn:
-          point: "50%,57%"
+          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
       id: "review-action-feedback"
@@ -252,6 +282,14 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Are you sure you want to log out?"
+    commands:
+      - tapOn:
+          point: "91%,10%"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Are you sure you want to log out?"

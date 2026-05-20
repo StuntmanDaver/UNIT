@@ -49,6 +49,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           onPress={() => onAction({ action: 'approve' })}
           disabled={loading}
           variant="primary"
+          testID="promotion-review-approve"
         >
           Approve
         </Button>
@@ -56,6 +57,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           onPress={() => setPendingAction('allow_revision')}
           disabled={loading}
           variant="secondary"
+          testID="promotion-review-allow-revision"
         >
           Allow Revision
         </Button>
@@ -63,6 +65,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           onPress={() => setPendingAction('require_repayment')}
           disabled={loading}
           variant="secondary"
+          testID="promotion-review-require-repayment"
         >
           Require Repayment
         </Button>
@@ -70,6 +73,7 @@ export function PromotionReviewActions({ onAction, loading }: Props) {
           onPress={() => setPendingAction('reject')}
           disabled={loading}
           variant="destructive"
+          testID="promotion-review-reject"
         >
           Reject
         </Button>

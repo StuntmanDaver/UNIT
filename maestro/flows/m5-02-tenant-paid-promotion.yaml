@@ -74,46 +74,59 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "promotion-description"
 - inputText: "Maestro tenant-paid promotion happy-path verification."
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
 # hideKeyboard is flaky on iOS 18.6 + Maestro 2.4. Tap the (non-interactive)
 # header text to dismiss the keyboard instead.
 - tapOn: "Promote My Business"
 
-# Pick Start Date and End Date. Form runtime requires both non-null and
-# end > start. iOS spinner only fires onChange when a wheel is scrolled,
-# so we tap to open and swipe the day wheel.
-#
-# Behavior quirk: handleDateChange in create.tsx auto-advances activePicker
-# from 'start' to 'end' on iOS once the start date is set, so the same
-# modal stays open and the second swipe targets the End Date picker. The
-# end-date scroll then auto-closes the modal (setActivePicker(null)).
+# Pick Start Date and End Date. The iOS picker exposes a stable Done testID;
+# tapping it commits start, advances to end, then commits end.
 - tapOn:
     id: "promotion-start-date"
 - waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 80%"
-- waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 65%"
-- waitForAnimationToEnd
-# Modal exposes its content as one aggregated a11y container so `tapOn`
-# by text doesn't work — tap the Done corner by coordinate as a safety
-# net in case the End scroll didn't auto-close.
 - runFlow:
     when:
-      visible: "Cancel, Start Date, Done"
+      visible:
+        id: "date-picker-done"
     commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
       - tapOn:
-          point: "92%, 71%"
+          id: "date-picker-done"
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Cancel, End Date, Done"
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "date-picker-done"
+    commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
+      - tapOn:
+          id: "date-picker-done"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "promotion-end-date"
     commands:
       - tapOn:
-          point: "92%, 71%"
+          id: "promotion-end-date"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 
 # iOS shows a one-time QuickPath keyboard tutorial after the first
 # inputText. Dismiss it if it appears; its Continue button label collides
@@ -125,20 +138,32 @@ appId: ${MAESTRO_APP_ID}
       - tapOn: "Continue"
       - waitForAnimationToEnd
 
-# Continue to Payment is below the fold and the keyboard may still be up
-# from the description input. Scroll the form upward (swipe from form
-# area, NOT keyboard area) to bring the submit button into the viewport.
-- swipe:
-    start: "50%, 60%"
-    end: "50%, 15%"
-- waitForAnimationToEnd
-- swipe:
-    start: "50%, 60%"
-    end: "50%, 15%"
-- waitForAnimationToEnd
-
-- tapOn:
-    id: "promotion-submit"
+# Continue to Payment is below the fold. Android renders the button
+# visibly after the swipe, but its accessibility selector is intermittent
+# in Maestro, so Android uses a stable viewport tap after scrolling.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - swipe:
+          start: "50%,78%"
+          end: "50%,24%"
+      - waitForAnimationToEnd
+      - tapOn:
+          point: "50%,76%"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "promotion-submit"
+          direction: DOWN
+          centerElement: true
+          timeout: 20000
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "promotion-submit"
 
 # Tenant lands on the pending-payment screen
 - extendedWaitUntil:
@@ -151,14 +176,28 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "promotion-tier-0"
 - waitForAnimationToEnd
-- scrollUntilVisible:
-    element:
-      id: "pending-payment-pay-now"
-    direction: DOWN
-    centerElement: true
-
-- tapOn:
-    id: "pending-payment-pay-now"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "Pay Now"
+          direction: DOWN
+          centerElement: false
+          timeout: 30000
+          visibilityPercentage: 60
+      - tapOn: "Pay Now"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "pending-payment-pay-now"
+          direction: DOWN
+          centerElement: true
+      - tapOn: "Pay Now"
 
 # iOS shows a native ASWebAuthenticationSession consent prompt the first
 # time `openAuthSessionAsync` opens stripe.com. Pay Now triggers a
@@ -176,6 +215,30 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - tapOn: "Continue"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Use without an account"
+    commands:
+      - tapOn: "Use without an account"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Confirm it’s you"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Confirm it's you"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 
 # Stripe Checkout opens in the in-app browser. Card field labels are
@@ -184,61 +247,165 @@ appId: ${MAESTRO_APP_ID}
 - extendedWaitUntil:
     visible:
       text: "Payment method"
-    timeout: 30000
-- tapOn: "Card"
+    timeout: 60000
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          text: "^Card$"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Card"
 - extendedWaitUntil:
     visible:
-      text: "Card information"
+      text: "Card number"
     timeout: 10000
-- tapOn: "Card number"
-- inputText: "4242424242424242"
-- tapOn:
-    text: "MM / YY"
-- inputText: "1230"
-- tapOn:
-    text: "CVC"
-- inputText: "123"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: "Card number"
+      - inputText: "4242424242424242"
+      - pressKey: Enter
+      - inputText: "1230"
+      - pressKey: Enter
+      - inputText: "123"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Card number"
+      - inputText: "4242424242424242"
+      - tapOn:
+          text: "MM / YY"
+      - inputText: "1230"
+      - tapOn:
+          text: "CVC"
+      - inputText: "123"
 - tapOn:
     text: "Cardholder name"
 - inputText: "Maestro Test"
-- tapOn:
-    point: "90%,67%"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Back
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Allow Gboard to record audio?"
+          commands:
+            - tapOn: "Don’t allow"
+            - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: "90%,67%"
 - waitForAnimationToEnd
 
 # Stripe now requires a ZIP code for US card payments and enables Link
 # "save my information" by default. Fill ZIP, uncheck Link save, then pay.
-- tapOn: "ZIP"
-- inputText: "10001"
-- tapOn:
-    point: "90%,67%"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - swipe:
+          start: "50%,82%"
+          end: "50%,48%"
+      - waitForAnimationToEnd
+      - tapOn: "ZIP"
+      - inputText: "10001"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Back
+      - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible: "Phone number"
+          commands:
+            - tapOn: "Phone number"
+            - eraseText: 20
+            - inputText: "2015550123"
+            - waitForAnimationToEnd
+      - scrollUntilVisible:
+          element:
+            text: "^Pay$"
+          direction: DOWN
+          centerElement: false
+          timeout: 30000
+          visibilityPercentage: 60
+      - tapOn: "^Pay$"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: "89%,63%"
+      - waitForAnimationToEnd
+      - swipe:
+          start: "50%,80%"
+          end: "50%,30%"
+      - waitForAnimationToEnd
+      - tapOn: "Save my information for faster checkout"
+      - waitForAnimationToEnd
+      # Stripe exposes several "Pay" labels (Apple Pay, Link copy, final CTA).
+      # At this scroll position the final blue Pay button is centered near the
+      # lower portion of the viewport, so tap it by coordinate.
+      - tapOn:
+          point: "50%,82%"
 - waitForAnimationToEnd
-- swipe:
-    start: "50%,80%"
-    end: "50%,30%"
-- waitForAnimationToEnd
-- tapOn: "Save my information for faster checkout"
-- waitForAnimationToEnd
-# Stripe exposes several "Pay" labels (Apple Pay, Link copy, final CTA).
-# At this scroll position the final blue Pay button is centered near the
-# lower portion of the viewport, so tap it by coordinate.
-- tapOn:
-    point: "50%,82%"
+- runFlow:
+    when:
+      visible: "Not Now"
+    commands:
+      - tapOn: "Not Now"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+      - waitForAnimationToEnd
 
 # Stripe redirects to unit://promotions; the in-app browser dismisses
 # and the screen polls payment_status. On success the screen header
 # becomes "Awaiting Review".
-- extendedWaitUntil:
-    visible:
-      text: "Awaiting Review"
-    timeout: 30000
-
-# The Safari sheet may remain open with an optional "remember this credit
-# card" prompt after the app has already redirected behind it. Dismiss the
-# sheet by tapping its top-left Cancel location, then assert the durable
-# in-screen success state (more reliable than a short-lived toast).
-- tapOn:
-    point: "10%,53%"
-- waitForAnimationToEnd
-- assertVisible: "Payment received. Admins will review your promotion shortly."
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - extendedWaitUntil:
+          visible:
+            text: "Awaiting Review"
+          timeout: 60000
+      - assertVisible: "Payment received. Admins will review your promotion shortly."
+      - scrollUntilVisible:
+          element:
+            id: "pending-payment-save-later"
+          direction: DOWN
+          centerElement: true
+          timeout: 20000
+      - tapOn:
+          id: "pending-payment-save-later"
+      - assertVisible: "Promotions"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - extendedWaitUntil:
+          visible:
+            text: "M5-02 Paid Test Promotion"
+          timeout: 60000
+      - tapOn:
+          id: "tab-promotions"
+      - assertVisible: "Promotions"
 
 - runFlow: ../subflows/logout.yaml

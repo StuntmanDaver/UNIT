@@ -57,35 +57,59 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "promotion-description"
 - inputText: "Automated Maestro promotion for end-to-end testing."
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
 
 # ── Start date — opens iOS spinner overlay (keyboard auto-dismissed) ────────
 # With the fix: the spinner stays in "Start Date" mode while scrolling.
 # Tapping Done commits the start date AND auto-advances to "End Date" overlay.
+# Android uses the native calendar dialog and exposes an OK button instead.
 - tapOn:
     id: "promotion-start-date"
-- extendedWaitUntil:
-    visible:
-      id: "date-picker-done"
-    timeout: 5000
-- swipe:
-    start: "50%, 80%"
-    end: "50%, 65%"
 - waitForAnimationToEnd
-- tapOn:
-    id: "date-picker-done"
-- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "date-picker-done"
+    commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
+      - tapOn:
+          id: "date-picker-done"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
 
 # ── End date — iOS auto-advanced here. Tap Done to commit.
-- extendedWaitUntil:
-    visible:
-      id: "date-picker-done"
-    timeout: 5000
-- swipe:
-    start: "50%, 80%"
-    end: "50%, 65%"
-- waitForAnimationToEnd
-- tapOn:
-    id: "date-picker-done"
+- runFlow:
+    when:
+      visible:
+        id: "date-picker-done"
+    commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
+      - tapOn:
+          id: "date-picker-done"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "promotion-end-date"
+    commands:
+      - tapOn:
+          id: "promotion-end-date"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 
 # ── Submit ──────────────────────────────────────────────────────────────────

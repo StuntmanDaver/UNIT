@@ -3,6 +3,22 @@ appId: ${MAESTRO_APP_ID}
 # Reusable subflow: log in as Tenant 1
 # Precondition: app launched, waiting for login screen
 # Postcondition: app is on Home tab (US-002 made Home the default for tenants)
+- runFlow: ../subflows/logout-admin-if-present.yaml
+- runFlow:
+    when:
+      visible: "Account disabled"
+    commands:
+      - tapOn: "Sign out"
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 10000
+- runFlow:
+    when:
+      visible:
+        id: "tab-profile"
+    commands:
+      - runFlow: ../subflows/logout.yaml
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -11,21 +27,86 @@ appId: ${MAESTRO_APP_ID}
     id: "login-email"
 - eraseText: 100
 - inputText: "tenant1@unit-test.com"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
 - tapOn:
     id: "login-password"
 - eraseText: 100
 - inputText: "admin123"
-- tapOn:
-    id: "login-logo"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      visible:
+        id: "login-logo"
+    commands:
+      - tapOn:
+          id: "login-logo"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          point: "50%,25%"
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - hideKeyboard
 - scrollUntilVisible:
     element:
       id: "btn-login-submit"
     direction: DOWN
+    timeout: 20000
+    speed: 40
+    visibilityPercentage: 80
+    centerElement: false
 - tapOn:
     id: "btn-login-submit"
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+      visible:
+        id: "btn-login-submit"
+    commands:
+      - tapOn:
+          id: "btn-login-submit"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+      visible: "Password is required"
+    commands:
+      - tapOn:
+          id: "login-password"
+      - eraseText: 100
+      - inputText: "admin123"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+      - tapOn:
+          point: "50%,25%"
+      - waitForAnimationToEnd
+      - scrollUntilVisible:
+          element:
+            id: "btn-login-submit"
+          direction: DOWN
+          timeout: 20000
+          speed: 40
+          visibilityPercentage: 80
+          centerElement: false
+      - tapOn:
+          id: "btn-login-submit"
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 # US-002 made Home the default tab for tenants. "My Property" is the home
 # segment toggle — unique to that screen and always rendered post-login.
 - extendedWaitUntil:
     visible:
       text: "My Property"
-    timeout: 15000
+    timeout: 60000

@@ -1,0 +1,10 @@
+appId: ${MAESTRO_APP_ID}
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+      - pressKey: Back
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml

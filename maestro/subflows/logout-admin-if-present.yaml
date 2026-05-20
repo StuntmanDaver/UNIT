@@ -1,0 +1,21 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Reusable guard: dev-client relaunches can occasionally restore the previous
+# admin session even after the prior flow reached the login screen.
+- runFlow:
+    when:
+      visible: "Admin Dashboard"
+    commands:
+      - tapOn:
+          id: "admin-logout-btn"
+      - extendedWaitUntil:
+          visible:
+            text: "Are you sure you want to log out?"
+          timeout: 8000
+      - tapOn:
+          text: "Log Out"
+          index: 1
+      - extendedWaitUntil:
+          visible:
+            text: "Log In"
+          timeout: 15000

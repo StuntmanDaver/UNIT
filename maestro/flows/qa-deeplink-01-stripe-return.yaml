@@ -66,38 +66,65 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "promotion-description"
 - inputText: "Testing Stripe return URL deep link handling."
-- tapOn: "Promote My Business"
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Promote My Business"
 
 - tapOn:
     id: "promotion-start-date"
 - waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 80%"
-- waitForAnimationToEnd
-- swipe:
-    start: "50%, 85%"
-    end: "50%, 65%"
-- waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Cancel, Start Date, Done"
+      visible:
+        id: "date-picker-done"
     commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
       - tapOn:
-          point: "92%, 71%"
+          id: "date-picker-done"
       - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Cancel, End Date, Done"
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "date-picker-done"
+    commands:
+      - swipe:
+          start: "50%, 80%"
+          end: "50%, 65%"
+      - tapOn:
+          id: "date-picker-done"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "promotion-end-date"
     commands:
       - tapOn:
-          point: "92%, 71%"
+          id: "promotion-end-date"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd
 
-- swipe:
-    start: "50%, 60%"
-    end: "50%, 15%"
-- waitForAnimationToEnd
+- scrollUntilVisible:
+    element:
+      id: "promotion-submit"
+    direction: DOWN
+    centerElement: true
 
 - tapOn:
     id: "promotion-submit"
@@ -115,8 +142,7 @@ appId: ${MAESTRO_APP_ID}
       id: "pending-payment-pay-now"
     direction: DOWN
     centerElement: true
-- tapOn:
-    id: "pending-payment-pay-now"
+- tapOn: "Pay Now"
 
 # ── Stripe in-app browser opens ───────────────────────────────────────────────
 # AUTOMATED: Stripe Checkout opens in Safari View Controller.
@@ -129,13 +155,48 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - tapOn: "Continue"
       - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Use without an account"
+    commands:
+      - tapOn: "Use without an account"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "No thanks"
+    commands:
+      - tapOn: "No thanks"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Confirm it’s you"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Confirm it's you"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Payment method"
-    timeout: 20000
+    timeout: 60000
 
 # ── CASE: Dismiss SVC without paying → app stays on pending-payment ───────────
-- tapOn: "Cancel"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - pressKey: Back
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: "Cancel"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 # Should return to pending-payment screen gracefully (no crash)
 - extendedWaitUntil:
@@ -144,13 +205,7 @@ appId: ${MAESTRO_APP_ID}
     timeout: 10000
 
 # Navigate back to promotions
-- scrollUntilVisible:
-    element:
-      id: "pending-payment-save-later"
-    direction: DOWN
-    centerElement: true
-- tapOn:
-    id: "pending-payment-save-later"
+- tapOn: "Save for Later"
 - assertVisible: "Promotions"
 
 - runFlow: ../subflows/logout.yaml

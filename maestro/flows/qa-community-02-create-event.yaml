@@ -75,21 +75,24 @@ appId: ${MAESTRO_APP_ID}
 
 # Event time (optional — skip)
 - pressKey: Enter
+- tapOn: "Event Time (optional)"
+- hideKeyboard
 - tapOn: "New Post"
-- waitForAnimationToEnd
 
 # Submit
 - scrollUntilVisible:
     element:
       id: "btn-post-submit"
     direction: DOWN
-    speed: 40
+    speed: 70
     timeout: 20000
+    visibilityPercentage: 60
+    centerElement: false
 - tapOn:
     id: "btn-post-submit"
 - extendedWaitUntil:
-    visible:
-      text: "Post published"
+    notVisible:
+      text: "New Post"
     timeout: 10000
 - assertVisible: "Community"
 

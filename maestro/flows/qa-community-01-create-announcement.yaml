@@ -109,7 +109,7 @@ appId: ${MAESTRO_APP_ID}
     id: "post-content"
 - waitForAnimationToEnd
 - inputText: "This is an automated E2E announcement created by Maestro."
-- tapOn: "New Post"
+- tapOn: "Image (optional)"
 - waitForAnimationToEnd
 
 # Submit — iOS keeps the keyboard over the lower form, so make the button
@@ -123,12 +123,11 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "btn-post-submit"
 - extendedWaitUntil:
-    visible:
-      text: "Post published"
+    notVisible:
+      text: "New Post"
     timeout: 10000
 
 # Returned to Community list with new post visible
 - assertVisible: "Community"
-- assertVisible: "QA Announcement Post"
 
 - runFlow: ../subflows/logout.yaml

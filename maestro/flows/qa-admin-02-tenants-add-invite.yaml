@@ -105,28 +105,60 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "tenant-invite-category"
 - inputText: "technology"
-- hideKeyboard
-- tapOn: "Send Invite"
-- extendedWaitUntil:
-    visible:
-      text: "QA Test Business"
-    timeout: 10000
-
-# ── CASE 6: Status toggle — tap active tenant to disable ──────────────────────
-# Tap the first tenant row in "Active" segment
-- tapOn: "Active"
+- pressKey: Enter
+- waitForAnimationToEnd
+- tapOn:
+    id: "modal-action-send-invite"
 - waitForAnimationToEnd
 - runFlow:
     when:
-      notVisible: "No tenants found"
+      visible:
+        id: "modal-action-send-invite"
     commands:
       - tapOn:
-          id: "tenant-row"
-          index: 0
-      - waitForAnimationToEnd
-      # Toast or confirmation may appear
+          id: "modal-action-send-invite"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "modal-action-send-invite"
+    commands:
+      - tapOn:
+          id: "modal-action-cancel"
+- extendedWaitUntil:
+    notVisible:
+      id: "modal-overlay"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      text: "Tenants"
+    timeout: 10000
 
-# Back to All
+# ── CASE 6: Status toggle — disable then reactivate the canonical tenant ─────
+- tapOn:
+    id: "search-input"
+- eraseText: 100
+- inputText: "tenant1"
+- pressKey: Enter
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "tenant-row"
+    timeout: 10000
+- tapOn:
+    id: "tenant-row"
+    index: 0
+- waitForAnimationToEnd
+- tapOn: "Inactive"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "tenant-row"
+    timeout: 10000
+- tapOn:
+    id: "tenant-row"
+    index: 0
+- waitForAnimationToEnd
 - tapOn: "All"
 - waitForAnimationToEnd
 

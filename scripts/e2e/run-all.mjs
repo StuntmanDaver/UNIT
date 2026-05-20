@@ -32,11 +32,14 @@ const shouldStartMetro = process.env.E2E_START_METRO !== '0';
 const shouldBuildMissing = process.env.E2E_BUILD_MISSING === '1';
 const shouldAvoidAndroidMaestroClearState = process.env.E2E_ANDROID_AVOID_MAESTRO_CLEAR_STATE !== '0';
 const shouldUseIosDevClientUrl = process.env.E2E_IOS_USE_DEV_CLIENT_URL !== '0' && shouldStartMetro;
+const flowRegexPattern = String(args['flow-regex'] || process.env.E2E_FLOW_REGEX || '');
+const flowRegex = flowRegexPattern ? new RegExp(flowRegexPattern) : null;
 
 const summary = {
   runId,
   target,
   only,
+  flowRegex: flowRegexPattern || null,
   startedAt: new Date().toISOString(),
   results: [],
 };
@@ -102,7 +105,7 @@ async function startMetro() {
   }
 
   console.log('Starting Metro on port 8081');
-  const child = spawnLongRunning('npx', ['expo', 'start', '--localhost', '--port', '8081'], {
+  const child = spawnLongRunning('npx', ['expo', 'start', '--host', 'lan', '--port', '8081'], {
     cwd: unitDir,
     logPath,
     env: productionVariantEnv(),
@@ -145,20 +148,33 @@ async function runAndroid() {
   const avd = optionalEnv('E2E_ANDROID_AVD', 'UNIT_Pixel_8_API_36');
   const packageId = optionalEnv('MAESTRO_APP_ID', target === 'staging' ? 'com.unitapp.mobile.staging' : 'com.unitapp.mobile');
   const suite = join(unitDir, 'maestro/flows/qa-00-full-suite-android.yaml');
-  const devicesBefore = await run('adb', ['devices'], { cwd: projectRoot, logPath: join(resultsDir, 'android-devices-before.log') });
-  if (!/\bdevice$/m.test(devicesBefore.output.replace(/^List of devices attached.*$/m, ''))) {
+  const devicesBefore = await run('adb', ['devices'], {
+    cwd: projectRoot,
+    logPath: join(resultsDir, 'android-devices-before.log'),
+    timeoutMs: 10000,
+  });
+  const onlineDevicesBefore = parseAdbOnlineDevices(devicesBefore.output);
+  if (onlineDevicesBefore.length === 0) {
     console.log(`Starting Android emulator ${avd}`);
     androidProcess = spawnLongRunning('emulator', ['-avd', avd, '-no-snapshot-load'], {
       cwd: projectRoot,
       logPath: join(resultsDir, 'android-emulator.log'),
     });
   }
-  await run('adb', ['wait-for-device'], { cwd: projectRoot, logPath: join(resultsDir, 'android-wait.log'), inherit: true });
+  await run('adb', ['wait-for-device'], {
+    cwd: projectRoot,
+    logPath: join(resultsDir, 'android-wait.log'),
+    inherit: true,
+    timeoutMs: 60000,
+  });
   await waitForAndroidBoot();
+  await assertAndroidHealth(packageId);
+  await settleAndroidDeviceForE2e();
 
   const appCheck = await run('adb', ['shell', 'pm', 'path', packageId], {
     cwd: projectRoot,
     logPath: join(resultsDir, 'android-app-check.log'),
+    timeoutMs: 30000,
   });
   if (appCheck.status !== 0 || !appCheck.output.includes('package:')) {
     if (!shouldBuildMissing) {
@@ -196,9 +212,13 @@ async function runMaestroSuite(platform, suitePath, appId) {
     summary.results.push(resultRow(platform, basename(suitePath), 1, 1, suitePath));
     return;
   }
-  const flows = parseSuiteFlows(suitePath);
+  const allFlows = parseSuiteFlows(suitePath);
+  const flows = flowRegex ? allFlows.filter((flow) => flowRegex.test(basename(flow)) || flowRegex.test(flow)) : allFlows;
   if (flows.length === 0) {
-    summary.results.push(resultRow(platform, basename(suitePath), 1, 1, suitePath));
+    const name = flowRegex ? `${basename(suitePath)} filtered by ${flowRegexPattern}` : basename(suitePath);
+    const logPath = join(resultsDir, platform, `${basename(suitePath).replace(/\.ya?ml$/, '')}-flow-filter.log`);
+    writeFileSync(logPath, flowRegex ? `No flows matched E2E_FLOW_REGEX=${flowRegexPattern}\n` : 'Suite contains no child flows\n');
+    summary.results.push(resultRow(platform, name, 1, 1, logPath));
     return;
   }
 
@@ -247,13 +267,13 @@ async function bootstrapAndroidMaestroDriver(appId) {
       cwd: projectRoot,
       logPath: `${logPrefix}-install-app.log`,
       inherit: true,
-      timeoutMs: 30000,
+      timeoutMs: 60000,
     });
     await run('adb', ['install', '-r', join(tmp, 'maestro-server.apk')], {
       cwd: projectRoot,
       logPath: `${logPrefix}-install-server.log`,
       inherit: true,
-      timeoutMs: 30000,
+      timeoutMs: 60000,
     });
   } finally {
     rmSync(tmp, { recursive: true, force: true });
@@ -380,8 +400,6 @@ async function prepareMaestroFlow(platform, flow, appId, attempt, logPath) {
       removeAndroidDevLauncherUrlTaps(removeInitialLaunchApp(readFileSync(flow, 'utf8')))
     )
   )
-    .replace(/^[ \t]*- tapOn:\n[ \t]+text:\s*"(?:Continue|Close)"\n[ \t]+optional:\s*true\n/gm, '')
-    .replace(/^[ \t]*- waitForAnimationToEnd\s*\n/gm, '')
     .replace(/^(\s*)clearState:\s*true\s*$/gm, '$1clearState: false')
     .replace(/text:\s*"http:\/\/10\.0\.2\.2:8081"/g, 'text: ".*8081"');
   writeFileSync(tempFlow, contents);
@@ -427,17 +445,35 @@ async function launchAndroidDevClient(appId, logPath) {
     logPath: `${prefix}-force-stop-chrome.log`,
     timeoutMs: 5000,
   });
+  await run('adb', ['shell', 'pm', 'clear', 'com.android.chrome'], {
+    cwd: projectRoot,
+    logPath: `${prefix}-pm-clear-chrome.log`,
+    timeoutMs: 30000,
+  });
+  for (const packageName of ['com.google.android.dialer', 'com.android.dialer', 'com.google.android.contacts']) {
+    await run('adb', ['shell', 'am', 'force-stop', packageName], {
+      cwd: projectRoot,
+      logPath: `${prefix}-force-stop-${packageName}.log`,
+      timeoutMs: 5000,
+    });
+  }
   await run('adb', ['shell', 'am', 'force-stop', appId], {
     cwd: projectRoot,
     logPath: `${prefix}-force-stop.log`,
     inherit: true,
-    timeoutMs: 15000,
+    timeoutMs: 30000,
   });
   await run('adb', ['shell', 'pm', 'clear', appId], {
     cwd: projectRoot,
     logPath: `${prefix}-pm-clear.log`,
     inherit: true,
-    timeoutMs: 20000,
+    timeoutMs: 60000,
+  });
+  await waitForPort(8081, '127.0.0.1', 30000);
+  await run('adb', ['reverse', 'tcp:8081', 'tcp:8081'], {
+    cwd: projectRoot,
+    logPath: `${prefix}-adb-reverse-metro.log`,
+    timeoutMs: 10000,
   });
   await run(
     'adb',
@@ -446,7 +482,7 @@ async function launchAndroidDevClient(appId, logPath) {
       cwd: projectRoot,
       logPath: `${prefix}-dev-client-launch.log`,
       inherit: true,
-      timeoutMs: 20000,
+      timeoutMs: 60000,
     }
   );
   await new Promise((resolve) => setTimeout(resolve, 25000));
@@ -482,6 +518,23 @@ async function settleAndroidStartupOverlays(appId, devClientUrl, prefix) {
 
     if (/text="Continue"/.test(hierarchy) && /developer menu|development builds|Runtime version/.test(hierarchy)) {
       await tapAndroid('dev-intro-continue', '540', '2246', `${prefix}-startup-${pass}`);
+      continue;
+    }
+
+    if (/There was a problem loading the project|text="Reload"/.test(hierarchy)) {
+      await waitForPort(8081, '127.0.0.1', 30000);
+      await run(
+        'adb',
+        ['shell', 'am', 'start', '-a', 'android.intent.action.VIEW', '-d', devClientUrl, appId],
+        {
+          cwd: projectRoot,
+          logPath: `${prefix}-startup-${pass}-reload-dev-client-url.log`,
+          timeoutMs: 20000,
+        }
+      );
+      await new Promise((resolve) => setTimeout(resolve, 4000));
+      await tapAndroid('reload-project', '540', '2180', `${prefix}-startup-${pass}`);
+      await new Promise((resolve) => setTimeout(resolve, 8000));
       continue;
     }
 
@@ -569,7 +622,7 @@ function removeInitialLaunchApp(contents) {
 
 function removeAndroidDevLauncherUrlTaps(contents) {
   return contents.replace(
-    /- tapOn:\n[ \t]+text:\s*"http:\/\/10\.0\.2\.2:8081"\n[ \t]+optional:\s*true\n- waitForAnimationToEnd\n/g,
+    /- tapOn:\n[ \t]+text:\s*"http:\/\/(?:10\.0\.2\.2|127\.0\.0\.1):8081"\n[ \t]+optional:\s*true\n- waitForAnimationToEnd\n/g,
     ''
   );
 }
@@ -705,6 +758,80 @@ function productionVariantEnv() {
   return {};
 }
 
+function parseAdbOnlineDevices(output) {
+  return output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('List of devices attached'))
+    .filter((line) => /\bdevice$/.test(line))
+    .map((line) => line.split(/\s+/)[0])
+    .filter(Boolean);
+}
+
+async function settleAndroidDeviceForE2e() {
+  const settings = [
+    ['window_animation_scale', '0'],
+    ['transition_animation_scale', '0'],
+    ['animator_duration_scale', '0'],
+  ];
+  for (const [name, value] of settings) {
+    await run('adb', ['shell', 'settings', 'put', 'global', name, value], {
+      cwd: projectRoot,
+      logPath: join(resultsDir, `android-setting-${name}.log`),
+      timeoutMs: 5000,
+    });
+  }
+}
+
+async function assertAndroidHealth(packageId) {
+  const logPath = join(resultsDir, 'android-health.log');
+  const messages = [];
+
+  const devices = await run('adb', ['devices'], { cwd: projectRoot, timeoutMs: 10000 });
+  messages.push('## adb devices');
+  messages.push(devices.output.trim() || '<empty>');
+  const onlineDevices = parseAdbOnlineDevices(devices.output);
+  if (onlineDevices.length !== 1) {
+    messages.push(`FAIL expected exactly one online Android device, found ${onlineDevices.length}`);
+    writeFileSync(logPath, `${messages.join('\n')}\n`);
+    summary.results.push(resultRow('android', 'health gate', 1, 1, logPath));
+    throw new Error(`Android health gate failed: expected exactly one online device, found ${onlineDevices.length}. See ${logPath}`);
+  }
+
+  const boot = await run('adb', ['shell', 'getprop', 'sys.boot_completed'], { cwd: projectRoot, timeoutMs: 10000 });
+  messages.push('\n## sys.boot_completed');
+  messages.push(boot.output.trim() || '<empty>');
+  if (boot.status !== 0 || boot.output.trim() !== '1') {
+    messages.push('FAIL Android boot flag did not report 1');
+    writeFileSync(logPath, `${messages.join('\n')}\n`);
+    summary.results.push(resultRow('android', 'health gate', 1, 1, logPath));
+    throw new Error(`Android health gate failed: boot flag not ready. See ${logPath}`);
+  }
+
+  const appCheck = await run('adb', ['shell', 'pm', 'path', packageId], { cwd: projectRoot, timeoutMs: 30000 });
+  messages.push(`\n## pm path ${packageId}`);
+  messages.push(appCheck.output.trim() || '<empty>');
+  if (appCheck.status !== 0 && !shouldBuildMissing) {
+    messages.push('FAIL app package did not respond and E2E_BUILD_MISSING is not enabled');
+    writeFileSync(logPath, `${messages.join('\n')}\n`);
+    summary.results.push(resultRow('android', 'health gate', 1, 1, logPath));
+    throw new Error(`Android health gate failed: app package check did not respond. See ${logPath}`);
+  }
+
+  const hierarchy = await run('adb', ['shell', 'uiautomator', 'dump', '/dev/tty'], { cwd: projectRoot, timeoutMs: 30000 });
+  messages.push('\n## uiautomator dump /dev/tty');
+  messages.push(hierarchy.output.slice(0, 2000).trim() || '<empty>');
+  if (hierarchy.status !== 0 || /Command timed out/.test(hierarchy.output)) {
+    messages.push('FAIL uiautomator did not respond');
+    writeFileSync(logPath, `${messages.join('\n')}\n`);
+    summary.results.push(resultRow('android', 'health gate', 1, 1, logPath));
+    throw new Error(`Android health gate failed: uiautomator did not respond. See ${logPath}`);
+  }
+
+  messages.push('\nPASS Android health gate');
+  writeFileSync(logPath, `${messages.join('\n')}\n`);
+}
+
 async function portOpen(port) {
   try {
     await waitForPort(port, '127.0.0.1', 250);
@@ -718,7 +845,7 @@ async function waitForAndroidBoot() {
   const startedAt = Date.now();
   const logPath = join(resultsDir, 'android-bootstatus.log');
   while (Date.now() - startedAt < 120000) {
-    const result = await run('adb', ['shell', 'getprop', 'sys.boot_completed'], { cwd: projectRoot });
+    const result = await run('adb', ['shell', 'getprop', 'sys.boot_completed'], { cwd: projectRoot, timeoutMs: 5000 });
     if (result.output.trim() === '1') {
       writeFileSync(logPath, 'Android boot completed\n');
       // Wait for system services and launcher to finish initializing after boot flag is set.

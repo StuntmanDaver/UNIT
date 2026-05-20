@@ -80,10 +80,15 @@ appId: ${MAESTRO_APP_ID}
 - tapOn: "Edit Profile"
 - extendedWaitUntil:
     visible:
-      text: "Save Changes"
+      text: "Edit Profile"
     timeout: 8000
 
 # Tap the avatar / logo area to trigger ImagePicker
+- scrollUntilVisible:
+    element:
+      id: "profile-logo-picker"
+    direction: UP
+    centerElement: true
 - tapOn:
     id: "profile-logo-picker"
 - waitForAnimationToEnd
@@ -102,6 +107,12 @@ appId: ${MAESTRO_APP_ID}
 - waitForAnimationToEnd
 
 # Back to profile without saving
-- tapOn: "Cancel"
+- scrollUntilVisible:
+    element:
+      id: "btn-profile-cancel"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: "btn-profile-cancel"
 
 - runFlow: ../subflows/logout.yaml

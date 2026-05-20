@@ -9,7 +9,8 @@ appId: ${MAESTRO_APP_ID}
 #   - "Forgot password?" flows
 #   - Sign Up link navigation
 #
-# Prerequisites: tenant1@unit-test.com and david@cultrhealth.com exist in Supabase auth
+# Prerequisites: login-negative@unit-test.com, tenant1@unit-test.com,
+# and admin@unit-test.com exist in Supabase auth
 
 - launchApp:
     clearState: true
@@ -77,6 +78,8 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     text: "Close"
     optional: true
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
+- runFlow: ../subflows/logout-admin-if-present.yaml
 
 - extendedWaitUntil:
     visible:
@@ -86,7 +89,7 @@ appId: ${MAESTRO_APP_ID}
 # ── CASE 1: Wrong password ───────────────────────────────────────────────────
 - tapOn:
     id: "login-email"
-- inputText: "tenant1@unit-test.com"
+- inputText: "login-negative@unit-test.com"
 - tapOn:
     id: "login-password"
 - inputText: "wrongpassword"
@@ -102,6 +105,7 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "Login failed"
     timeout: 10000
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 # Must still be on login screen
 - assertVisible: "Log In"
 
@@ -168,6 +172,8 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     text: "Close"
     optional: true
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
+- runFlow: ../subflows/logout-admin-if-present.yaml
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -185,6 +191,7 @@ appId: ${MAESTRO_APP_ID}
     direction: DOWN
 - tapOn:
     id: "btn-login-submit"
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
 # Zod error appears inline near the email field
 - assertVisible: "Log In"
 
@@ -248,6 +255,8 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     text: "Close"
     optional: true
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
+- runFlow: ../subflows/logout-admin-if-present.yaml
 - extendedWaitUntil:
     visible:
       text: "Log In"
@@ -328,6 +337,8 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     text: "Close"
     optional: true
+- runFlow: ../subflows/dismiss-ios-save-password.yaml
+- runFlow: ../subflows/logout-admin-if-present.yaml
 - extendedWaitUntil:
     visible:
       text: "Log In"

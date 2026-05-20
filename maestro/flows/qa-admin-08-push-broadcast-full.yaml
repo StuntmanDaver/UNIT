@@ -136,6 +136,14 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 - tapOn:
     id: "admin-logout-btn"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "Are you sure you want to log out?"
+    commands:
+      - tapOn:
+          point: "91%,10%"
+      - waitForAnimationToEnd
 - assertVisible: "Are you sure you want to log out?"
 - tapOn:
     text: "Log Out"

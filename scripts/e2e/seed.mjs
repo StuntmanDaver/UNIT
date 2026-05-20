@@ -19,6 +19,7 @@ const runId = String(args['run-id'] || process.env.E2E_RUN_ID || `e2e_seed_${Dat
 
 const accounts = {
   tenant: { email: process.env.E2E_TENANT_EMAIL || 'tenant1@unit-test.com', password: process.env.E2E_TENANT_PASSWORD || 'admin123', role: 'tenant' },
+  negativeLogin: { email: process.env.E2E_NEGATIVE_LOGIN_EMAIL || 'login-negative@unit-test.com', password: process.env.E2E_NEGATIVE_LOGIN_PASSWORD || 'ValidPass123!', role: 'tenant' },
   resetTenant: { email: process.env.E2E_RESET_TENANT_EMAIL || 'tenant-reset@unit-test.com', password: process.env.E2E_RESET_TENANT_PASSWORD || 'TempPass123!', role: 'tenant' },
   admin: { email: process.env.E2E_ADMIN_EMAIL || 'david@cultrhealth.com', password: process.env.E2E_ADMIN_PASSWORD || 'admin123', role: 'landlord' },
 };

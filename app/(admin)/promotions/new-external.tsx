@@ -192,6 +192,7 @@ export default function NewExternalPromotionScreen() {
 
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}
+        keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
         {/* Property selector */}
@@ -249,6 +250,9 @@ export default function NewExternalPromotionScreen() {
               placeholder="Describe the promotion..."
               multiline
               numberOfLines={4}
+              blurOnSubmit
+              submitBehavior="blurAndSubmit"
+              returnKeyType="done"
               textAlignVertical="top"
               style={{ minHeight: 100 }}
               error={errors.description?.message}
@@ -353,7 +357,7 @@ export default function NewExternalPromotionScreen() {
                     <Text className="text-base font-nunito-semibold text-brand-ink leading-relaxed">
                       {activePicker === 'start' ? 'Start Date' : 'End Date'}
                     </Text>
-                    <Pressable onPress={() => setActivePicker(null)}>
+                    <Pressable testID="external-promo-date-done" onPress={() => setActivePicker(null)}>
                       <Text className="text-sm font-nunito-semibold text-brand-blue leading-normal">
                         Done
                       </Text>

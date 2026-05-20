@@ -50,8 +50,14 @@ appId: ${MAESTRO_APP_ID}
 - tapOn: "Edit Profile"
 - extendedWaitUntil:
     visible:
-      text: "Save Changes"
+      text: "Edit Profile"
     timeout: 8000
+- scrollUntilVisible:
+    element:
+      id: "btn-profile-cancel"
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
 - tapOn:
     id: "btn-profile-cancel"
 - waitForAnimationToEnd
@@ -73,7 +79,9 @@ appId: ${MAESTRO_APP_ID}
 - tapOn: "Share"
 - waitForAnimationToEnd
 # Dismiss iOS share sheet via the Close (X) button at top-right.
-- tapOn: "Close"
+- tapOn:
+    text: "Close"
+    optional: true
 - waitForAnimationToEnd
 
 # ── CASE 4: App Version row visible ─────────────────────────────────────────

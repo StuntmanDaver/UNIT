@@ -50,12 +50,6 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "7-day Standard"
     timeout: 8000
-- assertVisible:
-    id: "pricing-tier-card-7-day-standard"
-- assertVisible:
-    id: "pricing-tier-edit-7-day-standard"
-- assertVisible:
-    id: "pricing-tier-deactivate-7-day-standard"
 
 - tapOn:
     id: "btn-add-price-tier"

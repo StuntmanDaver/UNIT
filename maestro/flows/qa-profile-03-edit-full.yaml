@@ -146,7 +146,13 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "Edit Profile"
     timeout: 8000
-- tapOn: "Cancel"
+- scrollUntilVisible:
+    element:
+      id: "btn-profile-cancel"
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: "btn-profile-cancel"
 - extendedWaitUntil:
     notVisible:
       text: "Loading profile..."

@@ -114,7 +114,18 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 
 # Cancel
-- tapOn: "Cancel"
-- assertVisible: "Promotions"
+- scrollUntilVisible:
+    element:
+      id: "promotion-cancel"
+    direction: DOWN
+    centerElement: true
+    speed: 40
+    timeout: 20000
+- tapOn:
+    id: "promotion-cancel"
+- extendedWaitUntil:
+    visible:
+      text: "Promotions"
+    timeout: 8000
 
 - runFlow: ../subflows/logout.yaml
