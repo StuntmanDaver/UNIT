@@ -11,4 +11,5 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: ['./jest.setup.js'],
+  watchman: false,
 };
