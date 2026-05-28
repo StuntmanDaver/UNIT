@@ -155,6 +155,25 @@ The mobile runner executes each child Maestro flow separately. A failing flow is
 retried once, then the runner continues to the next flow so the report shows the
 complete failure set.
 
+## Live Stripe Final Test
+
+Do not run live-key payment testing until
+`handoff/PRODUCTION_LIVE_STRIPE_LAUNCH.md` is complete. The live test
+must use the production portal host, live Stripe webhook secret, production
+Supabase project, and a production/TestFlight mobile build.
+
+Required proof after the live checkout:
+
+- Stripe Dashboard payment succeeds.
+- Stripe Dashboard webhook delivery to `/api/webhooks/stripe` succeeds.
+- Supabase shows:
+  - `promotions.payment_status = paid`
+  - `promotions.review_status = pending`
+  - `promotion_payment_attempts.status = completed`
+  - `stripe_webhook_events.completed_at` populated
+  - `promotion_status_events.actor_type = webhook`
+- The app returns through `unit://` and shows the paid/awaiting-review state.
+
 ## Google Play Readiness
 
 After Android E2E passes on staging or production build artifacts, submit using

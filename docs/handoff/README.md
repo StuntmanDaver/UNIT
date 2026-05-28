@@ -12,6 +12,7 @@ This packet is the owner manual for taking UNIT from contractor-managed delivery
 4. [Deployment Guide](./DEPLOYMENT_GUIDE.md)
 5. [Account Inventory](./ACCOUNT_INVENTORY.md)
 6. [Backup and Recovery](./BACKUP_RECOVERY.md)
+7. [Production Live Stripe Launch](./PRODUCTION_LIVE_STRIPE_LAUNCH.md)
 
 ## Production Readiness Gate
 
@@ -27,6 +28,8 @@ Do not hand off production ownership until all of these are true:
 - Stripe webhook endpoints are separate per environment and point to the matching portal URL.
 - Sentry is configured for mobile, portal, and Supabase Edge Functions.
 - A client-owned admin can complete the staging rehearsal without contractor-only access.
+- The live Stripe setup and final payment evidence in the production launch
+  runbook are complete before App Store or production rollout.
 
 ## Handoff Evidence
 

@@ -133,6 +133,12 @@ This bucket stores property images, business logos, and other publicly accessibl
 
 The mobile app's tenant-paid promotion flow (US-012/US-014) uses the Edge Function `create-promotion-checkout-session` to create a Stripe Checkout session, then **reuses the existing portal webhook** at `portal/app/api/webhooks/stripe/route.ts` to confirm payment. There is **no separate Stripe webhook endpoint for the mobile app** and none is required.
 
+Before live-key testing or store submission, complete the production handoff
+runbook at `docs/handoff/PRODUCTION_LIVE_STRIPE_LAUNCH.md`. That runbook is the
+source of truth for live Stripe keys, live webhook setup, production host env,
+Supabase production checks, EAS/App Store readiness, and final live payment
+evidence.
+
 ### Why one webhook is enough
 
 The portal webhook is source-agnostic: it reads only `session.metadata.promotionId` from the Stripe event and flips the corresponding `promotions` row to `payment_status='paid' / review_status='pending'`. The mobile Edge Function inserts the same `metadata.promotionId` key, so the existing handler covers both flows.

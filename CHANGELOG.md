@@ -1,5 +1,19 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-27 — Production Stripe launch runbook and release gate stabilization
+
+### Added
+- **Live Stripe launch runbook** — Added `docs/handoff/PRODUCTION_LIVE_STRIPE_LAUNCH.md` with the required production setup path for live Stripe keys, live webhook endpoint/events, portal host env, Supabase production checks, EAS/App Store setup, App Review notes, final live-payment verification, and rollback.
+- **Handoff links** — Linked the live Stripe launch checklist from the handoff README, deployment runbook, and E2E production-readiness docs so release operators have one durable source of truth.
+
+### Changed
+- **Jest release gate** — Limited Jest roots and ignored native build outputs in `jest.config.js`, preventing release checks from crawling iOS/Android build artifacts and timing out.
+
+### Verified
+- `npm run release:check` — release env, edge guard, lint, typecheck, brand lint, Jest, and Expo Doctor passed.
+- `git diff --check`
+- Targeted docs secret scan found no live/test keys or webhook secrets.
+
 ## 2026-05-18 — Community post image viewing fixed
 
 ### Fixed
