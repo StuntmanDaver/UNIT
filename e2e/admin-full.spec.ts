@@ -86,7 +86,10 @@ async function login(page: Page, email: string, password: string): Promise<void>
   await page.goto('/login');
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password').fill(password);
-  await page.getByRole('button', { name: 'Sign In' }).click();
+  await Promise.all([
+    page.waitForURL(/\/(admin|dashboard)/, { timeout: 30_000 }),
+    page.getByRole('button', { name: 'Sign In' }).click(),
+  ]);
 }
 
 function checkoutWindow(): { startDate: string; endDate: string } {
