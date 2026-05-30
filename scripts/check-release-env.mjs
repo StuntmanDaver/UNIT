@@ -106,6 +106,7 @@ if (releaseEnv !== 'development' && /localhost|127\.0\.0\.1/.test(supabaseUrl)) 
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY ?? localEnv.STRIPE_SECRET_KEY;
 const stripePublishable = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? localEnv.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET ?? localEnv.STRIPE_WEBHOOK_SECRET;
 if (releaseEnv === 'staging' && (!stripeSecret?.startsWith('sk_test_') || !stripePublishable?.startsWith('pk_test_'))) {
   console.error('Staging must use Stripe test mode keys.');
   process.exit(1);
@@ -119,6 +120,9 @@ if (releaseEnv === 'production') {
   }
   if (!stripePublishable?.startsWith('pk_live_') && !(allowProductionTestStripe && stripePublishable?.startsWith('pk_test_'))) {
     stripeModeErrors.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must use a live-mode pk_live_ key for production.');
+  }
+  if (!stripeWebhookSecret?.startsWith('whsec_')) {
+    stripeModeErrors.push('STRIPE_WEBHOOK_SECRET must use a Stripe webhook signing secret that starts with whsec_.');
   }
   if (stripeModeErrors.length > 0) {
     console.error('Production Stripe configuration is still in sandbox/test mode:');
