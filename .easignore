@@ -1,0 +1,47 @@
+# Keep EAS archives small and free of local/generated artifacts.
+node_modules/
+.git/
+.github/
+.eas/
+.expo/
+.planning/
+dist/
+ios/
+android/
+web-build/
+.claude/
+.worktrees/
+docs/
+fastlane/
+maestro/
+scripts/
+supabase/
+__tests__/
+scripts/ralph/.last-branch
+scripts/ralph/progress.txt
+scripts/ralph/archive/
+e2e-results/
+coverage/
+playwright-report/
+test-results/
+
+# Local credentials and environment files.
+.env
+.env.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+google-play-key.json
+
+# Logs and local build outputs.
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.tsbuildinfo
+.DS_Store
+build-*.tar.gz
+UNIT.app/
+home-feed-*.png
+colorway-*.png

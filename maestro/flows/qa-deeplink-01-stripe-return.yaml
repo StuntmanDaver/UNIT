@@ -142,7 +142,8 @@ appId: ${MAESTRO_APP_ID}
       id: "pending-payment-pay-now"
     direction: DOWN
     centerElement: true
-- tapOn: "Pay Now"
+- tapOn:
+    id: "pending-payment-pay-now"
 
 # ── Stripe in-app browser opens ───────────────────────────────────────────────
 # AUTOMATED: Stripe Checkout opens in Safari View Controller.

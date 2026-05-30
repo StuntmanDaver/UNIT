@@ -30,7 +30,8 @@ const resultsDir = ensureDir(join(resultsRoot, runId));
 const shouldSeed = process.env.E2E_SKIP_SEED !== '1';
 const shouldStartMetro = process.env.E2E_START_METRO !== '0';
 const shouldBuildMissing = process.env.E2E_BUILD_MISSING === '1';
-const shouldAvoidAndroidMaestroClearState = process.env.E2E_ANDROID_AVOID_MAESTRO_CLEAR_STATE !== '0';
+const shouldAvoidAndroidMaestroClearState =
+  shouldStartMetro && process.env.E2E_ANDROID_AVOID_MAESTRO_CLEAR_STATE !== '0';
 const shouldUseIosDevClientUrl = process.env.E2E_IOS_USE_DEV_CLIENT_URL !== '0' && shouldStartMetro;
 const flowRegexPattern = String(args['flow-regex'] || process.env.E2E_FLOW_REGEX || '');
 const flowRegex = flowRegexPattern ? new RegExp(flowRegexPattern) : null;
@@ -69,6 +70,14 @@ async function main() {
     });
     summary.results.push(resultRow('seed', 'production-safe QA seed', 1, seed.status, join(resultsDir, 'seed.log')));
     if (seed.status !== 0) throw new Error(`Seed failed. See ${join(resultsDir, 'seed.log')}`);
+
+    const sync = await run('node', [join(unitDir, 'scripts/e2e/verify-sync.mjs'), '--target', target, '--run-id', runId], {
+      cwd: projectRoot,
+      logPath: join(resultsDir, 'sync.log'),
+      inherit: true,
+    });
+    summary.results.push(resultRow('sync', 'cross-account data sync', 1, sync.status, join(resultsDir, 'sync.log')));
+    if (sync.status !== 0) throw new Error(`Cross-account sync verification failed. See ${join(resultsDir, 'sync.log')}`);
   }
 
   if (needsMobile(only) && shouldStartMetro) {
@@ -110,7 +119,7 @@ async function startMetro() {
     logPath,
     env: productionVariantEnv(),
   });
-  await waitForPort(8081, '127.0.0.1', 90000);
+  await waitForPort(8081, '127.0.0.1', Number(optionalEnv('E2E_METRO_START_TIMEOUT_MS', '180000')));
   return child;
 }
 
@@ -192,6 +201,7 @@ async function runAndroid() {
     if (build.status !== 0) return;
   }
 
+  await assertAndroidProductionInstall(packageId);
   await bootstrapAndroidMaestroDriver(packageId);
   await runMaestroSuite('android', suite, packageId);
 }
@@ -396,8 +406,10 @@ async function prepareMaestroFlow(platform, flow, appId, attempt, logPath) {
 
   const tempFlow = join(dirname(flow), `.android-no-clear-${process.pid}-${attempt}-${basename(flow)}`);
   const contents = stabilizeAndroidStartupPrompts(
-    replaceAndroidSessionRestoreLaunches(
-      removeAndroidDevLauncherUrlTaps(removeInitialLaunchApp(readFileSync(flow, 'utf8')))
+    stabilizeAndroidDevLauncherTaps(
+      replaceAndroidSessionRestoreLaunches(
+        removeAndroidDevLauncherUrlTaps(removeInitialLaunchApp(readFileSync(flow, 'utf8')))
+      )
     )
   )
     .replace(/^(\s*)clearState:\s*true\s*$/gm, '$1clearState: false')
@@ -627,6 +639,10 @@ function removeAndroidDevLauncherUrlTaps(contents) {
   );
 }
 
+function stabilizeAndroidDevLauncherTaps(contents) {
+  return contents.replace(/^([ \t]*)- tapOn:\s*"\.\*8081"\s*$/gm, '$1- tapOn:\n$1    point: "50%,29%"');
+}
+
 function removeIosDevLauncherUrlTaps(contents) {
   return contents
     .replace(
@@ -830,6 +846,33 @@ async function assertAndroidHealth(packageId) {
 
   messages.push('\nPASS Android health gate');
   writeFileSync(logPath, `${messages.join('\n')}\n`);
+}
+
+async function assertAndroidProductionInstall(packageId) {
+  if (target !== 'production') return;
+
+  const logPath = join(resultsDir, 'android-production-install.log');
+  const result = await run('adb', ['shell', 'dumpsys', 'package', packageId], {
+    cwd: projectRoot,
+    timeoutMs: 30000,
+  });
+  const output = result.output.trim();
+  const messages = [`## dumpsys package ${packageId}`, output || '<empty>'];
+  const failed = result.status !== 0 || !output.includes(`Package [${packageId}]`);
+  const debuggable = /\bDEBUGGABLE\b/.test(output);
+
+  if (failed || debuggable) {
+    if (failed) messages.push('\nFAIL production package metadata was not available');
+    if (debuggable) messages.push('\nFAIL installed Android package is DEBUGGABLE');
+    messages.push('\nInstall a production/non-debuggable APK or AAB-derived build, set E2E_START_METRO=0, and rerun Android E2E.');
+    writeFileSync(logPath, `${messages.join('\n')}\n`);
+    summary.results.push(resultRow('android', 'production install gate', 1, 1, logPath));
+    throw new Error(`Android production install gate failed. See ${logPath}`);
+  }
+
+  messages.push('\nPASS installed Android package is not debuggable');
+  writeFileSync(logPath, `${messages.join('\n')}\n`);
+  summary.results.push(resultRow('android', 'production install gate', 1, 0, logPath));
 }
 
 async function portOpen(port) {

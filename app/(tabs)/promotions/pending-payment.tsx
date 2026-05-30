@@ -169,7 +169,7 @@ export default function PendingPaymentScreen() {
         </Text>
       </GradientHeader>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 160 }}>
         <View className="flex-row items-center gap-3 bg-brand-mist border border-brand-blue/40 rounded-2xl p-4 mb-6">
           {isPaid ? (
             <CheckCircle size={24} color={BRAND.blue} />

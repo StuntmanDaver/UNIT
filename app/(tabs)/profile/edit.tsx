@@ -153,7 +153,7 @@ export default function EditProfileScreen() {
       </GradientHeader>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 140 }}
         keyboardShouldPersistTaps="handled"
       >
         {/* Logo picker */}

@@ -1,5 +1,83 @@
 # UNIT Mobile App — Changelog
 
+## 2026-05-29 — Android production AAB E2E pass triaged
+
+### Changed
+- **Android tab-screen action reachability** — Promotion create, pending-payment,
+  and profile edit screens now leave extra bottom scroll padding so primary
+  actions are not trapped under the Android tab bar during production E2E.
+- **Modal action reachability** — Shared modal sheets now cap height at 90% so
+  form bodies scroll and action buttons remain reachable on Android.
+- **Android Maestro selectors** — Hardened failing production flows to target
+  visible action text or stable IDs for promotion cancel, profile save, property
+  modal close, Stripe Pay Now, and promotion-review confirm actions.
+- **EAS archive hygiene** — Added `.easignore` so remote production builds do
+  not upload local native build folders, dependencies, reports, local planning
+  state, Supabase workspace files, Maestro flows, or secret/env files.
+
+### Verified
+- Installed production EAS Android AAB build
+  `6c602432-f90b-468d-8663-f7e78fc5b9dd` through `bundletool`; `dumpsys package
+  com.unitapp.mobile` reported versionCode `3` without `DEBUGGABLE`.
+- Production Android run `prod_android_aab_cert_20260529` passed seed,
+  cross-account sync, production install gate, auth, home, directory, business,
+  community, alerts, profile QR/share, profile push, most admin/landlord routes,
+  pricing, push broadcast, and permissions coverage.
+- EAS archive inspect now completes with a 3.4 MB project directory and the
+  remote upload reports 1.6 MB. Fresh production Android build
+  `f59c8c9c-9a51-4826-a051-0958a106a0b0` finished with versionCode `6` and was
+  installed via `bundletool`; `dumpsys package com.unitapp.mobile` reported
+  `pkgFlags` without `DEBUGGABLE`.
+- Focused production reruns on versionCode `6` cleared the known failing flows:
+  `prod_android_focused_f59c8c9c_20260529` passed promotion cancel, pending
+  payment edges, profile edit/save, property create modal close, and Stripe
+  return; `prod_android_focused_fix2_f59c8c9c_20260529` passed M5 paid
+  promotion Stripe Checkout and admin promotion review all-actions.
+
+### Remaining
+- Android is still red until the full suite is green. Partial full-suite run
+  `prod_android_full_f59c8c9c_20260529` passed seed, sync, production install
+  gate, auth 01-04, home, directory, business, community, and retried
+  promotions 01 successfully, but `qa-auth-05-routing-redirects` failed the
+  admin login landing assertion and later repeated Android ANR/login issues
+  blocked `qa-promotions-02-create-cancel-paths`.
+
+## 2026-05-29 — Production-target iOS certification and Android blocker isolated
+
+### Changed
+- **Expo SDK patch alignment** — Updated Expo package patch versions so
+  `expo-doctor` passes in the production release gate.
+- **Android E2E runner guard** — Android no-clear-state dev-client preparation
+  now only runs when Metro is enabled, and Metro cold-start waits are
+  configurable/longer for production loops.
+- **Android production install gate** — Production Android E2E now inspects
+  `adb shell dumpsys package com.unitapp.mobile` and fails before Maestro if the
+  installed app is debuggable, preventing a dev-client/debug APK from being
+  mistaken for a production-ready build.
+
+### Verified
+- `npm run release:check` passed: release env, edge guard, lint, typecheck,
+  brand lint, Jest, and Expo Doctor.
+- Production E2E doctor, seed, and cross-account sync passed.
+- iOS full suite passed in run `prod_full_cert_20260529`, including Stripe
+  Checkout test mode with the `4242` test card returning to `Awaiting Review`.
+- Production Android install gate run `prod_android_install_gate_20260529`
+  correctly failed before Maestro because the installed package reported
+  `DEBUGGABLE`.
+
+### Remaining
+- Android remains red: `prod_full_cert_20260529_android_rerun2` reached
+  `qa-auth-01-login-validation.yaml` and passed early auth branches, but timed
+  out during admin login after an Android dev-client ANR/splash state.
+- Local `npx expo run:android --variant release --no-bundler` did not complete
+  a release install; the installed `com.unitapp.mobile` package still reported
+  `DEBUGGABLE`.
+- Local Hermes release assembly still deadlocks inside Gradle's
+  `createBundleReleaseJsAndAssets` producer on this workstation. A standalone
+  Expo `export:embed` bundle succeeds, so Android remains blocked on producing
+  and installing a fresh non-debuggable APK/AAB-derived artifact before the
+  full Android suite can certify production.
+
 ## 2026-05-27 — Production Stripe launch runbook and release gate stabilization
 
 ### Added

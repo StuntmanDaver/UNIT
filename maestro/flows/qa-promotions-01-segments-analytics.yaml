@@ -116,13 +116,13 @@ appId: ${MAESTRO_APP_ID}
 # Cancel
 - scrollUntilVisible:
     element:
-      id: "promotion-cancel"
+      text: "Cancel"
     direction: DOWN
     centerElement: true
     speed: 40
     timeout: 20000
 - tapOn:
-    id: "promotion-cancel"
+    text: "Cancel"
 - extendedWaitUntil:
     visible:
       text: "Promotions"

@@ -145,12 +145,16 @@ appId: ${MAESTRO_APP_ID}
     when:
       platform: Android
     commands:
-      - swipe:
-          start: "50%,78%"
-          end: "50%,24%"
+      - scrollUntilVisible:
+          element:
+            id: "promotion-submit"
+          direction: DOWN
+          centerElement: true
+          timeout: 20000
+          visibilityPercentage: 80
       - waitForAnimationToEnd
       - tapOn:
-          point: "50%,76%"
+          id: "promotion-submit"
 - runFlow:
     when:
       platform: iOS
@@ -182,12 +186,13 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - scrollUntilVisible:
           element:
-            text: "Pay Now"
+            id: "pending-payment-pay-now"
           direction: DOWN
-          centerElement: false
+          centerElement: true
           timeout: 30000
           visibilityPercentage: 60
-      - tapOn: "Pay Now"
+      - tapOn:
+          id: "pending-payment-pay-now"
 - runFlow:
     when:
       platform: iOS
@@ -305,12 +310,15 @@ appId: ${MAESTRO_APP_ID}
     when:
       platform: iOS
     commands:
+      - tapOn: "ZIP"
+      - inputText: "10001"
       - tapOn:
-          point: "90%,67%"
+          point: "91%,62%"
+      - waitForAnimationToEnd
 - waitForAnimationToEnd
 
-# Stripe now requires a ZIP code for US card payments and enables Link
-# "save my information" by default. Fill ZIP, uncheck Link save, then pay.
+# Stripe Checkout changes optional Link/save-info UI frequently. Fill the
+# required ZIP, uncheck Link save only when present, then tap the final Pay CTA.
 - runFlow:
     when:
       platform: Android
@@ -348,19 +356,38 @@ appId: ${MAESTRO_APP_ID}
       platform: iOS
     commands:
       - tapOn:
-          point: "89%,63%"
+          point: "91%,62%"
       - waitForAnimationToEnd
       - swipe:
           start: "50%,80%"
           end: "50%,30%"
       - waitForAnimationToEnd
-      - tapOn: "Save my information for faster checkout"
-      - waitForAnimationToEnd
-      # Stripe exposes several "Pay" labels (Apple Pay, Link copy, final CTA).
-      # At this scroll position the final blue Pay button is centered near the
-      # lower portion of the viewport, so tap it by coordinate.
+      - runFlow:
+          when:
+            visible: "Save my information for faster checkout"
+          commands:
+            - tapOn: "Save my information for faster checkout"
+            - waitForAnimationToEnd
+      - runFlow:
+          when:
+            visible:
+              text: "^Card$"
+          commands:
+            - tapOn:
+                text: "^Card$"
+            - waitForAnimationToEnd
+      # Anchor on Stripe's footer first. Wallet/payment-method rows include
+      # small "Pay" labels, so text matching alone can hit Apple Pay instead
+      # of the final card CTA.
+      - scrollUntilVisible:
+          element:
+            text: "Powered by stripe"
+          direction: DOWN
+          centerElement: false
+          timeout: 30000
+          visibilityPercentage: 60
       - tapOn:
-          point: "50%,82%"
+          point: "50%,80%"
 - waitForAnimationToEnd
 - runFlow:
     when:

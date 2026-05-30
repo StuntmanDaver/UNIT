@@ -34,7 +34,7 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
         onPress={onClose}
       />
       <View pointerEvents="box-none" className="flex-1 items-center justify-center px-4">
-        <View className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden">
+        <View className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden" style={{ maxHeight: '90%' }}>
           {/* Header */}
           <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
             <Text testID="modal-title" className="text-2xl font-lora-semibold text-brand-ink flex-1 mr-3 leading-tight">{title}</Text>
