@@ -5,6 +5,8 @@ import {
   ScrollView,
   Pressable,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useForm, Controller } from 'react-hook-form';
@@ -147,14 +149,18 @@ export default function EditProfileScreen() {
   const displayName = watch('business_name') || business?.business_name || 'Business';
 
   return (
-    <View className="flex-1 bg-brand-cloud">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1 bg-brand-cloud"
+    >
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">Edit Profile</Text>
       </GradientHeader>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 140 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 220 }}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {/* Logo picker */}
         <View className="items-center mb-6">
@@ -309,16 +315,16 @@ export default function EditProfileScreen() {
           )}
         />
 
-        {/* Actions */}
-        <View className="gap-3 mt-2">
-          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="btn-profile-save">
-            Save Changes
-          </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="btn-profile-cancel">
-            Cancel
-          </Button>
-        </View>
       </ScrollView>
-    </View>
+
+      <View className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3">
+        <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="btn-profile-save">
+          Save Changes
+        </Button>
+        <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="btn-profile-cancel">
+          Cancel
+        </Button>
+      </View>
+    </KeyboardAvoidingView>
   );
 }

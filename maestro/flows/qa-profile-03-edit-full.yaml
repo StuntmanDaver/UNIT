@@ -56,19 +56,9 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "profile-business-name-input"
 - eraseText: 100
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - tapOn: "Edit Profile"
-- scrollUntilVisible:
-    element:
-      text: "Save Changes"
-    direction: DOWN
-    visibilityPercentage: 60
-    centerElement: true
-- tapOn: "Save Changes"
+- tapOn: "Edit Profile"
+- tapOn:
+    id: "btn-profile-save"
 # Zod error for required field; stays on edit screen
 - assertVisible: "Edit Profile"
 
@@ -132,17 +122,13 @@ appId: ${MAESTRO_APP_ID}
 - pressKey: Enter
 
 # ── CASE 5: Save → success toast → back ──────────────────────────────────────
-- scrollUntilVisible:
-    element:
-      text: "Save Changes"
-    direction: DOWN
-    centerElement: true
-- tapOn: "Save Changes"
+- tapOn:
+    id: "btn-profile-save"
 - extendedWaitUntil:
     visible:
       text: "Profile"
     timeout: 15000
-- assertVisible: "Updated description from Maestro.*"
+- assertVisible: "Updated description from Maestro E2E test."
 
 # ── CASE 6: Cancel path ───────────────────────────────────────────────────────
 - tapOn: "Edit Profile"
@@ -150,11 +136,6 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "Edit Profile"
     timeout: 8000
-- scrollUntilVisible:
-    element:
-      id: "btn-profile-cancel"
-    direction: DOWN
-    centerElement: true
 - tapOn:
     id: "btn-profile-cancel"
 - extendedWaitUntil:

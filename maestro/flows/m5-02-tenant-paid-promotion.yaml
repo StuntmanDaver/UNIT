@@ -138,36 +138,10 @@ appId: ${MAESTRO_APP_ID}
       - tapOn: "Continue"
       - waitForAnimationToEnd
 
-# Continue to Payment is below the fold. Android renders the button
-# visibly after the swipe, but its accessibility selector is intermittent
-# in Maestro, so Android uses a stable viewport tap after scrolling.
-- runFlow:
-    when:
-      platform: Android
-    commands:
-      - scrollUntilVisible:
-          element:
-            id: "promotion-submit"
-          direction: DOWN
-          centerElement: true
-          timeout: 20000
-          visibilityPercentage: 80
-      - waitForAnimationToEnd
-      - tapOn:
-          id: "promotion-submit"
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - scrollUntilVisible:
-          element:
-            id: "promotion-submit"
-          direction: DOWN
-          centerElement: true
-          timeout: 20000
-      - waitForAnimationToEnd
-      - tapOn:
-          id: "promotion-submit"
+# Continue to Payment is sticky above the platform safe area so Android and
+# iOS can use the same stable accessibility selector.
+- tapOn:
+    id: "promotion-submit"
 
 # Tenant lands on the pending-payment screen
 - extendedWaitUntil:
@@ -175,8 +149,8 @@ appId: ${MAESTRO_APP_ID}
       text: "Pending Payment"
     timeout: 10000
 
-# Pick the first (cheapest) available tier. Tier rows are ordered by
-# price_cents asc and exposed via testIDs `promotion-tier-{index}`.
+# Pick the first (cheapest) available tier. The app preselects the cheapest
+# active tier, but tapping keeps this flow explicit.
 - tapOn:
     id: "promotion-tier-0"
 - waitForAnimationToEnd
@@ -186,13 +160,12 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - scrollUntilVisible:
           element:
-            id: "pending-payment-pay-now"
+            text: "Pay Now"
           direction: DOWN
-          centerElement: true
+          centerElement: false
           timeout: 30000
           visibilityPercentage: 60
-      - tapOn:
-          id: "pending-payment-pay-now"
+      - tapOn: "Pay Now"
 - runFlow:
     when:
       platform: iOS
@@ -310,15 +283,12 @@ appId: ${MAESTRO_APP_ID}
     when:
       platform: iOS
     commands:
-      - tapOn: "ZIP"
-      - inputText: "10001"
       - tapOn:
-          point: "91%,62%"
-      - waitForAnimationToEnd
+          point: "90%,67%"
 - waitForAnimationToEnd
 
-# Stripe Checkout changes optional Link/save-info UI frequently. Fill the
-# required ZIP, uncheck Link save only when present, then tap the final Pay CTA.
+# Stripe now requires a ZIP code for US card payments and enables Link
+# "save my information" by default. Fill ZIP, uncheck Link save, then pay.
 - runFlow:
     when:
       platform: Android
@@ -356,38 +326,19 @@ appId: ${MAESTRO_APP_ID}
       platform: iOS
     commands:
       - tapOn:
-          point: "91%,62%"
+          point: "89%,63%"
       - waitForAnimationToEnd
       - swipe:
           start: "50%,80%"
           end: "50%,30%"
       - waitForAnimationToEnd
-      - runFlow:
-          when:
-            visible: "Save my information for faster checkout"
-          commands:
-            - tapOn: "Save my information for faster checkout"
-            - waitForAnimationToEnd
-      - runFlow:
-          when:
-            visible:
-              text: "^Card$"
-          commands:
-            - tapOn:
-                text: "^Card$"
-            - waitForAnimationToEnd
-      # Anchor on Stripe's footer first. Wallet/payment-method rows include
-      # small "Pay" labels, so text matching alone can hit Apple Pay instead
-      # of the final card CTA.
-      - scrollUntilVisible:
-          element:
-            text: "Powered by stripe"
-          direction: DOWN
-          centerElement: false
-          timeout: 30000
-          visibilityPercentage: 60
+      - tapOn: "Save my information for faster checkout"
+      - waitForAnimationToEnd
+      # Stripe exposes several "Pay" labels (Apple Pay, Link copy, final CTA).
+      # At this scroll position the final blue Pay button is centered near the
+      # lower portion of the viewport, so tap it by coordinate.
       - tapOn:
-          point: "50%,80%"
+          point: "50%,82%"
 - waitForAnimationToEnd
 - runFlow:
     when:

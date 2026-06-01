@@ -31,7 +31,7 @@ export default function AdminDashboard() {
   const { propertyIds, logout } = useAuth();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null);
 
-  const activePropertyId = selectedPropertyId ?? '';
+  const activePropertyId = selectedPropertyId ?? propertyIds[0] ?? '';
 
   const { data: stats, isLoading: statsLoading } = useAdminStats(activePropertyId);
   const { data: recentActivity, isLoading: activityLoading } = useAdminRecentActivity(activePropertyId);
@@ -61,7 +61,7 @@ export default function AdminDashboard() {
         <View className="mt-3">
           <PropertySelector
             propertyIds={propertyIds}
-            selected={selectedPropertyId}
+            selected={activePropertyId || null}
             onSelect={setSelectedPropertyId}
           />
         </View>

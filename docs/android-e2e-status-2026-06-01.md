@@ -122,3 +122,47 @@ Fix or revalidate:
 - Profile edit save reachability on Android.
 - Admin login responsiveness and ANR root cause.
 - Remaining admin/deeplink/permission flows from a fresh emulator state.
+
+## Follow-up Hardening Patch
+
+Implemented after this red run:
+
+- Made tenant promotion form actions sticky and Android-accessible so
+  `promotion-submit` no longer depends on coordinate taps.
+- Preselected the cheapest active promotion price tier on pending-payment.
+- Made profile edit Save/Cancel sticky and keyboard-aware so
+  `btn-profile-save` remains reachable after validation failures.
+- Defaulted the admin dashboard to the first assigned property before the
+  selector finishes loading, reducing login/dashboard transient empty state.
+- Updated the Nearby E2E assertion to scroll for the origin announcement because
+  the app already fetches origin + nearby property IDs and feed order is
+  chronological.
+
+## Checkpoint — 2026-06-01 14:25 EDT
+
+Verification was stopped for checkpointing before a fresh Android artifact was
+installed.
+
+- `npm run typecheck` started `tsc --noEmit` but hung without diagnostics.
+- Direct `./node_modules/.bin/tsc --noEmit --pretty false` also hung without
+  diagnostics, so typecheck is blocked rather than green or red.
+- `UNIT_Pixel_8_API_36` failed to attach to adb during startup.
+- `UNIT_Pixel_8_API_35_FRESH` and `UNIT_Pixel_8_API_35` booted, but background
+  emulator launches were reaped after boot; keeping `UNIT_Pixel_8_API_35` in a
+  foreground session kept `emulator-5554` attached.
+- Installed `com.unitapp.mobile` on the emulator was stale:
+  `versionCode=1`, `versionName=1.0.0`, `lastUpdateTime=2026-05-17 22:58:04`.
+- A fresh `:app:installDebug` attempt from `android/` eventually began Gradle
+  tasks, but was stopped before completion at the user's checkpoint request.
+- Targeted Maestro reruns and the full Android E2E suite were not run against
+  today's patch because no fresh patched Android binary was installed.
+
+Next checkpoint should resume with:
+
+- Resolve or bound the TypeScript hang.
+- Complete a fresh Android install from the current working tree.
+- Run targeted flows:
+  `m5-02-tenant-paid-promotion.yaml`,
+  `qa-profile-03-edit-full.yaml`,
+  `qa-home-02-nearby-20-mile-feed.yaml`.
+- Run `qa-00-full-suite-android.yaml` only after targeted flows pass.

@@ -1,5 +1,23 @@
 # UNIT Mobile App — Changelog
 
+## 2026-06-01 — GitHub push guard recorded
+
+### Changed
+- Recorded the permanent mobile repo rule: do not commit or push to
+  `JonFine0515/unit.git`.
+- `JonFine0515/unit.git` is fetch-only legacy/upstream context.
+- Approved mobile push destination is `StuntmanDaver/UNIT.git` through the
+  `stuntman` remote, unless the user explicitly names another approved target.
+- Local `origin` push should remain disabled with
+  `DISABLED_DO_NOT_PUSH_TO_JONFINE0515_UNIT`.
+
+### Context
+- An accidental push to `JonFine0515/unit.git` was force-reset back to
+  `bc5183737c6ba1c72d5fb99a4e6b65965d13d097` on 2026-06-01 at the user's
+  request.
+- Future Codex sessions should treat any push to `origin` as a blocker and stop
+  before mutating that remote.
+
 ## 2026-06-01 — Android production E2E full-suite rerun is red
 
 ### Verified
@@ -430,6 +448,35 @@
 ### Notes
 - ~9 other qa-* flows still need the same dev-build handler + testID/swipe/back-btn pattern applied (`qa-community-01`, `qa-promotions-01`, `qa-profile-01`, `qa-alerts-01`, `qa-admin-01..05..07`). qa-04-full-sweep already passes end-to-end (the inline logout was fixed in `da0378c`).
 - The single ⚪️ skipped step in passing runs is a conditional `runFlow when: visible: "Would Like to Send You Notifications"` — iOS only shows the prompt once per simulator install. Skipping is correct behavior.
+
+## 2026-06-01 — Android production hardening follow-up
+
+### Fixed
+- Made Android tenant promotion submission testable without coordinate taps by
+  keeping `promotion-submit` in a sticky, keyboard-aware action bar.
+- Preselected the cheapest active promotion price tier on pending-payment so
+  Android paid-promotion checkout starts from a deterministic tier state.
+- Made profile edit Save/Cancel sticky and keyboard-aware so required-field
+  validation cannot strand `btn-profile-save` below the viewport.
+- Defaulted the admin dashboard to the first assigned property while the
+  selector loads, reducing transient empty/admin-login states.
+
+### Tests
+- Updated the paid-promotion Maestro flow to use `promotion-submit` on Android.
+- Updated the profile edit Maestro flow to rely on sticky Save/Cancel actions.
+- Updated the Nearby feed flow to scroll for the origin announcement after the
+  neighbor assertion because Nearby feed order is chronological.
+
+### Checkpoint
+- Stopped verification at 2026-06-01 14:25 EDT per user request.
+- `npm run typecheck` and direct `tsc --noEmit --pretty false` hung without
+  diagnostics; typecheck remains blocked.
+- Android emulator boot was unstable unless kept in a foreground session.
+- The installed emulator app was stale (`versionCode=1`, last updated
+  2026-05-17), so Maestro was not run because it would not validate today's
+  patch.
+- A fresh `:app:installDebug` began Gradle tasks from `android/` but was stopped
+  before completion for checkpointing.
 
 ## 2026-04-20 — Phases 02→05 marathon (milestone code-complete)
 

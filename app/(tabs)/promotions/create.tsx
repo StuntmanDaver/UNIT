@@ -7,6 +7,7 @@ import {
   Image,
   Platform,
   Keyboard,
+  KeyboardAvoidingView,
 } from 'react-native';
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { addDays, format } from 'date-fns';
@@ -26,6 +27,10 @@ import { promotionsService } from '@/services/promotions';
 import { storageService } from '@/services/storage';
 import { useAuth } from '@/lib/AuthContext';
 import { useTermsAcceptance } from '@/hooks/useTermsAcceptance';
+import {
+  iosPromotionPaymentsDisabledMessage,
+  isIosProductionAppStoreBuild,
+} from '@/constants/appStorePolicy';
 
 function isHttpUrl(value: string): boolean {
   if (!value) return true;
@@ -208,14 +213,44 @@ export default function CreatePromotionScreen() {
 
   const pickerLabel = activePicker === 'start' ? 'Start Date' : 'End Date';
 
+  if (isIosProductionAppStoreBuild) {
+    return (
+      <View className="flex-1 bg-brand-cloud">
+        <GradientHeader>
+          <Text className="text-3xl font-lora-semibold text-white leading-tight">Promote My Business</Text>
+        </GradientHeader>
+
+        <View className="flex-1 px-4 pt-6">
+          <View className="bg-brand-mist border border-brand-blue/40 rounded-2xl p-5">
+            <Text className="text-2xl font-lora-semibold text-brand-ink leading-tight mb-3">
+              Promotion purchases are unavailable
+            </Text>
+            <Text className="text-base font-nunito text-brand-ink leading-relaxed">
+              {iosPromotionPaymentsDisabledMessage}
+            </Text>
+          </View>
+
+          <View className="mt-6">
+            <Button onPress={() => router.replace('/(tabs)/promotions')} variant="primary">
+              Back to Promotions
+            </Button>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   return (
-    <View className="flex-1 bg-brand-cloud">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1 bg-brand-cloud"
+    >
       <GradientHeader>
         <Text className="text-3xl font-lora-semibold text-white leading-tight">Promote My Business</Text>
       </GradientHeader>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 140 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 220 }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
@@ -356,16 +391,16 @@ export default function CreatePromotionScreen() {
           )}
         </View>
 
-        {/* Actions */}
-        <View className="gap-3 mt-2">
-          <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="promotion-submit">
-            Continue to Payment
-          </Button>
-          <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="promotion-cancel">
-            Cancel
-          </Button>
-        </View>
       </ScrollView>
+
+      <View className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3">
+        <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="promotion-submit">
+          Continue to Payment
+        </Button>
+        <Button onPress={() => router.back()} variant="ghost" disabled={isSaving} testID="promotion-cancel">
+          Cancel
+        </Button>
+      </View>
 
       {/* iOS date picker overlay — uses absolute View instead of RN Modal so
           the picker stays in the main accessibility tree (Maestro can read it,
@@ -427,6 +462,6 @@ export default function CreatePromotionScreen() {
       )}
 
       <TermsModal />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

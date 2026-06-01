@@ -46,7 +46,12 @@ appId: ${MAESTRO_APP_ID}
     visible: "QA Nearby Neighbor Announcement"
     timeout: 10000
 - assertVisible: "QA Nearby Neighbor Announcement"
-- assertVisible: "QA Nearby Origin Announcement"
+- scrollUntilVisible:
+    element:
+      text: "QA Nearby Origin Announcement"
+    direction: DOWN
+    timeout: 10000
+    visibilityPercentage: 60
 - assertNotVisible: "QA Nearby Outside Announcement"
 - assertNotVisible: "QA Nearby Outside Event"
 

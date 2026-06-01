@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Clock, CheckCircle } from 'lucide-react-native';
@@ -13,6 +13,10 @@ import { promotionPricingService, type PromotionPriceTier } from '@/services/pro
 import { supabase } from '@/services/supabase';
 import { BRAND } from '@/constants/colors';
 import { buildAppDeepLink } from '@/constants/runtime';
+import {
+  iosPromotionPaymentsDisabledMessage,
+  isIosProductionAppStoreBuild,
+} from '@/constants/appStorePolicy';
 
 const RETURN_URL = buildAppDeepLink('promotions');
 
@@ -41,7 +45,14 @@ export default function PendingPaymentScreen() {
     queryKey: ['promotionPriceTiers', 'active'],
     queryFn: () => promotionPricingService.listTiers(),
     select: (rows) => rows.filter((t) => t.is_active),
+    enabled: !isIosProductionAppStoreBuild,
   });
+
+  useEffect(() => {
+    if (!selectedTierId && tiers && tiers.length > 0) {
+      setSelectedTierId(tiers[0].id);
+    }
+  }, [selectedTierId, tiers]);
 
   if (isLoading) {
     return <LoadingScreen message="Loading promotion..." />;
@@ -58,6 +69,7 @@ export default function PendingPaymentScreen() {
   const isPaid = promo.payment_status === 'paid';
 
   async function handlePayNow() {
+    if (isIosProductionAppStoreBuild) return;
     if (!id || !selectedTierId || submitting) return;
     setSubmitting(true);
     try {
@@ -181,9 +193,11 @@ export default function PendingPaymentScreen() {
               {isPaid ? 'Awaiting Review' : 'Pending Payment'}
             </Text>
             <Text className="text-sm font-nunito text-brand-ink-muted leading-normal mt-0.5">
-              {isPaid
-                ? 'Payment received. Admins will review your promotion shortly.'
-                : 'Complete payment to submit your promotion for admin review.'}
+              {isPaid ? 'Payment received. Admins will review your promotion shortly.' : (
+                isIosProductionAppStoreBuild
+                  ? iosPromotionPaymentsDisabledMessage
+                  : 'Complete payment to submit your promotion for admin review.'
+              )}
             </Text>
           </View>
         </View>
@@ -209,7 +223,7 @@ export default function PendingPaymentScreen() {
           )}
         </Card>
 
-        {!isPaid && (
+        {!isPaid && !isIosProductionAppStoreBuild && (
           <View className="mb-6">
             <Text
               accessibilityRole="header"
@@ -265,7 +279,7 @@ export default function PendingPaymentScreen() {
         )}
 
         <View className="gap-3">
-          {!isPaid && (
+          {!isPaid && !isIosProductionAppStoreBuild && (
             <Button
               onPress={handlePayNow}
               disabled={!selectedTierId || submitting || (tiers?.length ?? 0) === 0}
@@ -276,11 +290,11 @@ export default function PendingPaymentScreen() {
             </Button>
           )}
           <Button onPress={() => router.replace('/(tabs)/promotions')} variant="ghost" testID="pending-payment-save-later">
-            {isPaid ? 'Back to Promotions' : 'Save for Later'}
+            {isPaid || isIosProductionAppStoreBuild ? 'Back to Promotions' : 'Save for Later'}
           </Button>
         </View>
 
-        {!isPaid && (
+        {!isPaid && !isIosProductionAppStoreBuild && (
           <Text className="text-sm font-nunito text-brand-ink-muted leading-normal text-center mt-6">
             Your promotion is saved as a draft. You can return to complete payment anytime from the Promotions tab.
           </Text>
