@@ -1,5 +1,113 @@
 # UNIT Mobile App — Changelog
 
+## 2026-06-01 — Android production E2E full-suite rerun is red
+
+### Verified
+- Installed EAS Android production build `f59c8c9c-9a51-4826-a051-0958a106a0b0`
+  on `UNIT_Pixel_8_API_36` as `com.unitapp.mobile`.
+- Tested app version `1.0.0`, Android versionCode `6`, package
+  `com.unitapp.mobile`.
+- Converted the production `.aab` artifact to emulator-installable APKs with
+  `bundletool` and a temporary `/tmp` E2E keystore. This verifies production
+  build contents, but not Play Store signing.
+- Android release inputs were materialized locally before testing:
+  `release-inputs-ok: mobile source/assets are materialized`.
+- Full Android suite definition `maestro/flows/qa-00-full-suite-android.yaml`
+  contains 30 child flows and all referenced flow files exist.
+
+### Result
+- Android is **not production-green**.
+- Clean passes before the runner/emulator degraded: 16 flows.
+- Clean failures before the runner/emulator degraded: 7 flows.
+- Remaining admin/deeplink/permission coverage was not certified because
+  Android showed repeated ANR dialogs and Maestro's Android driver later failed
+  with `Broken pipe`, `UNAVAILABLE`, and `tcp:7001 closed`.
+
+### Passed
+- `qa-auth-01-login-validation`
+- `qa-auth-02-signup-edge`
+- `qa-auth-04-onboarding-edge`
+- `qa-auth-05-routing-redirects`
+- `qa-home-01-feed-states`
+- `qa-directory-01-search-states`
+- `qa-business-01-contact-actions`
+- `qa-community-01-create-announcement`
+- `qa-community-02-create-event`
+- `qa-promotions-02-create-cancel-paths`
+- `qa-promotions-03-pending-payment-edges`
+- `qa-promotion-detail-01`
+- `qa-alerts-01-mark-read`
+- `qa-profile-01-qr-share`
+- `qa-profile-02-push-toggle`
+- `qa-admin-01-dashboard-nav`
+
+### Failed / Blocked
+- `qa-auth-03-reset-password`: expected `Update Password`, but the screen did
+  not appear after login as the reset-password user.
+- `qa-home-02-nearby-20-mile-feed`: Nearby feed showed the neighbor
+  announcement but not the origin announcement after switching segments.
+- `qa-promotions-01-segments-analytics`: Maestro Android driver timed out
+  during login text erase.
+- `m5-02-tenant-paid-promotion`: paid promotion creation did not reach
+  `Pending Payment`, so the Android paid-promotion/Stripe happy path is not
+  certified.
+- `qa-profile-03-edit-full`: after clearing the business name, Android could
+  not scroll/find `btn-profile-save`.
+- `qa-admin-02-tenants-add-invite`: repeated Android ANRs, then login submit
+  button was not found.
+- `qa-admin-03-properties-create`: failed after the ANR/bad-state cascade;
+  expected `Log In` was not visible.
+
+### Artifacts
+- Per-flow logs: `/tmp/unit-android-e2e/maestro-logs/`
+- Final logcat: `/tmp/unit-android-e2e/logcat-final.txt`
+- Dedicated status record: `docs/android-e2e-status-2026-06-01.md`
+
+### Remaining
+- Reboot the Android emulator and rerun only the failed/incomplete flows from a
+  clean state.
+- Inspect logcat around the ANRs, the paid-promotion submit failure, the
+  reset-password routing failure, and the profile edit save reachability
+  failure.
+- Do not promote Android to production until the paid-promotion path,
+  reset-password path, profile edit path, nearby feed expectations, and admin
+  flows are green on a fresh production Android artifact.
+
+## 2026-05-31 — Android production E2E release input preflight
+
+### Changed
+- Android production E2E now scans release bundle inputs for macOS `dataless`
+  source/assets before Gradle starts. This turns the local
+  `createBundleReleaseJsAndAssets` stall into an actionable
+  `android-release-inputs.log` failure.
+- Added `npm run release:check-inputs` and wired it into production/staging
+  mobile release checks so dataless local files are caught before commands that
+  read or bundle source files.
+- Added `npm run release:materialize-inputs`, a dry-run-first macOS helper for
+  listing dataless release inputs and optionally requesting a `brctl` download.
+- Local E2E-triggered Android release builds now set `UNIT_E2E_RELEASE_BUILD`
+  and pass Expo `export:embed` `--max-workers 1` through Gradle for more
+  deterministic workstation builds.
+
+### Verified
+- `node --check scripts/e2e/run-all.mjs`
+- `node --check scripts/check-release-inputs.mjs`
+- `npm run release:check-inputs` fails quickly with the current 128 dataless
+  mobile source/asset files, as intended.
+- `npm run release:materialize-inputs` dry-run lists the same files. The
+  explicit `UNIT_MATERIALIZE_RELEASE_INPUTS=1` `brctl` download attempt
+  completed but did not clear the dataless flags on this workstation.
+- A synthetic-env direct `expo export:embed` probe still timed out while the
+  project contained dataless source/assets.
+- The release-input scan currently finds 128 dataless mobile source/asset
+  files on this workstation.
+
+### Remaining
+- Android release E2E cannot be certified on this workstation until the
+  dataless mobile files are materialized locally. After that, rerun a fresh
+  release build/install, the production install gate, targeted admin login, and
+  the full Android suite.
+
 ## 2026-05-29 — Android production AAB E2E pass triaged
 
 ### Changed
@@ -73,10 +181,10 @@
   a release install; the installed `com.unitapp.mobile` package still reported
   `DEBUGGABLE`.
 - Local Hermes release assembly still deadlocks inside Gradle's
-  `createBundleReleaseJsAndAssets` producer on this workstation. A standalone
-  Expo `export:embed` bundle succeeds, so Android remains blocked on producing
-  and installing a fresh non-debuggable APK/AAB-derived artifact before the
-  full Android suite can certify production.
+  `createBundleReleaseJsAndAssets` producer on this workstation. The
+  2026-05-31 follow-up isolated the current cause as macOS `dataless` mobile
+  source/assets, which also stalls a direct Expo `export:embed` probe until the
+  project files are materialized locally.
 
 ## 2026-05-27 — Production Stripe launch runbook and release gate stabilization
 

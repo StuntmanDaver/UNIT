@@ -1,0 +1,41 @@
+appId: ${MAESTRO_APP_ID}
+---
+# iOS App Store v1 promotion posture:
+# Paid promotion purchase entry points are intentionally unavailable on iOS.
+# This flow verifies tenants can view promotions without seeing create/pay CTAs.
+
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+
+- runFlow: ../subflows/login-tenant1.yaml
+
+- tapOn:
+    id: "tab-promotions"
+- assertVisible: "Promotions"
+- assertNotVisible:
+    id: "fab-create-promotion"
+- assertNotVisible: "Pay Now"
+- assertNotVisible: "Choose a tier"
+- assertNotVisible: "Promote My Business"
+
+- tapOn:
+    id: "tab-profile"
+- assertVisible: "Profile"
+- assertNotVisible: "Promote My Business"
+
+- runFlow: ../subflows/logout.yaml
