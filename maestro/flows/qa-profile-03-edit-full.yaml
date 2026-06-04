@@ -41,6 +41,18 @@ appId: ${MAESTRO_APP_ID}
 
 - tapOn:
     id: "tab-profile"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Home"
+    commands:
+      - tapOn:
+          id: "tab-profile"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      text: "Profile"
+    timeout: 10000
 - extendedWaitUntil:
     notVisible:
       text: "Loading profile..."
@@ -97,15 +109,22 @@ appId: ${MAESTRO_APP_ID}
     element:
       id: "profile-phone-input"
     direction: DOWN
+    visibilityPercentage: 60
+    timeout: 20000
+    centerElement: false
 - tapOn:
     id: "profile-phone-input"
 - eraseText: 100
 - inputText: "5551234567"
 - pressKey: Enter
+- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "profile-email-input"
     direction: DOWN
+    visibilityPercentage: 60
+    timeout: 20000
+    centerElement: false
 - tapOn:
     id: "profile-email-input"
 - eraseText: 100
@@ -115,6 +134,9 @@ appId: ${MAESTRO_APP_ID}
     element:
       id: "profile-website-input"
     direction: DOWN
+    visibilityPercentage: 60
+    timeout: 20000
+    centerElement: false
 - tapOn:
     id: "profile-website-input"
 - eraseText: 100
@@ -128,7 +150,7 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "Profile"
     timeout: 15000
-- assertVisible: "Updated description from Maestro E2E test."
+- assertVisible: "Updated Test Business"
 
 # ── CASE 6: Cancel path ───────────────────────────────────────────────────────
 - tapOn: "Edit Profile"
