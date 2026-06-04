@@ -4,6 +4,10 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AdminPromotionDetailScreen from '@/app/(admin)/promotions/[id]';
 import { promotionsService } from '@/services/promotions';
 
+jest.mock('react-native-toast-message', () => ({
+  show: jest.fn(),
+}));
+
 jest.mock('expo-router', () => ({
   router: {
     back: jest.fn(),
@@ -73,10 +77,14 @@ function renderScreen() {
 }
 
 describe('AdminPromotionDetailScreen', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('surfaces review action success feedback in the screen tree', async () => {
     renderScreen();
 
-    fireEvent.press(screen.getByText('Approve'));
+    fireEvent.press(screen.getByTestId('promotion-review-approve'));
 
     await waitFor(() => {
       expect(promotionsService.applyReviewAction).toHaveBeenCalledWith(
@@ -85,6 +93,9 @@ describe('AdminPromotionDetailScreen', () => {
         expect.objectContaining({ headline: 'Lobby Lunch Special' }),
         { action: 'approve' }
       );
+    });
+
+    await waitFor(() => {
       expect(screen.getByTestId('review-action-feedback')).toHaveTextContent('Action applied');
     });
   });
@@ -92,7 +103,7 @@ describe('AdminPromotionDetailScreen', () => {
   it('submits note-based review actions from the modal footer', async () => {
     renderScreen();
 
-    fireEvent.press(screen.getByText('Allow Revision'));
+    fireEvent.press(screen.getByTestId('promotion-review-allow-revision'));
     fireEvent.changeText(screen.getByTestId('promotion-review-note'), 'Please revise and resubmit.');
     fireEvent.press(screen.getByTestId('promotion-review-confirm'));
 
@@ -103,7 +114,29 @@ describe('AdminPromotionDetailScreen', () => {
         expect.objectContaining({ headline: 'Lobby Lunch Special' }),
         { action: 'allow_revision', note: 'Please revise and resubmit.' }
       );
+    });
+
+    await waitFor(() => {
       expect(screen.getByTestId('review-action-feedback')).toHaveTextContent('Action applied');
+    });
+  });
+
+  it('submits suggested notes without requiring keyboard input', async () => {
+    renderScreen();
+
+    fireEvent.press(screen.getByTestId('promotion-review-allow-revision'));
+    fireEvent.press(screen.getByTestId('promotion-review-submit-template'));
+
+    await waitFor(() => {
+      expect(promotionsService.applyReviewAction).toHaveBeenCalledWith(
+        'promo-1',
+        'admin-1',
+        expect.objectContaining({ headline: 'Lobby Lunch Special' }),
+        {
+          action: 'allow_revision',
+          note: 'Please revise and resubmit this promotion.',
+        }
+      );
     });
   });
 });

@@ -1,4 +1,4 @@
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { X } from 'lucide-react-native';
 import { BRAND } from '@/constants/colors';
 import { Button } from './Button';
@@ -8,6 +8,7 @@ type ModalAction = {
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'destructive' | 'ghost';
   testID?: string;
+  disabled?: boolean;
 };
 
 type ModalProps = {
@@ -16,6 +17,7 @@ type ModalProps = {
   title: string;
   children: React.ReactNode;
   actions?: ModalAction[];
+  closeOnBackdropPress?: boolean;
 };
 
 function actionTestID(action: ModalAction): string {
@@ -23,7 +25,7 @@ function actionTestID(action: ModalAction): string {
   return `modal-action-${action.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`;
 }
 
-export function Modal({ visible, onClose, title, children, actions }: ModalProps) {
+export function Modal({ visible, onClose, title, children, actions, closeOnBackdropPress = true }: ModalProps) {
   if (!visible) return null;
 
   return (
@@ -31,9 +33,14 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
       <Pressable
         testID="modal-backdrop"
         className="absolute inset-0 bg-black/50"
-        onPress={onClose}
+        onPress={closeOnBackdropPress ? onClose : undefined}
       />
-      <View pointerEvents="box-none" className="flex-1 items-center justify-center px-4">
+      <KeyboardAvoidingView
+        pointerEvents="box-none"
+        className="flex-1 items-center justify-center px-4"
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 48 : 0}
+      >
         <View className="bg-brand-mist rounded-2xl w-full max-w-lg overflow-hidden" style={{ maxHeight: '90%' }}>
           {/* Header */}
           <View className="flex-row items-center justify-between px-5 pt-5 pb-3">
@@ -62,6 +69,7 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
                   testID={actionTestID(action)}
                   onPress={action.onPress}
                   variant={action.variant ?? 'primary'}
+                  disabled={action.disabled}
                 >
                   {action.label}
                 </Button>
@@ -69,7 +77,7 @@ export function Modal({ visible, onClose, title, children, actions }: ModalProps
             </View>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </View>
   );
 }

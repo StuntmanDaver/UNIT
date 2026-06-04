@@ -28,6 +28,7 @@ import { accountService } from '@/services/account';
 import { BRAND } from '@/constants/colors';
 import { buildAppDeepLink } from '@/constants/runtime';
 import { policyUrls } from '@/constants/policy';
+import { isIosProductionAppStoreBuild } from '@/constants/appStorePolicy';
 
 function TenantProfileContent() {
   const { user, propertyIds, logout, refreshProfile } = useAuth();
@@ -116,7 +117,7 @@ function TenantProfileContent() {
             <View className="mb-4">
               <BusinessCard business={business} />
               <View className="mt-3">
-                <Button onPress={() => router.push('/profile/edit')} variant="secondary">
+                <Button onPress={() => router.push('/profile/edit')} variant="secondary" testID="profile-edit-open-btn">
                   Edit Profile
                 </Button>
               </View>
@@ -142,7 +143,7 @@ function TenantProfileContent() {
           )}
 
           {/* Promote My Business CTA — visible only when tenant has a linked business */}
-          {business && (
+          {business && !isIosProductionAppStoreBuild && (
             <Card className="p-5 mb-4">
               <View className="flex-row items-center gap-3 mb-3">
                 <Megaphone size={22} color={BRAND.blue} />

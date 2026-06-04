@@ -1,0 +1,10 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Expo dev-client can occasionally leave the RN inspector overlay enabled
+# after first-launch launcher interactions. It blocks bottom inputs/buttons.
+- runFlow:
+    when:
+      visible: "Inspect"
+    commands:
+      - pressKey: Back
+      - waitForAnimationToEnd

@@ -41,7 +41,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const ownerEmail = invoice.businesses?.owner_email;
+    const business = Array.isArray(invoice.businesses) ? invoice.businesses[0] : invoice.businesses;
+    const property = Array.isArray(invoice.properties) ? invoice.properties[0] : invoice.properties;
+    const ownerEmail = business?.owner_email;
     if (!ownerEmail) {
       return new Response(JSON.stringify({ error: 'No owner email on business' }), {
         status: 400,
@@ -49,7 +51,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const propertyName = invoice.properties?.name || 'Your Property';
+    const propertyName = property?.name || 'Your Property';
     const appUrl = Deno.env.get('APP_URL') || 'https://yourapp.com';
     const invoiceLink = `${appUrl}/TenantInvoices?propertyId=${invoice.property_id}`;
 
@@ -70,7 +72,7 @@ Deno.serve(async (req) => {
               <h1 style="color: white; font-size: 18px; margin: 0;">UNIT</h1>
             </div>
             <div style="border: 1px solid #e5e7eb; border-top: 3px solid #465A75; padding: 24px; border-radius: 0 0 8px 8px;">
-              <p style="color: #374151; font-size: 16px;">Hi ${invoice.businesses?.business_name || 'Tenant'},</p>
+              <p style="color: #374151; font-size: 16px;">Hi ${business?.business_name || 'Tenant'},</p>
               <p style="color: #374151;">You have a new invoice from <strong>${propertyName}</strong>.</p>
               <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
                 <tr>
@@ -100,9 +102,13 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: toErrorMessage(err) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
+
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

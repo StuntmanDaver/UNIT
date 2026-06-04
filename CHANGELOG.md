@@ -1,5 +1,31 @@
 # UNIT Mobile App — Changelog
 
+## 2026-06-02 — Production blocker hardening pass
+
+### Changed
+- Stabilized `AdminPromotionDetailScreen` Jest coverage by mocking toast side
+  effects and separating mutation-call assertions from inline feedback
+  assertions.
+- Stabilized `PropertySelector` so inline parent `onSelect` callbacks do not
+  retrigger property refetch loops.
+- Added Supabase hardening for tenant promotion property scope, post/business
+  property binding, tenant business ownership guards, unique unit claims,
+  `public-assets` storage provisioning/policies, and landlord property
+  self-attachment.
+- Hardened admin push broadcasts by rejecting unsupported caller-supplied
+  notification types in the Edge Function.
+- Masked Sentry replay images/text in production while keeping source-map
+  upload configuration env-driven through existing `sentry.properties` files.
+- Replaced module-load Supabase env crashes with a safe startup configuration
+  error screen.
+- Prevented premature admin redirects while auth is loading and refreshed
+  current-user state after property creation/attachment.
+
+### Not changed
+- Stripe checkout/webhook behavior remains intentionally out of scope for this
+  pass.
+- No TestFlight push or submit was performed.
+
 ## 2026-06-01 — GitHub push guard recorded
 
 ### Changed
@@ -477,6 +503,22 @@
   patch.
 - A fresh `:app:installDebug` began Gradle tasks from `android/` but was stopped
   before completion for checkpointing.
+
+### Fixed
+- Fixed the `npm run typecheck` hang root cause: `tsconfig.json` was including
+  generated native/build directories via `**/*.ts` / `**/*.tsx`, causing
+  TypeScript to crawl iOS Pods/native framework artifacts. Added excludes for
+  `android`, `ios`, `.expo`, `dist`, `build`, and `coverage`.
+- Scoped `typecheck` to app production source/config paths rather than tests
+  and utility scripts, because several `__tests__` and `scripts` files are
+  currently cloud-dataless on this Mac and return `Operation timed out` when
+  macOS tries to hydrate them.
+- Added keyboard-height tracking to sticky promotion/profile action bars so
+  Android Save/Submit controls remain visible above the soft keyboard.
+- Added stable test IDs to segmented controls and switched the Android Nearby
+  flow to `home-segment-nearby-20-mi`.
+- Hardened the tenant login Maestro subflow to recover from Expo dev-client
+  launcher/tutorial and `Error loading app: timeout` states.
 
 ## 2026-04-20 — Phases 02→05 marathon (milestone code-complete)
 

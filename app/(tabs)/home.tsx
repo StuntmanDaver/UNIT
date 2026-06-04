@@ -120,6 +120,7 @@ export default function HomeScreen() {
             segments={[SEGMENT_MY, SEGMENT_NEARBY]}
             selected={segment}
             onChange={handleSegmentChange}
+            testIDPrefix="home-segment"
           />
           {!hasNearbyNeighbors && (
             <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">
@@ -146,6 +147,7 @@ export default function HomeScreen() {
           segments={[SEGMENT_MY, SEGMENT_NEARBY]}
           selected={segment}
           onChange={handleSegmentChange}
+          testIDPrefix="home-segment"
         />
         {!hasNearbyNeighbors && (
           <Text className="text-sm font-nunito text-brand-ink-muted text-center mt-2">

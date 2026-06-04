@@ -46,6 +46,20 @@
         "EXPO_PUBLIC_APP_URL": "unit://",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
+    },
+    "production-simulator-e2e": {
+      "extends": "production",
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_ENV": "production",
+        "EXPO_PUBLIC_APP_URL": "unit://",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "UNIT_E2E_RELEASE_BUILD": "true"
+      }
     }
   },
   "submit": {

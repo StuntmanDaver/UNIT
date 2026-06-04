@@ -26,15 +26,27 @@ const args = parseArgs();
 const only = String(args.only || process.env.E2E_ONLY || 'all');
 const target = String(args.target || process.env.E2E_TARGET || 'local');
 const runId = String(args['run-id'] || process.env.E2E_RUN_ID || createRunId());
+const dryRun = Boolean(args['dry-run'] || process.env.E2E_DRY_RUN === '1');
 const resultsDir = ensureDir(join(resultsRoot, runId));
 const shouldSeed = process.env.E2E_SKIP_SEED !== '1';
 const shouldStartMetro = process.env.E2E_START_METRO !== '0';
 const shouldBuildMissing = process.env.E2E_BUILD_MISSING === '1';
+const shouldReinstallIosRelease = process.env.E2E_IOS_REINSTALL_RELEASE === '1';
+const shouldReinstallAndroidRelease = process.env.E2E_ANDROID_REINSTALL_RELEASE === '1';
+const shouldStopAfterAndroidInstallGate = process.env.E2E_STOP_AFTER_ANDROID_INSTALL_GATE === '1';
 const shouldAvoidAndroidMaestroClearState =
   shouldStartMetro && process.env.E2E_ANDROID_AVOID_MAESTRO_CLEAR_STATE !== '0';
+const shouldUsePersistentAndroidMaestroDriver =
+  process.env.E2E_ANDROID_USE_PERSISTENT_MAESTRO_DRIVER === '1' ||
+  (
+    target !== 'production' &&
+    process.env.E2E_ANDROID_USE_PERSISTENT_MAESTRO_DRIVER !== '0' &&
+    shouldAvoidAndroidMaestroClearState
+  );
 const shouldUseIosDevClientUrl = process.env.E2E_IOS_USE_DEV_CLIENT_URL !== '0' && shouldStartMetro;
 const flowRegexPattern = String(args['flow-regex'] || process.env.E2E_FLOW_REGEX || '');
 const flowRegex = flowRegexPattern ? new RegExp(flowRegexPattern) : null;
+const reportTimeoutMs = Number(optionalEnv('E2E_REPORT_TIMEOUT_MS', '30000'));
 
 const summary = {
   runId,
@@ -51,15 +63,29 @@ let androidMaestroDriverProcess = null;
 
 async function main() {
   assertRemoteWriteGuard(target);
+  assertProductionMobileMode();
   console.log(`UNIT E2E run ${runId} target=${target} only=${only}`);
 
-  const doctor = await run('node', [join(unitDir, 'scripts/e2e/doctor.mjs'), '--target', target], {
-    cwd: projectRoot,
-    logPath: join(resultsDir, 'doctor.log'),
-    inherit: true,
-  });
-  if (doctor.status !== 0 && process.env.E2E_SKIP_DOCTOR_FAILURE !== '1') {
-    throw new Error(`Doctor failed. See ${join(resultsDir, 'doctor.log')}`);
+  if (process.env.E2E_SKIP_DOCTOR === '1') {
+    summary.doctorSkipped = true;
+    writeFileSync(join(resultsDir, 'doctor.log'), 'SKIPPED by E2E_SKIP_DOCTOR=1\n');
+  } else {
+    const doctor = await run('node', [join(unitDir, 'scripts/e2e/doctor.mjs'), '--target', target], {
+      cwd: projectRoot,
+      logPath: join(resultsDir, 'doctor.log'),
+      inherit: true,
+    });
+    if (doctor.status !== 0 && process.env.E2E_SKIP_DOCTOR_FAILURE !== '1') {
+      throw new Error(`Doctor failed. See ${join(resultsDir, 'doctor.log')}`);
+    }
+  }
+
+  if (dryRun) {
+    summary.dryRun = true;
+    summary.finishedAt = new Date().toISOString();
+    writeJson(join(resultsDir, 'summary.json'), summary);
+    console.log('Dry run complete: doctor passed; seed/build/E2E execution skipped.');
+    return;
   }
 
   if (shouldSeed) {
@@ -98,7 +124,7 @@ async function main() {
 
   summary.finishedAt = new Date().toISOString();
   writeJson(join(resultsDir, 'summary.json'), summary);
-  await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, inherit: true });
+  await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, inherit: true, timeoutMs: reportTimeoutMs });
 
   const failed = summary.results.filter((result) => result.status !== 0);
   console.log(`E2E complete: ${summary.results.length - failed.length} passed, ${failed.length} failed`);
@@ -126,7 +152,7 @@ async function startMetro() {
 async function runIos() {
   const device = optionalEnv('E2E_IOS_DEVICE', 'iPhone 17');
   const bundleId = optionalEnv('E2E_IOS_BUNDLE_ID', target === 'staging' ? 'com.unitapp.mobile.staging' : 'com.unitapp.mobile');
-  const suite = join(unitDir, 'maestro/flows/qa-00-full-suite-ios.yaml');
+  const suite = resolveIosSuite();
   await run('xcrun', ['simctl', 'boot', device], { cwd: projectRoot, logPath: join(resultsDir, 'ios-boot.log') });
   await run('xcrun', ['simctl', 'bootstatus', device, '-b'], { cwd: projectRoot, logPath: join(resultsDir, 'ios-bootstatus.log'), inherit: true });
 
@@ -140,21 +166,31 @@ async function runIos() {
       console.log(`iOS app ${bundleId} is not installed. Set E2E_BUILD_MISSING=1 to run expo run:ios automatically.`);
       return;
     }
-    const build = await run('npx', ['expo', 'run:ios', '--device', device], {
-      cwd: unitDir,
-      env: productionVariantEnv(),
-      logPath: join(resultsDir, 'ios-build-install.log'),
-      inherit: true,
-    });
+    const build = await buildAndInstallIosRelease(device, bundleId);
     summary.results.push(resultRow('ios', 'build/install app', 1, build.status, join(resultsDir, 'ios-build-install.log')));
+    if (build.status !== 0) return;
+  }
+
+  if (shouldReinstallIosRelease && target === 'production') {
+    const build = await buildAndInstallIosRelease(device, bundleId);
+    summary.results.push(resultRow('ios', 'reinstall release app', 1, build.status, join(resultsDir, 'ios-build-install.log')));
     if (build.status !== 0) return;
   }
 
   await runMaestroSuite('ios', suite, bundleId);
 }
 
+function resolveIosSuite() {
+  const defaultSuite = target === 'production' ? 'app-store' : 'full';
+  const configuredSuite = optionalEnv('E2E_IOS_SUITE', defaultSuite);
+  if (configuredSuite === 'full') return join(unitDir, 'maestro/flows/qa-00-full-suite-ios.yaml');
+  if (configuredSuite === 'app-store') return join(unitDir, 'maestro/flows/qa-00-app-store-suite-ios.yaml');
+  if (configuredSuite.startsWith('/')) return configuredSuite;
+  return join(unitDir, configuredSuite);
+}
+
 async function runAndroid() {
-  const avd = optionalEnv('E2E_ANDROID_AVD', 'UNIT_Pixel_8_API_36');
+  const avd = await resolveAndroidAvd(optionalEnv('E2E_ANDROID_AVD', 'UNIT_Pixel_8_API_35'));
   const packageId = optionalEnv('MAESTRO_APP_ID', target === 'staging' ? 'com.unitapp.mobile.staging' : 'com.unitapp.mobile');
   const suite = join(unitDir, 'maestro/flows/qa-00-full-suite-android.yaml');
   const devicesBefore = await run('adb', ['devices'], {
@@ -188,22 +224,53 @@ async function runAndroid() {
   if (appCheck.status !== 0 || !appCheck.output.includes('package:')) {
     if (!shouldBuildMissing) {
       summary.results.push(resultRow('android', 'app installed', 1, 1, join(resultsDir, 'android-app-check.log')));
-      console.log(`Android app ${packageId} is not installed. Set E2E_BUILD_MISSING=1 to run expo run:android automatically.`);
+      console.log(`Android app ${packageId} is not installed. Set E2E_BUILD_MISSING=1 to build and install it automatically.`);
       return;
     }
-    const build = await run('npm', ['run', 'android'], {
-      cwd: unitDir,
-      env: productionVariantEnv(),
-      logPath: join(resultsDir, 'android-build-install.log'),
-      inherit: true,
-    });
+    const build = target === 'production'
+      ? await buildAndInstallAndroidRelease(packageId)
+      : await run('npm', ['run', 'android'], {
+          cwd: unitDir,
+          env: productionVariantEnv(),
+          logPath: join(resultsDir, 'android-build-install.log'),
+          inherit: true,
+        });
     summary.results.push(resultRow('android', 'build/install app', 1, build.status, join(resultsDir, 'android-build-install.log')));
     if (build.status !== 0) return;
   }
 
-  await assertAndroidProductionInstall(packageId);
+  if (shouldReinstallAndroidRelease && target === 'production') {
+    const build = await buildAndInstallAndroidRelease(packageId);
+    summary.results.push(resultRow('android', 'reinstall release app', 1, build.status, join(resultsDir, 'android-build-install.log')));
+    if (build.status !== 0) return;
+  }
+
+  const androidProductionInstallOk = await assertAndroidProductionInstall(packageId, {
+    allowFailure: target === 'production' && (shouldBuildMissing || shouldReinstallAndroidRelease),
+  });
+  if (!androidProductionInstallOk) {
+    const build = await buildAndInstallAndroidRelease(packageId);
+    summary.results.push(resultRow('android', 'build/install release app', 1, build.status, join(resultsDir, 'android-build-install.log')));
+    if (build.status !== 0) return;
+    await assertAndroidProductionInstall(packageId);
+  }
+  if (shouldStopAfterAndroidInstallGate) return;
   await bootstrapAndroidMaestroDriver(packageId);
   await runMaestroSuite('android', suite, packageId);
+}
+
+async function resolveAndroidAvd(configuredName) {
+  const avds = await run('emulator', ['-list-avds'], {
+    cwd: projectRoot,
+    timeoutMs: 15000,
+  });
+  const avdList = avds.output.split(/\r?\n/).filter(Boolean);
+  if (avdList.includes(configuredName)) return configuredName;
+  if (avdList.includes('UNIT_Pixel_8_API_35')) {
+    console.log(`Configured Android AVD ${configuredName} is unavailable; using UNIT_Pixel_8_API_35`);
+    return 'UNIT_Pixel_8_API_35';
+  }
+  return configuredName;
 }
 
 async function runPortal() {
@@ -242,7 +309,7 @@ async function runMaestroSuite(platform, suitePath, appId) {
       logPath = join(resultsDir, platform, `${name.replace(/\.ya?ml$/, '')}-attempt-${attempts}.log`);
       const prepared = await prepareMaestroFlow(platform, flow, appId, attempts, logPath);
       try {
-        if (platform === 'android' && shouldAvoidAndroidMaestroClearState) {
+        if (platform === 'android' && shouldUsePersistentAndroidMaestroDriver) {
           await startAndroidMaestroDriver(`${logPath.replace(/\.log$/, '')}-maestro-driver`);
         }
         const result = await run(maestroBin(), maestroTestArgs(platform, appId, prepared.flowPath), {
@@ -256,10 +323,44 @@ async function runMaestroSuite(platform, suitePath, appId) {
       } finally {
         prepared.cleanup();
       }
+      if (platform === 'android' && status !== 0 && attempts < 2) {
+        await recoverAndroidAfterMaestroFailure(appId, `${logPath.replace(/\.log$/, '')}-recovery`);
+      }
     }
     summary.results.push(resultRow(platform, name, attempts, status, logPath));
     writeJson(join(resultsDir, 'summary.json'), summary);
   }
+}
+
+async function recoverAndroidAfterMaestroFailure(appId, logPrefix) {
+  if (androidMaestroDriverProcess) {
+    androidMaestroDriverProcess.kill();
+    androidMaestroDriverProcess = null;
+  }
+  await run('adb', ['shell', 'am', 'force-stop', 'dev.mobile.maestro'], {
+    cwd: projectRoot,
+    logPath: `${logPrefix}-force-stop-maestro.log`,
+    timeoutMs: 5000,
+  });
+  await dismissAndroidSystemAnrDialogs(logPrefix, { closeApp: true });
+  await run('adb', ['shell', 'am', 'force-stop', appId], {
+    cwd: projectRoot,
+    logPath: `${logPrefix}-force-stop-app.log`,
+    timeoutMs: 10000,
+  });
+  if (target === 'production' && process.env.E2E_ANDROID_CLEAR_RELEASE_STATE !== '0') {
+    await run('adb', ['shell', 'pm', 'clear', appId], {
+      cwd: projectRoot,
+      logPath: `${logPrefix}-pm-clear-app.log`,
+      timeoutMs: 15000,
+    });
+  }
+  await releaseAndroidMaestroPort(logPrefix);
+  await run('adb', ['forward', 'tcp:7001', 'tcp:7001'], {
+    cwd: projectRoot,
+    logPath: `${logPrefix}-adb-forward.log`,
+    timeoutMs: 10000,
+  });
 }
 
 async function bootstrapAndroidMaestroDriver(appId) {
@@ -399,6 +500,23 @@ async function prepareMaestroFlow(platform, flow, appId, attempt, logPath) {
   }
 
   if (platform !== 'android' || !shouldAvoidAndroidMaestroClearState) {
+    if (platform === 'android' && target === 'production') {
+      await launchAndroidReleaseApp(appId, logPath);
+      const tempFlow = join(dirname(flow), `.android-release-${process.pid}-${attempt}-${basename(flow)}`);
+      const contents = removeInitialLaunchApp(readFileSync(flow, 'utf8'));
+      writeFileSync(tempFlow, contents);
+
+      return {
+        flowPath: tempFlow,
+        cleanup: () => {
+          try {
+            unlinkSync(tempFlow);
+          } catch {
+            // Best-effort cleanup; a failed test should keep the original error.
+          }
+        },
+      };
+    }
     return { flowPath: flow, cleanup: () => {} };
   }
 
@@ -512,7 +630,7 @@ async function launchAndroidDevClient(appId, logPath) {
 async function settleAndroidStartupOverlays(appId, devClientUrl, prefix) {
   for (let pass = 1; pass <= 10; pass += 1) {
     const focus = await ensureAndroidAppForeground(appId, devClientUrl, prefix, pass);
-    if (/Application Not Responding|aerr_/.test(focus)) {
+    if (isAndroidAnrHierarchy(focus)) {
       await tapAndroid('anr-wait', '540', '1395', `${prefix}-startup-${pass}`);
       continue;
     }
@@ -523,7 +641,7 @@ async function settleAndroidStartupOverlays(appId, devClientUrl, prefix) {
       continue;
     }
 
-    if (/Process system isn.?t responding/.test(hierarchy)) {
+    if (isAndroidAnrHierarchy(hierarchy)) {
       await tapAndroid('anr-wait', '540', '1395', `${prefix}-startup-${pass}`);
       continue;
     }
@@ -563,13 +681,72 @@ async function settleAndroidStartupOverlays(appId, devClientUrl, prefix) {
   }
 }
 
+async function launchAndroidReleaseApp(appId, logPath) {
+  const prefix = logPath.replace(/\.log$/, '');
+  if (process.env.E2E_ANDROID_CLEAR_RELEASE_STATE !== '0') {
+    await run('adb', ['shell', 'pm', 'clear', appId], {
+      cwd: projectRoot,
+      logPath: `${prefix}-pm-clear.log`,
+      timeoutMs: 15000,
+    });
+  }
+  await run('adb', ['shell', 'am', 'force-stop', appId], {
+    cwd: projectRoot,
+    logPath: `${prefix}-force-stop.log`,
+    timeoutMs: 10000,
+  });
+  await run('adb', ['shell', 'monkey', '-p', appId, '-c', 'android.intent.category.LAUNCHER', '1'], {
+    cwd: projectRoot,
+    logPath: `${prefix}-launch-release.log`,
+    timeoutMs: 20000,
+  });
+  await new Promise((resolve) => setTimeout(resolve, 8000));
+  await settleAndroidReleaseStartup(appId, prefix);
+}
+
+async function settleAndroidReleaseStartup(appId, prefix) {
+  for (let pass = 1; pass <= 6; pass += 1) {
+    const focus = await run('adb', ['shell', 'dumpsys', 'window'], {
+      cwd: projectRoot,
+      logPath: `${prefix}-release-startup-${pass}-focus.log`,
+      timeoutMs: 8000,
+    });
+    if (isAndroidAnrHierarchy(focus.output)) {
+      await tapAndroid('release-anr-close', '360', '1288', `${prefix}-release-startup-${pass}`);
+      await run('adb', ['shell', 'am', 'force-stop', appId], {
+        cwd: projectRoot,
+        logPath: `${prefix}-release-startup-${pass}-force-stop-after-anr.log`,
+        timeoutMs: 10000,
+      });
+      continue;
+    }
+    if (!isAndroidAppFocused(focus.output, appId)) {
+      await run('adb', ['shell', 'monkey', '-p', appId, '-c', 'android.intent.category.LAUNCHER', '1'], {
+        cwd: projectRoot,
+        logPath: `${prefix}-release-startup-${pass}-relaunch.log`,
+        timeoutMs: 20000,
+      });
+      await new Promise((resolve) => setTimeout(resolve, 6000));
+    }
+
+    const hierarchy = await androidHierarchy(`${prefix}-release-startup-${pass}-hierarchy.log`);
+    if (/text="Log In"|resource-id="login-email"|resource-id=[^;"]*login-email|text="Admin Dashboard"/.test(hierarchy)) {
+      return;
+    }
+    if (isAndroidAnrHierarchy(hierarchy)) {
+      await tapAndroid('release-anr-wait', '540', '1395', `${prefix}-release-startup-${pass}`);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+  }
+}
+
 async function ensureAndroidAppForeground(appId, devClientUrl, prefix, pass) {
   const focus = await run('adb', ['shell', 'dumpsys', 'window'], {
     cwd: projectRoot,
     logPath: `${prefix}-startup-${pass}-focus.log`,
     timeoutMs: 8000,
   });
-  if (focus.output.includes(appId)) return focus.output;
+  if (isAndroidAppFocused(focus.output, appId)) return focus.output;
 
   await run(
     'adb',
@@ -596,6 +773,31 @@ async function androidHierarchy(logPath) {
   });
   writeFileSync(logPath, result.output);
   return result.output;
+}
+
+async function dismissAndroidSystemAnrDialogs(prefix, options = {}) {
+  for (let pass = 1; pass <= 3; pass += 1) {
+    const focus = await run('adb', ['shell', 'dumpsys', 'window'], {
+      cwd: projectRoot,
+      logPath: `${prefix}-anr-${pass}-focus.log`,
+      timeoutMs: 8000,
+    });
+    if (!isAndroidAnrHierarchy(focus.output)) return;
+    if (options.closeApp === true) {
+      await tapAndroid(`anr-${pass}-close`, '360', '1288', prefix);
+    } else {
+      await tapAndroid(`anr-${pass}-wait`, '540', '1395', prefix);
+    }
+  }
+}
+
+function isAndroidAnrHierarchy(output) {
+  return /Application Not Responding|Process system isn.?t responding|isn.?t responding|aerr_/i.test(output);
+}
+
+function isAndroidAppFocused(output, appId) {
+  const escapedAppId = appId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:currentFocus|mCurrentFocus|mFocusedWindow)=Window\\{[^}]*${escapedAppId}`).test(output);
 }
 
 async function tapAndroid(name, x, y, prefix) {
@@ -728,7 +930,7 @@ function insertIosOpenConfirmation(contents) {
 
 function maestroTestArgs(platform, appId, flowPath) {
   const args = ['test', '--platform', platform, '-e', `MAESTRO_APP_ID=${appId}`];
-  if (platform === 'android' && shouldAvoidAndroidMaestroClearState) {
+  if (platform === 'android' && shouldUsePersistentAndroidMaestroDriver) {
     args.push('--no-reinstall-driver');
   }
   args.push(
@@ -772,6 +974,13 @@ function productionVariantEnv() {
     return { APP_VARIANT: 'production', EXPO_PUBLIC_ENV: 'production', EXPO_PUBLIC_APP_URL: 'unit://' };
   }
   return {};
+}
+
+function assertProductionMobileMode() {
+  if (target !== 'production' || !needsMobile(only)) return;
+  if (shouldStartMetro) {
+    throw new Error('Production mobile E2E must run against an installed release build. Set E2E_START_METRO=0 so Android/iOS do not launch through Expo dev-client or Metro.');
+  }
 }
 
 function parseAdbOnlineDevices(output) {
@@ -848,8 +1057,9 @@ async function assertAndroidHealth(packageId) {
   writeFileSync(logPath, `${messages.join('\n')}\n`);
 }
 
-async function assertAndroidProductionInstall(packageId) {
+async function assertAndroidProductionInstall(packageId, options = {}) {
   if (target !== 'production') return;
+  const allowFailure = options.allowFailure === true;
 
   const logPath = join(resultsDir, 'android-production-install.log');
   const result = await run('adb', ['shell', 'dumpsys', 'package', packageId], {
@@ -866,6 +1076,7 @@ async function assertAndroidProductionInstall(packageId) {
     if (debuggable) messages.push('\nFAIL installed Android package is DEBUGGABLE');
     messages.push('\nInstall a production/non-debuggable APK or AAB-derived build, set E2E_START_METRO=0, and rerun Android E2E.');
     writeFileSync(logPath, `${messages.join('\n')}\n`);
+    if (allowFailure) return false;
     summary.results.push(resultRow('android', 'production install gate', 1, 1, logPath));
     throw new Error(`Android production install gate failed. See ${logPath}`);
   }
@@ -873,6 +1084,124 @@ async function assertAndroidProductionInstall(packageId) {
   messages.push('\nPASS installed Android package is not debuggable');
   writeFileSync(logPath, `${messages.join('\n')}\n`);
   summary.results.push(resultRow('android', 'production install gate', 1, 0, logPath));
+  return true;
+}
+
+async function buildAndInstallAndroidRelease(packageId = 'com.unitapp.mobile') {
+  const logPath = join(resultsDir, 'android-build-install.log');
+  const uninstallLogPath = join(resultsDir, 'android-release-uninstall.log');
+  const installLogPath = join(resultsDir, 'android-release-install.log');
+  const explicitApk = optionalEnv('E2E_ANDROID_RELEASE_APK', '');
+  const apkPath = explicitApk || join(unitDir, 'android/app/build/outputs/apk/release/app-release.apk');
+  let assembleOutput = '';
+  let assembleStatus = 0;
+
+  if (!explicitApk) {
+    const inputs = await assertAndroidReleaseInputsMaterialized();
+    if (inputs.status !== 0) return inputs;
+    const releaseArchitectures = optionalEnv('E2E_ANDROID_RELEASE_ARCHITECTURES', 'arm64-v8a');
+    const assemble = await run('./gradlew', [
+      ':app:assembleRelease',
+      '--console=plain',
+      '--no-daemon',
+      '--no-parallel',
+      '--max-workers=1',
+      `-PreactNativeArchitectures=${releaseArchitectures}`,
+      '-Dorg.gradle.parallel=false',
+    ], {
+      cwd: join(unitDir, 'android'),
+      env: { ...productionVariantEnv(), NODE_ENV: 'production', UNIT_E2E_RELEASE_BUILD: 'true' },
+      logPath,
+      inherit: true,
+      timeoutMs: Number(optionalEnv('E2E_ANDROID_RELEASE_BUILD_TIMEOUT_MS', '1800000')),
+    });
+    assembleOutput = assemble.output;
+    assembleStatus = assemble.status;
+    if (assemble.status !== 0) return assemble;
+  }
+
+  if (!existsSync(apkPath)) {
+    writeFileSync(logPath, `Android release APK not found: ${apkPath}\n`);
+    return { status: 1, output: `Android release APK not found: ${apkPath}\n` };
+  }
+
+  const uninstall = await run('adb', ['uninstall', packageId], {
+    cwd: projectRoot,
+    logPath: uninstallLogPath,
+    inherit: true,
+    timeoutMs: Number(optionalEnv('E2E_ANDROID_UNINSTALL_TIMEOUT_MS', '120000')),
+  });
+
+  const install = await run('adb', ['install', apkPath], {
+    cwd: projectRoot,
+    logPath: installLogPath,
+    inherit: true,
+    timeoutMs: Number(optionalEnv('E2E_ANDROID_INSTALL_TIMEOUT_MS', '300000')),
+  });
+
+  writeFileSync(logPath, [
+    `## assemble release`,
+    `status=${assembleStatus}`,
+    explicitApk ? `explicitApk=${apkPath}` : assembleOutput.trim(),
+    '',
+    `## adb uninstall ${packageId}`,
+    `status=${uninstall.status}`,
+    uninstall.output.trim(),
+    '',
+    `## adb install ${apkPath}`,
+    `status=${install.status}`,
+    install.output.trim(),
+    '',
+  ].join('\n'));
+  return install;
+}
+
+async function buildAndInstallIosRelease(device, bundleId) {
+  const logPath = join(resultsDir, 'ios-build-install.log');
+  const uninstallLogPath = join(resultsDir, 'ios-release-uninstall.log');
+  const configuration = optionalEnv('E2E_IOS_CONFIGURATION', 'Release');
+
+  const uninstall = await run('xcrun', ['simctl', 'uninstall', 'booted', bundleId], {
+    cwd: projectRoot,
+    logPath: uninstallLogPath,
+    inherit: true,
+    timeoutMs: Number(optionalEnv('E2E_IOS_UNINSTALL_TIMEOUT_MS', '120000')),
+  });
+
+  const build = await run('npx', ['expo', 'run:ios', '--device', device, '--configuration', configuration], {
+    cwd: unitDir,
+    env: { ...productionVariantEnv(), NODE_ENV: 'production', UNIT_E2E_RELEASE_BUILD: 'true' },
+    logPath,
+    inherit: true,
+    timeoutMs: Number(optionalEnv('E2E_IOS_RELEASE_BUILD_TIMEOUT_MS', '1800000')),
+  });
+
+  writeFileSync(logPath, [
+    `## xcrun simctl uninstall booted ${bundleId}`,
+    `status=${uninstall.status}`,
+    uninstall.output.trim(),
+    '',
+    `## expo run:ios --device ${device} --configuration ${configuration}`,
+    `status=${build.status}`,
+    build.output.trim(),
+    '',
+  ].join('\n'));
+
+  return build;
+}
+
+async function assertAndroidReleaseInputsMaterialized() {
+  const logPath = join(resultsDir, 'android-release-inputs.log');
+  const result = await run('node', ['scripts/check-release-inputs.mjs'], {
+    cwd: unitDir,
+    logPath,
+    timeoutMs: 30000,
+  });
+  if (result.status !== 0) {
+    return result;
+  }
+
+  return result;
 }
 
 async function portOpen(port) {
@@ -916,7 +1245,7 @@ main().catch(async (error) => {
   summary.error = error instanceof Error ? error.message : String(error);
   writeJson(join(resultsDir, 'summary.json'), summary);
   writeFileSync(join(resultsDir, 'error.txt'), `${summary.error}\n`);
-  await run('node', ['scripts/e2e/report.mjs', '--run-id', runId], { cwd: projectRoot });
+  await run('node', ['scripts/e2e/report.mjs', '--run-id', runId], { cwd: projectRoot, timeoutMs: reportTimeoutMs });
   console.error(summary.error);
   process.exit(1);
 });

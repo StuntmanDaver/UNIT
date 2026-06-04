@@ -88,6 +88,7 @@ export default function PropertiesScreen() {
 
       Toast.show({ type: 'success', text1: 'Property created' });
       await queryClient.invalidateQueries({ queryKey: ['properties'] });
+      await queryClient.invalidateQueries({ queryKey: ['currentUser'] });
       handleCloseModal();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to create property';

@@ -71,18 +71,15 @@ appId: ${MAESTRO_APP_ID}
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "Approve"
+      id: "promotion-review-approve"
     timeout: 8000
-- tapOn: "Approve"
-- extendedWaitUntil:
-    visible:
-      id: "review-action-feedback"
-    timeout: 20000
-- assertVisible: "Action applied"
+- tapOn:
+    id: "promotion-review-approve"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
       text: "Approved"
-    timeout: 10000
+    timeout: 20000
 - tapOn:
     id: "back-btn"
 - waitForAnimationToEnd
@@ -93,9 +90,10 @@ appId: ${MAESTRO_APP_ID}
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "Allow Revision"
+      id: "promotion-review-allow-revision"
     timeout: 8000
-- tapOn: "Allow Revision"
+- tapOn:
+    id: "promotion-review-allow-revision"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -105,36 +103,24 @@ appId: ${MAESTRO_APP_ID}
       - tapOn:
           id: "promotion-review-allow-revision"
       - waitForAnimationToEnd
-- scrollUntilVisible:
-    element:
-      id: "promotion-review-note"
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-    visibilityPercentage: 60
-- tapOn:
-    id: "promotion-review-note"
-- inputText: "Please revise the image and resubmit."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- tapOn:
-    id: "promotion-review-confirm"
-- waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "promotion-review-note"
-    commands:
-      - tapOn:
-          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
-      id: "review-action-feedback"
-    timeout: 20000
-- assertVisible: "Action applied"
+      id: "modal-title"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "promotion-review-submit-template"
+    timeout: 8000
+- tapOn:
+    id: "promotion-review-submit-template"
+- extendedWaitUntil:
+    notVisible:
+      id: "modal-title"
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Revision Requested"
-    timeout: 10000
+    timeout: 20000
 - tapOn:
     id: "back-btn"
 - waitForAnimationToEnd
@@ -145,9 +131,10 @@ appId: ${MAESTRO_APP_ID}
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "Require Repayment"
+      id: "promotion-review-require-repayment"
     timeout: 8000
-- tapOn: "Require Repayment"
+- tapOn:
+    id: "promotion-review-require-repayment"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -157,36 +144,24 @@ appId: ${MAESTRO_APP_ID}
       - tapOn:
           id: "promotion-review-require-repayment"
       - waitForAnimationToEnd
-- scrollUntilVisible:
-    element:
-      id: "promotion-review-note"
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-    visibilityPercentage: 60
-- tapOn:
-    id: "promotion-review-note"
-- inputText: "Please repay after the placement update."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- tapOn:
-    id: "promotion-review-confirm"
-- waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "promotion-review-note"
-    commands:
-      - tapOn:
-          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
-      id: "review-action-feedback"
-    timeout: 20000
-- assertVisible: "Action applied"
+      id: "modal-title"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "promotion-review-submit-template"
+    timeout: 8000
+- tapOn:
+    id: "promotion-review-submit-template"
+- extendedWaitUntil:
+    notVisible:
+      id: "modal-title"
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Revision Requested"
-    timeout: 10000
+    timeout: 20000
 - extendedWaitUntil:
     visible:
       text: "Repayment Required"
@@ -201,9 +176,10 @@ appId: ${MAESTRO_APP_ID}
     index: 0
 - extendedWaitUntil:
     visible:
-      text: "Reject"
+      id: "promotion-review-reject"
     timeout: 8000
-- tapOn: "Reject"
+- tapOn:
+    id: "promotion-review-reject"
 - waitForAnimationToEnd
 - runFlow:
     when:
@@ -213,39 +189,20 @@ appId: ${MAESTRO_APP_ID}
       - tapOn:
           id: "promotion-review-reject"
       - waitForAnimationToEnd
-- scrollUntilVisible:
-    element:
-      id: "promotion-review-note"
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-    visibilityPercentage: 60
-- tapOn:
-    id: "promotion-review-note"
-- inputText: "This promotion does not meet property guidelines."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- scrollUntilVisible:
-    element:
-      id: "promotion-review-confirm"
-    direction: DOWN
-    centerElement: true
-    timeout: 10000
-    visibilityPercentage: 60
-- tapOn:
-    id: "promotion-review-confirm"
-- waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "promotion-review-note"
-    commands:
-      - tapOn:
-          id: "promotion-review-confirm"
 - extendedWaitUntil:
     visible:
-      id: "review-action-feedback"
-    timeout: 20000
-- assertVisible: "Action applied"
+      id: "modal-title"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "promotion-review-submit-template"
+    timeout: 8000
+- tapOn:
+    id: "promotion-review-submit-template"
+- extendedWaitUntil:
+    notVisible:
+      id: "modal-title"
+    timeout: 8000
 - extendedWaitUntil:
     visible:
       text: "Rejected"

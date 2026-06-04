@@ -40,6 +40,11 @@ export function parseArgs(argv = process.argv.slice(2)) {
 }
 
 export function loadEnv() {
+  if (process.env.E2E_SKIP_LOAD_ENV === '1') {
+    applyLocalToolchainDefaults();
+    return;
+  }
+
   const inheritedEnv = new Set(Object.keys(process.env));
   const files = [
     { name: '.env', override: false },
@@ -102,22 +107,30 @@ export function writeJson(path, value) {
 }
 
 export function commandExists(command, args = ['--version']) {
-  const result = spawnSyncCapture(command, args, { cwd: projectRoot });
+  const result = spawnSyncCapture(command, args, { cwd: projectRoot, timeoutMs: 10000 });
   return result.status === 0;
 }
 
 export function spawnSyncCapture(command, args = [], options = {}) {
+  const timeoutMs = options.timeoutMs ?? 15000;
   const result = spawnSync(command, args, {
     cwd: options.cwd ?? projectRoot,
     env: { ...process.env, ...(options.env ?? {}) },
     shell: false,
     encoding: 'utf8',
+    timeout: timeoutMs,
+    maxBuffer: options.maxBuffer ?? 10 * 1024 * 1024,
   });
+  const timedOut = result.error?.code === 'ETIMEDOUT' || result.signal === 'SIGTERM';
+  const timeoutOutput = timedOut
+    ? `\nCommand timed out after ${timeoutMs}ms: ${command} ${args.join(' ')}\n`
+    : '';
   return {
-    status: result.status ?? 1,
+    status: timedOut ? 124 : result.status ?? 1,
     stdout: result.stdout ?? '',
     stderr: result.stderr ?? '',
-    output: `${result.stdout ?? ''}${result.stderr ?? ''}`,
+    output: `${result.stdout ?? ''}${result.stderr ?? ''}${timeoutOutput}`,
+    timedOut,
   };
 }
 

@@ -4,9 +4,18 @@ type SegmentedControlProps = {
   segments: string[];
   selected: string;
   onChange: (segment: string) => void;
+  testIDPrefix?: string;
 };
 
-export function SegmentedControl({ segments, selected, onChange }: SegmentedControlProps) {
+function segmentTestId(prefix: string, segment: string): string {
+  const slug = segment
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `${prefix}-${slug}`;
+}
+
+export function SegmentedControl({ segments, selected, onChange, testIDPrefix }: SegmentedControlProps) {
   return (
     <View className="flex-row bg-brand-mist rounded-xl p-1">
       {segments.map((segment) => {
@@ -14,6 +23,7 @@ export function SegmentedControl({ segments, selected, onChange }: SegmentedCont
         return (
           <Pressable
             key={segment}
+            testID={testIDPrefix ? segmentTestId(testIDPrefix, segment) : undefined}
             onPress={() => onChange(segment)}
             className={
               isSelected

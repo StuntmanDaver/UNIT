@@ -15,6 +15,29 @@ appId: ${MAESTRO_APP_ID}
           timeout: 10000
 - runFlow:
     when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Error loading app"
+    commands:
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow: ../subflows/dismiss-expo-devtools-overlay-if-present.yaml
+- runFlow:
+    when:
       visible:
         id: "tab-profile"
     commands:

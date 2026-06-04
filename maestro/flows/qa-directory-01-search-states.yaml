@@ -74,46 +74,14 @@ appId: ${MAESTRO_APP_ID}
 - waitForAnimationToEnd
 
 # ── CASE 4: Category chip filter ─────────────────────────────────────────────
-# Test horizontal scroll on CategoryChips by swiping LEFT (reveals chips
-# further right) anchored to the FlatList testID. scrollUntilVisible does
-# not reliably scroll RN horizontal FlatLists — explicit swipes do.
-#
-# "Healthcare" is at position 13 in BUSINESS_CATEGORIES (after All,
-# Restaurant, Accounting, Legal, Hvac, Medical, Retail, Technology,
-# Construction, Manufacturing, Logistics, Food Service, Professional
-# Services). Each swipe advances ~2-3 chips, so we use a bounded repeat
-# that stops as soon as Healthcare becomes visible.
-- repeat:
-    times: 8
-    commands:
-      - runFlow:
-          when:
-            notVisible: "Healthcare"
-          commands:
-            - swipe:
-                from:
-                  id: "category-chips-list"
-                direction: LEFT
-                duration: 600
-- tapOn: "Healthcare"
+# Use a leading visible chip for the filter smoke test. Earlier versions used
+# a far-right chip plus repeated horizontal swipes; on iOS 26/XCUITest that can
+# leave the gesture driver in a stuck state and hide the FlatList from Maestro.
+- tapOn: "Restaurant"
 - waitForAnimationToEnd
 # Filtered list or empty state
 
 # ── CASE 5: "All" chip clears filter ─────────────────────────────────────────
-# Return the horizontal chip list to the leading "All" chip after testing a
-# far-right category.
-- repeat:
-    times: 8
-    commands:
-      - runFlow:
-          when:
-            notVisible: "All"
-          commands:
-            - swipe:
-                from:
-                  id: "category-chips-list"
-                direction: RIGHT
-                duration: 600
 - tapOn: "All"
 - waitForAnimationToEnd
 

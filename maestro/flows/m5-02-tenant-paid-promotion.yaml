@@ -8,48 +8,29 @@ appId: ${MAESTRO_APP_ID}
 # active price tier, dev Edge Function `create-promotion-checkout-session`
 # deployed with STRIPE_SECRET_KEY (test) set.
 
-- launchApp:
-    clearState: true
-# clearState wipes EXDevLauncher's saved Metro URL on dev builds, so the app
-# lands on the launcher landing page. Tap into the bundle if it's showing.
-- runFlow:
-    when:
-      visible: "Development Build"
-    commands:
-      - tapOn: ".*8081"
-      - waitForAnimationToEnd
-# iOS push-notification permission prompt may pop on first JS run after
-# clearState. Allow it if it appears.
-- runFlow:
-    when:
-      visible: "Would Like to Send You Notifications"
-    commands:
-      - tapOn: "Allow"
-      - waitForAnimationToEnd
-# Expo dev menu first-launch hint may appear after clearState. When it
-# does, Continue advances it to the full menu and Close dismisses. When
-# it doesn't (state persisted from a prior fresh install), skip both.
-- runFlow:
-    when:
-      visible: "Continue"
-    commands:
-      - tapOn: "Continue"
-      - waitForAnimationToEnd
-      - tapOn: "Close"
-      - waitForAnimationToEnd
-# Notification prompt sometimes fires AFTER bundle load too.
-- runFlow:
-    when:
-      visible: "Would Like to Send You Notifications"
-    commands:
-      - tapOn: "Allow"
-      - waitForAnimationToEnd
+- launchApp
+- runFlow: ../subflows/open-dev-client-bundle.yaml
 - runFlow: ../subflows/login-tenant1.yaml
 
 # Navigate to Promotions tab and start a new promotion
 - tapOn:
     id: "tab-promotions"
-- assertVisible: "Promotions"
+- extendedWaitUntil:
+    visible:
+      id: "fab-create-promotion"
+    timeout: 12000
+- runFlow:
+    when:
+      notVisible:
+        id: "fab-create-promotion"
+    commands:
+      - tapOn:
+          id: "tab-promotions"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "fab-create-promotion"
+    timeout: 12000
 
 - tapOn:
     id: "fab-create-promotion"
@@ -216,6 +197,18 @@ appId: ${MAESTRO_APP_ID}
       visible: "Confirm it's you"
     commands:
       - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Pay without Link"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Enter 000000 to continue"
+    commands:
+      - inputText: "000000"
       - waitForAnimationToEnd
 - waitForAnimationToEnd
 

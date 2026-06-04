@@ -4,30 +4,9 @@ appId: ${MAESTRO_APP_ID}
 # Requires scripts/e2e/seed.mjs to create origin, nearby, and outside-radius
 # QA posts before this flow runs.
 
-- launchApp:
-    clearState: true
+- launchApp
 
-- runFlow:
-    when:
-      visible: "Development Build"
-    commands:
-      - tapOn: ".*8081"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Would Like to Send You Notifications"
-    commands:
-      - tapOn: "Allow"
-      - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible: "Continue"
-    commands:
-      - tapOn: "Continue"
-      - waitForAnimationToEnd
-      - tapOn: "Close"
-      - waitForAnimationToEnd
-
+- runFlow: ../subflows/open-dev-client-bundle.yaml
 - runFlow: ../subflows/login-tenant1.yaml
 
 - tapOn:
@@ -41,7 +20,7 @@ appId: ${MAESTRO_APP_ID}
 - assertNotVisible: "No nearby properties within 20 miles."
 
 - tapOn:
-    text: "Nearby.*20 mi.*"
+    text: "Nearby \\(≤ 20 mi\\)"
 - extendedWaitUntil:
     visible: "QA Nearby Neighbor Announcement"
     timeout: 10000

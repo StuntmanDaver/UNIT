@@ -66,7 +66,17 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     id: "post-content"
 - waitForAnimationToEnd
-- inputText: "This is an automated E2E event post created by Maestro."
+- inputText: "E2E event post."
+- runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
+- scrollUntilVisible:
+    element:
+      id: "post-event-date"
+    direction: DOWN
+    speed: 70
+    timeout: 20000
+    visibilityPercentage: 60
+    centerElement: false
 
 # Event date (required, YYYY-MM-DD) — Input label is "Event Date *"
 - tapOn:

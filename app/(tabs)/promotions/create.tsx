@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -72,6 +72,7 @@ export default function CreatePromotionScreen() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [activePicker, setActivePicker] = useState<ActivePicker>(null);
+  const [keyboardInset, setKeyboardInset] = useState(0);
   // iOS spinner fires onChange on every scroll step — track a draft so the
   // picker header doesn't switch from "Start Date" to "End Date" mid-scroll.
   // Only committed when the user taps Done.
@@ -79,6 +80,19 @@ export default function CreatePromotionScreen() {
 
   const propertyId = propertyIds[0] ?? '';
   const today = new Date();
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardInset(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardInset(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const {
     control,
@@ -393,7 +407,10 @@ export default function CreatePromotionScreen() {
 
       </ScrollView>
 
-      <View className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3">
+      <View
+        className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3"
+        style={{ bottom: keyboardInset }}
+      >
         <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="promotion-submit">
           Continue to Payment
         </Button>

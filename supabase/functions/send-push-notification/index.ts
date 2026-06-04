@@ -25,6 +25,8 @@ interface ExpoPushResponse {
   data: ExpoPushTicket[];
 }
 
+const allowedAdminBroadcastTypes = new Set(['broadcast']);
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -75,6 +77,14 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
+  }
+
+  const notificationType = (data?.type as string | undefined) ?? 'broadcast';
+  if (!allowedAdminBroadcastTypes.has(notificationType)) {
+    return new Response(JSON.stringify({ error: 'Unsupported notification type for admin broadcast' }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   // Verify caller has access to the property
@@ -189,7 +199,7 @@ Deno.serve(async (req) => {
       user_id: p.id,
       user_email: p.email,
       property_id,
-      type: (data?.type as string | undefined) ?? 'broadcast',
+      type: notificationType,
       title,
       message,
       data: data ?? null,

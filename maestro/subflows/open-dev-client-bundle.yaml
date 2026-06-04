@@ -1,0 +1,39 @@
+appId: ${MAESTRO_APP_ID}
+---
+# Reusable subflow: recover from Expo dev-client launcher states after
+# clearState and open the Metro bundle before app-specific assertions run.
+- runFlow:
+    when:
+      visible: "Error loading app"
+    commands:
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Development Build"
+    commands:
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Error loading app"
+    commands:
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+      - tapOn: ".*8081"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Continue"
+    commands:
+      - tapOn: "Continue"
+      - waitForAnimationToEnd
+      - tapOn: "Close"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Would Like to Send You Notifications"
+    commands:
+      - tapOn: "Allow"
+      - waitForAnimationToEnd
+- runFlow: ../subflows/dismiss-expo-devtools-overlay-if-present.yaml

@@ -3,8 +3,13 @@ import type { ExpoConfig } from 'expo/config';
 type AppVariant = 'development' | 'staging' | 'production';
 
 const EAS_PROJECT_ID = '1a4f5cf7-5e70-4c3e-8121-e1c356f19d51';
+const SUPPORT_EMAIL = 'support@unitapp.com';
+const PRIVACY_POLICY_URL = 'https://unit-legal-pages.vercel.app/privacy';
+const TERMS_URL = 'https://unit-legal-pages.vercel.app/terms';
+const ACCOUNT_DELETION_URL = 'https://unit-legal-pages.vercel.app/delete-account';
 
 const variant = getAppVariant();
+const isE2EReleaseBuild = process.env.UNIT_E2E_RELEASE_BUILD === 'true';
 
 const variantConfig: Record<AppVariant, {
   name: string;
@@ -52,9 +57,9 @@ const config: ExpoConfig = {
   },
   updates: {
     url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
-    enabled: true,
+    enabled: !isE2EReleaseBuild,
     fallbackToCacheTimeout: 0,
-    checkAutomatically: 'ON_LOAD',
+    checkAutomatically: isE2EReleaseBuild ? 'NEVER' : 'ON_LOAD',
   },
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
@@ -116,7 +121,10 @@ const config: ExpoConfig = {
     appVariant: variant,
     environment: getRuntimeEnvironment(variant),
     releaseChannel: selected.releaseChannel,
-    supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? 'support@unitapp.com',
+    supportEmail: process.env.EXPO_PUBLIC_SUPPORT_EMAIL ?? SUPPORT_EMAIL,
+    privacyPolicyUrl: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL ?? PRIVACY_POLICY_URL,
+    termsUrl: process.env.EXPO_PUBLIC_TERMS_URL ?? TERMS_URL,
+    accountDeletionUrl: process.env.EXPO_PUBLIC_ACCOUNT_DELETION_URL ?? ACCOUNT_DELETION_URL,
   },
   owner: 'stuntmandaver',
 };

@@ -12,6 +12,7 @@ import { PromotionCard } from '@/components/tenant/PromotionCard';
 import { usePromotions, type PromotionItem } from '@/hooks/usePromotions';
 import { useAuth } from '@/lib/AuthContext';
 import { analyticsService } from '@/services/analytics';
+import { isIosProductionAppStoreBuild } from '@/constants/appStorePolicy';
 
 const SEGMENTS = ['All', 'Tenant Offers', 'Local Deals'] as const;
 type Segment = (typeof SEGMENTS)[number];
@@ -112,11 +113,17 @@ export default function PromotionsScreen() {
           <EmptyState
             icon={Megaphone}
             title="No active promotions"
-            message="Offers from your neighbors will show up here. Create one to get started."
+            message={
+              isIosProductionAppStoreBuild
+                ? 'Offers from your neighbors will show up here.'
+                : 'Offers from your neighbors will show up here. Create one to get started.'
+            }
           />
         }
       />
-      <FAB onPress={() => router.push('/promotions/create')} testID="fab-create-promotion" />
+      {!isIosProductionAppStoreBuild && (
+        <FAB onPress={() => router.push('/promotions/create')} testID="fab-create-promotion" />
+      )}
     </View>
   );
 }

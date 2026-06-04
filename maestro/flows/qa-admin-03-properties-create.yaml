@@ -57,8 +57,7 @@ appId: ${MAESTRO_APP_ID}
     visible:
       text: "Add Property"
     timeout: 6000
-- tapOn:
-    id: "modal-close"
+- tapOn: "Cancel"
 - assertNotVisible: "Create Property"
 
 # ── CASE 2: Add Property — fill all fields and submit ─────────────────────────

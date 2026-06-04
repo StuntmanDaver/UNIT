@@ -134,7 +134,7 @@ export default function CreateCommunityPostScreen() {
         }).catch(() => {});
       }
 
-      router.back();
+      router.replace('/(tabs)/community');
     } catch {
       Toast.show({
         type: 'error',

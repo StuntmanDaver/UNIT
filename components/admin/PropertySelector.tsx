@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { ChevronDown, Check } from 'lucide-react-native';
 import { propertiesService, Property } from '@/services/properties';
@@ -15,16 +15,26 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const onSelectRef = useRef(onSelect);
+  const propertyIdsKey = useMemo(() => propertyIds.join('|'), [propertyIds]);
+  const stablePropertyIds = useMemo(
+    () => (propertyIdsKey.length > 0 ? propertyIdsKey.split('|') : []),
+    [propertyIdsKey]
+  );
+
+  useEffect(() => {
+    onSelectRef.current = onSelect;
+  }, [onSelect]);
 
   const fetchProperties = () => {
     setLoading(true);
     setLoadError(null);
 
-    propertiesService.getByIds(propertyIds)
+    propertiesService.getByIds(stablePropertyIds)
       .then((results) => {
         setProperties(results);
         if (!selected && results.length > 0) {
-          onSelect(results[0].id);
+          onSelectRef.current(results[0].id);
         }
       })
       .catch((err) => {
@@ -40,12 +50,12 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     setLoading(true);
     setLoadError(null);
 
-    propertiesService.getByIds(propertyIds)
+    propertiesService.getByIds(stablePropertyIds)
       .then((results) => {
         if (!cancelled) {
           setProperties(results);
           if (!selected && results.length > 0) {
-            onSelect(results[0].id);
+            onSelectRef.current(results[0].id);
           }
         }
       })
@@ -61,7 +71,7 @@ export function PropertySelector({ propertyIds, selected, onSelect }: PropertySe
     return () => {
       cancelled = true;
     };
-  }, [propertyIds, selected, onSelect]);
+  }, [stablePropertyIds, selected]);
 
   if (loading) {
     return (

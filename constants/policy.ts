@@ -11,7 +11,7 @@ const extra = Constants.expoConfig?.extra as
   | undefined;
 
 export const policyUrls = {
-  privacy: extra?.privacyPolicyUrl ?? 'https://ads.unit.app/privacy',
-  terms: extra?.termsUrl ?? 'https://ads.unit.app/terms',
-  accountDeletion: extra?.accountDeletionUrl ?? 'https://ads.unit.app/delete-account',
+  privacy: extra?.privacyPolicyUrl ?? 'https://unit-legal-pages.vercel.app/privacy',
+  terms: extra?.termsUrl ?? 'https://unit-legal-pages.vercel.app/terms',
+  accountDeletion: extra?.accountDeletionUrl ?? 'https://unit-legal-pages.vercel.app/delete-account',
 };

@@ -82,6 +82,9 @@ appId: ${MAESTRO_APP_ID}
 - tapOn:
     text: "Close"
     optional: true
+- tapOn:
+    point: "93%,12%"
+    optional: true
 - waitForAnimationToEnd
 
 # ── CASE 4: App Version row visible ─────────────────────────────────────────

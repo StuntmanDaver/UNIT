@@ -24,8 +24,8 @@ export function initSentry(): void {
     enabled: !isRunningInExpoGo(),
     integrations: [
       Sentry.mobileReplayIntegration({
-        maskAllImages: false,
-        maskAllText: false,
+        maskAllImages: appEnvironment === 'production',
+        maskAllText: appEnvironment === 'production',
       }),
     ],
   })

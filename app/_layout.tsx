@@ -1,8 +1,9 @@
 import '../global.css';
 import { useEffect, useRef } from 'react';
-import { LogBox } from 'react-native';
+import { LogBox, View, Text } from 'react-native';
 import { Slot, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Sentry from '@sentry/react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { QueryClientProvider } from '@tanstack/react-query';
@@ -13,6 +14,7 @@ import { queryClient } from '@/lib/query-client';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import { LoadingScreen } from '@/components/ui/LoadingScreen';
 import { getAuthRedirectTarget } from '@/lib/authRedirectPolicy';
+import { supabaseConfigStatus } from '@/services/supabase';
 
 initSentry();
 
@@ -65,7 +67,7 @@ function AuthGuard() {
   return <Slot />;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useFonts({
     Lora_400Regular: require('../assets/fonts/Lora_400Regular.ttf'),
     Lora_600SemiBold: require('../assets/fonts/Lora_600SemiBold.ttf'),
@@ -77,6 +79,21 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return <LoadingScreen message="Starting..." showLogo />;
+  }
+
+  if (!supabaseConfigStatus.hasRequiredConfig) {
+    return (
+      <SafeAreaProvider>
+        <View className="flex-1 bg-brand-cloud items-center justify-center px-6">
+          <Text className="text-2xl font-lora-semibold text-brand-ink text-center mb-3">
+            UNIT is not configured
+          </Text>
+          <Text className="text-base font-nunito text-brand-ink-muted text-center">
+            Required production configuration is missing. Please contact support.
+          </Text>
+        </View>
+      </SafeAreaProvider>
+    );
   }
 
   return (
@@ -91,3 +108,5 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

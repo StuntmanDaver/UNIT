@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,11 @@ import {
   Pressable,
   FlatList,
   KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -50,9 +52,11 @@ type EditProfileFormData = z.infer<typeof editProfileSchema>;
 
 export default function EditProfileScreen() {
   const queryClient = useQueryClient();
+  const tabBarHeight = useBottomTabBarHeight();
   const { data: business, isLoading } = useCurrentUser();
   const [logoUri, setLogoUri] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [keyboardInset, setKeyboardInset] = useState(0);
 
   const {
     control,
@@ -76,6 +80,19 @@ export default function EditProfileScreen() {
   });
 
   const selectedCategory = watch('category');
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardInset(event.endCoordinates.height);
+    });
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => {
+      setKeyboardInset(0);
+    });
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   const handlePickLogo = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -147,6 +164,8 @@ export default function EditProfileScreen() {
 
   const displayLogoUri = logoUri ?? business?.logo_url ?? null;
   const displayName = watch('business_name') || business?.business_name || 'Business';
+  const footerBottom = keyboardInset > 0 ? keyboardInset : tabBarHeight;
+  const scrollBottomPadding = footerBottom + 160;
 
   return (
     <KeyboardAvoidingView
@@ -154,11 +173,11 @@ export default function EditProfileScreen() {
       className="flex-1 bg-brand-cloud"
     >
       <GradientHeader>
-        <Text className="text-3xl font-lora-semibold text-white leading-tight">Edit Profile</Text>
+        <Text testID="profile-edit-title" className="text-3xl font-lora-semibold text-white leading-tight">Edit Profile</Text>
       </GradientHeader>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 220 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: scrollBottomPadding }}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
@@ -195,6 +214,7 @@ export default function EditProfileScreen() {
         <View className="mb-4">
           <Text className="text-sm font-nunito-semibold text-brand-ink mb-2 leading-normal">Category *</Text>
           <FlatList
+            testID="profile-category-list"
             data={BUSINESS_CATEGORIES as unknown as string[]}
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -204,6 +224,7 @@ export default function EditProfileScreen() {
               const isSelected = selectedCategory === item;
               return (
                 <Pressable
+                  testID={`profile-category-${item}`}
                   onPress={() => setValue('category', item)}
                   className="rounded-full px-4 py-2 border border-brand-blue/40"
                   style={{
@@ -317,7 +338,10 @@ export default function EditProfileScreen() {
 
       </ScrollView>
 
-      <View className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3">
+      <View
+        className="absolute left-0 right-0 bottom-0 bg-brand-cloud border-t border-brand-blue/20 px-4 pt-3 pb-8 gap-3"
+        style={{ bottom: footerBottom }}
+      >
         <Button onPress={handleSubmit(onSubmit)} loading={isSaving} disabled={isSaving} testID="btn-profile-save">
           Save Changes
         </Button>

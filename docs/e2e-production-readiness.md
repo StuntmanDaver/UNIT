@@ -85,12 +85,12 @@ Install and verify:
 - Android SDK
 - Android Emulator
 - `adb` in `PATH`
-- AVD named `UNIT_Pixel_8_API_36`
+- AVD named `UNIT_Pixel_8_API_35`
 
 Boot the emulator before the first run, or let the automation start it:
 
 ```bash
-emulator -avd UNIT_Pixel_8_API_36
+emulator -avd UNIT_Pixel_8_API_35
 adb devices
 ```
 

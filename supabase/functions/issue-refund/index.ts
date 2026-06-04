@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-04-22.dahlia' });
+const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-05-27.dahlia' });
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {

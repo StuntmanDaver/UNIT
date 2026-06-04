@@ -48,7 +48,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    const propertyName = request.properties?.name || 'Your Property';
+    const property = Array.isArray(request.properties) ? request.properties[0] : request.properties;
+    const propertyName = property?.name || 'Your Property';
     const appUrl = Deno.env.get('APP_URL') || 'https://yourapp.com';
     const requestLink = `${appUrl}/LandlordRequests?propertyId=${propertyId}`;
     const managerEmails = managers.map(m => m.email);
@@ -107,9 +108,13 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    return new Response(JSON.stringify({ error: toErrorMessage(err) }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 });
+
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}

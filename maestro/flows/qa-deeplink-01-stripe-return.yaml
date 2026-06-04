@@ -45,6 +45,22 @@ appId: ${MAESTRO_APP_ID}
 # Create a promotion and get to pending-payment
 - tapOn:
     id: "tab-promotions"
+- extendedWaitUntil:
+    visible:
+      id: "fab-create-promotion"
+    timeout: 12000
+- runFlow:
+    when:
+      notVisible:
+        id: "fab-create-promotion"
+    commands:
+      - tapOn:
+          id: "tab-promotions"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible:
+      id: "fab-create-promotion"
+    timeout: 12000
 - tapOn:
     id: "fab-create-promotion"
 - waitForAnimationToEnd
@@ -142,8 +158,7 @@ appId: ${MAESTRO_APP_ID}
       id: "pending-payment-pay-now"
     direction: DOWN
     centerElement: true
-- tapOn:
-    id: "pending-payment-pay-now"
+- tapOn: "Pay Now"
 
 # ── Stripe in-app browser opens ───────────────────────────────────────────────
 # AUTOMATED: Stripe Checkout opens in Safari View Controller.
@@ -179,6 +194,18 @@ appId: ${MAESTRO_APP_ID}
       visible: "Confirm it's you"
     commands:
       - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Pay without Link"
+    commands:
+      - tapOn: "Pay without Link"
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Enter 000000 to continue"
+    commands:
+      - inputText: "000000"
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:

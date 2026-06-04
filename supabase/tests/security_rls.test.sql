@@ -3,7 +3,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 CREATE SCHEMA IF NOT EXISTS tests;
 
-SELECT plan(8);
+SELECT plan(14);
 
 CREATE OR REPLACE FUNCTION tests.authenticate_as(user_id uuid, email text)
 RETURNS void
@@ -64,6 +64,97 @@ BEGIN
   RETURN true;
 EXCEPTION
   WHEN insufficient_privilege OR check_violation OR foreign_key_violation THEN
+    RESET ROLE;
+    RETURN false;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.try_insert_promotion(user_id uuid, email text, target_property_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  INSERT INTO promotions (
+    advertiser_id,
+    property_id,
+    business_name,
+    headline,
+    description,
+    start_date,
+    end_date,
+    review_status,
+    payment_status
+  )
+  VALUES (
+    user_id,
+    target_property_id,
+    'RLS Business',
+    'RLS Promotion',
+    'Blocked unless assigned property',
+    now(),
+    now() + interval '7 days',
+    'draft',
+    'unpaid'
+  );
+  RESET ROLE;
+  RETURN true;
+EXCEPTION
+  WHEN insufficient_privilege OR check_violation OR foreign_key_violation THEN
+    RESET ROLE;
+    RETURN false;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.try_move_business_owner(user_id uuid, email text, target_business_id uuid, new_owner text)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  UPDATE businesses SET owner_email = new_owner WHERE id = target_business_id;
+  RESET ROLE;
+  RETURN true;
+EXCEPTION
+  WHEN insufficient_privilege OR raise_exception OR check_violation THEN
+    RESET ROLE;
+    RETURN false;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.try_duplicate_unit_claim(user_id uuid, email text, target_property_id uuid, target_unit_number text)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  INSERT INTO businesses (property_id, owner_email, business_name, category, unit_number)
+  VALUES (target_property_id, email, 'Duplicate Unit Claim', 'services', target_unit_number);
+  RESET ROLE;
+  RETURN true;
+EXCEPTION
+  WHEN insufficient_privilege OR unique_violation OR check_violation THEN
+    RESET ROLE;
+    RETURN false;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.create_property_as_landlord(user_id uuid, email text, target_property_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  INSERT INTO properties (id, name, address, city, state, type, total_units, created_by_landlord_id)
+  VALUES (target_property_id, 'Attached Property', '2 Test Way', 'Testville', 'FL', 'commercial', 1, user_id);
+  RESET ROLE;
+  RETURN true;
+EXCEPTION
+  WHEN insufficient_privilege OR check_violation THEN
     RESET ROLE;
     RETURN false;
 END;
@@ -211,6 +302,10 @@ SET property_id = excluded.property_id,
     business_name = excluded.business_name,
     category = excluded.category;
 
+UPDATE businesses
+SET unit_number = 'Suite 101'
+WHERE id = '00000000-0000-4000-8000-000000000401'::uuid;
+
 INSERT INTO posts (id, property_id, business_id, type, title, content)
 VALUES (
   '00000000-0000-4000-8000-000000000501'::uuid,
@@ -226,6 +321,18 @@ SET property_id = excluded.property_id,
     type = excluded.type,
     title = excluded.title,
     content = excluded.content;
+
+INSERT INTO advertiser_profiles (id, business_name, contact_email, status)
+VALUES (
+  '00000000-0000-4000-8000-000000000301'::uuid,
+  'Active Business',
+  'active@example.test',
+  'active'
+)
+ON CONFLICT (id) DO UPDATE
+SET business_name = excluded.business_name,
+    contact_email = excluded.contact_email,
+    status = excluded.status;
 
 SELECT is(
   tests.visible_post_count(
@@ -305,6 +412,69 @@ SELECT is(
   ),
   1,
   'landlord can update invited tenant in assigned property'
+);
+
+SELECT is(
+  tests.try_insert_promotion(
+    '00000000-0000-4000-8000-000000000301'::uuid,
+    'active@example.test',
+    '00000000-0000-4000-8000-000000000102'::uuid
+  ),
+  false,
+  'tenant cannot insert promotion for outside property'
+);
+
+SELECT is(
+  tests.try_insert_promotion(
+    '00000000-0000-4000-8000-000000000301'::uuid,
+    'active@example.test',
+    '00000000-0000-4000-8000-000000000101'::uuid
+  ),
+  true,
+  'tenant can insert draft promotion for own property'
+);
+
+SELECT is(
+  tests.try_insert_post(
+    '00000000-0000-4000-8000-000000000301'::uuid,
+    'active@example.test',
+    '00000000-0000-4000-8000-000000000102'::uuid,
+    '00000000-0000-4000-8000-000000000401'::uuid
+  ),
+  false,
+  'tenant cannot create post with mismatched business property'
+);
+
+SELECT is(
+  tests.try_move_business_owner(
+    '00000000-0000-4000-8000-000000000301'::uuid,
+    'active@example.test',
+    '00000000-0000-4000-8000-000000000401'::uuid,
+    'attacker@example.test'
+  ),
+  false,
+  'tenant cannot change business owner_email'
+);
+
+SELECT is(
+  tests.try_duplicate_unit_claim(
+    '00000000-0000-4000-8000-000000000302'::uuid,
+    'pending@example.test',
+    '00000000-0000-4000-8000-000000000101'::uuid,
+    'Suite 101'
+  ),
+  false,
+  'database rejects duplicate claimed unit per property'
+);
+
+SELECT is(
+  tests.create_property_as_landlord(
+    '00000000-0000-4000-8000-000000000201'::uuid,
+    'admin-a@example.test',
+    '00000000-0000-4000-8000-000000000199'::uuid
+  ),
+  true,
+  'landlord can create a property that attaches through trigger'
 );
 
 SELECT * FROM finish();

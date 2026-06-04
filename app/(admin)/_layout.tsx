@@ -1,8 +1,13 @@
 import { Stack, Redirect } from 'expo-router';
 import { useAuth } from '@/lib/AuthContext';
+import { LoadingScreen } from '@/components/ui/LoadingScreen';
 
 export default function AdminLayout() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingScreen message="Loading admin..." />;
+  }
 
   if (!isAdmin) {
     return <Redirect href="/(tabs)/directory" />;

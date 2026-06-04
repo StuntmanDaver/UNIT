@@ -4,7 +4,7 @@ jest.mock('../../services/supabase', () => {
   const mockChain = {
     select: jest.fn().mockReturnThis(),
     eq: jest.fn().mockReturnThis(),
-    neq: jest.fn().mockReturnThis(),
+    in: jest.fn().mockReturnThis(),
     order: jest.fn().mockReturnThis(),
     single: jest.fn().mockReturnThis(),
     insert: jest.fn().mockReturnThis(),
@@ -32,8 +32,8 @@ jest.mock('../../services/supabase', () => {
 describe('postsService', () => {
   it('exports expected methods', () => {
     expect(typeof postsService.filter).toBe('function');
-    expect(typeof postsService.getById).toBe('function');
     expect(typeof postsService.create).toBe('function');
+    expect(typeof postsService.getById).toBe('function');
     expect(typeof postsService.update).toBe('function');
     expect(typeof postsService.delete).toBe('function');
   });

@@ -53,7 +53,7 @@ Deno.serve(async (_req) => {
       }
     } catch (emailErr) {
       // Email failure should not block escalation marking
-      emailErrors.push(`Request ${request.id}: ${emailErr.message}`);
+      emailErrors.push(`Request ${request.id}: ${toErrorMessage(emailErr)}`);
     }
 
     processed++;
@@ -67,3 +67,7 @@ Deno.serve(async (_req) => {
     headers: { 'Content-Type': 'application/json' }
   });
 });
+
+function toErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
