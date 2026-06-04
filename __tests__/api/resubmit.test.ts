@@ -12,6 +12,10 @@ vi.mock('next/server', () => ({
   },
 }))
 
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn(),
+}))
+
 const mockServiceClient = {
   from: vi.fn().mockReturnThis(),
   update: vi.fn().mockReturnThis(),

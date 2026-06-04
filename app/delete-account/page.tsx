@@ -9,7 +9,7 @@ export default function DeleteAccountPage() {
       <div className="unit-shell max-w-3xl">
         <p className="unit-muted text-sm font-bold uppercase tracking-wide">UNIT</p>
         <h1 className="mt-3 text-4xl font-bold">Delete Your Account</h1>
-        <p className="unit-muted mt-3">Use this page for Google Play account deletion requests.</p>
+        <p className="unit-muted mt-3">Use this page for account deletion requests if you cannot access the mobile app.</p>
 
         <section className="unit-card mt-8 space-y-5 p-6 leading-7">
           <p>

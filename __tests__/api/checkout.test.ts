@@ -16,6 +16,10 @@ vi.mock('next/server', () => ({
   },
 }));
 
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn(),
+}));
+
 vi.mock('stripe', () => ({
   default: vi.fn().mockImplementation(function Stripe() {
     return {
