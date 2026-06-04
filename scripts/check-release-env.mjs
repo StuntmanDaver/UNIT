@@ -107,18 +107,24 @@ if (releaseEnv !== 'development' && /localhost|127\.0\.0\.1/.test(supabaseUrl)) 
 const stripeSecret = process.env.STRIPE_SECRET_KEY ?? localEnv.STRIPE_SECRET_KEY;
 const stripePublishable = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? localEnv.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET ?? localEnv.STRIPE_WEBHOOK_SECRET;
-if (releaseEnv === 'staging' && (!stripeSecret?.startsWith('sk_test_') || !stripePublishable?.startsWith('pk_test_'))) {
+const isStripeServerKeyForMode = (value, mode) => value?.startsWith(`sk_${mode}_`) || value?.startsWith(`rk_${mode}_`);
+if (releaseEnv === 'staging' && (!isStripeServerKeyForMode(stripeSecret, 'test') || !stripePublishable?.startsWith('pk_test_'))) {
   console.error('Staging must use Stripe test mode keys.');
   process.exit(1);
 }
 
 if (releaseEnv === 'production') {
   const allowProductionTestStripe = (process.env.ALLOW_PRODUCTION_STRIPE_TEST_MODE ?? localEnv.ALLOW_PRODUCTION_STRIPE_TEST_MODE) === '1';
+  const allowGuardedProductionTestStripe =
+    process.env.RELEASE_CHECK_ALLOW_PRODUCTION_STRIPE_TEST_MODE === '1';
   const stripeModeErrors = [];
-  if (!stripeSecret?.startsWith('sk_live_') && !(allowProductionTestStripe && stripeSecret?.startsWith('sk_test_'))) {
-    stripeModeErrors.push('STRIPE_SECRET_KEY must use a live-mode sk_live_ key for production.');
+  if (allowProductionTestStripe && !allowGuardedProductionTestStripe) {
+    stripeModeErrors.push('ALLOW_PRODUCTION_STRIPE_TEST_MODE is set; remove it from production or rerun only guarded sandbox QA with RELEASE_CHECK_ALLOW_PRODUCTION_STRIPE_TEST_MODE=1.');
   }
-  if (!stripePublishable?.startsWith('pk_live_') && !(allowProductionTestStripe && stripePublishable?.startsWith('pk_test_'))) {
+  if (!isStripeServerKeyForMode(stripeSecret, 'live') && !(allowProductionTestStripe && allowGuardedProductionTestStripe && isStripeServerKeyForMode(stripeSecret, 'test'))) {
+    stripeModeErrors.push('STRIPE_SECRET_KEY must use a live-mode sk_live_ or rk_live_ key for production.');
+  }
+  if (!stripePublishable?.startsWith('pk_live_') && !(allowProductionTestStripe && allowGuardedProductionTestStripe && stripePublishable?.startsWith('pk_test_'))) {
     stripeModeErrors.push('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must use a live-mode pk_live_ key for production.');
   }
   if (!stripeWebhookSecret?.startsWith('whsec_')) {
@@ -132,7 +138,7 @@ if (releaseEnv === 'production') {
     console.error('\nCreate a live Stripe webhook endpoint, update the production host secrets, and rerun release:check.');
     process.exit(1);
   }
-  if (allowProductionTestStripe) {
+  if (allowProductionTestStripe && allowGuardedProductionTestStripe) {
     console.warn('ALLOW_PRODUCTION_STRIPE_TEST_MODE=1: accepting Stripe test-mode keys for guarded production QA only.');
   }
 }
