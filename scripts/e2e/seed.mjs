@@ -19,6 +19,7 @@ const runId = String(args['run-id'] || process.env.E2E_RUN_ID || `e2e_seed_${Dat
 
 const accounts = {
   tenant: { email: process.env.E2E_TENANT_EMAIL || 'tenant1@unit-test.com', password: process.env.E2E_TENANT_PASSWORD || 'admin123', role: 'tenant' },
+  fitness: { email: process.env.E2E_FITNESS_EMAIL || 'fitness@unit-test.com', password: process.env.E2E_FITNESS_PASSWORD || 'admin123', role: 'tenant' },
   negativeLogin: { email: process.env.E2E_NEGATIVE_LOGIN_EMAIL || 'login-negative@unit-test.com', password: process.env.E2E_NEGATIVE_LOGIN_PASSWORD || 'ValidPass123!', role: 'tenant' },
   resetTenant: { email: process.env.E2E_RESET_TENANT_EMAIL || 'tenant-reset@unit-test.com', password: process.env.E2E_RESET_TENANT_PASSWORD || 'TempPass123!', role: 'tenant' },
   admin: { email: process.env.E2E_ADMIN_EMAIL || 'david@cultrhealth.com', password: process.env.E2E_ADMIN_PASSWORD || 'admin123', role: 'landlord' },
@@ -90,7 +91,10 @@ async function main() {
   summary.actions.push(`Ensured nearby property ${nearbyProperty.name} (${nearbyProperty.id})`);
   summary.actions.push(`Ensured outside-radius property ${outsideProperty.name} (${outsideProperty.id})`);
 
-  await ensureProfiles(supabase, users, property.id);
+  await ensureProfiles(supabase, users, {
+    tenantPropertyId: property.id,
+    adminPropertyIds: [property.id, nearbyProperty.id, outsideProperty.id],
+  });
   summary.actions.push('Ensured tenant/admin profiles and reset-password state');
 
   await resetQaRows(supabase, [property.id, nearbyProperty.id, outsideProperty.id]);
@@ -186,23 +190,41 @@ async function ensureNamedProperty(supabase, payload) {
   return data;
 }
 
-async function ensureProfiles(supabase, users, propertyId) {
+async function ensureProfiles(supabase, users, { tenantPropertyId, adminPropertyIds }) {
+  const { data: existingAdmin } = await supabase
+    .from('profiles')
+    .select('property_ids')
+    .eq('id', users.admin.id)
+    .maybeSingle();
+  const preservedAdminPropertyIds = [
+    ...new Set([...(existingAdmin?.property_ids ?? []), ...adminPropertyIds]),
+  ];
   const profiles = [
     {
       id: users.tenant.id,
       email: accounts.tenant.email,
       role: 'tenant',
-      property_ids: [propertyId],
+      property_ids: [tenantPropertyId],
       status: 'active',
       activated_at: new Date().toISOString(),
       needs_password_change: false,
       display_name: 'QA Tenant One',
     },
     {
+      id: users.fitness.id,
+      email: accounts.fitness.email,
+      role: 'tenant',
+      property_ids: [tenantPropertyId],
+      status: 'active',
+      activated_at: new Date().toISOString(),
+      needs_password_change: false,
+      display_name: 'QA Fitness Tenant',
+    },
+    {
       id: users.resetTenant.id,
       email: accounts.resetTenant.email,
       role: 'tenant',
-      property_ids: [propertyId],
+      property_ids: [tenantPropertyId],
       status: 'active',
       activated_at: new Date().toISOString(),
       needs_password_change: true,
@@ -212,7 +234,7 @@ async function ensureProfiles(supabase, users, propertyId) {
       id: users.admin.id,
       email: accounts.admin.email,
       role: 'landlord',
-      property_ids: [propertyId],
+      property_ids: preservedAdminPropertyIds,
       status: 'active',
       activated_at: new Date().toISOString(),
       needs_password_change: false,
@@ -242,7 +264,7 @@ async function resetQaRows(supabase, propertyIds) {
   await supabase
     .from('businesses')
     .delete()
-    .in('owner_email', [accounts.tenant.email, accounts.resetTenant.email, 'fitness@unit-test.com']);
+    .in('owner_email', [accounts.tenant.email, accounts.resetTenant.email, accounts.fitness.email]);
 }
 
 async function seedBusinesses(supabase, users, propertyId) {
@@ -262,13 +284,13 @@ async function seedBusinesses(supabase, users, propertyId) {
     },
     {
       property_id: propertyId,
-      owner_email: 'fitness@unit-test.com',
+      owner_email: accounts.fitness.email,
       business_name: 'QA E2E Fitness',
       unit_number: 'QA-202',
       category: 'Fitness',
       business_description: 'Second seeded business for directory search.',
       contact_name: 'QA Fitness',
-      contact_email: 'fitness@unit-test.com',
+      contact_email: accounts.fitness.email,
       contact_phone: '555-0202',
       website: 'https://example.com/fitness',
       is_featured: false,
@@ -381,6 +403,12 @@ async function seedAdvertisersAndPromotions(supabase, users, propertyId, runId) 
     contact_email: accounts.tenant.email,
     status: 'active',
   });
+  await supabase.from('advertiser_profiles').upsert({
+    id: users.fitness.id,
+    business_name: 'QA E2E Fitness',
+    contact_email: accounts.fitness.email,
+    status: 'active',
+  });
 
   const now = new Date();
   const startDate = now.toISOString().slice(0, 10);
@@ -399,8 +427,44 @@ async function seedAdvertisersAndPromotions(supabase, users, propertyId, runId) 
       external_contact_phone: '555-0303',
     },
   ];
-  const { error } = await supabase.from('promotions').insert(rows);
+  const { data: insertedPromotions, error } = await supabase
+    .from('promotions')
+    .insert(rows)
+    .select('id, headline, review_status, payment_status');
   if (error) throw error;
+
+  const paidPromotions = (insertedPromotions ?? []).filter((promotion) => promotion.payment_status === 'paid');
+  if (paidPromotions.length > 0) {
+    const { error: attemptError } = await supabase.from('promotion_payment_attempts').insert(
+      paidPromotions.map((promotion) => ({
+        promotion_id: promotion.id,
+        stripe_checkout_session_id: `seed_${runId}_${promotion.id}`,
+        amount_cents: 1000,
+        status: 'completed',
+        attempt_type: 'initial',
+        payment_provider: 'stripe',
+        completed_at: now.toISOString(),
+      })),
+    );
+    if (attemptError) throw attemptError;
+  }
+
+  const approvedPromotions = (insertedPromotions ?? []).filter((promotion) => promotion.review_status === 'approved');
+  if (approvedPromotions.length > 0) {
+    const { error: eventError } = await supabase.from('promotion_status_events').insert(
+      approvedPromotions.map((promotion) => ({
+        promotion_id: promotion.id,
+        from_review_status: 'pending',
+        to_review_status: 'approved',
+        from_payment_status: promotion.payment_status ?? null,
+        to_payment_status: promotion.payment_status ?? null,
+        actor_user_id: users.admin.id,
+        actor_type: 'admin',
+        note: `Seeded approval event for ${runId}.`,
+      })),
+    );
+    if (eventError) throw eventError;
+  }
 }
 
 function promotionPayload(propertyId, advertiserId, headline, reviewStatus, paymentStatus, startDate, endDate, runId) {

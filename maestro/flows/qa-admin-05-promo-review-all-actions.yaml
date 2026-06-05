@@ -109,15 +109,10 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      id: "promotion-review-note"
+      id: "promotion-review-submit-template"
     timeout: 8000
 - tapOn:
-    id: "promotion-review-note"
-- eraseText: 200
-- inputText: "Please revise and resubmit this promotion."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- tapOn:
-    id: "promotion-review-confirm"
+    id: "promotion-review-submit-template"
 - extendedWaitUntil:
     notVisible:
       id: "modal-title"
@@ -155,15 +150,10 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      id: "promotion-review-note"
+      id: "promotion-review-submit-template"
     timeout: 8000
 - tapOn:
-    id: "promotion-review-note"
-- eraseText: 200
-- inputText: "Please repay after updating this promotion."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- tapOn:
-    id: "promotion-review-confirm"
+    id: "promotion-review-submit-template"
 - extendedWaitUntil:
     notVisible:
       id: "modal-title"
@@ -205,15 +195,10 @@ appId: ${MAESTRO_APP_ID}
     timeout: 8000
 - extendedWaitUntil:
     visible:
-      id: "promotion-review-note"
+      id: "promotion-review-submit-template"
     timeout: 8000
 - tapOn:
-    id: "promotion-review-note"
-- eraseText: 200
-- inputText: "This promotion does not meet property guidelines."
-- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
-- tapOn:
-    id: "promotion-review-confirm"
+    id: "promotion-review-submit-template"
 - extendedWaitUntil:
     notVisible:
       id: "modal-title"

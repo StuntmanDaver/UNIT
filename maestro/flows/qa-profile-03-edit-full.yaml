@@ -117,7 +117,7 @@ appId: ${MAESTRO_APP_ID}
 - eraseText: 100
 - inputText: "5551234567"
 - pressKey: Enter
-- hideKeyboard
+- tapOn: "Edit Profile"
 - scrollUntilVisible:
     element:
       id: "profile-email-input"

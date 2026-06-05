@@ -230,7 +230,9 @@ export function getSupabaseClient() {
 
 function applyLocalToolchainDefaults() {
   const androidHome = '/opt/homebrew/share/android-commandlinetools';
-  const javaHome = '/opt/homebrew/opt/openjdk@21';
+  const javaHome = existsSync('/opt/homebrew/opt/openjdk')
+    ? '/opt/homebrew/opt/openjdk'
+    : '/opt/homebrew/opt/openjdk@21';
   if (!process.env.ANDROID_HOME && existsSync(androidHome)) {
     process.env.ANDROID_HOME = androidHome;
   }
@@ -247,10 +249,10 @@ function applyLocalToolchainDefaults() {
     join(javaHome, 'bin'),
   ].filter((path) => existsSync(path));
   const currentPath = process.env.PATH ?? '';
-  const missing = pathEntries.filter((path) => !currentPath.split(':').includes(path));
-  if (missing.length > 0) {
-    process.env.PATH = `${missing.join(':')}:${currentPath}`;
-  }
+  const remainingPath = currentPath
+    .split(':')
+    .filter((path) => path && !pathEntries.includes(path));
+  process.env.PATH = [...pathEntries, ...remainingPath].join(':');
 }
 
 export function assertProductionGuard(target = process.env.E2E_TARGET || 'local') {

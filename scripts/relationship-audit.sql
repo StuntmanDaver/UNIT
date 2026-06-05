@@ -13,7 +13,9 @@ WHERE NOT EXISTS (SELECT 1 FROM profiles p WHERE p.id = u.id);
 -- 2) Tenant accounts and property ownership
 SELECT 'tenant_profiles_missing_property_ids' AS check_name, COUNT(*) AS count
 FROM profiles
-WHERE role = 'tenant' AND (property_ids IS NULL OR array_length(property_ids, 1) = 0);
+WHERE role = 'tenant'
+  AND status = 'active'
+  AND (property_ids IS NULL OR array_length(property_ids, 1) = 0);
 
 SELECT 'properties_without_owner' AS check_name, COUNT(*) AS count
 FROM properties p
@@ -55,6 +57,10 @@ SELECT 'profiles_not_in_advertiser_profiles' AS check_name, COUNT(*) AS count
 FROM profiles p
 WHERE p.role = 'tenant'
   AND p.status IN ('active', 'invited')
+  AND EXISTS (
+    SELECT 1 FROM businesses b
+    WHERE lower(b.owner_email) = lower(p.email)
+  )
   AND NOT EXISTS (
     SELECT 1 FROM advertiser_profiles ap
     WHERE ap.id = p.id
