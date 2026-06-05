@@ -44,6 +44,10 @@ function readEnvFile(path) {
 }
 
 function readLocalEnv(releaseEnv) {
+  if (process.env.RELEASE_CHECK_IGNORE_LOCAL_ENV === '1') {
+    return {};
+  }
+
   return {
     ...readEnvFile(resolve(process.cwd(), '.env.local')),
     ...readEnvFile(resolve(process.cwd(), `.env.${releaseEnv}.local`)),
