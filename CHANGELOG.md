@@ -1,5 +1,31 @@
 # UNIT Mobile App — Changelog
 
+## 2026-06-05 — Android production E2E certified green
+
+### Changed
+- Hardened the shared admin login Maestro subflow on Android by retrying submit
+  when the login screen remains visible after the first tap.
+- Hardened the Android E2E runner cleanup path so successful runs stop
+  long-running emulator/Maestro child processes and return control to the
+  shell.
+- Recorded the superseding Android green run in
+  `docs/android-e2e-status-2026-06-01.md`.
+
+### Verified
+- Full guarded production Android E2E run `e2e_20260605T014149Z_i3rjhx`
+  passed: 33 passed, 0 failed.
+- Follow-up Android install-gate runner cleanup proof
+  `e2e_20260605T035248Z_ft31db` passed and exited with code 0.
+- `npm run lint`
+- `npm run typecheck`
+- `git diff --check`
+
+### Remaining
+- Android automated production E2E is green as of this run, but external release
+  gates remain separate: live Stripe credentials, production portal host/domain
+  evidence, App Store/TestFlight review, Google Play credentials, and production
+  account ownership.
+
 ## 2026-06-02 — Production blocker hardening pass
 
 ### Changed
