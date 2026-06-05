@@ -1,5 +1,29 @@
 # Android E2E Status - 2026-06-01
 
+## Superseding Green Run - 2026-06-05
+
+Status: **green for Android automated production E2E**.
+
+Run `e2e_20260605T014149Z_i3rjhx` supersedes the red 2026-06-01 run below.
+It passed production-safe QA seed, cross-account sync, the production install
+gate, and all 30 Android Maestro flows against `com.unitapp.mobile`.
+
+Evidence:
+
+- Summary: `e2e-results/e2e_20260605T014149Z_i3rjhx/summary.md`
+- Production install gate: `e2e-results/e2e_20260605T014149Z_i3rjhx/android-production-install.log`
+- Per-flow logs: `e2e-results/e2e_20260605T014149Z_i3rjhx/android/`
+- Follow-up install-gate-only runner cleanup check:
+  `e2e_20260605T035248Z_ft31db`
+
+This clears the Android automated E2E release gate. It does not clear external
+launch gates for live Stripe, the production portal host/domain,
+App Store/TestFlight manual review, Google Play credentials, or production
+account ownership.
+
+The remainder of this document is the historical 2026-06-01 red run record and
+should be read as superseded triage context.
+
 ## Candidate Tested
 
 - Platform: Android

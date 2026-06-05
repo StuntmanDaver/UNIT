@@ -124,11 +124,16 @@ async function main() {
 
   summary.finishedAt = new Date().toISOString();
   writeJson(join(resultsDir, 'summary.json'), summary);
-  await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, inherit: true, timeoutMs: reportTimeoutMs });
+  try {
+    await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, inherit: true, timeoutMs: reportTimeoutMs });
+  } finally {
+    await stopLongRunningChildren();
+  }
 
   const failed = summary.results.filter((result) => result.status !== 0);
   console.log(`E2E complete: ${summary.results.length - failed.length} passed, ${failed.length} failed`);
   if (failed.length > 0) process.exit(1);
+  process.exit(0);
 }
 
 async function startMetro() {
@@ -1234,10 +1239,108 @@ function needsMobile(value) {
   return value === 'all' || value === 'mobile' || value === 'ios' || value === 'android';
 }
 
+async function stopLongRunningChildren() {
+  const stops = [];
+
+  if (metroProcess) {
+    stops.push(stopLongRunningChild(metroProcess));
+    metroProcess = null;
+  }
+  if (androidProcess && process.env.E2E_KEEP_ANDROID_EMULATOR !== '1') {
+    stops.push(stopAndroidEmulatorChild(androidProcess));
+    androidProcess = null;
+  }
+  if (androidMaestroDriverProcess) {
+    stops.push(stopLongRunningChild(androidMaestroDriverProcess));
+    androidMaestroDriverProcess = null;
+  }
+
+  await Promise.all(stops);
+}
+
+async function stopAndroidEmulatorChild(child) {
+  await run('adb', ['emu', 'kill'], {
+    cwd: projectRoot,
+    logPath: join(resultsDir, 'android-emulator-stop.log'),
+    timeoutMs: 10000,
+  });
+  await stopLongRunningChild(child);
+}
+
+function stopLongRunningChild(child) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(termTimer);
+      clearTimeout(killTimer);
+      resolve();
+    };
+    const termTimer = setTimeout(() => {
+      try {
+        process.kill(child.pid, 'SIGKILL');
+      } catch {
+        try {
+          child.kill('SIGKILL');
+        } catch {
+          // The process may have exited between the timeout and the kill call.
+        }
+      }
+    }, 5000);
+    const killTimer = setTimeout(() => {
+      detachLongRunningChild(child);
+      finish();
+    }, 8000);
+
+    child.once('close', finish);
+    try {
+      child.kill('SIGTERM');
+    } catch {
+      finish();
+    }
+  });
+}
+
+function detachLongRunningChild(child) {
+  try {
+    child.stdout?.destroy();
+    child.stderr?.destroy();
+    child.stdin?.destroy();
+    child.unref();
+  } catch {
+    // Best effort fallback for process handles that do not close promptly.
+  }
+}
+
+function stopLongRunningChildSync(child) {
+  if (child && child.exitCode === null && child.signalCode === null) {
+    try {
+      process.kill(child.pid, 'SIGKILL');
+    } catch {
+      try {
+        child.kill('SIGKILL');
+      } catch {
+        // Best effort only during synchronous process exit.
+      }
+    }
+    try {
+      child.kill('SIGTERM');
+    } catch {
+      // Best effort only during synchronous process exit.
+    }
+    detachLongRunningChild(child);
+  }
+}
+
 process.on('exit', () => {
-  if (metroProcess) metroProcess.kill();
-  if (androidProcess && process.env.E2E_KEEP_ANDROID_EMULATOR !== '1') androidProcess.kill();
-  if (androidMaestroDriverProcess) androidMaestroDriverProcess.kill();
+  for (const child of [metroProcess, androidProcess, androidMaestroDriverProcess]) {
+    stopLongRunningChildSync(child);
+  }
 });
 
 main().catch(async (error) => {
@@ -1245,7 +1348,11 @@ main().catch(async (error) => {
   summary.error = error instanceof Error ? error.message : String(error);
   writeJson(join(resultsDir, 'summary.json'), summary);
   writeFileSync(join(resultsDir, 'error.txt'), `${summary.error}\n`);
-  await run('node', ['scripts/e2e/report.mjs', '--run-id', runId], { cwd: projectRoot, timeoutMs: reportTimeoutMs });
+  try {
+    await run('node', [join(unitDir, 'scripts/e2e/report.mjs'), '--run-id', runId], { cwd: projectRoot, timeoutMs: reportTimeoutMs });
+  } finally {
+    await stopLongRunningChildren();
+  }
   console.error(summary.error);
   process.exit(1);
 });

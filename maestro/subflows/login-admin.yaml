@@ -121,6 +121,16 @@ appId: ${MAESTRO_APP_ID}
     commands:
       - waitForAnimationToEnd
       - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
+- runFlow:
+    when:
+      platform: Android
+      visible:
+        id: "btn-login-submit"
+    commands:
+      - tapOn:
+          id: "btn-login-submit"
+      - waitForAnimationToEnd
+      - runFlow: ../subflows/dismiss-android-anr-if-present.yaml
 - runFlow: ../subflows/dismiss-ios-save-password.yaml
 - extendedWaitUntil:
     visible:
