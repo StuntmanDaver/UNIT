@@ -47,18 +47,6 @@ appId: ${MAESTRO_APP_ID}
     visible:
       id: "property-selector"
     timeout: 10000
-- tapOn:
-    id: "property-selector"
-- waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "property-selector-option"
-    commands:
-      - tapOn:
-          id: "property-selector-option"
-          index: 0
-- waitForAnimationToEnd
 
 - extendedWaitUntil:
     visible:

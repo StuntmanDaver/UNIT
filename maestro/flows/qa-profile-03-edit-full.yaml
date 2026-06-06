@@ -117,7 +117,7 @@ appId: ${MAESTRO_APP_ID}
 - eraseText: 100
 - inputText: "5551234567"
 - pressKey: Enter
-- tapOn: "Edit Profile"
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
 - scrollUntilVisible:
     element:
       id: "profile-email-input"

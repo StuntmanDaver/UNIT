@@ -40,25 +40,12 @@ appId: ${MAESTRO_APP_ID}
 - runFlow: ../subflows/login-admin.yaml
 - assertVisible: "Admin Dashboard"
 
-# Select property first. The selector auto-selects the first property after
-# loading; for multi-property admins, use the stable selector IDs instead of
-# stale placeholder copy.
+# The seeded admin's default property is selected after login. Avoid opening the
+# selector here; on Android a no-op dropdown can absorb the following nav tap.
 - extendedWaitUntil:
     visible:
       id: "property-selector"
     timeout: 10000
-- tapOn:
-    id: "property-selector"
-- waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "property-selector-option"
-    commands:
-      - tapOn:
-          id: "property-selector-option"
-          index: 0
-- waitForAnimationToEnd
 
 # Navigate to Advertisers via View Pending Approvals
 - tapOn: "View Pending Approvals"
