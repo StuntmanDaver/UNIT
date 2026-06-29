@@ -34,9 +34,18 @@ export const businessesService = {
       }
     }
     if (search) {
-      query = query.or(
-        `business_name.ilike.%${search}%,business_description.ilike.%${search}%`
-      );
+      // Strip PostgREST `.or()` filter metacharacters before interpolating user
+      // input into the filter string. A raw `,` starts a new OR-condition and
+      // `()` group/nest conditions, so an unsanitized search term could break
+      // out of the intended two-column ilike match and inject arbitrary filter
+      // clauses (column/boolean enumeration against RLS-readable rows). `"` and
+      // `\` (value quoting/escaping) and `*` (wildcard) are stripped too.
+      const safeSearch = search.replace(/[,()"\\*]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (safeSearch) {
+        query = query.or(
+          `business_name.ilike.%${safeSearch}%,business_description.ilike.%${safeSearch}%`
+        );
+      }
     }
     if (signal) {
       query = query.abortSignal(signal);

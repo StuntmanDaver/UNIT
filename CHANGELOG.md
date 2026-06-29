@@ -1,5 +1,41 @@
 # UNIT Mobile App — Changelog
 
+## 2026-06-29 — Store release readiness and security hardening
+
+### Changed
+- Added a Netlify marketing website source under `website/` plus `netlify.toml`,
+  deployed live at `https://unit-tenant-app.netlify.app`.
+- Added store submission metadata under `fastlane/metadata/` and a
+  `release:check-store-assets` gate that validates production app identity,
+  icon sizes, privacy manifest, screenshot assets, and App Store / Play Store
+  listing text.
+- Recorded fresh iOS and Android production store builds in
+  `docs/production-readiness-evidence.json`.
+- Hardened tenant business search by stripping PostgREST `.or()` metacharacters
+  before interpolating user search text.
+- Escaped tenant/property strings in the invite-tenant HTML email and stripped
+  CR/LF from the subject.
+- Added Supabase guards preventing advertisers from self-marking promotions
+  paid and scoping advertiser profile / promotion lead visibility by landlord
+  property relationship.
+- Preserved landlord-created property self-attachment by marking the internal
+  trigger update so the profile security guard still blocks direct self-edits.
+
+### Verified
+- `npm run release:check`
+- `npm run appstore:auth:check`
+- `npm run production:readiness:check -- --allow-external-blockers`
+- `npm run db:test:security`
+- Live Stripe account now reports `charges_enabled=true` and
+  `payouts_enabled=true` with business URL
+  `https://unit-tenant-app.netlify.app/`.
+- Netlify site returns `HTTP 200`, and `/portal` redirects to the live portal.
+
+### Remaining
+- Google Play automated submit is still blocked until the first Play Console
+  upload is completed manually once for Android build
+  `395a00fb-1156-4b3f-a79b-43fb8e6989ac` / versionCode `7`.
+
 ## 2026-06-05 — Android production E2E certified green
 
 ### Changed

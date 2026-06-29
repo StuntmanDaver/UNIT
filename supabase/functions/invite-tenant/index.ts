@@ -3,6 +3,7 @@
 // per D-03c — configure, don't skip. See 02-01 Plan §BUG-07.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.100.0';
 import { captureEdgeException } from '../_shared/sentry.ts';
+import { escapeHtml } from '../_shared/html.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -259,12 +260,12 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           from: resendFromEmail,
           to: tenant.email,
-          subject: `You're invited to UNIT — ${property?.name ?? 'Your Property'}`,
+          subject: `You're invited to UNIT — ${property?.name ?? 'Your Property'}`.replace(/[\r\n]+/g, ' '),
           html: `
             <h2>Welcome to UNIT</h2>
-            <p>You've been added to UNIT, the tenant networking app for <strong>${property?.name ?? 'your property'}</strong>.</p>
+            <p>You've been added to UNIT, the tenant networking app for <strong>${escapeHtml(property?.name ?? 'your property')}</strong>.</p>
             <p><strong>Your login credentials:</strong></p>
-            <p>Email: ${tenant.email}<br>Temporary Password: ${tempPassword}</p>
+            <p>Email: ${escapeHtml(tenant.email)}<br>Temporary Password: ${tempPassword}</p>
             <p>On your first login, you'll be asked to set a new password.</p>
             <p>— The UNIT Team</p>
           `,

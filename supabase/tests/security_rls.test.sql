@@ -3,7 +3,7 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
 CREATE SCHEMA IF NOT EXISTS tests;
 
-SELECT plan(14);
+SELECT plan(17);
 
 CREATE OR REPLACE FUNCTION tests.authenticate_as(user_id uuid, email text)
 RETURNS void
@@ -194,6 +194,51 @@ EXCEPTION
   WHEN insufficient_privilege OR raise_exception OR check_violation THEN
     RESET ROLE;
     RETURN -1;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.try_self_mark_promotion_paid(user_id uuid, email text, target_property_id uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  promo_id uuid;
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  INSERT INTO promotions (
+    advertiser_id, property_id, business_name, headline, description,
+    start_date, end_date, review_status, payment_status
+  )
+  VALUES (
+    user_id, target_property_id, 'RLS Business', 'Pay Guard Promo',
+    'guard test', now(), now() + interval '7 days', 'draft', 'unpaid'
+  )
+  RETURNING id INTO promo_id;
+
+  -- guard_promotion_billing_columns must block this self-paid attempt.
+  UPDATE promotions SET payment_status = 'paid' WHERE id = promo_id;
+  RESET ROLE;
+  RETURN true;
+EXCEPTION
+  WHEN insufficient_privilege OR raise_exception OR check_violation THEN
+    RESET ROLE;
+    RETURN false;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION tests.visible_advertiser_count(user_id uuid, email text, target_advertiser uuid)
+RETURNS integer
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  count_visible integer;
+BEGIN
+  SET LOCAL ROLE authenticated;
+  PERFORM tests.authenticate_as(user_id, email);
+  SELECT count(*) INTO count_visible FROM advertiser_profiles WHERE id = target_advertiser;
+  RESET ROLE;
+  RETURN count_visible;
 END;
 $$;
 
@@ -475,6 +520,40 @@ SELECT is(
   ),
   true,
   'landlord can create a property that attaches through trigger'
+);
+
+SELECT is(
+  tests.try_self_mark_promotion_paid(
+    '00000000-0000-4000-8000-000000000301'::uuid,
+    'active@example.test',
+    '00000000-0000-4000-8000-000000000101'::uuid
+  ),
+  false,
+  'tenant cannot self-mark own promotion payment_status = paid'
+);
+
+-- Multi-landlord isolation: advertiser 301 ran a promotion in property_a (the
+-- persisted draft from the "tenant can insert draft promotion" assertion above).
+-- admin_a (landlord of property_a) may see that advertiser; admin_b (landlord of
+-- property_b only) must not.
+SELECT is(
+  tests.visible_advertiser_count(
+    '00000000-0000-4000-8000-000000000201'::uuid,
+    'admin-a@example.test',
+    '00000000-0000-4000-8000-000000000301'::uuid
+  ),
+  1,
+  'landlord can see advertiser linked to a promotion in own property'
+);
+
+SELECT is(
+  tests.visible_advertiser_count(
+    '00000000-0000-4000-8000-000000000202'::uuid,
+    'admin-b@example.test',
+    '00000000-0000-4000-8000-000000000301'::uuid
+  ),
+  0,
+  'landlord cannot see advertiser linked only to another landlord''s property'
 );
 
 SELECT * FROM finish();
