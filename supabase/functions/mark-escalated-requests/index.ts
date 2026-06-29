@@ -1,6 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { isServiceRoleCaller, forbiddenResponse } from '../_shared/auth.ts';
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
+  // System/cron-only: reject anything not bearing the service-role key.
+  if (!isServiceRoleCaller(req)) return forbiddenResponse();
+
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const supabase = createClient(supabaseUrl, serviceRoleKey);

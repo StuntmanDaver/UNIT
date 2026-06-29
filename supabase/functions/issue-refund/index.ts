@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 const stripeSecretKey = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-05-27.dahlia' });
+const stripe = new Stripe(stripeSecretKey, { apiVersion: '2026-06-24.dahlia' });
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -123,9 +123,15 @@ Deno.serve(async (req) => {
     );
   }
 
-  // 3. Call Stripe Refunds API
+  // 3. Call Stripe Refunds API.
+  // Deterministic idempotency key keyed to the payment attempt: concurrent or
+  // replayed invocations return the SAME refund instead of creating a second
+  // one, closing the TOCTOU double-refund window.
   try {
-    await stripe.refunds.create({ payment_intent: attempt.stripe_payment_intent_id });
+    await stripe.refunds.create(
+      { payment_intent: attempt.stripe_payment_intent_id },
+      { idempotencyKey: `refund_${attempt.id}` },
+    );
   } catch (stripeError: unknown) {
     await captureEdgeException(stripeError, {
       functionName: 'issue-refund',
@@ -142,8 +148,10 @@ Deno.serve(async (req) => {
 
   const now = new Date().toISOString();
 
-  // 4. Update promotion
-  const { error: updatePromoError } = await adminClient
+  // 4. Update promotion — conditional on it still being in a refundable state.
+  // This is the concurrency lock: only the first writer flips the row, so the
+  // status event / attempt update below run exactly once.
+  const { data: updatedRows, error: updatePromoError } = await adminClient
     .from('promotions')
     .update({
       payment_status: 'refunded',
@@ -151,7 +159,9 @@ Deno.serve(async (req) => {
       refunded_by: user.id,
       refund_reason: reason,
     })
-    .eq('id', promotionId);
+    .eq('id', promotionId)
+    .in('payment_status', ['paid', 'repayment_required'])
+    .select('id');
 
   if (updatePromoError) {
     await captureEdgeException(updatePromoError, {
@@ -164,6 +174,15 @@ Deno.serve(async (req) => {
       JSON.stringify({ error: 'Stripe refund issued but failed to update promotion record' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
+  }
+
+  // A concurrent/replayed refund already finalized this promotion. Stripe
+  // deduplicated the refund via the idempotency key, so there is no double
+  // refund — just return success without writing duplicate records.
+  if (!updatedRows || updatedRows.length === 0) {
+    return new Response(JSON.stringify({ success: true, alreadyRefunded: true }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
 
   // 5. Update payment attempt

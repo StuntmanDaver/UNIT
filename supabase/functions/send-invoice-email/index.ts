@@ -1,4 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { isServiceRoleCaller, forbiddenResponse } from '../_shared/auth.ts';
+import { escapeHtml } from '../_shared/html.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
@@ -14,6 +16,10 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
+
+  // Internal-only: must be invoked with the service-role key (server action / cron),
+  // never with the public anon key from a client.
+  if (!isServiceRoleCaller(req)) return forbiddenResponse(corsHeaders);
 
   try {
     const { invoiceId } = await req.json();
@@ -65,19 +71,19 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: `UNIT <onboarding@resend.dev>`,
         to: [ownerEmail],
-        subject: `Invoice ${invoice.invoice_number} from ${propertyName}`,
+        subject: `Invoice ${invoice.invoice_number} from ${propertyName}`.replace(/[\r\n]+/g, ' '),
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background-color: #101B29; padding: 20px 24px; border-radius: 8px 8px 0 0;">
               <h1 style="color: white; font-size: 18px; margin: 0;">UNIT</h1>
             </div>
             <div style="border: 1px solid #e5e7eb; border-top: 3px solid #465A75; padding: 24px; border-radius: 0 0 8px 8px;">
-              <p style="color: #374151; font-size: 16px;">Hi ${business?.business_name || 'Tenant'},</p>
-              <p style="color: #374151;">You have a new invoice from <strong>${propertyName}</strong>.</p>
+              <p style="color: #374151; font-size: 16px;">Hi ${escapeHtml(business?.business_name || 'Tenant')},</p>
+              <p style="color: #374151;">You have a new invoice from <strong>${escapeHtml(propertyName)}</strong>.</p>
               <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
                 <tr>
                   <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Invoice Number</td>
-                  <td style="padding: 8px 0; text-align: right; font-weight: 600;">${invoice.invoice_number}</td>
+                  <td style="padding: 8px 0; text-align: right; font-weight: 600;">${escapeHtml(invoice.invoice_number)}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Amount</td>
@@ -85,20 +91,26 @@ Deno.serve(async (req) => {
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Due Date</td>
-                  <td style="padding: 8px 0; text-align: right; font-weight: 600;">${invoice.due_date}</td>
+                  <td style="padding: 8px 0; text-align: right; font-weight: 600;">${escapeHtml(invoice.due_date)}</td>
                 </tr>
               </table>
               <a href="${invoiceLink}" style="display: inline-block; background: linear-gradient(to right, #465A75, #101B29); color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 8px;">View Invoice</a>
-              <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">This email was sent by UNIT on behalf of ${propertyName}.</p>
+              <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">This email was sent by UNIT on behalf of ${escapeHtml(propertyName)}.</p>
             </div>
           </div>
         `
       })
     });
 
-    const emailResult = await emailRes.json();
+    if (!emailRes.ok) {
+      return new Response(JSON.stringify({ error: 'Email send failed' }), {
+        status: 502,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
-    return new Response(JSON.stringify({ success: true, result: emailResult }), {
+    // Do not echo the Resend payload back to the caller.
+    return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (err) {

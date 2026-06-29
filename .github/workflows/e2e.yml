@@ -24,6 +24,10 @@ concurrency:
   group: e2e-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  checks: write # required by mikepenz/action-junit-report
+
 jobs:
   e2e:
     name: Maestro E2E — iOS
@@ -56,7 +60,7 @@ jobs:
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Select Xcode
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@ed7a3b1fda3918c0306d1b724322adc0b8cc0a90 # v1
         with:
           xcode-version: latest-stable
 
@@ -102,9 +106,13 @@ jobs:
         env:
           MAESTRO_CLI_NO_ANALYTICS: 1
           JAVA_HOME: ${{ env.JAVA_HOME }}
+          # Pass workflow inputs via env, never interpolated into the script body,
+          # to prevent shell injection through ${{ github.event.inputs.* }}.
+          INPUT_FLOW: ${{ github.event.inputs.flow }}
+          INPUT_EXCLUDE: ${{ github.event.inputs.exclude_tags }}
         run: |
-          FLOW="${{ github.event.inputs.flow || 'qa-00-full-suite.yaml' }}"
-          EXCLUDE="${{ github.event.inputs.exclude_tags || 'stripe' }}"
+          FLOW="${INPUT_FLOW:-qa-00-full-suite.yaml}"
+          EXCLUDE="${INPUT_EXCLUDE:-stripe}"
 
           EXCLUDE_FLAGS=""
           for tag in $(echo "$EXCLUDE" | tr ',' ' '); do
@@ -132,7 +140,7 @@ jobs:
 
       - name: Publish Test Report
         if: always()
-        uses: mikepenz/action-junit-report@v4
+        uses: mikepenz/action-junit-report@db71d41eb79864e25ab0337e395c352e84523afe # v4
         with:
           report_paths: maestro-results.xml
           check_name: Maestro E2E Results
