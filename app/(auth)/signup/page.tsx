@@ -26,7 +26,7 @@ export default function SignupPage() {
     setLoading(true);
     const { data: authData, error: signUpError } = await supabase.auth.signUp({ email: data.email, password: data.password });
     if (signUpError || !authData.user) { setLoading(false); toast.error(signUpError?.message ?? 'Signup failed'); return; }
-    const { error: profileError } = await createAdvertiserProfile(authData.user.id, data.businessName, data.email);
+    const { error: profileError } = await createAdvertiserProfile(data.businessName, data.email);
     setLoading(false);
     if (profileError) { toast.error('Account created but profile setup failed. Please contact support.'); return; }
     toast.success('Account created! Your account is pending admin approval.');

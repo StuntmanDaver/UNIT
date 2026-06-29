@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 import * as Sentry from '@sentry/nextjs';
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
+
+const ResubmitSchema = z.object({ promotionId: z.string().trim().min(1) });
 
 export async function POST(req: Request) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { promotionId } = await req.json();
+  const parsed = ResubmitSchema.safeParse(await req.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+  const { promotionId } = parsed.data;
 
   // Validate: advertiser owns it and it's in revision_requested + paid state
   const { data: promotion } = await supabase

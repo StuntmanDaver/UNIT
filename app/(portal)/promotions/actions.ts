@@ -18,13 +18,29 @@ export async function getPromotion(id: string) {
 }
 
 export async function getPaymentAttempt(sessionId: string) {
+  const auth = await createServerSupabaseClient();
+  const { data: { user } } = await auth.auth.getUser();
+  if (!user) return null;
+
   const supabase = createServiceRoleClient();
-  const { data } = await supabase
+  const { data: attempt } = await supabase
     .from('promotion_payment_attempts')
     .select('promotion_id, status')
     .eq('stripe_checkout_session_id', sessionId)
     .single();
-  return data;
+  if (!attempt) return null;
+
+  // Only return the attempt if the caller owns the parent promotion — otherwise
+  // anyone with a checkout-session id could read its promotion id and status.
+  const { data: owned } = await supabase
+    .from('promotions')
+    .select('id')
+    .eq('id', attempt.promotion_id)
+    .eq('advertiser_id', user.id)
+    .maybeSingle();
+  if (!owned) return null;
+
+  return attempt;
 }
 
 export async function updatePromotion(id: string, updates: AdvertiserPromotionFieldsInput) {

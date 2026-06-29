@@ -57,7 +57,10 @@ export async function POST(req: Request) {
 
   // Audit-only failure handlers (US-013): never mutate promotions.payment_status
   // (the enum has no 'failed' value), only flip the matching attempt row to 'failed'.
-  if (event.type === 'checkout.session.expired') {
+  if (
+    event.type === 'checkout.session.expired' ||
+    event.type === 'checkout.session.async_payment_failed'
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     await supabase
       .from('promotion_payment_attempts')
@@ -105,10 +108,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true });
   }
 
-  if (event.type === 'checkout.session.completed') {
+  if (
+    event.type === 'checkout.session.completed' ||
+    event.type === 'checkout.session.async_payment_succeeded'
+  ) {
     const session = event.data.object as Stripe.Checkout.Session;
     const promotionId = session.metadata?.promotionId;
     if (!promotionId) {
+      await markComplete();
+      return NextResponse.json({ received: true });
+    }
+
+    // Only mark paid once funds have actually settled. For delayed-notification
+    // methods (ACH, some wallets), checkout.session.completed fires with
+    // payment_status 'unpaid' / 'no_payment_required'; the authoritative paid
+    // signal then arrives via checkout.session.async_payment_succeeded.
+    if (session.payment_status !== 'paid') {
       await markComplete();
       return NextResponse.json({ received: true });
     }

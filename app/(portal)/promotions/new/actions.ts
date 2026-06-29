@@ -6,6 +6,10 @@ import {
 import { createServerSupabaseClient, createServiceRoleClient } from '@/lib/supabase/server';
 
 export async function getProperties() {
+  const auth = await createServerSupabaseClient();
+  const { data: { user } } = await auth.auth.getUser();
+  if (!user) return [] as { id: string; name: string }[];
+
   const supabase = createServiceRoleClient();
   const { data } = await supabase.from('properties').select('id, name').order('name');
   return (data ?? []) as { id: string; name: string }[];
