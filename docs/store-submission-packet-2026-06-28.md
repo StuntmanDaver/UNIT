@@ -18,6 +18,7 @@ provider actions that still require account-owner work.
 | Expo owner | `stuntmandaver` |
 | App Store Connect app ID | `6767079612` |
 | Google Play track | `internal` for first release automation |
+| Marketing website | `https://unit-tenant-app.netlify.app` |
 | Privacy policy | `https://unit-legal-pages.vercel.app/privacy` |
 | Terms | `https://unit-legal-pages.vercel.app/terms` |
 | Account deletion | `https://unit-legal-pages.vercel.app/delete-account` |
@@ -57,6 +58,11 @@ minimum portrait dimensions.
 - Optional admin evidence screenshots: `colorway-admin-dashboard.png`, `colorway-admin-pricing.png`, `colorway-admin-push.png`
 
 ## Listing Copy
+
+The reusable metadata files live in:
+
+- `fastlane/metadata/en-US/`
+- `fastlane/metadata/android/en-US/`
 
 Short description:
 
@@ -108,7 +114,7 @@ are validated through the advertiser portal and production readiness evidence.
    `395a00fb-1156-4b3f-a79b-43fb8e6989ac` / versionCode `7` once. After the
    first submission exists, rerun `npm run release:android:submit`.
 3. Stripe Dashboard owner changes the UNIT account business website to a
-   reachable URL such as `https://unit-portal-one.vercel.app`, then verifies
+   reachable URL such as `https://unit-tenant-app.netlify.app`, then verifies
    `charges_enabled=true` before public paid checkout.
 
 ## Local Verification

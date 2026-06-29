@@ -1,0 +1,5 @@
+UNIT helps tenants inside commercial properties discover nearby businesses, share community updates, receive property notifications, and manage promotions from one place.
+
+Tenants can browse the building directory, post announcements or events, edit their business profile, and view alerts from property admins.
+
+Property admins can manage tenants, properties, promotion review, pricing tiers, and push broadcasts through admin-only tools. UNIT is built for property-scoped communities, so users see the tenants and updates that belong to their assigned property.

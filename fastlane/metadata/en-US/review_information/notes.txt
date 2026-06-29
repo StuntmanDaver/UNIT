@@ -1,0 +1,3 @@
+UNIT is a property-scoped tenant community app. Sign in with the provided review account to see a seeded tenant property, directory, community posts, promotions, notifications, and profile settings. Admin-only screens are available only to accounts with property admin access.
+
+Paid promotion purchasing is not exposed in the iOS App Store build while UNIT completes App Store payment compliance. Promotion checkout and webhook handling are validated through the advertiser portal and production readiness evidence.

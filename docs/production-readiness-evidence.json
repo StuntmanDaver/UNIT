@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-28T21:47:23-04:00",
+  "generatedAt": "2026-06-28T21:57:35-04:00",
   "readiness": "blocked",
   "summary": "Portal release, mobile release, store-asset preflight, live Stripe API authentication, live Stripe webhook handling, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. App Store submission remains blocked by an expired or missing Apple agreement. Google Play automated submit is blocked until the first Play Console submission is completed manually. Live Stripe account charging remains blocked by Stripe account requirements until the business website URL is fixed in Dashboard.",
   "premortem": "unit/docs/production-launch-premortem-2026-06-28.md",
@@ -29,7 +29,7 @@
       "status": "pass",
       "verifiedAt": "2026-06-28T21:47:23-04:00",
       "maxAgeHours": 168,
-      "evidence": "cd unit && npm run release:check-store-assets passed: production Expo config, 1024x1024 icons, iOS PrivacyInfo.xcprivacy, EAS submit targets, and required iOS/Android screenshot assets are present and dimension-valid."
+      "evidence": "cd unit && npm run release:check-store-assets passed: production Expo config, 1024x1024 icons, iOS PrivacyInfo.xcprivacy, EAS submit targets, required iOS/Android screenshot assets, and store metadata are present and valid."
     },
     {
       "id": "ios-app-store-safe-maestro",
@@ -76,7 +76,7 @@
       "verifiedAt": "2026-06-28T21:36:17-04:00",
       "maxAgeHours": 24,
       "evidence": "Stripe account acct_1TT2JII7Rfm7lgej authenticates and can create card Checkout Sessions, but Stripe account readiness reports charges_enabled=false, payouts_enabled=false, business_profile.url=CultrVentures.com, currently_due=[business_profile.url], past_due=[business_profile.url], error code invalid_url_website_inaccessible.",
-      "blocker": "Update the Stripe Dashboard business website URL to a reachable production URL such as https://unit-portal-one.vercel.app and wait for Stripe account requirements to clear before treating live charging as production-ready."
+      "blocker": "Update the Stripe Dashboard business website URL to a reachable production URL such as https://unit-tenant-app.netlify.app and wait for Stripe account requirements to clear before treating live charging as production-ready."
     },
     {
       "id": "ios-production-store-build",
@@ -118,7 +118,7 @@
       "gateId": "stripe-live-account-charges",
       "type": "external",
       "summary": "Stripe live account is authenticated but charges are disabled because Stripe requires a reachable business website URL.",
-      "ownerAction": "In Stripe Dashboard for UNIT APP, replace business_profile.url=CultrVentures.com with a reachable URL such as https://unit-portal-one.vercel.app, then rerun stripe get /v1/account --live and verify charges_enabled=true before public paid checkout."
+      "ownerAction": "In Stripe Dashboard for UNIT APP, replace business_profile.url=CultrVentures.com with a reachable URL such as https://unit-tenant-app.netlify.app, then rerun stripe get /v1/account --live and verify charges_enabled=true before public paid checkout."
     },
     {
       "gateId": "app-store-connect-auth",

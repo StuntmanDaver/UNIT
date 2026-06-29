@@ -28,6 +28,22 @@ const REQUIRED_CONFIG = {
   version: '1.0.0',
 };
 
+const METADATA_LIMITS = [
+  ['fastlane/metadata/en-US/name.txt', 30, 'App Store name'],
+  ['fastlane/metadata/en-US/subtitle.txt', 30, 'App Store subtitle'],
+  ['fastlane/metadata/en-US/keywords.txt', 100, 'App Store keywords'],
+  ['fastlane/metadata/en-US/promotional_text.txt', 170, 'App Store promotional text'],
+  ['fastlane/metadata/en-US/description.txt', 4000, 'App Store description'],
+  ['fastlane/metadata/en-US/release_notes.txt', 4000, 'App Store release notes'],
+  ['fastlane/metadata/en-US/privacy_url.txt', 255, 'App Store privacy URL'],
+  ['fastlane/metadata/en-US/support_url.txt', 255, 'App Store support URL'],
+  ['fastlane/metadata/en-US/review_information/notes.txt', 4000, 'App Review notes'],
+  ['fastlane/metadata/android/en-US/title.txt', 30, 'Google Play title'],
+  ['fastlane/metadata/android/en-US/short_description.txt', 80, 'Google Play short description'],
+  ['fastlane/metadata/android/en-US/full_description.txt', 4000, 'Google Play full description'],
+  ['fastlane/metadata/android/en-US/changelogs/7.txt', 500, 'Google Play versionCode 7 changelog'],
+];
+
 function fail(message) {
   console.error(`store-submission-assets-failed: ${message}`);
   process.exitCode = 1;
@@ -63,6 +79,39 @@ function checkPng(path, predicate, expectation) {
     }
   } catch (error) {
     fail(`${path} could not be inspected: ${error.message}`);
+  }
+}
+
+function readText(path) {
+  const absolutePath = resolve(projectRoot, path);
+  if (!existsSync(absolutePath)) {
+    fail(`missing ${path}`);
+    return '';
+  }
+
+  return readFileSync(absolutePath, 'utf8').trim();
+}
+
+function checkMetadataText() {
+  for (const [path, maxLength, label] of METADATA_LIMITS) {
+    const value = readText(path);
+    if (!value) {
+      fail(`${label} is empty at ${path}`);
+      continue;
+    }
+    if (value.length > maxLength) {
+      fail(`${label} is ${value.length} characters; expected <= ${maxLength}`);
+    }
+  }
+
+  const appStorePrivacyUrl = readText('fastlane/metadata/en-US/privacy_url.txt');
+  if (appStorePrivacyUrl && appStorePrivacyUrl !== expoConfig.extra?.privacyPolicyUrl) {
+    fail('App Store privacy_url.txt must match app.config.ts privacyPolicyUrl');
+  }
+
+  const supportUrl = readText('fastlane/metadata/en-US/support_url.txt');
+  if (supportUrl && !supportUrl.startsWith('mailto:') && !supportUrl.startsWith('https://')) {
+    fail('App Store support_url.txt must be a mailto or https URL');
   }
 }
 
@@ -147,8 +196,10 @@ for (const screenshot of REQUIRED_ANDROID_SCREENSHOTS) {
   );
 }
 
+checkMetadataText();
+
 if (process.exitCode) {
   process.exit();
 }
 
-console.log('store-submission-assets-ok: production config, icons, privacy manifest, submit targets, and screenshot assets are ready');
+console.log('store-submission-assets-ok: production config, icons, privacy manifest, submit targets, screenshot assets, and store metadata are ready');

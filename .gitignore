@@ -13,6 +13,7 @@ web-build/
 .env.local
 .env.fastlane
 .claude/
+.netlify/
 supabase/.temp/
 
 # Ralph runner local state (per-developer, regenerated on each run)

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>UNIT - Where Tenants Connect</title>
+    <meta
+      name="description"
+      content="UNIT helps tenants inside commercial properties discover nearby businesses, share community updates, receive notifications, and manage promotions."
+    >
+    <meta property="og:title" content="UNIT - Where Tenants Connect">
+    <meta
+      property="og:description"
+      content="A property-scoped tenant community app for directories, updates, notifications, and promotions."
+    >
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/assets/brand/icon.png">
+    <meta name="theme-color" content="#101B29">
+    <link rel="icon" href="/assets/brand/icon.png">
+    <link rel="apple-touch-icon" href="/assets/brand/icon.png">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="site-header" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="UNIT home">
+        <img src="/assets/brand/icon.png" alt="" width="40" height="40">
+        <span>UNIT</span>
+      </a>
+      <nav>
+        <a href="#tenants">Tenants</a>
+        <a href="#admins">Admins</a>
+        <a href="#launch">Launch</a>
+        <a class="nav-action" href="https://unit-portal-one.vercel.app">Portal</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Where Tenants Connect</p>
+          <h1>UNIT</h1>
+          <p class="lede">
+            A mobile app for commercial properties where tenants can find each
+            other, share updates, receive alerts, and promote services inside
+            their building community.
+          </p>
+          <div class="hero-actions" aria-label="Primary actions">
+            <a class="button primary" href="#launch">Get launch updates</a>
+            <a class="button secondary" href="https://unit-portal-one.vercel.app">Advertiser portal</a>
+          </div>
+        </div>
+
+        <div class="device-stage" aria-label="UNIT app screenshots">
+          <figure class="phone phone-primary">
+            <img src="/assets/screenshots/tenant-home.png" alt="UNIT home feed showing tenant updates">
+          </figure>
+          <figure class="phone phone-secondary">
+            <img src="/assets/screenshots/tenant-directory.png" alt="UNIT tenant directory screen">
+          </figure>
+        </div>
+      </section>
+
+      <section id="tenants" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">For Tenants</p>
+          <h2>Everything happening in the property, in one place.</h2>
+        </div>
+        <div class="feature-grid">
+          <article>
+            <span class="feature-number">01</span>
+            <h3>Discover neighbors</h3>
+            <p>Browse tenant businesses, service categories, contact details, and property-specific profiles.</p>
+          </article>
+          <article>
+            <span class="feature-number">02</span>
+            <h3>Post community updates</h3>
+            <p>Share announcements, events, and relevant building-wide information with the right audience.</p>
+          </article>
+          <article>
+            <span class="feature-number">03</span>
+            <h3>Manage promotions</h3>
+            <p>Create and track property-scoped promotions with clear payment and review states.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="showcase" aria-label="Tenant app screens">
+        <img src="/assets/screenshots/tenant-community.png" alt="UNIT community screen">
+        <div>
+          <p class="eyebrow">Community Feed</p>
+          <h2>Built for repeated daily use, not a one-time directory.</h2>
+          <p>
+            UNIT gives commercial tenants a familiar place to check property
+            updates, find businesses nearby, and keep their profile current.
+          </p>
+        </div>
+      </section>
+
+      <section id="admins" class="section admin-band">
+        <div class="section-heading">
+          <p class="eyebrow">For Property Admins</p>
+          <h2>Control the tenant network without losing the human pulse.</h2>
+        </div>
+        <div class="admin-layout">
+          <img src="/assets/screenshots/admin-dashboard.png" alt="UNIT admin dashboard">
+          <div class="admin-list">
+            <p>Invite and manage tenants.</p>
+            <p>Review promotions before they go live.</p>
+            <p>Send targeted property announcements.</p>
+            <p>Keep pricing tiers and property data in sync.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="launch" class="launch-panel">
+        <div>
+          <p class="eyebrow">Store Launch</p>
+          <h2>App Store and Google Play preparation is underway.</h2>
+          <p>
+            UNIT has production store builds prepared for iOS and Android. Public
+            store links will be added here after the remaining account-owner
+            approvals and first store submissions are complete.
+          </p>
+        </div>
+        <form class="signup" name="launch-updates" method="post" data-netlify="true">
+          <input type="hidden" name="form-name" value="launch-updates">
+          <label for="email">Email</label>
+          <div class="signup-row">
+            <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+            <button type="submit">Notify me</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <span>UNIT - Where Tenants Connect</span>
+      <div>
+        <a href="mailto:support@unitapp.com">Support</a>
+        <a href="https://unit-legal-pages.vercel.app/privacy">Privacy</a>
+        <a href="https://unit-legal-pages.vercel.app/terms">Terms</a>
+      </div>
+    </footer>
+    <script src="/script.js"></script>
+  </body>
+</html>
