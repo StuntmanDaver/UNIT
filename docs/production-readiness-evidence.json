@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-28T21:16:02-04:00",
+  "generatedAt": "2026-06-28T21:40:00-04:00",
   "readiness": "blocked",
-  "summary": "Portal release, mobile release, live Stripe API authentication, live Stripe webhook handling, iOS App Store-safe E2E, Android targeted recovery, and fresh iOS store build evidence are green. App Store submission remains blocked by an expired or missing Apple agreement. Live Stripe account charging remains blocked by Stripe account requirements until the business website URL is fixed in Dashboard.",
+  "summary": "Portal release, mobile release, live Stripe API authentication, live Stripe webhook handling, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. App Store submission remains blocked by an expired or missing Apple agreement. Google Play automated submit is blocked until the first Play Console submission is completed manually. Live Stripe account charging remains blocked by Stripe account requirements until the business website URL is fixed in Dashboard.",
   "premortem": "unit/docs/production-launch-premortem-2026-06-28.md",
   "postmortem": "unit/docs/production-readiness-postmortem-2026-06-28.md",
   "submissionCoverage": "unit/docs/end-to-end-submission-coverage.md",
@@ -64,7 +64,7 @@
       "id": "stripe-live-account-charges",
       "kind": "provider",
       "status": "blocked",
-      "verifiedAt": "2026-06-28T21:16:02-04:00",
+      "verifiedAt": "2026-06-28T21:36:17-04:00",
       "maxAgeHours": 24,
       "evidence": "Stripe account acct_1TT2JII7Rfm7lgej authenticates and can create card Checkout Sessions, but Stripe account readiness reports charges_enabled=false, payouts_enabled=false, business_profile.url=CultrVentures.com, currently_due=[business_profile.url], past_due=[business_profile.url], error code invalid_url_website_inaccessible.",
       "blocker": "Update the Stripe Dashboard business website URL to a reachable production URL such as https://unit-portal-one.vercel.app and wait for Stripe account requirements to clear before treating live charging as production-ready."
@@ -73,15 +73,32 @@
       "id": "ios-production-store-build",
       "kind": "provider",
       "status": "pass",
-      "verifiedAt": "2026-06-28T10:38:00-04:00",
+      "verifiedAt": "2026-06-28T21:32:27-04:00",
       "maxAgeHours": 168,
-      "evidence": "EAS build 863509ab-99cd-4234-83f5-07d0a7298a7a finished for iOS production STORE distribution, version 1.0.0 build 15."
+      "evidence": "EAS build 17665c78-19be-4131-9e06-a95b56f23900 finished for iOS production STORE distribution, version 1.0.0 build 16, commit c26988cef18c60b972f15dcfc344f66dbf61f186."
+    },
+    {
+      "id": "android-production-store-build",
+      "kind": "provider",
+      "status": "pass",
+      "verifiedAt": "2026-06-28T21:36:39-04:00",
+      "maxAgeHours": 168,
+      "evidence": "EAS build 395a00fb-1156-4b3f-a79b-43fb8e6989ac finished for Android production STORE distribution, version 1.0.0 versionCode 7, commit c26988cef18c60b972f15dcfc344f66dbf61f186."
+    },
+    {
+      "id": "google-play-first-submit",
+      "kind": "provider",
+      "status": "blocked",
+      "verifiedAt": "2026-06-28T21:39:00-04:00",
+      "maxAgeHours": 24,
+      "evidence": "eas submit --platform android --profile production --id 395a00fb-1156-4b3f-a79b-43fb8e6989ac scheduled submission 013e3286-9a3c-40d6-8f94-e785ede64d2b, then Google Play rejected automation because the first app submission must be performed manually.",
+      "blocker": "Upload Android build 395a00fb-1156-4b3f-a79b-43fb8e6989ac / versionCode 7 manually in Google Play Console for the first submission. After that first manual submission exists, rerun cd unit && npm run release:android:submit for automated internal-track submission."
     },
     {
       "id": "app-store-connect-auth",
       "kind": "provider",
       "status": "blocked",
-      "verifiedAt": "2026-06-28T10:35:19-04:00",
+      "verifiedAt": "2026-06-28T21:36:17-04:00",
       "maxAgeHours": 24,
       "evidence": "cd unit && npm run appstore:auth:check fails with Apple message: A required agreement is missing or has expired.",
       "blocker": "Apple account holder must accept the missing or expired App Store Connect agreement."
@@ -99,6 +116,12 @@
       "type": "external",
       "summary": "App Store Connect API access is blocked by a missing or expired Apple agreement.",
       "ownerAction": "Account Holder signs the pending agreement in App Store Connect, then rerun cd unit && npm run appstore:auth:check and cd unit && npm run release:ios:submit."
+    },
+    {
+      "gateId": "google-play-first-submit",
+      "type": "external",
+      "summary": "Google Play automated upload is blocked because this app has not had its first Play Console submission yet.",
+      "ownerAction": "In Google Play Console, manually upload Android build 395a00fb-1156-4b3f-a79b-43fb8e6989ac / versionCode 7 to the internal track once. Then rerun cd unit && npm run release:android:submit."
     }
   ],
   "acceptedWarnings": [
