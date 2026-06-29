@@ -48,6 +48,7 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 try {
   const results = await runSupabaseApiAudit();
   printResults(results);
+  process.exit(results.some((result) => result.count > 0) ? 1 : 0);
 } catch (error) {
   console.error(`Relationship audit failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);

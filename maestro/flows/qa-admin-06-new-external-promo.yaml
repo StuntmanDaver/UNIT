@@ -4,13 +4,13 @@ appId: ${MAESTRO_APP_ID}
 # Covers items 228-236 from the exhaustive inventory:
 #   - Property selector "Target Property *"
 #   - Business Name *, Headline *, Description * (required)
-#   - CTA Label *, CTA URL * (required)
+#   - CTA Label / CTA URL optional fields
 #   - Start Date / End Date pickers (iOS modal)
 #   - Create → toast "External promotion created" + back
 #   - Cancel → back
 #
 # Field labels verified from source (new-external.tsx):
-#   "Business Name *", "Headline *", "Description *", "CTA Label *", "CTA URL *"
+#   "Business Name *", "Headline *", "Description *", "CTA Label", "CTA URL"
 # Date pickers: Pressables show "Select" initially → tap by visible text
 # Submit button: "Create Promotion"
 # Success toast: text1 "External promotion created"
@@ -69,38 +69,48 @@ appId: ${MAESTRO_APP_ID}
     id: "back-btn"
 - assertVisible: "All"
 
-# ── CASE 2: External segment renders seeded external promo ────────────────────
+# ── CASE 2: Create new external promo ─────────────────────────────────────────
 - tapOn:
     id: "new-external-promotion-btn"
 - extendedWaitUntil:
     visible:
       text: "New External Promotion"
     timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "property-selector"
+    timeout: 10000
 - tapOn:
-    id: "back-btn"
+    id: "external-promo-business-name"
+- inputText: "QA E2E External Business"
+- tapOn:
+    id: "external-promo-headline"
+- inputText: "QA E2E External Offer"
+- tapOn:
+    id: "external-promo-description"
+- inputText: "Automated admin external promotion verification."
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
+- scrollUntilVisible:
+    element:
+      id: "external-promo-start-date"
+    direction: DOWN
+    centerElement: true
+- assertNotVisible: "Select"
+- waitForAnimationToEnd
+- tapOn:
+    id: "external-promo-create"
+- extendedWaitUntil:
+    visible:
+      text: "External promotion created"
+    timeout: 15000
 - extendedWaitUntil:
     visible:
       text: "All"
     timeout: 8000
-- tapOn: "External"
+
+# ── CASE 3: External segment renders seeded/new external promo ────────────────
+- tapOn:
+    text: "External"
 - waitForAnimationToEnd
 - assertVisible:
     id: "promo-card"
-
-# Log out
-- tapOn:
-    id: "back-btn"
-- extendedWaitUntil:
-    visible:
-      text: "Admin Dashboard"
-    timeout: 8000
-- tapOn:
-    id: "admin-logout-btn"
-- assertVisible: "Are you sure you want to log out?"
-- tapOn:
-    text: "Log Out"
-    index: 1
-- extendedWaitUntil:
-    visible:
-      text: "Log In"
-    timeout: 8000

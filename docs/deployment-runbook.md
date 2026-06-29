@@ -300,7 +300,7 @@ Fastlane reads App Store Connect API credentials from `.env.fastlane`, which is 
 The current local key file is expected at:
 
 ```bash
-/Users/davidk/Documents/Dev-Projects/App-Ideas/UNIT-PRoject/unit/AuthKey_46L2QUFTGB.p8
+/Users/davidk/Documents/Codex/UNIT-PRoject/unit/AuthKey_46L2QUFTGB.p8
 ```
 
 Verify the key can access the App Store Connect app:

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import DateTimePicker, { type DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { addDays, format } from 'date-fns';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import * as ImagePicker from 'expo-image-picker';
@@ -41,8 +41,8 @@ const schema = z.object({
   business_name: z.string().min(1, 'Business name is required'),
   headline: z.string().min(1, 'Headline is required'),
   description: z.string().min(1, 'Description is required'),
-  cta_text: z.string().min(1, 'CTA label is required'),
-  cta_link: z.string().min(1, 'CTA URL is required').refine(isHttpUrl, 'CTA URL must start with http:// or https://'),
+  cta_text: z.string().optional(),
+  cta_link: z.string().optional().refine((value) => !value || isHttpUrl(value), 'CTA URL must start with http:// or https://'),
   ext_contact_name: z.string().optional(),
   ext_contact_email: z.string().optional(),
   ext_contact_phone: z.string().optional(),
@@ -58,14 +58,22 @@ export default function NewExternalPromotionScreen() {
   const params = useLocalSearchParams<{ propertyId?: string }>();
   const initialPropertyId = firstParam(params.propertyId);
 
+  const initialStartDate = new Date();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(() =>
-    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : null
+    initialPropertyId && initialPropertyId.length > 0 ? initialPropertyId : propertyIds[0] ?? null
   );
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
+  const [endDate, setEndDate] = useState<Date | null>(() => addDays(initialStartDate, 7));
   const [activePicker, setActivePicker] = useState<ActiveDatePicker>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialPropertyId && initialPropertyId.length > 0) return;
+    if (selectedPropertyId || propertyIds.length === 0) return;
+    setSelectedPropertyId(propertyIds[0]);
+  }, [initialPropertyId, propertyIds, selectedPropertyId]);
 
   const {
     control,
@@ -110,23 +118,30 @@ export default function NewExternalPromotionScreen() {
   };
 
   const onSubmit = async (data: FormData) => {
+    setSubmitError(null);
+
     if (!selectedPropertyId) {
+      setSubmitError('Select a property first');
       Toast.show({ type: 'error', text1: 'Select a property first' });
       return;
     }
     if (!startDate) {
+      setSubmitError('Start date is required');
       Toast.show({ type: 'error', text1: 'Start date is required' });
       return;
     }
     if (!endDate) {
+      setSubmitError('End date is required');
       Toast.show({ type: 'error', text1: 'End date is required' });
       return;
     }
     if (endDate <= startDate) {
+      setSubmitError('End date must be after start date');
       Toast.show({ type: 'error', text1: 'End date must be after start date' });
       return;
     }
     if (!user) {
+      setSubmitError('Not authenticated');
       Toast.show({ type: 'error', text1: 'Not authenticated' });
       return;
     }
@@ -147,8 +162,8 @@ export default function NewExternalPromotionScreen() {
         headline: data.headline.trim(),
         description: data.description.trim(),
         image_url,
-        cta_text: data.cta_text.trim(),
-        cta_link: data.cta_link.trim(),
+        cta_text: data.cta_text?.trim() || null,
+        cta_link: data.cta_link?.trim() || null,
         external_contact_name: data.ext_contact_name?.trim() || null,
         external_contact_email: data.ext_contact_email?.trim() || null,
         external_contact_phone: data.ext_contact_phone?.trim() || null,
@@ -163,10 +178,22 @@ export default function NewExternalPromotionScreen() {
       router.back();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Failed to create promotion';
+      setSubmitError(msg);
       Toast.show({ type: 'error', text1: 'Error', text2: msg });
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const onInvalid = (formErrors: FieldErrors<FormData>) => {
+    const message =
+      formErrors.business_name?.message ??
+      formErrors.headline?.message ??
+      formErrors.description?.message ??
+      formErrors.cta_text?.message ??
+      formErrors.cta_link?.message ??
+      'Fix the highlighted fields and try again';
+    setSubmitError(message);
   };
 
   const today = new Date();
@@ -191,7 +218,7 @@ export default function NewExternalPromotionScreen() {
       </GradientHeader>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 24, paddingBottom: 24 }}
         keyboardDismissMode="on-drag"
         keyboardShouldPersistTaps="handled"
       >
@@ -267,7 +294,7 @@ export default function NewExternalPromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               testID="external-promo-cta-label"
-              label="CTA Label *"
+              label="CTA Label"
               value={value}
               onChangeText={onChange}
               placeholder="e.g. Claim offer"
@@ -281,7 +308,7 @@ export default function NewExternalPromotionScreen() {
           render={({ field: { onChange, value } }) => (
             <Input
               testID="external-promo-cta-url"
-              label="CTA URL *"
+              label="CTA URL"
               value={value}
               onChangeText={onChange}
               placeholder="https://..."
@@ -467,27 +494,34 @@ export default function NewExternalPromotionScreen() {
             )}
           />
         </View>
-
-        {/* Actions */}
-        <View className="gap-3 mt-4">
-          <Button
-            testID="external-promo-create"
-            onPress={handleSubmit(onSubmit)}
-            loading={submitting}
-            disabled={submitting}
-          >
-            Create Promotion
-          </Button>
-          <Button
-            testID="external-promo-cancel"
-            onPress={() => router.back()}
-            variant="ghost"
-            disabled={submitting}
-          >
-            Cancel
-          </Button>
-        </View>
       </ScrollView>
+
+      <View className="gap-3 border-t border-brand-blue/20 bg-brand-cloud px-4 pt-3 pb-6">
+        {submitError && (
+          <Text
+            testID="external-promo-submit-error"
+            className="text-sm font-nunito-semibold text-red-700 leading-normal"
+          >
+            {submitError}
+          </Text>
+        )}
+        <Button
+          testID="external-promo-create"
+          onPress={handleSubmit(onSubmit, onInvalid)}
+          loading={submitting}
+          disabled={submitting}
+        >
+          Create Promotion
+        </Button>
+        <Button
+          testID="external-promo-cancel"
+          onPress={() => router.back()}
+          variant="ghost"
+          disabled={submitting}
+        >
+          Cancel
+        </Button>
+      </View>
     </View>
   );
 }

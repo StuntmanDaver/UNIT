@@ -28,7 +28,7 @@ const corsHeaders = {
 };
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, {
-  apiVersion: '2026-05-27.dahlia',
+  apiVersion: '2026-06-24.dahlia',
 });
 
 function getMobileDeepLinkBase(): string {
@@ -238,6 +238,7 @@ Deno.serve(async (req) => {
   try {
     session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      payment_method_types: ['card'],
       customer_email: user.email,
       line_items: [
         {

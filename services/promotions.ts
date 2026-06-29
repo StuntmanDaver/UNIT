@@ -300,6 +300,7 @@ export const promotionsService = {
   /**
    * Admin: create a promotion on behalf of an external (non-tenant) business.
    * advertiser_id is always NULL; review_status pre-approved by admin.
+   * Also writes the status event expected by admin, portal, and audit views.
    */
   async createExternal(input: ExternalPromotionInput): Promise<Promotion> {
     const { data, error } = await supabase
@@ -325,6 +326,24 @@ export const promotionsService = {
       .select('*')
       .single();
     if (error) throw error;
+
+    const { error: eventError } = await supabase
+      .from('promotion_status_events')
+      .insert({
+        promotion_id: data.id,
+        from_review_status: null,
+        to_review_status: 'approved',
+        from_payment_status: null,
+        to_payment_status: null,
+        actor_user_id: input.created_by_admin_id,
+        actor_type: 'admin',
+        note: 'External promotion created by admin.',
+      });
+    if (eventError) {
+      await supabase.from('promotions').delete().eq('id', data.id);
+      throw eventError;
+    }
+
     return data;
   },
 };

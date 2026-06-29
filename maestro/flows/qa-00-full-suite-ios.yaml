@@ -31,5 +31,6 @@ appId: ${MAESTRO_APP_ID}
 - runFlow: ./qa-admin-06-new-external-promo.yaml
 - runFlow: ./qa-admin-07-pricing-tier-crud.yaml
 - runFlow: ./qa-admin-08-push-broadcast-full.yaml
+- runFlow: ./qa-admin-09-tenant-sync.yaml
 - runFlow: ./qa-deeplink-01-stripe-return.yaml
 - runFlow: ./qa-permissions-01-push-photo.yaml

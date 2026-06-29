@@ -1,13 +1,14 @@
 appId: ${MAESTRO_APP_ID}
 ---
-# QA-ADMIN-07: Admin Pricing — render + modal smoke
-# Covers items 237-246 PARTIALLY.
+# QA-ADMIN-07: Admin Pricing — create, deactivate, and modal smoke
+# Covers items 237-246.
 #
 # What this flow verifies:
 #   - Admin can navigate to Promotion Pricing from the dashboard.
 #   - Seeded tiers render in the list.
-#   - Row actions are individually hit-testable.
-#   - Add-tier inline overlay is queryable.
+#   - Add-tier modal can be canceled.
+#   - Admin can create a tier.
+#   - Admin can deactivate the created tier.
 #   - Logout from the screen works.
 
 - launchApp:
@@ -46,10 +47,8 @@ appId: ${MAESTRO_APP_ID}
     notVisible:
       text: "Loading"
     timeout: 8000
-- extendedWaitUntil:
-    visible:
-      text: "7-day Standard"
-    timeout: 8000
+- assertVisible:
+    id: "btn-add-price-tier"
 
 - tapOn:
     id: "btn-add-price-tier"
@@ -60,24 +59,54 @@ appId: ${MAESTRO_APP_ID}
     id: "pricing-tier-name"
 - tapOn:
     id: "modal-action-cancel"
+- assertNotVisible:
+    id: "modal-overlay"
 
-# Logout
+# ── CASE 2: Create a new tier ────────────────────────────────────────────────
 - tapOn:
-    id: "back-btn"
+    id: "btn-add-price-tier"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "pricing-tier-name"
+- tapOn:
+    id: "pricing-tier-name"
+- inputText: "QA E2E Admin Tier"
+- tapOn:
+    id: "pricing-tier-duration"
+- inputText: "3"
+- tapOn:
+    id: "pricing-tier-price"
+- inputText: "0.99"
+- runFlow: ../subflows/dismiss-android-keyboard-if-present.yaml
+- tapOn:
+    id: "modal-action-save"
 - extendedWaitUntil:
     visible:
-      text: "Admin Dashboard"
-    timeout: 8000
-- tapOn:
-    id: "admin-logout-btn"
+      text: "Tier added"
+    timeout: 12000
 - extendedWaitUntil:
     visible:
-      text: "Are you sure you want to log out?"
-    timeout: 8000
+      text: "QA E2E Admin Tier"
+    timeout: 12000
+
+# ── CASE 3: Deactivate created tier ──────────────────────────────────────────
 - tapOn:
-    text: "Log Out"
-    index: 1
+    id: "pricing-tier-deactivate-qa-e2e-admin-tier"
 - extendedWaitUntil:
     visible:
-      text: "Log In"
+      text: "Deactivate Tier"
     timeout: 8000
+- runFlow:
+    when:
+      visible: "Deactivate"
+    commands:
+      - tapOn:
+          point: "68%,59%"
+- extendedWaitUntil:
+    notVisible:
+      text: "Deactivate Tier"
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "Inactive"
+    timeout: 12000

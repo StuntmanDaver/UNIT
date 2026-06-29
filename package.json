@@ -19,6 +19,8 @@
     "release:check-inputs": "node scripts/check-release-inputs.mjs",
     "release:materialize-inputs": "node scripts/materialize-release-inputs.mjs",
     "release:check": "APP_VARIANT=production EXPO_PUBLIC_ENV=production EXPO_PUBLIC_APP_URL=unit:// EXPO_PUBLIC_SUPPORT_EMAIL=support@unitapp.com npm run release:check-env && npm run release:check-inputs && npm run edge:guard && npm run lint && npm run typecheck && npm run brand-lint && npm test && npx expo-doctor",
+    "production:readiness:check": "node scripts/check-production-readiness-evidence.mjs",
+    "production:readiness:self-test": "node scripts/check-production-readiness-evidence.mjs --self-test",
     "release:check:staging": "APP_VARIANT=staging EXPO_PUBLIC_ENV=staging EXPO_PUBLIC_APP_URL=unit-staging:// EXPO_PUBLIC_SUPPORT_EMAIL=support@unitapp.com npm run release:check-env && npm run release:check-inputs && npm run edge:guard && npm run lint && npm run typecheck && npm run brand-lint && npm test && npx expo-doctor",
     "release:staging:ios:build": "eas build --platform ios --profile staging",
     "release:staging:android:build": "eas build --platform android --profile staging",

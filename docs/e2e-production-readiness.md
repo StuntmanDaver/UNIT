@@ -4,10 +4,30 @@ This automation runs the UNIT production-readiness E2E pass from the canonical
 project root:
 
 ```bash
-cd /Users/davidk/Documents/Dev-Projects/App-Ideas/UNIT-PRoject
+cd /Users/davidk/Documents/Codex/UNIT-PRoject
 ```
 
 ## Commands
+
+Before release-owner handoff, run the fail-closed production evidence gate:
+
+```bash
+npm run production:readiness:check
+```
+
+That gate is expected to fail while external blockers remain, such as a missing
+or expired App Store Connect agreement. To inspect the local code/E2E evidence
+while still showing external blockers, run:
+
+```bash
+npm run production:readiness:check -- --allow-external-blockers --json
+```
+
+The current premortem and evidence register live at:
+
+- `unit/docs/production-launch-premortem-2026-06-28.md`
+- `unit/docs/production-readiness-postmortem-2026-06-28.md`
+- `unit/docs/production-readiness-evidence.json`
 
 ```bash
 npm run e2e:doctor
@@ -180,7 +200,7 @@ After Android E2E passes on staging or production build artifacts, submit using
 the existing EAS profile:
 
 ```bash
-cd /Users/davidk/Documents/Dev-Projects/App-Ideas/UNIT-PRoject/unit
+cd /Users/davidk/Documents/Codex/UNIT-PRoject/unit
 eas submit --platform android --profile production
 ```
 
