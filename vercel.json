@@ -1,5 +1,4 @@
 {
-  "//": "Security headers now live in next.config.ts headers() so they apply on every host. Keep only deploy-specific overrides here.",
   "headers": [
     {
       "source": "/api/webhooks/stripe",

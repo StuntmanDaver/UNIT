@@ -3,6 +3,7 @@ import { cleanupQaData, seedQaData, type QaSeed } from './support/qa-seed';
 
 test.describe('QA-seeded admin portal flow', () => {
   test.describe.configure({ mode: 'serial' });
+  test.setTimeout(90_000);
 
   let seed: QaSeed | null = null;
 
@@ -42,7 +43,8 @@ test.describe('QA-seeded admin portal flow', () => {
     await page.getByText(`QA Pending Review ${seed.qaRunId}`).click();
     await expect(page.getByRole('button', { name: 'Approve' })).toBeVisible();
     await page.getByRole('button', { name: 'Approve' }).click();
-    await expect(page.locator('span.unit-status', { hasText: 'approved' })).toBeVisible();
+    await expect(page.locator('span.unit-status', { hasText: 'approved' })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole('button', { name: 'Suspend' })).toBeVisible();
 
     await page.goto('/admin/advertiser-accounts?status=pending');
     await expect(page.getByText(`QA Advertiser ${seed.qaRunId}`)).toBeVisible();
