@@ -1,5 +1,32 @@
 # UNIT Portal — Changelog
 
+## 2026-06-29 — Live Stripe and admin security hardening
+
+### Changed
+- Deployed the live portal with production Stripe credentials and verified
+  `stripe-auth-ok`.
+- Hardened the Stripe webhook completion path so concurrent/retried events only
+  stamp `completed_at` once and only the authoritative payment transition emits
+  promotion status events and admin notifications.
+- Scoped admin advertiser-account reads and status changes to advertisers linked
+  to the current landlord's properties.
+- Validated advertiser promotion image URLs as `http://` or `https://`, matching
+  the existing CTA URL validation.
+- Promoted the baseline CSP from report-only to enforced, added
+  `object-src 'none'`, and documented the strict nonce-based CSP follow-up in
+  `docs/security/csp-strict-nonce.md`.
+
+### Verified
+- Production portal release checks previously passed with live Stripe auth,
+  lint, typecheck, 53 Vitest tests, and Next production build.
+- Production alias `https://unit-portal-one.vercel.app` serves the live portal,
+  and the Netlify marketing site redirects `/portal` there.
+
+### Remaining
+- Strict nonce-based CSP is intentionally documented as a follow-up because
+  Next.js App Router and Sentry inline bootstrap scripts need deploy smoke
+  testing before dropping `'unsafe-inline'`.
+
 ## 2026-05-29 — Production portal E2E certification
 
 ### Changed

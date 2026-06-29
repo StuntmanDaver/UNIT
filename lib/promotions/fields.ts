@@ -65,7 +65,7 @@ export function normalizeAdvertiserPromotionFields(
     description: optionalText(data.description),
     start_date: startDate,
     end_date: endDate,
-    image_url: optionalText(data.imageUrl),
+    image_url: optionalHttpUrl(optionalText(data.imageUrl), 'Image URL'),
     cta_text: ctaText,
     cta_link: ctaLink,
   };

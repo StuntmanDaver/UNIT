@@ -3,9 +3,17 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 // Security headers applied by Next itself, so they hold on ANY host (Vercel,
 // AWS, self-managed Node) — not only where vercel.json is honored.
-// CSP ships report-only first: it cannot break Stripe/Sentry/fonts. After
-// confirming no legitimate violations in Sentry/CSP reports, rename the header
-// to `Content-Security-Policy` to enforce.
+//
+// CSP is now ENFORCED (was report-only). It blocks external script injection,
+// clickjacking (frame-ancestors), form hijacking (form-action), base-tag
+// rewrites (base-uri), plugins (object-src), and constrains connect/img/font
+// origins. `'unsafe-inline'` is intentionally retained on script-src/style-src:
+// Next.js App Router + Sentry inject inline bootstrap scripts, and dropping
+// unsafe-inline requires per-request nonce propagation through middleware,
+// which must be smoke-tested against a real deploy before shipping. That strict
+// (nonce-based, no unsafe-inline) hardening is the documented follow-up; see
+// docs/security/csp-strict-nonce.md. Residual inline-XSS risk is mitigated by
+// React auto-escaping and http(s)-only validation on all user-supplied URLs.
 const CSP = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://js.stripe.com",
@@ -14,6 +22,7 @@ const CSP = [
   "img-src 'self' https://*.supabase.co data: blob:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src https://fonts.gstatic.com",
+  "object-src 'none'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -25,7 +34,7 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-  { key: 'Content-Security-Policy-Report-Only', value: CSP },
+  { key: 'Content-Security-Policy', value: CSP },
 ]
 
 const nextConfig: NextConfig = {

@@ -45,7 +45,10 @@ export async function POST(req: Request) {
     const { error } = await supabase
       .from('stripe_webhook_events')
       .update({ completed_at: new Date().toISOString() })
-      .eq('id', event.id);
+      .eq('id', event.id)
+      // Only the first writer stamps completed_at; never clobber an existing
+      // completion timestamp on a concurrent retry.
+      .is('completed_at', null);
     if (error) {
       Sentry.captureException(error, {
         tags: { subsystem: 'stripe_webhook_mark_complete', stripe_event_type: event.type },
@@ -139,18 +142,21 @@ export async function POST(req: Request) {
       .eq('id', promotionId)
       .single();
 
-    const alreadyMarkedPaid =
-      currentPromo?.payment_status === 'paid' && currentPromo?.review_status === 'pending';
-
-    // Update payment attempt
+    // Update payment attempt (idempotent — safe to repeat on Stripe retries).
     await supabase
       .from('promotion_payment_attempts')
       .update({ status: 'completed', stripe_payment_intent_id: paymentIntentId })
       .eq('stripe_checkout_session_id', session.id)
       .throwOnError();
 
-    // Update promotion
-    await supabase
+    // Atomically transition the promotion to paid. The `payment_status <> 'paid'`
+    // predicate makes this the single authoritative claim: on concurrent Stripe
+    // retries (or a mobile direct-confirm fallback that already marked it paid),
+    // exactly ONE invocation flips the row and gets a row back. Only that winner
+    // runs the non-idempotent side effects (status event + admin notifications),
+    // so retries can no longer produce duplicate audit rows or double admin
+    // notifications.
+    const { data: transitionedRows } = await supabase
       .from('promotions')
       .update({
         payment_status: 'paid',
@@ -158,11 +164,14 @@ export async function POST(req: Request) {
         current_payment_intent_id: paymentIntentId,
       })
       .eq('id', promotionId)
-      .throwOnError();
+      .neq('payment_status', 'paid')
+      .select('id');
+
+    const didTransitionToPaid = Array.isArray(transitionedRows) && transitionedRows.length > 0;
 
     // Insert status event only for the first successful writer. Mobile can
     // confirm the session directly as a fallback when this webhook is delayed.
-    if (!alreadyMarkedPaid) {
+    if (didTransitionToPaid) {
       await supabase
         .from('promotion_status_events')
         .insert({
@@ -178,9 +187,11 @@ export async function POST(req: Request) {
         .throwOnError();
     }
 
-    // Notify admins who manage this property
+    // Notify admins who manage this property — only on the authoritative
+    // transition, so a retry/fallback that finds the promotion already paid
+    // does not re-push or re-insert duplicate admin notifications.
     const propertyId = currentPromo?.property_id;
-    if (propertyId) {
+    if (didTransitionToPaid && propertyId) {
       const { data: adminProfiles } = await supabase
         .from('profiles')
         .select('id, email, push_token')
