@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-28T22:13:03-04:00",
+  "generatedAt": "2026-06-28T22:34:08-04:00",
   "readiness": "blocked",
-  "summary": "Portal release, mobile release, store-asset preflight, live Stripe API authentication, live Stripe webhook handling, live Stripe account charging, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. App Store submission remains blocked by an expired or missing Apple agreement. Google Play automated submit is blocked until the first Play Console submission is completed manually.",
+  "summary": "Portal release, mobile release, store-asset preflight, live Stripe API authentication, live Stripe webhook handling, live Stripe account charging, App Store Connect API auth, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. Google Play automated submit remains blocked until the first Play Console submission is completed manually.",
   "premortem": "unit/docs/production-launch-premortem-2026-06-28.md",
   "postmortem": "unit/docs/production-readiness-postmortem-2026-06-28.md",
   "submissionCoverage": "unit/docs/end-to-end-submission-coverage.md",
@@ -105,20 +105,13 @@
     {
       "id": "app-store-connect-auth",
       "kind": "provider",
-      "status": "blocked",
-      "verifiedAt": "2026-06-28T21:36:17-04:00",
+      "status": "pass",
+      "verifiedAt": "2026-06-28T22:34:00-04:00",
       "maxAgeHours": 24,
-      "evidence": "cd unit && npm run appstore:auth:check fails with Apple message: A required agreement is missing or has expired.",
-      "blocker": "Apple account holder must accept the missing or expired App Store Connect agreement."
+      "evidence": "cd unit && npm run appstore:auth:check succeeded: connected to App Store Connect app UNIT by Decker Capital (Apple ID 6767079612)."
     }
   ],
   "hardBlockers": [
-    {
-      "gateId": "app-store-connect-auth",
-      "type": "external",
-      "summary": "App Store Connect API access is blocked by a missing or expired Apple agreement.",
-      "ownerAction": "Account Holder signs the pending agreement in App Store Connect, then rerun cd unit && npm run appstore:auth:check and cd unit && npm run release:ios:submit."
-    },
     {
       "gateId": "google-play-first-submit",
       "type": "external",
