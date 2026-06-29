@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-28T22:11:56-04:00",
+  "generatedAt": "2026-06-28T22:13:03-04:00",
   "readiness": "blocked",
-  "summary": "Portal release, mobile release, store-asset preflight, live Stripe API authentication, live Stripe webhook handling, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. Stripe now stores the Netlify business website URL and has no currently_due or past_due requirements, but live charging remains pending Stripe verification of business_profile.url. App Store submission remains blocked by an expired or missing Apple agreement. Google Play automated submit is blocked until the first Play Console submission is completed manually.",
+  "summary": "Portal release, mobile release, store-asset preflight, live Stripe API authentication, live Stripe webhook handling, live Stripe account charging, iOS App Store-safe E2E, Android targeted recovery, fresh iOS store build 16, and fresh Android store build 7 evidence are green. App Store submission remains blocked by an expired or missing Apple agreement. Google Play automated submit is blocked until the first Play Console submission is completed manually.",
   "premortem": "unit/docs/production-launch-premortem-2026-06-28.md",
   "postmortem": "unit/docs/production-readiness-postmortem-2026-06-28.md",
   "submissionCoverage": "unit/docs/end-to-end-submission-coverage.md",
@@ -72,11 +72,10 @@
     {
       "id": "stripe-live-account-charges",
       "kind": "provider",
-      "status": "blocked",
-      "verifiedAt": "2026-06-28T22:11:56-04:00",
+      "status": "pass",
+      "verifiedAt": "2026-06-28T22:13:03-04:00",
       "maxAgeHours": 24,
-      "evidence": "Stripe account acct_1TT2JII7Rfm7lgej authenticates and now stores business_profile.url=https://unit-tenant-app.netlify.app/. Stripe reports charges_enabled=false, payouts_enabled=false, currently_due=[], past_due=[], pending_verification=[business_profile.url], and errors=[].",
-      "blocker": "Wait for Stripe to finish verifying business_profile.url, then rerun stripe get /v1/account --live and verify charges_enabled=true before treating live charging as production-ready."
+      "evidence": "Stripe account acct_1TT2JII7Rfm7lgej authenticates and stores business_profile.url=https://unit-tenant-app.netlify.app/. Stripe reports charges_enabled=true, payouts_enabled=true, currently_due=[], past_due=[], pending_verification=[], and errors=[]."
     },
     {
       "id": "ios-production-store-build",
@@ -114,12 +113,6 @@
     }
   ],
   "hardBlockers": [
-    {
-      "gateId": "stripe-live-account-charges",
-      "type": "external",
-      "summary": "Stripe live account is authenticated and the business website URL is updated, but charges are still disabled while Stripe verifies business_profile.url.",
-      "ownerAction": "Wait for Stripe verification to clear pending_verification=[business_profile.url], then rerun stripe get /v1/account --live and verify charges_enabled=true before public paid checkout."
-    },
     {
       "gateId": "app-store-connect-auth",
       "type": "external",
