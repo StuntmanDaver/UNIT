@@ -113,9 +113,11 @@ are validated through the advertiser portal and production readiness evidence.
 2. Google Play Console owner manually uploads Android build
    `395a00fb-1156-4b3f-a79b-43fb8e6989ac` / versionCode `7` once. After the
    first submission exists, rerun `npm run release:android:submit`.
-3. Stripe Dashboard owner changes the UNIT account business website to a
-   reachable URL such as `https://unit-tenant-app.netlify.app`, then verifies
-   `charges_enabled=true` before public paid checkout.
+3. Stripe Dashboard owner changes the UNIT account business website from
+   `CultrVentures.com` to `https://unit-tenant-app.netlify.app`, then verifies
+   `charges_enabled=true` before public paid checkout. Stripe rejected an API
+   attempt to update the platform's own account profile, so this has to be done
+   in Dashboard.
 
 ## Local Verification
 
